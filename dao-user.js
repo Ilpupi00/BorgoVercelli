@@ -22,4 +22,45 @@ exports.createUser=function(user){
     });
 }
 
+exports.getUserById= function (id){
+    return new Promise((resolve,reject)=>{
+        const sql = 'SELECT * FROM UTENTI WHERE id = ?';
+        sqlite.get(sql, [id])
+        .then((user) => {
+            if (!user) {
+                return reject({ error: 'User not found' });
+            }
+            resolve(user);
+        })
+        .catch((err) => {
+            reject({ error: 'Error retrieving user: ' + err.message });
+        });
+    });
+}
 
+exports.getUser= function(email,password) {
+        return new Promise((resolve,reject)=>{
+        const sql = 'SELECT * FROM UTENTI WHERE email = ?';
+        sqlite.get(sql, [email])
+        .then((user) => {
+            if (!user) {
+                return reject({ error: 'User not found' });
+            }
+            bcrypt.compare(password, user.password)
+            .then((isMatch) => {
+                if (isMatch) {
+                    resolve(user);
+                } else {
+                    reject({ error: 'Invalid password' });
+                }
+            })
+            .catch((err) => {
+                reject({ error: 'Error comparing passwords: ' + err.message });
+            });
+        })
+        .catch((err) => {
+            reject({ error: 'Error retrieving user: ' + err.message });
+        });
+    });
+
+}
