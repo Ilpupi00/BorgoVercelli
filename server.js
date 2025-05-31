@@ -1,12 +1,23 @@
 const express=require('express');
+const morgan=require('morgan');
+const path=require('path');
 const port=3000;
 
 const app=express();
 app.use(express.json());
-app.use(express.static(__dirname + '/public'));
+app.use(morgan('tiny'));
+
+app.use(express.static('public', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js') || path.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
 
 app.get('/',(res,req)=>{
-    res.sendFile (__dirname + '/index.html');
+    res.sendFile (path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port,()=>{
