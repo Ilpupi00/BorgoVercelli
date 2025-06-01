@@ -8,7 +8,7 @@ const port=3000;
 const passport = require('passport');
 const LocalStrategy= require('passport-local').Strategy;
 const session = require('express-session');
-const sqlite = require('./db');
+
 
 passport.use(new LocalStrategy(
   function(emial,passerword,done){
