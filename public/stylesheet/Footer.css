@@ -1,0 +1,18 @@
+.bi-facebook, .bi-instagram, .bi-twitter-x {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.bi-facebook:hover {
+  color: #4267B2;
+  transform: scale(1.2) rotate(5deg);
+}
+
+.bi-instagram:hover {
+  color: #E1306C;
+  transform: scale(1.2) rotate(-5deg);
+}
+
+.bi-twitter-x:hover {
+  color: #1DA1F2;
+  transform: scale(1.2) rotate(5deg);
+}

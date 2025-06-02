@@ -1,7 +1,6 @@
 'use strict';
 
 const sqlite3 = require('sqlite3').verbose();
-const moment= require('moment');
 
 
 const db =new sqlite3.Database('database.db', (err) => {
