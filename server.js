@@ -65,7 +65,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/',(res,req)=>{
-    res.sendFile (path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port,()=>{
