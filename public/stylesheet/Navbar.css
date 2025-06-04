@@ -86,18 +86,6 @@ form {
   }
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  width: auto;
-  background-image: url("/Sito/Immagini/Campo.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  overflow: hidden;
-}
-
 #navbarSupportedContent {
   background-color: #0d6efd;
   color: white;

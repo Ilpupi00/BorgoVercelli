@@ -13,16 +13,11 @@ class Navbar {
       const linkPath = new URL(link.href).pathname.toLowerCase();
       if (linkPath === this.path) {
         link.classList.add('active');
-      } else {
+      } 
+      else {
         link.classList.remove('active');
       }
     });
-
-    if (this.path === '/login' || this.path === '/registrazione') {
-      this.navbar.classList.add('hide');
-    } else {
-      this.navbar.classList.remove('hide');
-    }
   }
 }
 

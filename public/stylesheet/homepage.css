@@ -54,6 +54,8 @@
     transform: translateY(0);
   }
 }
+
+
 .title {
   text-align: center;
   justify-content: center;
@@ -75,6 +77,17 @@
     font-size: 6vw;
     color: white;
   }
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: auto;
+  background-image: url("../images/Campo.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  overflow: hidden;
 }
 
 header p {
