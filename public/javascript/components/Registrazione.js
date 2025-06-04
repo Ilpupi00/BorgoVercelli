@@ -57,9 +57,40 @@ class Registrazione{
         });
     }
 
-    handleRegistration() {
-        // Handle registration logic here
-        alert('Registration functionality not implemented yet.');
+    async handleRegistration() {
+        if(document.getElementById('registerPassword').value !== document.getElementById('confirmPassword').value) {
+            alert('Le password non corrispondono. Riprova.');
+            return;
+        }
+        fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: document.getElementById('registerName').value,
+                surname: document.getElementById('registerSurname').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            })
+        })
+        .then(response => {
+            if(response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Registrazione fallita. Riprova.');
+            }
+        })
+        .then(data => {
+            alert('Registrazione avvenuta con successo! Ora puoi accedere.');
+            window.location.href = '/Login';
+        })
+        .catch(error => {
+            console.error('Errore durante la registrazione:', error);
+            alert('Si è verificato un errore durante la registrazione. Riprova più tardi.');
+        }
+        );
     }
 }
 
