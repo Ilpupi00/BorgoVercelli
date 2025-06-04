@@ -279,3 +279,7 @@ header p {
   animation: fadeInUp 1s ease-in-out;
   overflow: hidden;
 }
+
+.hide {
+  display: none !important;
+}

@@ -5,18 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Homepage</title>
-    <!--<link href="stylesheet/homepage.css" rel="stylesheet" type="text/css">-->
     <link href="stylesheet/Navbar.css" rel="stylesheet" type="text/css">
     <link href="stylesheet/Footer.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <script src="javascript/Main.js" type="module" defer></script>
   </head>
 
   <body>
-      <nav class="navbar sticky-top navbar-expand-lg bg-primary ">
+      <nav class="navbar sticky-top navbar-expand-lg bg-primary" id ="navbar">
         <div class="container-fluid">
 
-          <a class="navbar-brand" href="Homepage.html">
+          <a class="navbar-brand" href="/Homepage">
             <img src="images/Logo.png" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
           </a>
 
@@ -35,36 +35,39 @@
             <!-- Navbar Links -->
             <ul class="navbar-nav mb-3 mb-lg-0 ms-auto align-items-center justify-content-center">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                <a class="nav-link" aria-current="page" href="/Homepage">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="../Squadra/Squadra.html">Squadre</a>
+                <a class="nav-link" href="/Squadre">Squadre</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="../Campionato/Campionato.html">Campionato</a>
+                <a class="nav-link" href="/Campionato">Campionato</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="../Galleria/Galleria.html">Galleria</a>
+                <a class="nav-link" href="/Galleria">Galleria</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="../Società/Società.html">Societ&aacute;</a>
+                <a class="nav-link" href="/Societa">Societ&aacute;</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="../Prenotazione/Prenotazione.html">Prenotazione</a>
+                <a class="nav-link" href="/Prenotazione">Prenotazione</a>
               </li>
             </ul>
 
             <!-- Login Button -->
             <form class="d-flex ms-auto mt-3 mt-lg-0">
-              <a href="../login/login.html" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>
+              <a href="/Login" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>
             </form>
 
           </div>
 
         </div>
     </nav>
+    <div id="page">
+      <!--aggiungo tutto dinamicamente-->
+    </div>
     
-    <footer class="bg-primary text-white py-5 mt-4">
+    <footer class="bg-primary text-white py-5 mt-4" id="footer">
       <div class="container">
         <div class="row gy-4">
           <!-- Contact Form Column -->

@@ -16,3 +16,7 @@
   color: #1DA1F2;
   transform: scale(1.2) rotate(5deg);
 }
+
+.hide{
+  display: none !important;
+}

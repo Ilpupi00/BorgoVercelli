@@ -1,0 +1,30 @@
+
+class Navbar {
+  constructor(navbar,path) {
+    this.navbar = navbar;
+    this.links = this.navbar.querySelectorAll('.nav-link');
+    this.path =path.toLowerCase();
+
+    this.updateActiveLink();
+  }
+
+  updateActiveLink() {
+    this.links.forEach(link => {
+      // Prendi solo il pathname del link e rendilo minuscolo
+      const linkPath = new URL(link.href).pathname.toLowerCase();
+      if (linkPath === this.path) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+
+    if (this.path === '/login' || this.path === '/registrazione') {
+      this.navbar.classList.add('hide');
+    } else {
+      this.navbar.classList.remove('hide');
+    }
+  }
+}
+
+export default Navbar;

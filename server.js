@@ -3,15 +3,16 @@
 const express=require('express');
 const morgan=require('morgan');
 const path=require('path');
-const userDao= require('./dao-user');
+const userDao= require('./dao/dao-user');
 const port=3000;
 const passport = require('passport');
 const LocalStrategy= require('passport-local').Strategy;
 const session = require('express-session');
+const router = require('./router/index');
 
 
 passport.use(new LocalStrategy(
-  function(emial,passerword,done){
+  function(email,password,done){
     userDao,getUser(email,password).then((user,check)=>{
       if (user) {
         return done(null, user);
@@ -27,7 +28,7 @@ passport.use(new LocalStrategy(
 ));
 
 passport.serializeUser(function(user, done) {
-  done(user.id);
+  done(null,user.id);
 });
 
 passport.deserializeUser(function(id, done) {
@@ -63,9 +64,15 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/',router);
 
-app.get('/',(res,req)=>{
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/router/Homepage', (res,req) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) {
+      console.error('Error sending file:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 });
 
 app.listen(port,()=>{
