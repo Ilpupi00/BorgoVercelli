@@ -1,10 +1,9 @@
 
 class Navbar {
-  constructor(navbar,path) {
+  constructor(navbar) {
     this.navbar = navbar;
     this.links = this.navbar.querySelectorAll('.nav-link');
-    this.path =path.toLowerCase();
-
+    this.path = window.location.pathname.toLowerCase();
     this.updateActiveLink();
   }
 

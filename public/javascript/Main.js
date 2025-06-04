@@ -3,8 +3,7 @@ import Footer from './components/Footer.js';
 document.addEventListener('DOMContentLoaded', () => {
     const navbar=document.getElementById('navbar');
     const footer=document.getElementById('footer');
-    const path = window.location.pathname.toLowerCase();
 
-    if(navbar) new Navbar(navbar,path);
+    if(navbar) new Navbar(navbar);
     if(footer) new Footer(footer);
 });
