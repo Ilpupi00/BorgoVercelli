@@ -1,19 +1,65 @@
 
-
-
 class Footer{
     constructor(footer){
         this.footer=footer;
+        this.render();
         this.updateVisable();
     }
-
-    updateVisable() {
-        const path = window.location.pathname.toLowerCase();
-        if (path === '/login' || path === '/registrazione') {
-            this.footer.classList.add('hide');
-        } else {
-            this.footer.classList.remove('hide');
-        }
+    render(){
+        this.footer.innerHTML= `    <footer class="bg-primary text-white py-5 mt-4" id="footer">
+      <div class="container">
+        <div class="row gy-4">
+        
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
+            <form id="emailForm" action="send_email.php" method="POST">
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" placeholder="Nome e Cognome" name="name" required>
+                </div>
+                <div class="col-sm-6">
+                  <input type="email" class="form-control" placeholder="Email" name="email" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <input type="text" class="form-control" placeholder="Oggetto" name="subject" required>
+              </div>
+              <div class="mb-4">
+                <textarea class="form-control" placeholder="Messaggio" name="message" rows="4" required></textarea>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>
+              </div>
+            </form>
+          </div>
+        
+          <div class="col-lg-6 text-center m-auto">
+            <h5 class="mb-4 text-center overflow-hidden">ASD BorgoVercelli</h5>
+            <div class="d-flex flex-column align-items-center mb-4">
+              <p class="mb-3"><i class="bi bi-geo-alt-fill me-2"></i> Via dello Sport 123, Borgo Vercelli (VC)</p>
+              <p class="mb-3"><i class="bi bi-telephone-fill me-2"></i> +39 0123 456789</p>
+              <p class="mb-3"><i class="bi bi-envelope-fill me-2"></i> info@asdborgovercelli.it</p>
+            </div>
+            
+            
+            <div class="text-center mb-4">
+              <a href="#" class="text-white mx-2"><i class="bi bi-facebook fs-4"></i></a>
+              <a href="#" class="text-white mx-2"><i class="bi bi-instagram fs-4"></i></a>
+              <a href="#" class="text-white mx-2"><i class="bi bi-twitter-x fs-4"></i></a>
+            </div>
+          </div>
+        </div>
+        
+       
+        <div class="row mt-5">
+          <div class="col-12 text-center">
+            <hr class="my-4 bg-light opacity-25">
+            <p class="mb-0">&copy; 2025 Asd BorgoVercelli. Tutti i diritti riservati.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    `;
     }
 }
 
