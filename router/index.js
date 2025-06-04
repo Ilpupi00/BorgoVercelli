@@ -4,12 +4,7 @@ const router = express.Router();
 const path = require('path');
 
 router.get('/Homepage', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
-        if (err) {
-            console.error('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
-        }
-    });
+    res.render('pages/homepage');
 });
 
 router.get('/Campionato',(req,res)=>{
