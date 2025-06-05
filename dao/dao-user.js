@@ -1,6 +1,6 @@
 'use strict';
 
-const sqlite=require('../db');
+const sqlite=require('../db.js');
 const bcrypt=require('bcrypt');
 
 
