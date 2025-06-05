@@ -13,7 +13,7 @@ const router = require('./router/index');
 
 passport.use(new LocalStrategy(
   function(email,password,done){
-    userDao,getUser(email,password).then((user,check)=>{
+    userDao.getUser(email,password).then((user,check)=>{
       if (user) {
         return done(null, user);
       } 
