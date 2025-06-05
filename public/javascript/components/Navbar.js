@@ -1,6 +1,6 @@
 
 class Navbar {
-  constructor(navbar) {
+  constructor(navbar,loader) {
     this.navbar = navbar;
     this.render();
     this.links = this.navbar.querySelectorAll('.nav-link');

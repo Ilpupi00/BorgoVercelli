@@ -1,6 +1,6 @@
 
 class Footer{
-    constructor(footer){
+    constructor(footer,loader){
         this.footer=footer;
         this.render();
         this.updateVisable();
