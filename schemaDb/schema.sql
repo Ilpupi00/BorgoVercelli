@@ -8,7 +8,6 @@ CREATE TABLE TIPI_UTENTE (
 
 CREATE TABLE UTENTI (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     nome TEXT NOT NULL,
@@ -16,7 +15,6 @@ CREATE TABLE UTENTI (
     telefono TEXT,
     tipo_utente_id INTEGER,
     data_registrazione TEXT,
-    attivo INTEGER,
     created_at TEXT,
     updated_at TEXT,
     FOREIGN KEY (tipo_utente_id) REFERENCES TIPI_UTENTE(id)

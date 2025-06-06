@@ -2,22 +2,35 @@
 
 const sqlite=require('../db.js');
 const bcrypt=require('bcrypt');
+const moment=require('moment');
 
 
 
-exports.createUser=function(user){
-    return new Promise((resolve,reject)=>{
-        const sql = 'INSERT INTO UTENTI (id,nome, cognome, email, password,telefono) VALUES (?,?,?,?,?)';
-        bcrypt.hash(user.password,10).then((hash)=>{
-            sqlite.run(sql, [user.id, user.nome, user.cognome, user.email, hash, user.telefono])
+exports.createUser = function(user) {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO UTENTI 
+            (email, password_hash, nome, cognome, telefono, tipo_utente_id, data_registrazione, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        bcrypt.hash(user.password, 10).then((hash) => {
+            const now = moment().format('YYYY-MM-DD HH:mm:ss');
+            sqlite.run(sql, [  
+                user.email,
+                hash,
+                user.nome,
+                user.cognome,
+                user.telefono || '',
+                0, // tipo_utente_id di default
+                now,
+                now,
+                now
+            ])
             .then(() => {
                 resolve({ message: 'User created successfully' });
             })
             .catch((err) => {
                 reject({ error: 'Error creating user: ' + err.message });
             });
-        }
-        ).catch((err) => {
+        }).catch((err) => {
             reject({ error: 'Error hashing password: ' + err.message });
         });
     });

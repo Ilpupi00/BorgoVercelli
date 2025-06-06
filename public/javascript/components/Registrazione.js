@@ -62,17 +62,18 @@ class Registrazione{
             alert('Le password non corrispondono. Riprova.');
             return;
         }
-        fetch('/api/register', {
+        fetch('/registrazione', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name: document.getElementById('registerName').value,
-                surname: document.getElementById('registerSurname').value,
+            body: JSON.stringify({                
                 email: document.getElementById('registerEmail').value,
                 password: document.getElementById('registerPassword').value,
-                confirmPassword: document.getElementById('confirmPassword').value
+                nome: document.getElementById('registerName').value,
+                cognome: document.getElementById('registerSurname').value,
+                telefono:""
+
             })
         })
         .then(response => {

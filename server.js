@@ -10,6 +10,7 @@ const LocalStrategy= require('passport-local').Strategy;
 const session = require('express-session');
 const router = require('./router/index');
 const routerNotizie = require('./router/notizie');
+const routerRegistrazione = require('./router/login_register');
 
 
 
@@ -66,12 +67,16 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+//tutti i file per il routing sono stati spostati in una cartella chiamata router
 app.use('/',router);
 app.use('/Notizie', routerNotizie);
+app.use('/registrazione',routerRegistrazione);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.get('/router/Homepage', (req,res) => {
+app.get('/Homepage', (req,res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
       console.error('Error sending file:', err);
