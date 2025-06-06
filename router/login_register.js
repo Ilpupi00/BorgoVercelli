@@ -27,7 +27,14 @@ router.get('/Me', async (req, res) => {
     }
 });
 
-router.delete(/)
+router.delete('/Logout', (req, res, next) => {
+    req.logout(function(err) {
+        if (err) return next(err);
+        req.session.destroy(() => {
+            res.status(200).json({ message: 'Logout effettuato' });
+        });
+    });
+});
 
 
 module.exports = router;
