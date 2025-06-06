@@ -4,6 +4,7 @@ const sqlite=require('../db.js');
 const bcrypt=require('bcrypt');
 
 
+
 exports.createUser=function(user){
     return new Promise((resolve,reject)=>{
         const sql = 'INSERT INTO UTENTI (id,nome, cognome, email, password,telefono) VALUES (?,?,?,?,?)';
