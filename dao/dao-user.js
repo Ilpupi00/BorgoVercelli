@@ -36,45 +36,48 @@ exports.createUser = function(user) {
     });
 }
 
-exports.getUserById= function (id){
-    return new Promise((resolve,reject)=>{
+exports.getUserById = function (id) {
+    return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM UTENTI WHERE id = ?';
-        sqlite.get(sql, [id])
-        .then((user) => {
+        sqlite.get(sql, [id], (err, user) => {
+            if (err) {
+                return reject({ error: 'Error retrieving user: ' + err.message });
+            }
             if (!user) {
                 return reject({ error: 'User not found' });
             }
             resolve(user);
-        })
-        .catch((err) => {
-            reject({ error: 'Error retrieving user: ' + err.message });
         });
     });
-}
+};
 
-exports.getUser= function(email,password) {
-        return new Promise((resolve,reject)=>{
+exports.getUser = function(email, password) {
+    return new Promise((resolve, reject) => {
+        email= email.toLowerCase();
         const sql = 'SELECT * FROM UTENTI WHERE email = ?';
-        sqlite.get(sql, [email])
-        .then((user) => {
+        sqlite.get(sql, [email], (err, user) => {
+            console.log('Trovato utente:', user);
+            if (err) {
+                return reject({ error: 'Error retrieving user: ' + err.message });
+            }
             if (!user) {
                 return reject({ error: 'User not found' });
             }
-            bcrypt.compare(password, user.password)
-            .then((isMatch) => {
-                if (isMatch) {
-                    resolve(user);
-                } else {
-                    reject({ error: 'Invalid password' });
-                }
-            })
-            .catch((err) => {
-                reject({ error: 'Error comparing passwords: ' + err.message });
-            });
-        })
-        .catch((err) => {
-            reject({ error: 'Error retrieving user: ' + err.message });
+            bcrypt.compare(password, user.password_hash)
+                .then((isMatch) => {
+                    console.log('Password inserita:', password);
+                    console.log('Hash salvato:', user.password_hash);
+                    console.log('Password match:', isMatch);
+                    if (isMatch) {
+                        resolve(user);
+                    } else {
+                        reject({ error: 'Invalid password' });
+                    }
+                })
+                .catch((err) => {
+                    reject({ error: 'Error comparing passwords: ' + err.message });
+                });
         });
     });
-
 }
+

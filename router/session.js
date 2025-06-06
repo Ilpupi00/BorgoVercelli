@@ -1,38 +1,32 @@
 'use strict';
 
-const express= require('express');
-const router= express.Router();
-const passoport= require('passport');
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
 
-router.get('login',(req,res)=>{
-    res.render('login', { message: req.flash('error') });
-})
-
-router.post('/session',function(req,res,next){
-    passoport.authenticate('local', (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return res.render('login', { message: info.message });
-        }
+// Login
+router.post('/session', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return next(err);
+        if (!user) return res.status(401).json({ error: info?.message || 'Login fallito' });
         req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-            return res.redirect('/dashboard');
+            if (err) return next(err);
+            return res.status(200).json({ message: 'Login effettuato' });
         });
     })(req, res, next);
 });
 
-router.delete('/session', (req, res) => {
-    req.logout((err) => {
-        if (err) {
-            return res.status(500).send({ error: 'Logout failed' });
-        }
-        res.redirect('/login');
+// Logout
+router.delete('/session', (req, res, next) => {
+    req.logout(function(err) {
+        if (err) return next(err);
+        res.status(200).json({ message: 'Logout effettuato' });
     });
-    res.end();
 });
 
-export default routerUsers;
+// Rotta GET per evitare "Cannot GET /session"
+router.get('/session', (req, res) => {
+    res.status(405).json({ error: 'Metodo non consentito' });
+});
+
+module.exports = router;

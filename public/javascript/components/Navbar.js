@@ -2,13 +2,18 @@
 class Navbar {
   constructor(navbar,loader) {
     this.navbar = navbar;
-    this.render();
-    this.links = this.navbar.querySelectorAll('.nav-link');
     this.path = window.location.pathname.toLowerCase();
-    this.updateActiveLink();
+    this.render();
   }
 
-  render(){
+  async render(){
+    // Verifica autenticazione utente
+    let isLogged = false;
+    try {
+      const res = await fetch('/me');
+      isLogged = res.ok;
+    } catch {}
+
     this.navbar.innerHTML = `
       <nav class="navbar sticky-top navbar-expand-lg bg-primary" id ="navbar">
         <div class="container-fluid">
@@ -51,9 +56,15 @@ class Navbar {
               </li>
             </ul>
 
-            <!-- Login Button -->
+            <!-- Login/Profile Button -->
             <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
-              <a href="/Login" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>
+              ${
+                isLogged
+                  ? `<a href="/Profilo" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
+                      <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
+                    </a>`
+                  : `<a href="/Login" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>`
+              }
             </form>
 
           </div>
@@ -61,16 +72,16 @@ class Navbar {
         </div>
     </nav>
     `;
+    this.links = this.navbar.querySelectorAll('.nav-link');
+    this.updateActiveLink();
   }
 
   updateActiveLink() {
     this.links.forEach(link => {
-      // Prendi solo il pathname del link e rendilo minuscolo
       const linkPath = new URL(link.href).pathname.toLowerCase();
       if (linkPath === this.path) {
         link.classList.add('active');
-      } 
-      else {
+      } else {
         link.classList.remove('active');
       }
     });

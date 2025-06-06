@@ -12,4 +12,17 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/me', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Utente non autenticato' });
+    }
+    try {
+        const user = await userDao.getUserById(req.user.id);
+        res.status(200).json(user);
+    } catch (err) {
+        console.error('Errore durante il recupero dell\'utente:', err); // <--- AGGIUNGI QUESTO
+        res.status(400).json({ error: err.error || err.message || 'Errore durante il recupero dell\'utente' });
+    }
+});
+
 module.exports = router;

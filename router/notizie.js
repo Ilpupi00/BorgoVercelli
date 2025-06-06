@@ -6,10 +6,10 @@ const dao = require('../dao/dao-notizie');
 router.get('/notizie', async (req, res) => {
   try {
     const notizie = await dao.geNotizie();
-    res.render('notizie', { notizie });
+    res.json(notizie); // <-- restituisce JSON invece di renderizzare EJS
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
-    res.status(500).render('error', { error: { message: 'Errore nel caricamento delle notizie' } });
+    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 

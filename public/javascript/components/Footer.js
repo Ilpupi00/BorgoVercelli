@@ -3,7 +3,6 @@ class Footer{
     constructor(footer,loader){
         this.footer=footer;
         this.render();
-        this.updateVisable();
     }
     render(){
         this.footer.innerHTML= `    <footer class="bg-primary text-white py-5 mt-4" id="footer">

@@ -48,8 +48,21 @@ class Login{
     }
 
     handleLogin() {
-        // Handle login logic here
-        fe
+        const email = document.getElementById('exampleInputEmail1').value;
+        const password = document.getElementById('exampleInputPassword1').value;
+        fetch('/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        })
+        .then(res => {
+            if (res.ok) {
+                window.location.href = '/Homepage';
+            } else {
+                alert('Credenziali non valide');
+            }
+        })
+        .catch(() => alert('Errore di login'));
     }
 }
 

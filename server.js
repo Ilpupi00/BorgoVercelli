@@ -11,22 +11,19 @@ const session = require('express-session');
 const router = require('./router/index');
 const routerNotizie = require('./router/notizie');
 const routerRegistrazione = require('./router/login_register');
+const routerSession = require('./router/session');
 
 
 
 passport.use(new LocalStrategy(
-  function(email,password,done){
-    userDao.getUser(email,password).then((user,check)=>{
-      if (user) {
-        return done(null, user);
-      } 
-      if(!check){
-        return done(null,false,{"message":"Invalid credentials"});
-      }
-      else{
-        return done(null,false,{"message":"User not found"});
-      }
-    });
+  { usernameField: 'email', passwordField: 'password' },
+  function(email, password, done) {
+    userDao.getUser(email, password)
+      .then(user => {
+        if (user) return done(null, user);
+        else return done(null, false, { message: "Invalid credentials" });
+      })
+      .catch(err => done(null, false, { message: err.error || "Login fallito" }));
   }
 ));
 
@@ -73,8 +70,9 @@ app.use(passport.session());
 
 //tutti i file per il routing sono stati spostati in una cartella chiamata router
 app.use('/',router);
-app.use('/Notizie', routerNotizie);
-app.use('/registrazione',routerRegistrazione);
+app.use('/', routerNotizie);
+app.use('/',routerRegistrazione);
+app.use('/',routerSession);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

@@ -208,7 +208,7 @@ form {
   animation-delay: 1.2s;
 }
 
-#Login {
+#Login{
   overflow: hidden;
   display: flex;
   margin: 0 auto;
@@ -216,7 +216,7 @@ form {
   animation: fadeInUp 1s ease-in-out;
 }
 @media (max-width: 992px) {
-  #Login {
+  #Login{
     text-align: center;
     margin: auto;
     display: flex;
@@ -225,6 +225,20 @@ form {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    animation: fadeInUp 1s ease-in-out;
+    font-size: 3vw;
+    color: white;
+  }
+}
+#Profilo {
+  overflow: hidden;
+  display: flex;
+  margin: 0 auto;
+  text-align: center;
+  animation: fadeInUp 1s ease-in-out;
+}
+@media (max-width: 992px) {
+  #Profilo {
     animation: fadeInUp 1s ease-in-out;
     font-size: 3vw;
     color: white;
