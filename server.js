@@ -14,7 +14,7 @@ const routerRegistrazione = require('./router/login_register');
 const routerSession = require('./router/session');
 
 
-
+//passport configuration
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
   function(email, password, done) {
@@ -27,6 +27,7 @@ passport.use(new LocalStrategy(
   }
 ));
 
+// Serializzazione e deserializzazione dell'utente
 passport.serializeUser(function(user, done) {
   done(null,user.id);
 });
@@ -37,10 +38,12 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+//express app setup
 const app=express();
 app.use(express.json());
 app.use(morgan('tiny'));
 
+// Middleware per il parsing del corpo delle richieste
 app.use(express.static('public', {
   setHeaders: (res, path) => {
     if (path.endsWith('.js') || path.endsWith('.mjs')) {
@@ -65,6 +68,8 @@ app.use(session({
   saveUninitialized:true
 }));
 
+
+//passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 

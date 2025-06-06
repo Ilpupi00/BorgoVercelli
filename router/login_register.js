@@ -12,17 +12,22 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/me', async (req, res) => {
+router.get('/Me', async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'Utente non autenticato' });
+        return res.redirect('/Login');
     }
     try {
         const user = await userDao.getUserById(req.user.id);
-        res.status(200).json(user);
+        res.render('profilo', {
+            user,
+            isLogged: true // oppure: req.isAuthenticated()
+        });
     } catch (err) {
-        console.error('Errore durante il recupero dell\'utente:', err); // <--- AGGIUNGI QUESTO
-        res.status(400).json({ error: err.error || err.message || 'Errore durante il recupero dell\'utente' });
+        res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });
     }
 });
+
+router.delete(/)
+
 
 module.exports = router;

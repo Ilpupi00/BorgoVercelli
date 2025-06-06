@@ -56,7 +56,13 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Registrazione(page,()=> loadCSS('/stylesheet/login.css'));
             break;
 
-
+        case '/profilo':
+            const { default: NavbarProfilo } = await import('./components/Navbar.js');
+            const { default: FooterProfilo } = await import('./components/Footer.js');
+            new NavbarProfilo(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
+            new FooterProfilo(footer,()=> loadCSS('/stylesheet/footer.css'));
+            break;
+        
         default:
             page.innerHTML = `<h1>404 Not Found</h1>`;
             break;

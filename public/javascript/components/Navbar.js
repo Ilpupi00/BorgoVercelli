@@ -60,10 +60,10 @@ class Navbar {
             <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
               ${
                 isLogged
-                  ? `<a href="/Profilo" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
+                  ? `<a href="/Me" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
                       <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
                     </a>`
-                  : `<a href="/Login" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>`
+                  : `<a href="/Me" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>`
               }
             </form>
 
