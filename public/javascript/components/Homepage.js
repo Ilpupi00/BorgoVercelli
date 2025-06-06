@@ -1,5 +1,5 @@
 
-
+import FilterNotizie from '../../utils/filterNotizie.js';
 class Homepage {
     constructor(container,loader){
         if (typeof loader === 'function') loader(); 
@@ -18,26 +18,22 @@ class Homepage {
                 <p>La società del futuro</p>
             </header>
         `;
-        const notizie= this.addNotizie();
-        this.container.appendChild(notizie);
+        fetch('/notizie')
+            .then(response => response.json())
+            .then(data => {
+                this.addNotizie(data);
+            }).catch(error=>{
+                this.addNotizie([]);
+                console.error(`Errore nel recupero delle notizie:${error}`);
+            })
         const eventi = this.addEventi();
         this.container.appendChild(eventi);
         const recensioni= this.addRecensioni();
         this.container.appendChild(recensioni);
     }
 
-    addNotizie(){
-        const notizie = document.createElement('div');
-        notizie.className = 'notizie container';
-        notizie.innerHTML = `
-            <h2>Ultime Notizie</h2>
-            <ul>
-                <li>La squadra ha vinto il campionato!</li>
-                <li>Nuovo allenatore in arrivo.</li>
-                <li>Iscrizioni aperte per la nuova stagione.</li>
-            </ul>
-        `;
-        return notizie;
+    addNotizie(notizie){
+        new FilterNotizie(this.container,notizie);
     }
     
     addEventi(){

@@ -9,6 +9,8 @@ const passport = require('passport');
 const LocalStrategy= require('passport-local').Strategy;
 const session = require('express-session');
 const router = require('./router/index');
+const routerNotizie = require('./router/notizie');
+
 
 
 passport.use(new LocalStrategy(
@@ -65,8 +67,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/',router);
+app.use('/Notizie', routerNotizie);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-app.get('/router/Homepage', (res,req) => {
+app.get('/router/Homepage', (req,res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
       console.error('Error sending file:', err);

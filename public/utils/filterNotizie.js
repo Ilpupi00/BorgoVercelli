@@ -1,10 +1,14 @@
 
 
 class FilterNotizie{
+    /**
+     * 
+     * @param {*} section dove inserire le notizie filtrate
+     * @param {*} Notizie notizie da filtrare
+     */
     constructor(section,Notizie){
         this.section= section;
         this.Notizie = Notizie;
-        
     }
 
     filterByDate(date) {
@@ -52,3 +56,5 @@ class FilterNotizie{
         `;
     }
 }
+
+export default FilterNotizie;
