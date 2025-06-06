@@ -32,7 +32,7 @@ class Login{
             </div>
         `;
 
-        const form = document.getElementById('login-form');
+        const form = document.getElementById('authForm');
         const body = document.querySelector('body');
 
         if(body.classList.contains('login-page')){
@@ -49,7 +49,7 @@ class Login{
 
     handleLogin() {
         // Handle login logic here
-        alert('Login functionality not implemented yet.');
+        fe
     }
 }
 

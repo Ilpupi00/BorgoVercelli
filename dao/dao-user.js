@@ -23,12 +23,12 @@ exports.createUser = function(user) {
                 now,
                 now,
                 now
-            ])
-            .then(() => {
-                resolve({ message: 'User created successfully' });
-            })
-            .catch((err) => {
-                reject({ error: 'Error creating user: ' + err.message });
+            ], function(err) {
+                if (err) {
+                    reject({ error: 'Error creating user: ' + err.message });
+                } else {
+                    resolve({ message: 'User created successfully' });
+                }
             });
         }).catch((err) => {
             reject({ error: 'Error hashing password: ' + err.message });

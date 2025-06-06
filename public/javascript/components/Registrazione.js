@@ -84,7 +84,6 @@ class Registrazione{
             }
         })
         .then(data => {
-            alert('Registrazione avvenuta con successo! Ora puoi accedere.');
             window.location.href = '/Login';
         })
         .catch(error => {

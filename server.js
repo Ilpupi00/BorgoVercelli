@@ -49,6 +49,9 @@ app.use(express.static('public', {
     if (path.endsWith('.js') || path.endsWith('.mjs')) {
       res.setHeader('Content-Type', 'application/javascript');
     }
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
   }
 }));
 
