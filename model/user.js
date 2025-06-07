@@ -1,11 +1,12 @@
 'use strict';
 
 class User{
-    constructor(nome,cognome,email,telefono){
+    constructor(nome,cognome,email,telefono,tipo_utente){
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
         this.telefono = telefono;
+        this.tipo_utente=tipo_utente;
     }
 
     static from(json){

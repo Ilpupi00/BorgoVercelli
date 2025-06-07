@@ -4,15 +4,23 @@ class Navbar {
     this.navbar = navbar;
     this.path = window.location.pathname.toLowerCase();
     this.render();
+    // Ricarica la navbar quando avviene login/logout
+    window.addEventListener('authChanged', () => this.render());
   }
 
   async render(){
     // Verifica autenticazione utente
     let isLogged = false;
     try {
-      const res = await fetch('/me');
-      isLogged = res.ok;
-    } catch {}
+      const res = await fetch('/Me', { redirect: 'manual' });
+        if (res.status === 302) { 
+          isLogged=true;
+      } else if (res.ok) {
+        isLogged=true;
+      }
+    } catch (err) {
+      console.error('Error checking login status:', err);
+    }
 
     this.navbar.innerHTML = `
       <nav class="navbar sticky-top navbar-expand-lg bg-primary" id ="navbar">
@@ -60,10 +68,13 @@ class Navbar {
             <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
               ${
                 isLogged
-                  ? `<a href="/Me" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
-                      <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
-                    </a>`
-                  : `<a href="/Me" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>`
+                ? `<a href="/Me" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
+                  <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
+                  </a>`
+                : `<a href="/Me" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2" id="Login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                  <span>Login</span>
+                </a>`
               }
             </form>
 

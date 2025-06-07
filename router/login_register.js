@@ -27,11 +27,18 @@ router.get('/Me', async (req, res) => {
     }
 });
 
-router.delete('/Logout', (req, res, next) => {
-    req.logout(function(err) {
-        if (err) return next(err);
-        req.session.destroy(() => {
-            res.status(200).json({ message: 'Logout effettuato' });
+router.get('/Logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error('Errore durante il logout:', err);
+            return res.status(500).json({ error: 'Errore durante il logout' });
+        }
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Errore nella distruzione della sessione:', err);
+                return res.status(500).json({ error: 'Errore durante il logout' });
+            }
+            res.redirect('/Homepage');
         });
     });
 });
