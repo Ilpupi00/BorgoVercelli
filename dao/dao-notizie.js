@@ -2,7 +2,7 @@
 
 const sqlite = require('../db.js');
 
-exports.geNotizie = function(){
+exports.getNotizie = function(){
     const sql = 'SELECT * FROM NOTIZIE';
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, notizie) => {

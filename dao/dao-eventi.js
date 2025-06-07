@@ -2,18 +2,16 @@
 
 const sqlite = require('../db.js');
 
-exports.getEventi= function(){
+exports.getEventi = function(){
     const sql = 'SELECT * FROM EVENTI';
     return new Promise((resolve, reject) => {
-        sqlite.all(sql)
-        .then((eventi) => {
-            if (!eventi || eventi.length === 0) {
-                return reject({ error: 'No events found' });
+        sqlite.all(sql, (err, eventi) => {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Error retrieving events: ' + err.message });
             }
-            resolve(eventi);
-        })
-        .catch((err) => {
-            reject({ error: 'Error retrieving events: ' + err.message });
+            // Restituisci un array vuoto se non ci sono eventi invece di reject
+            resolve(eventi || []);
         });
     });
 }

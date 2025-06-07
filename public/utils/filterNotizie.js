@@ -1,14 +1,8 @@
-
-
-class FilterNotizie{
-    /**
-     * 
-     * @param {*} section dove inserire le notizie filtrate
-     * @param {*} Notizie notizie da filtrare
-     */
-    constructor(section,Notizie){
-        this.section= section;
+class FilterNotizie {
+    constructor(section, Notizie) {
+        this.section = section;
         this.Notizie = Notizie;
+        this.render(Notizie); // Aggiungi questa riga per renderizzare subito le notizie
     }
 
     filterByDate(date) {
@@ -20,42 +14,45 @@ class FilterNotizie{
     }
 
     render(filteredNotizie) {
-        const section = document.querySelector(this.section);
-        section.innerHTML = `    
-            <section class="vw-100">
-                <div class="container mt-5"> 
-                    <h2 class="section-title">Notizie</h2>`; // Clear previous content
-        if(filteredNotizie){
-            for(let i=0;i<3; i++){
-                if (filteredNotizie[i]) {
-                    const notizia = filteredNotizie[i];
-                    const notiziaElement = document.createElement('div');
-                    notiziaElement.className = 'notizia';
-                    notiziaElement.innerHTML = `
-                        <div class="col px-4">
-                            <div class="card h-100">
-                                <div class="card-img-container" style="height: 200px; overflow: hidden;">
-                                    <img src="${notizia.immagine}" class="card-img-top" alt="Evento Tech" style="object-fit: cover; height: 100%; width: 100%;">
-                                </div>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title overflow-hidden">${notizia.titolo}</h5>
-                                <p class="card-text">${notizia.sottotitolo}</p>
-                                <div class="mt-auto">
-                                    <div class="text-muted mb-2">09/04/2025</div>
-                                        <a href="/Notizia/id" class="btn btn-primary btn-sm">Leggi di più</a>
-                                    </div>
-                                </div>
+        // Usa direttamente this.section invece di querySelector
+        const notizieSection = document.createElement('section');
+        notizieSection.className = 'vw-100';
+        notizieSection.innerHTML = `
+            <div class="container mt-5"> 
+                <h2 class="section-title">Notizie</h2>
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                </div>
+            </div>
+        `;
+
+        const row = notizieSection.querySelector('.row');
+        
+        if (filteredNotizie && filteredNotizie.length > 0) {
+            filteredNotizie.slice(0, 3).forEach(notizia => {
+                const notiziaElement = document.createElement('div');
+                notiziaElement.className = 'col';
+                notiziaElement.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-img-container" style="height: 200px; overflow: hidden;">
+                            <img src="${notizia.immagine}" class="card-img-top" alt="Evento Tech" style="object-fit: cover; height: 100%; width: 100%;">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title overflow-hidden">${notizia.titolo}</h5>
+                            <p class="card-text">${notizia.sottotitolo}</p>
+                            <div class="mt-auto">
+                                <div class="text-muted mb-2">${new Date(notizia.data).toLocaleDateString()}</div>
+                                <a href="/Notizia/${notizia.id}" class="btn btn-primary btn-sm">Leggi di più</a>
                             </div>
                         </div>
-                    `;
-                    section.appendChild(notiziaElement);
-                }
-            }
+                    </div>
+                `;
+                row.appendChild(notiziaElement);
+            });
+        } else {
+            row.innerHTML = '<div class="col"><p>Nessuna notizia disponibile</p></div>';
         }
-        section.innerHTML += `
-                </div>
-            </section>
-        `;
+
+        this.section.appendChild(notizieSection);
     }
 }
 

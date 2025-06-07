@@ -178,3 +178,21 @@ CREATE TABLE PARTECIPAZIONI_EVENTI (
     FOREIGN KEY (utente_id) REFERENCES UTENTI(id),
     UNIQUE(evento_id, utente_id)
 );
+
+SQL
+
+CREATE TABLE RECENSIONI (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    utente_id INTEGER NOT NULL,
+    entita_tipo TEXT NOT NULL,
+    entita_id INTEGER NOT NULL,
+    valutazione INTEGER NOT NULL,
+    titolo TEXT,
+    contenuto TEXT,
+    data_recensione TEXT NOT NULL,
+    visibile INTEGER DEFAULT 1,
+    created_at TEXT,
+    updated_at TEXT,
+    FOREIGN KEY (utente_id) REFERENCES UTENTI(id),
+    UNIQUE(utente_id, entita_tipo, entita_id)
+);

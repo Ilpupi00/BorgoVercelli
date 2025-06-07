@@ -38,7 +38,12 @@ exports.createUser = function(user) {
 
 exports.getUserById = function (id) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM UTENTI WHERE id = ?';
+        const sql = `
+            SELECT u.*, t.nome AS tipo_utente_nome
+            FROM UTENTI u
+            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+            WHERE u.id = ?
+        `;
         sqlite.get(sql, [id], (err, user) => {
             if (err) {
                 return reject({ error: 'Error retrieving user: ' + err.message });
@@ -53,8 +58,13 @@ exports.getUserById = function (id) {
 
 exports.getUser = function(email, password) {
     return new Promise((resolve, reject) => {
-        email= email.toLowerCase();
-        const sql = 'SELECT * FROM UTENTI WHERE email = ?';
+        email = email.toLowerCase();
+        const sql = `
+            SELECT u.*, t.nome AS tipo_utente_nome
+            FROM UTENTI u
+            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+            WHERE u.email = ?
+        `;
         sqlite.get(sql, [email], (err, user) => {
             console.log('Trovato utente:', user);
             if (err) {

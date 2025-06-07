@@ -1,5 +1,6 @@
 
 import FilterNotizie from '../../utils/filterNotizie.js';
+import FilterEventi from '../../utils/filterEventi.js';
 class Homepage {
     constructor(container,loader){
         if (typeof loader === 'function') loader(); 
@@ -11,43 +12,40 @@ class Homepage {
         this.render();
     }
 
-    render(){
-        this.container.innerHTML = `
-            <header class="header container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
-                <h1 class="title">Asd BorgoVercelli 2022</h1>
-                <p>La società del futuro</p>
-            </header>
-        `;
-        fetch('/notizie')
-            .then(response => response.json())
-            .then(data => {
-                this.addNotizie(data);
-            }).catch(error=>{
-                this.addNotizie([]);
-                console.error(`Errore nel recupero delle notizie:${error}`);
-            })
-        const eventi = this.addEventi();
-        this.container.appendChild(eventi);
-        const recensioni= this.addRecensioni();
+async render(){
+    this.container.innerHTML = `
+        <header class="header container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
+            <h1 class="title">Asd BorgoVercelli 2022</h1>
+            <p>La società del futuro</p>
+        </header>
+    `;
+    
+    try {
+        const response = await fetch('/notizie');
+        const data = await response.json();
+        console.log('Notizie ricevute:', data);
+        this.addNotizie(data);
+        
+        const responseEventi = await fetch('/eventi');
+        const dataEventi = await responseEventi.json();
+        this.addEventi(dataEventi);
+        const recensioni = this.addRecensioni();
         this.container.appendChild(recensioni);
+    } catch (error) {
+        console.error('Errore nel caricamento delle notizie:', error);
     }
+}
 
     addNotizie(notizie){
         new FilterNotizie(this.container,notizie);
     }
-    
-    addEventi(){
-        const eventi = document.createElement('div');
-        eventi.className = 'eventi container';
-        eventi.innerHTML = `
-            <h2>Prossimi Eventi</h2>
-            <ul>
-                <li>Partita contro il Rivale FC - 15 Marzo</li>
-                <li>Torneo di Primavera - 22 Marzo</li>
-                <li>Festa di fine stagione - 30 Giugno</li>
-            </ul>
-        `;
-        return eventi;
+    addEventi(eventi){
+        if (!eventi) {
+            console.error('Eventi undefined in addEventi');
+            return;
+        }
+        console.log('Rendering eventi:', eventi);
+        new FilterEventi(this.container, eventi);
     }
 
     addRecensioni(){

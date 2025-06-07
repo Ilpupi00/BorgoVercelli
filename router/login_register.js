@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userDao = require('../dao/dao-user');
 
-router.post('/', async (req, res) => {
+router.post('/registrazione', async (req, res) => {
     try {
         await userDao.createUser(req.body);
         res.status(201).json({ message: 'Registrazione avvenuta con successo' });
