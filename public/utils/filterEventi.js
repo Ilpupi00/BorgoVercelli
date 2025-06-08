@@ -1,6 +1,5 @@
 class FilterEventi {
     constructor(section, Eventi) {
-        console.log('FilterEventi costruttore - Eventi ricevuti:', Eventi); // Aggiungi questo log
         this.section = section;
         this.Eventi = Eventi;
         this.render(Eventi);

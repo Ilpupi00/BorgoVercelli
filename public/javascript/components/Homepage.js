@@ -23,7 +23,7 @@ async render(){
     try {
         const response = await fetch('/notizie');
         const data = await response.json();
-        console.log('Notizie ricevute:', data);
+        
         this.addNotizie(data);
         
         const responseEventi = await fetch('/eventi');
@@ -44,7 +44,6 @@ async render(){
             console.error('Eventi undefined in addEventi');
             return;
         }
-        console.log('Rendering eventi:', eventi);
         new FilterEventi(this.container, eventi);
     }
 

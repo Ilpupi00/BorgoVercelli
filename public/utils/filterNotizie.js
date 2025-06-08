@@ -20,7 +20,7 @@ class FilterNotizie {
         notizieSection.innerHTML = `
             <div class="container mt-5"> 
                 <h2 class="section-title">Notizie</h2>
-                <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="row row-cols-1 row-cols-md-3 g-5">
                 </div>
             </div>
         `;
@@ -40,7 +40,9 @@ class FilterNotizie {
                             <h5 class="card-title overflow-hidden">${notizia.titolo}</h5>
                             <p class="card-text">${notizia.sottotitolo}</p>
                             <div class="mt-auto">
-                                <div class="text-muted mb-2">${new Date(notizia.data).toLocaleDateString()}</div>
+                                <div class="text-muted mb-2">  ${notizia.data_pubblicazione 
+                                ? new Date(notizia.data_pubblicazione.replace(' ', 'T')).toLocaleDateString() 
+                                : 'N/D'}</div>
                                 <a href="/Notizia/${notizia.id}" class="btn btn-primary btn-sm">Leggi di più</a>
                             </div>
                         </div>

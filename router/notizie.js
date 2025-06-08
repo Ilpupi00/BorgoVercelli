@@ -16,9 +16,7 @@ router.get('/notizie', async (req, res) => {
 
 router.get('/eventi', async (req, res) => {
   try {
-    console.log('Richiesta eventi ricevuta');
     const eventi = await daoEventi.getEventi();
-    console.log('Eventi recuperati:', eventi);
     res.json(eventi || []); // Restituisci array vuoto se eventi è null/undefined
   } catch (error) {
     console.error('Errore nel recupero degli eventi:', error);

@@ -20,9 +20,10 @@ class Notizia{
             return null;
         }
         const notizia = Object.assign(new Notizia(), json);
-        notizia.data= moment.utc(json.data);
+        // Usa data_pubblicazione se esiste, altrimenti data
+        notizia.data = moment.utc(json.data_pubblicazione || json.data);
         return notizia;
-    }
+    }   
 
     static to(notizia){
         if (!notizia) {

@@ -1,4 +1,6 @@
 import loadCSS from '../utils/loadCSS.js';
+import Navbar from '../javascript/components/Navbar.js'
+import Footer from '../javascript/components/Footer.js'
 
 document.addEventListener('DOMContentLoaded', async() => {
     const page=document.getElementById('page');
@@ -10,10 +12,7 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/':
         case'/homepage':
-            const { default: Navbar } = await import('./components/Navbar.js');
-            const { default: Footer } = await import('./components/Footer.js');
             const {default:Homepage} = await import ('./components/Homepage.js');
-    
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
             new Homepage(page,()=> loadCSS('/stylesheet/homepage.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
@@ -21,27 +20,32 @@ document.addEventListener('DOMContentLoaded', async() => {
 
 
         case '/campionato':
-            page.innerHTML = `<h1>Page not implemented yet</h1>`;
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
             break;
 
 
         case '/squadre':
-            page.innerHTML = `<h1>Page not implemented yet</h1>`
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
             break;
 
 
         case '/galleria':
-            page.innerHTML = `<h1>Page not implemented yet</h1>`;
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
             break;
 
 
         case '/societa':
-            page.innerHTML = `<h1>Page not implemented yet</h1>`;
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
             break;
 
 
         case '/prenotazione':
-            page.innerHTML = `<h1>Page not implemented yet</h1>`;
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
             break;
 
 
@@ -57,10 +61,8 @@ document.addEventListener('DOMContentLoaded', async() => {
             break;
 
         case '/profilo':
-            const { default: NavbarProfilo } = await import('./components/Navbar.js');
-            const { default: FooterProfilo } = await import('./components/Footer.js');
-            new NavbarProfilo(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
-            new FooterProfilo(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
             break;
         
         default:

@@ -55,45 +55,71 @@
   }
 }
 
-
 .title {
   text-align: center;
   justify-content: center;
   align-items: center;
   height: auto;
-  width: auto;
+  width: 100%; /* Cambiato da auto a 100% */
   display: flex;
   font-size: 10vh;
   text-transform: uppercase;
   color: white;
-  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   animation: fadeInUp 1s ease-in-out;
   overflow: hidden !important;
+  padding: 0 20px; /* Aggiungi padding laterale */
 }
+
 @media (max-width: 992px) {
   .title {
-    font-size: 6vw;
+    font-size: 8vw; /* Aumentato per migliore leggibilità */
     color: white;
+    white-space: normal; /* Permetti il wrap del testo se necessario */
+    padding: 0 15px;
   }
 }
+
+/* Media query specifica per mobile */
+@media (max-width: 576px) {
+  .title {
+    font-size: 7vw;
+    padding: 0 10px;
+  }
+}
+
 .header {
   display: flex;
   flex-direction: column;
-  height: auto;
-  width: auto;
+  min-height: 300px; /* Altezza minima per evitare che sia troppo piccolo */
+  width: 100%; /* Cambiato da auto a 100% */
   background-image: url("../images/Campo.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
   overflow: hidden;
+  padding: 20px 0; /* Padding verticale */
+}
+
+@media (max-width: 992px) {
+  .header {
+    min-height: 250px;
+    padding: 15px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .header {
+    min-height: 200px;
+    padding: 10px 0;
+  }
 }
 
 header p {
   text-align: center;
   margin: 0;
-  padding: 0;
+  padding: 0 20px; /* Padding laterale */
   font-size: 6vh;
   color: white;
   display: flex;
@@ -101,10 +127,20 @@ header p {
   justify-content: center;
   animation: fadeInUp 1s ease-in-out;
   overflow: hidden;
+  width: 100%; /* Assicura che prenda tutta la larghezza */
 }
+
 @media (max-width: 992px) {
-  main p {
-    font-size: 4vw;
+  header p {
+    font-size: 5vw; /* Leggermente aumentato */
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  header p {
+    font-size: 4.5vw;
+    padding: 0 10px;
   }
 }
 

@@ -3,15 +3,17 @@
 const sqlite = require('../db.js');
 
 exports.getNotizie = function(){
-    const sql = 'SELECT * FROM NOTIZIE';
+    const sql = `
+        SELECT N.*, U.nome AS autore_nome, U.cognome AS autore_cognome
+        FROM NOTIZIE N
+        LEFT JOIN UTENTI U ON N.autore_id = U.id
+        ORDER BY N.data_pubblicazione DESC
+    `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, notizie) => {
             if (err) {
                 return reject({ error: 'Error retrieving news: ' + err.message });
             }
-            /*if (!notizie || notizie.length === 0) {
-                return reject({ error: 'No news found' });
-            }*/
             resolve(notizie);
         });
     });
