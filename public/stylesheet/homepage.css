@@ -276,6 +276,11 @@ section.vw100 {
     gap: 30px;
   }
 }
+.reviews-section #reviews-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .reviews-section {
   background-color: #f8f9fa;
   padding: 80px 0;
@@ -296,11 +301,16 @@ section.vw100 {
 }
 
 .review-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 300px;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0,0,0,0.08);
   transition: transform 0.3s ease;
   margin-bottom: 30px;
+  padding: 20px;
 }
 
 .review-card:hover {
@@ -309,11 +319,55 @@ section.vw100 {
 
 .review-content {
   padding: 25px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .review-stars {
   color: #ffc107;
   margin-bottom: 15px;
+  font-size: 1.1rem;
+  display: flex;
+  gap: 2px;
+}
+
+/* Stili specifici per le stelle */
+.review-stars i {
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
+.review-stars .fas.fa-star {
+  color: #ffc107 !important;
+}
+
+.review-stars .far.fa-star {
+  color: #dee2e6 !important;
+}
+
+/* Classi Bootstrap per le stelle */
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Assicurati che Font Awesome sia visibile */
+.fa-star {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Pro", "FontAwesome";
+  font-weight: 900;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+.far.fa-star {
+  font-weight: 400;
 }
 
 .reviewer-image {
@@ -323,11 +377,22 @@ section.vw100 {
   object-fit: cover;
   margin-right: 15px;
 }
+.review-text {
+  flex-grow: 1;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
 
 .reviewer-info {
   display: flex;
-  align-items: center;
-  margin-top: 20px;
+  margin-top: auto;
+  padding-top: 15px;
 }
 
 .reviewer-name {
@@ -336,7 +401,23 @@ section.vw100 {
 }
 
 .review-date {
-  font-size: 0.9rem;
-  color: #6c757d;
+  margin: 0;
+  font-size: 0.8rem;
+  color: #888;
 }
 
+.reviewer-icon {
+  font-size: 40px;
+  color: #6c757d;
+  margin-right: 12px;
+}
+.reviewer-name {
+  font-weight: 600;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+.reviews-section .col-md-4 {
+  display: flex;
+  margin-bottom: 1.5rem;
+}

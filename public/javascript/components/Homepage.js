@@ -1,6 +1,7 @@
 
-import FilterNotizie from '../../utils/filterNotizie.js';
 import FilterEventi from '../../utils/filterEventi.js';
+import FilterNotizie from '../../utils/filterNotizie.js';
+import FilterdRecensioni from '../../utils/filterRecensioni.js';
 class Homepage {
     constructor(container,loader){
         if (typeof loader === 'function') loader(); 
@@ -9,57 +10,48 @@ class Homepage {
     }
 
     init(){
-        this.render();
-    }
-
-async render(){
-    this.container.innerHTML = `
+        this.container.innerHTML = `
         <header class="header container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
             <h1 class="title">Asd BorgoVercelli 2022</h1>
             <p>La società del futuro</p>
         </header>
-    `;
-    
-    try {
+        <section id="notizie-section"></section>
+        <section id="eventi-section"></section>
+        <section id="recensioni-section"></section>
+        `;
+        this.render();
+    }
+
+    async render(){
         const response = await fetch('/notizie');
         const data = await response.json();
-        
         this.addNotizie(data);
-        
         const responseEventi = await fetch('/eventi');
         const dataEventi = await responseEventi.json();
         this.addEventi(dataEventi);
-        const recensioni = this.addRecensioni();
-        this.container.appendChild(recensioni);
-    } catch (error) {
-        console.error('Errore nel caricamento delle notizie:', error);
+        const responseRecensioni = await fetch('/recensioni');
+        const recensioni = await responseRecensioni.json();
+        this.addRecensioni(recensioni);
     }
-}
 
     addNotizie(notizie){
-        new FilterNotizie(this.container,notizie);
+        const notizieSection = this.container.querySelector('#notizie-section');
+        new FilterNotizie(notizieSection,notizie);
     }
     addEventi(eventi){
         if (!eventi) {
             console.error('Eventi undefined in addEventi');
             return;
         }
-        new FilterEventi(this.container, eventi);
+        const eventiSection = this.container.querySelector('#eventi-section');
+        new FilterEventi(eventiSection, eventi);
     }
 
-    addRecensioni(){
-        const recensioni = document.createElement('div');
-        recensioni.className = 'recensioni container';
-        recensioni.innerHTML = `
-            <h2>Recensioni</h2>
-            <ul>
-                <li>"La migliore squadra della regione!" - Marco</li>
-                <li>"Allenatori competenti e appassionati." - Lucia</li>
-                <li>"Ottima organizzazione e spirito di squadra." - Giovanni</li>
-            </ul>
-        `;
-        return recensioni;
+    addRecensioni(recensioni) {
+        const recensioniSection = this.container.querySelector('#recensioni-section');
+        new FilterdRecensioni(recensioniSection,recensioni);
     }
 }
+
 
 export default Homepage;

@@ -4,7 +4,7 @@ const express=require('express');
 const morgan=require('morgan');
 const path=require('path');
 const userDao= require('./dao/dao-user');
-const port=3001;
+const port = process.env.PORT || 3000; // Fixed port configuration
 const passport = require('passport');
 const LocalStrategy= require('passport-local').Strategy;
 const session = require('express-session');
@@ -12,7 +12,7 @@ const router = require('./router/index');
 const routerNotizie = require('./router/notizie');
 const routerRegistrazione = require('./router/login_register');
 const routerSession = require('./router/session');
-
+const routerRecensioni = require('./router/recensioni');
 
 //passport configuration
 passport.use(new LocalStrategy(
@@ -44,16 +44,10 @@ app.use(express.json());
 app.use(morgan('tiny'));
 
 // Middleware per il parsing del corpo delle richieste
-app.use(express.static('public', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js') || path.endsWith('.mjs')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 const isLoggedIn=(req,res,next)=>{
   if (req.isAuthenticated()) {
@@ -68,7 +62,6 @@ app.use(session({
   saveUninitialized:true
 }));
 
-
 //passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
@@ -78,6 +71,7 @@ app.use('/',router);
 app.use('/', routerNotizie);
 app.use('/',routerRegistrazione);
 app.use('/',routerSession);
+app.use('/',routerRecensioni);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -94,3 +88,4 @@ app.get('/Homepage', (req,res) => {
 app.listen(port,()=>{
     console.log(`Server is running on http://localhost:${port}`);
 });
+

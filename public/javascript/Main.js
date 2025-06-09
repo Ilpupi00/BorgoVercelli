@@ -1,6 +1,6 @@
 import loadCSS from '../utils/loadCSS.js';
-import Navbar from '../javascript/components/Navbar.js'
-import Footer from '../javascript/components/Footer.js'
+import Navbar from './components/Navbar.js';
+import Footer from './components/Footer.js';
 
 document.addEventListener('DOMContentLoaded', async() => {
     const page=document.getElementById('page');

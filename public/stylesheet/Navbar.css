@@ -264,3 +264,6 @@ header p {
 .hide {
   display: none !important;
 }
+.navbar .nav-link.active {
+  color: #000 !important;
+}

@@ -7,10 +7,20 @@ const daoEventi= require('../dao/dao-eventi')
 router.get('/notizie', async (req, res) => {
   try {
     const notizie = await dao.getNotizie();
-    res.json(notizie); // <-- restituisce JSON invece di renderizzare EJS
+    res.json(notizie);
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
     res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+  }
+});
+
+router.get('/Notizia/:id',async(req,res)=>{
+  try{
+    const notizia= await dao.getNotiziaById(req.params.id);
+    res.json(notizia);
+  }catch(error){
+    console.error('errore nel recupero delle notizie:', error);
+    res.status.json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 
@@ -18,6 +28,18 @@ router.get('/eventi', async (req, res) => {
   try {
     const eventi = await daoEventi.getEventi();
     res.json(eventi || []); // Restituisci array vuoto se eventi è null/undefined
+  } catch (error) {
+    console.error('Errore nel recupero degli eventi:', error);
+    res.status(500).json({ 
+      error: 'Errore nel caricamento degli eventi',
+      details: error.message 
+    });
+  }
+});
+router.get('/Evento/:id', async (req, res) => {
+  try {
+    const evento = await daoEventi.getEventoById(req.params.id);
+    res.json(evento);
   } catch (error) {
     console.error('Errore nel recupero degli eventi:', error);
     res.status(500).json({ 
