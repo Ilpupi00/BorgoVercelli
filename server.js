@@ -13,6 +13,7 @@ const routerNotizie = require('./router/notizie');
 const routerRegistrazione = require('./router/login_register');
 const routerSession = require('./router/session');
 const routerRecensioni = require('./router/recensioni');
+const routerEmail = require('./router/email');
 
 //passport configuration
 passport.use(new LocalStrategy(
@@ -72,6 +73,7 @@ app.use('/', routerNotizie);
 app.use('/',routerRegistrazione);
 app.use('/',routerSession);
 app.use('/',routerRecensioni);
+app.use('/', routerEmail);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

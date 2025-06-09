@@ -1,4 +1,6 @@
 
+import { setupEmailFormListener } from './send_email.js';
+
 class Footer{
     constructor(footer,loader){
         this.footer=footer;
@@ -11,7 +13,7 @@ class Footer{
         
           <div class="col-lg-6 mb-4 mb-lg-0">
             <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
-            <form id="emailForm" action="send_email.php" method="POST">
+            <form id="emailForm" method="POST">
               <div class="row g-3 mb-3">
                 <div class="col-sm-6">
                   <input type="text" class="form-control" placeholder="Nome e Cognome" name="name" required>
@@ -59,6 +61,7 @@ class Footer{
       </div>
     </footer>
     `;
+        setupEmailFormListener();
     }
 }
 
