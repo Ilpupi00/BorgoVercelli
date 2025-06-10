@@ -101,6 +101,10 @@ class FilterNotizie {
             } else {
                 row.innerHTML = '<div class="col-12"><div class="alert alert-info">Nessuna notizia disponibile per il periodo selezionato</div></div>';
             }
+            const altreNotizie = document.createElement('div');
+            altreNotizie.className = 'd-flex justify-content-center mt-5'; 
+            altreNotizie.innerHTML = `<a href="/Notizia/all" class="btn btn-primary btn-sm">Altre notizie</a>`;
+            this.section.appendChild(altreNotizie);
         } catch (error) {
             console.error('Error rendering notizie:', error);
             this.section.innerHTML = '<div class="alert alert-danger">Errore nel caricamento delle notizie</div>';

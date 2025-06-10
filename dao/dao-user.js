@@ -91,3 +91,13 @@ exports.getUser = function(email, password) {
     });
 }
 
+exports.getImmagineProfiloByUserId = async (userId) => {
+  const sql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ? ORDER BY ordine LIMIT 1`;
+  return new Promise((resolve, reject) => {
+    sqlite.get(sql, [userId], (err, row) => {
+      if (err) return reject(err);
+      resolve(row ? row.url : null);
+    });
+  });
+};
+

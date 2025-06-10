@@ -1,0 +1,1 @@
+SELECT * FROM IMMAGINI WHERE entita_riferimento = 'utente';

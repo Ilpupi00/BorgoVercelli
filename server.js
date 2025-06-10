@@ -13,7 +13,7 @@ const routerNotizie = require('./router/notizie');
 const routerRegistrazione = require('./router/login_register');
 const routerSession = require('./router/session');
 const routerRecensioni = require('./router/recensioni');
-const routerEmail = require('./router/email');
+const routerSendEmail = require('./router/email');
 
 //passport configuration
 passport.use(new LocalStrategy(
@@ -41,6 +41,12 @@ passport.deserializeUser(function(id, done) {
 
 //express app setup
 const app=express();
+
+// Redirect dalla root alla Homepage
+app.get('/', (req, res) => {
+  res.redirect('/Homepage');
+});
+
 app.use(express.json());
 app.use(morgan('tiny'));
 
@@ -67,13 +73,18 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Redirect dalla root alla Homepage
+app.get('/', (req, res) => {
+  res.redirect('/Homepage');
+});
 //tutti i file per il routing sono stati spostati in una cartella chiamata router
 app.use('/',router);
 app.use('/', routerNotizie);
 app.use('/',routerRegistrazione);
 app.use('/',routerSession);
 app.use('/',routerRecensioni);
-app.use('/', routerEmail);
+
+app.use('/', routerSendEmail);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

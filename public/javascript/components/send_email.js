@@ -1,5 +1,45 @@
 console.log("send_email.js caricato!");
 
+function createOrGetModal() {
+  let modal = document.getElementById('customModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'customModal';
+    modal.className = 'modal fade';
+    modal.tabIndex = -1;
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Notifica</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalBtn"></button>
+          </div>
+          <div class="modal-body">
+            <p id="modalMessage" class="mb-0"></p>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    // Gestione chiusura con Bootstrap
+    const closeBtn = modal.querySelector('#closeModalBtn');
+    closeBtn.onclick = () => {
+      const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+      modalInstance.hide();
+    };
+  }
+  return modal;
+}
+
+function showModalMessage(message) {
+  const modal = createOrGetModal();
+  modal.querySelector('#modalMessage').textContent = message;
+  // Usa Bootstrap Modal per mostrare
+  const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+  modalInstance.show();
+}
+
 export function setupEmailFormListener() {
   const emailForm = document.getElementById('emailForm');
   if (emailForm) {
@@ -23,13 +63,13 @@ export function setupEmailFormListener() {
 
         const result = await response.json();
         if (response.ok) {
-          alert('Messaggio inviato con successo!');
+          showModalMessage('Messaggio inviato con successo!');
           emailForm.reset();
         } else {
-          alert(result.error || 'Errore durante l\'invio del messaggio.');
+          showModalMessage(result.error || 'Errore durante l\'invio del messaggio.');
         }
       } catch (err) {
-        alert('Errore di rete durante l\'invio del messaggio.');
+        showModalMessage('Errore di rete durante l\'invio del messaggio.');
       }
     });
   }

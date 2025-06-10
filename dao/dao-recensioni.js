@@ -18,7 +18,7 @@ exports.getRecensioni = async () => {
     JOIN
         UTENTI ON RECENSIONI.utente_id = UTENTI.id
     LEFT JOIN
-        IMMAGINI ON IMMAGINI.entita_riferimento = 'UTENTE'
+        IMMAGINI ON IMMAGINI.entita_riferimento = 'utente'
             AND IMMAGINI.entita_id = UTENTI.id
             AND (IMMAGINI.ordine = 1 OR IMMAGINI.ordine IS NULL)
     WHERE

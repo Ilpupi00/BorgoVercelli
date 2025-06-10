@@ -1,0 +1,1 @@
+UPDATE IMMAGINI SET url = '/uploads/Lucajpg.jpg' WHERE id = 3;

@@ -421,3 +421,63 @@ section.vw100 {
   display: flex;
   margin-bottom: 1.5rem;
 }
+/* Fancy Bootstrap Modal Customization */
+.modal-fancy .modal-content {
+  border-radius: 18px;
+  border: 3px solid #0d6efd;
+  background: linear-gradient(135deg, #f8fafc 80%, #e3f0ff 100%);
+  box-shadow: 0 8px 32px rgba(13,110,253,0.10), 0 1.5px 8px rgba(0,0,0,0.08);
+  padding: 2.5rem 2rem 2rem 2rem;
+  position: relative;
+  animation: fadeInUp 0.7s cubic-bezier(.39,.575,.565,1.000);
+}
+.modal-fancy .modal-header {
+  border-bottom: none;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-fancy .modal-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0d6efd;
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.5px;
+}
+.modal-fancy .modal-icon {
+  font-size: 3rem;
+  color: #0d6efd;
+  margin-bottom: 0.2rem;
+  animation: expandFadeIn 0.7s cubic-bezier(.39,.575,.565,1.000);
+}
+.modal-fancy .modal-body {
+  font-size: 1.1rem;
+  color: #333;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.modal-fancy .btn-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 1.3rem;
+  background: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.modal-fancy .btn-close:hover {
+  opacity: 1;
+}
+@media (max-width: 576px) {
+  .modal-fancy .modal-content {
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+  }
+  .modal-fancy .modal-title {
+    font-size: 1.2rem;
+  }
+  .modal-fancy .modal-icon {
+    font-size: 2.2rem;
+  }
+}

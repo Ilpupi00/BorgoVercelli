@@ -16,8 +16,12 @@
     
     <div class="profile-container">
         <div class="profile-card animate__animated animate__fadeIn overflow-hidden">
-            <div class="profile-avatar mb-4 animate__animated animate__zoomIn">
-                <i class="bi bi-person-circle"></i>
+            <div class="profile-avatar mb-4 animate__animated animate__zoomIn d-flex justify-content-center align-items-center mt-4" style="min-height:140px;">
+                <% if (imageUrl) { %>
+                  <img src="<%= imageUrl %>" alt="Immagine profilo" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
+                <% } else { %>
+                  <i class="bi bi-person-circle" style="font-size: 120px;"></i>
+                <% } %>
             </div>
             <h2 class="text-center mb-1 animate__animated animate__fadeIn animate__delay-1s overflow-hidden"><%= user.nome %> <%= user.cognome %></h2>
             <p class="text-center text-muted mb-4 animate__animated animate__fadeIn animate__delay-1s">

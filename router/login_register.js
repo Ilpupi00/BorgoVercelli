@@ -18,8 +18,11 @@ router.get('/Me', async (req, res) => {
     }
     try {
         const user = await userDao.getUserById(req.user.id);
+        const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+        console.log('imageUrl profilo:', imageUrl);
         res.render('profilo', {
             user,
+            imageUrl,
             isLogged: true // oppure: req.isAuthenticated()
         });
     } catch (err) {
