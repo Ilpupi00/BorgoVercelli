@@ -19,15 +19,10 @@ router.get('/Me', async (req, res) => {
     try {
         const user = await userDao.getUserById(req.user.id);
         const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
-        console.log('url profilo:',imageUrl);
-        res.render('profilo', {
-        user,
-        imageUrl,
-        isLogged: true
-        });
         res.render('profilo', {
             user,
-            isLogged: true // oppure: req.isAuthenticated()
+            imageUrl,
+            isLogged: true
         });
     } catch (err) {
         res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });

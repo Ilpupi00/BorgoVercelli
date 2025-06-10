@@ -78,6 +78,10 @@ class FilterEventi {
         } else {
             row.innerHTML = '<div class="col"><p>Nessun evento disponibile</p></div>';
         }
+        const altreNotizie = document.createElement('div');
+        altreNotizie.className = 'd-flex justify-content-center mt-5'; 
+        altreNotizie.innerHTML = `<a href="/Notizia/all" class="btn btn-primary btn-sm">Altre notizie</a>`;
+        this.section.appendChild(altreNotizie);
     }
 }
 

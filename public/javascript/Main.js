@@ -78,7 +78,12 @@ document.addEventListener('DOMContentLoaded', async() => {
 
             setupEmailFormListener();
             break;
-        
+
+        case '/me':
+            const {default:Profilo} = await import (`./components/Profilo.js`);
+            new Profilo(page,()=> loadCSS('/stylesheet/profilo.css'));
+            setupEmailFormListener();
+            break;
         default:
             page.innerHTML = `<h1>404 Not Found</h1>`;
             break;
