@@ -1,6 +1,7 @@
 import loadCSS from '../utils/loadCSS.js';
-import Navbar from './components/Navbar.js';
 import Footer from './components/Footer.js';
+import Navbar from './components/Navbar.js';
+import { setupEmailFormListener } from './components/send_email.js';
 
 document.addEventListener('DOMContentLoaded', async() => {
     const page=document.getElementById('page');
@@ -16,36 +17,47 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
             new Homepage(page,()=> loadCSS('/stylesheet/homepage.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            setupEmailFormListener();
             break;
 
 
         case '/campionato':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            
+            setupEmailFormListener();
             break;
 
 
         case '/squadre':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            
+            setupEmailFormListener();
             break;
 
 
         case '/galleria':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            
+            setupEmailFormListener();
             break;
 
 
         case '/societa':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            
+            setupEmailFormListener();
             break;
 
 
         case '/prenotazione':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css')); 
+            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            
+            setupEmailFormListener();
             break;
 
 
@@ -63,6 +75,8 @@ document.addEventListener('DOMContentLoaded', async() => {
         case '/profilo':
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+
+            setupEmailFormListener();
             break;
         
         default:

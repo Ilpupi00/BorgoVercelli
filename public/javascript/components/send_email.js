@@ -31,17 +31,21 @@ function createOrGetModal() {
 
 
 function showModalMessage(message) {
+  console.log('showModalMessage chiamata con:', message);
   const modal = createOrGetModal();
   modal.querySelector('#modalMessage').textContent = message;
   modal.style.display = 'flex';
+  console.log('Modal display:', modal.style.display);
 }
 
 export function setupEmailFormListener() {
   const emailForm = document.getElementById('emailForm');
   if (emailForm) {
+    // Rimuovi eventuali listener precedenti per evitare doppio invio
+    emailForm.onsubmit = null;
     emailForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
+      console.log('Submit event triggered');
       const formData = new FormData(emailForm);
       const data = {
         name: formData.get('name'),
@@ -49,22 +53,28 @@ export function setupEmailFormListener() {
         subject: formData.get('subject'),
         message: formData.get('message')
       };
-
       try {
         const response = await fetch('/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-
-        const result = await response.json();
+        console.log('Fetch response:', response);
+        let result = null;
+        try {
+          result = await response.json();
+          console.log('Fetch JSON result:', result);
+        } catch (jsonErr) {
+          console.error('Errore parsing JSON:', jsonErr);
+        }
         if (response.ok) {
           showModalMessage('Messaggio inviato con successo!');
           emailForm.reset();
         } else {
-          showModalMessage(result.error || 'Errore durante l\'invio del messaggio.');
+          showModalMessage((result && result.error) || 'Errore durante l\'invio del messaggio.');
         }
       } catch (err) {
+        console.error('Errore di rete:', err);
         showModalMessage('Errore di rete durante l\'invio del messaggio.');
       }
     });
