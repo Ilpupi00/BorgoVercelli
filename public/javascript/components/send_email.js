@@ -5,39 +5,35 @@ function createOrGetModal() {
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'customModal';
-    modal.className = 'modal fade';
-    modal.tabIndex = -1;
-    modal.setAttribute('aria-hidden', 'true');
     modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Notifica</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalBtn"></button>
-          </div>
+      <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="customModalLabel">Messaggio</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
           <div class="modal-body">
-            <p id="modalMessage" class="mb-0"></p>
+            <p id="modalMessage"></p>
           </div>
         </div>
       </div>
+      </div>  
     `;
     document.body.appendChild(modal);
-    // Gestione chiusura con Bootstrap
-    const closeBtn = modal.querySelector('#closeModalBtn');
-    closeBtn.onclick = () => {
-      const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
-      modalInstance.hide();
-    };
+    // Close modal on click
+    modal.querySelector('#closeModalBtn').onclick = () => { modal.style.display = 'none'; };
+    // Close modal on outside click
+    modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
   }
   return modal;
 }
 
+
 function showModalMessage(message) {
   const modal = createOrGetModal();
   modal.querySelector('#modalMessage').textContent = message;
-  // Usa Bootstrap Modal per mostrare
-  const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
-  modalInstance.show();
+  modal.style.display = 'flex';
 }
 
 export function setupEmailFormListener() {
