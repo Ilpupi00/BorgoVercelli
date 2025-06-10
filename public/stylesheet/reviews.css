@@ -1,0 +1,39 @@
+.rating-bar {
+    font-size: 0.9rem;
+}
+
+.rating-bar .progress {
+    height: 10px;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#averageRating {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+#filterStars {
+    max-width: 200px;
+}
+
+#loadMoreBtn {
+    transition: background-color 0.3s ease;
+}
+
+#loadMoreBtn:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .col-md-4, .col-md-8 {
+        margin-bottom: 2rem;
+    }
+}

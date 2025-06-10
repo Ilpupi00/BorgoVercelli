@@ -35,3 +35,16 @@ exports.getRecensioni = async () => {
         });
     });
 }
+
+exports.getValutaMediaRecensioni = async () => {
+    const sql = 'SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = 1';
+    
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, (err, media) => {
+            if (err) {
+                return reject({ error: 'Error retrieving average rating: ' + err.message });
+            }
+            resolve(media.media);
+        });
+    });
+}

@@ -69,7 +69,12 @@ class FilterdRecensioni {
             reviewsRow.appendChild(col);
         });
 
-        // Removed this.container.appendChild(this.section); as this.container is not defined
+        const altreNotizie = document.createElement('div');
+        altreNotizie.className = 'd-flex justify-content-center mt-3'; 
+        altreNotizie.innerHTML = `
+            <a href="/recensioni/all" class="btn btn-primary btn-sm m-auto me-2 ms-2">Altre Recensioni</a>
+            <a href="/scrivi/recensioni" class="btn btn-primary btn-sm me-2 ms-2">Scrivi Recensioni</a>`;
+        this.section.appendChild(altreNotizie);
         return this.section;
     }
 }

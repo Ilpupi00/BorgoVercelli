@@ -7,7 +7,7 @@ router.post('/registrazione', async (req, res) => {
         await userDao.createUser(req.body);
         res.status(201).json({ message: 'Registrazione avvenuta con successo' });
     } catch (err) {
-        console.error('Errore durante la registrazione:', err); // <--- AGGIUNGI QUESTO
+        console.error('Errore durante la registrazione:', err); 
         res.status(400).json({ error: err.error || err.message || 'Errore durante la registrazione' });
     }
 });
