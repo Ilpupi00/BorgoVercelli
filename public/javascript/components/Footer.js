@@ -1,13 +1,13 @@
-
-import { setupEmailFormListener } from './send_email.js';
-
 class Footer{
     constructor(footer,loader){
         this.footer=footer;
+
+
         this.render();
     }
     render(){
-        this.footer.innerHTML= `    <footer class="bg-primary text-white py-5 mt-4" id="footer">
+        this.footer.innerHTML= `    
+      <footer class="bg-primary text-white py-5 mt-4" id="footer">
       <div class="container">
         <div class="row gy-4">
         
@@ -61,7 +61,6 @@ class Footer{
       </div>
     </footer>
     `;
-        setupEmailFormListener();
     }
 }
 
