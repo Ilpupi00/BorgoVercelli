@@ -2,6 +2,7 @@
 import FilterEventi from '../../utils/filterEventi.js';
 import FilterNotizie from '../../utils/filterNotizie.js';
 import FilterdRecensioni from '../../utils/filterRecensioni.js';
+
 class Homepage {
     constructor(container,loader){
         if (typeof loader === 'function') loader(); 

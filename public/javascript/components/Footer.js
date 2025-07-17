@@ -49,7 +49,7 @@ class Footer{
     <div class="row mt-5">
       <div class="col-12 text-center">
         <hr class="my-4 bg-light opacity-25">
-        <p class="mb-0">&copy; <%= new Date().getFullYear() %> Asd BorgoVercelli. Tutti i diritti riservati.</p>
+        <p class="mb-0">&copy; 2025 Asd BorgoVercelli. Tutti i diritti riservati.</p>
       </div>
     </div>
   </div>
