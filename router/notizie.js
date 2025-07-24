@@ -36,6 +36,7 @@ router.get('/eventi', async (req, res) => {
     });
   }
 });
+
 router.get('/Evento/:id', async (req, res) => {
   try {
     const evento = await daoEventi.getEventoById(req.params.id);

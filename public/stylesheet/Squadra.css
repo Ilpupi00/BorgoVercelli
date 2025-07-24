@@ -1,0 +1,61 @@
+.img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.table-soccer {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+        
+.table-soccer thead {
+    background-color: #1a3a6e;
+    color: white;
+    }
+        
+.table-soccer thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+        
+.table-soccer tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+        
+.position-badge {
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+        
+.position-portiere {
+    background-color: #f1c40f;
+    color: #000;
+}
+        
+.position-difensore {
+    background-color: #2ecc71;
+    color: #fff;
+}
+        
+.position-centrocampista {
+    background-color: #3498db;
+    color: #fff;
+}
+        
+.position-attaccante {
+    background-color: #e74c3c;
+    color: #fff;
+}
+        
+.player-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}

@@ -22,40 +22,49 @@ document.addEventListener('DOMContentLoaded', async() => {
 
 
         case '/campionato':
+            const {default:Campionato}=await import('./components/Campionato.js')
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Campionato(page,()=>'/stylesheet/Campionato.css');
             
             setupEmailFormListener();
             break;
 
 
         case '/squadre':
+            const {default:Squadra} = await import ('./components/Squadre.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
-            
+            new Squadra(page,()=> loadCSS('/stylesheet/Squadra.css'));
             setupEmailFormListener();
             break;
 
 
         case '/galleria':
+            const {default:Galleria} = await import ('./components/Galleria.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Galleria(page,()=> loadCSS('/stylesheet/Galleria.css'));
             
             setupEmailFormListener();
             break;
 
 
         case '/societa':
+            const {default:Societa} = await import ('./components/Società.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Societa(page,()=> loadCSS('/stylesheet/Società.css'));
             
             setupEmailFormListener();
             break;
 
 
         case '/prenotazione':
+            const {default:Prenotazione} = await import ('./components/Prenotazione.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Prenotazione(page,()=> loadCSS('/stylesheet/Prenotazione.css'));
             
             setupEmailFormListener();
             break;
