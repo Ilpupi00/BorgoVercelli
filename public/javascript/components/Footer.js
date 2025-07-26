@@ -1,5 +1,5 @@
 class Footer{
-    constructor(footer,loader){
+    constructor(footer){
         this.footer=footer;
 
 
@@ -7,30 +7,30 @@ class Footer{
     }
     render(){
         this.footer.innerHTML= `    
-<footer class="bg-primary text-white py-5 mt-4" id="footer">
-  <div class="container">
-    <div class="row gy-4">
-      <div class="col-lg-6 mb-4 mb-lg-0">
-        <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
-        <form id="emailForm" action="/send_email" method="POST">
-          <div class="row g-3 mb-3">
-            <div class="col-sm-6">
-              <input type="text" class="form-control" placeholder="Nome e Cognome" name="name" required>
-            </div>
-            <div class="col-sm-6">
-              <input type="email" class="form-control" placeholder="Email" name="email" required>
-            </div>
-          </div>
-          <div class="mb-3">
-            <input type="text" class="form-control" placeholder="Oggetto" name="subject" required>
-          </div>
-          <div class="mb-4">
-            <textarea class="form-control" placeholder="Messaggio" name="message" rows="4" required></textarea>
-          </div>
-          <div class="text-center">
-            <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>
-          </div>
-        </form>
+          <footer class="bg-primary text-white py-5 mt-4" id="footer">
+            <div class="container">
+              <div class="row gy-4">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                  <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
+                    <form id="emailForm" action="/send_email" method="POST">
+                    <div class="row g-3 mb-3">
+                      <div class="col-sm-6">
+                        <input type="text" class="form-control" placeholder="Nome e Cognome" name="name" required>
+                      </div>
+                    <div class="col-sm-6">
+                      <input type="email" class="form-control" placeholder="Email" name="email" required>
+                    </div>
+                  </div>
+                <div class="mb-3">
+                  <input type="text" class="form-control" placeholder="Oggetto" name="subject" required>
+                </div>
+                <div class="mb-4">
+                  <textarea class="form-control" placeholder="Messaggio" name="message" rows="4" required></textarea>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>
+                </div>
+                </form>
       </div>
       <div class="col-lg-6 text-center m-auto">
         <h5 class="mb-4 text-center overflow-hidden">ASD BorgoVercelli</h5>

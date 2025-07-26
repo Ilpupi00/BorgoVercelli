@@ -80,14 +80,7 @@ document.addEventListener('DOMContentLoaded', async() => {
             const {default:Registrazione} = await import (`./components/Registrazione.js`);
             new Registrazione(page,()=> loadCSS('/stylesheet/login.css'));
             break;
-
-        case '/profilo':
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
-
-            setupEmailFormListener();
-            break;
-
+            
         case '/me':
             const {default:Profilo} = await import (`./components/Profilo.js`);
             new Profilo(page,()=> loadCSS('/stylesheet/profilo.css'));

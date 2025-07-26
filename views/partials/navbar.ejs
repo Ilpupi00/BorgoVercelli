@@ -42,8 +42,12 @@
       <!-- Login/Profile Button -->
       <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
         <% if (isLogged) { %>
-          <a href="/Me" class="text-light w-100 text-align-center text-center" id="Profilo" title="Profilo">
-            <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
+          <a href="/Me" class="text-light w-100 text-align-center text-center d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
+            <% if (imageUrl) { %>
+              <img src="<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+            <% } else { %>
+              <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>
+            <% } %>
           </a>
         <% } else { %>
           <a href="/Login" class="btn btn-outline-light w-100 text-align-center text-center" id="Login">Login</a>
@@ -52,5 +56,9 @@
 
     </div>
 
-  </div>
+
+
+  </div>    
+
+  <script defer ="src="/javascript/components/Navbar.js"></script>
 </nav>

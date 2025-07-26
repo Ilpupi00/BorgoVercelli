@@ -1,6 +1,6 @@
 
 class Navbar {
-  constructor(navbar,loader) {
+  constructor(navbar) {
     this.navbar = navbar;
     this.path = window.location.pathname.toLowerCase();
     this.render();
@@ -21,6 +21,18 @@ class Navbar {
     } catch (err) {
       console.error('Error checking login status:', err);
     }
+    let profilePic = null;
+    if (isLogged) {
+      try {
+        const res = await fetch('/api/user/profile-pic');
+        if (res.ok) {
+          const data = await res.json();
+          profilePic = data.profilePic; 
+        }
+      } catch (err) {
+        profilePic = null;
+      }
+}
 
     this.navbar.innerHTML = `
 <nav class="navbar sticky-top navbar-expand-lg bg-primary" id="navbar">
@@ -66,17 +78,21 @@ class Navbar {
 
       <!-- Login/Profile Button -->
       <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
-                      ${
-                    isLogged
-                    ? `<a href="/Me" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
-                        <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
-                    </a>`
-                    : `<a href="/Me" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        <span>Login</span>
-                    </a>`
-                }
-      </form>
+          ${
+          isLogged
+          ? profilePic
+            ? `<a href="/Me" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+                <img src="${profilePic}" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+              </a>`
+            : `<a href="/Me" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+                <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
+              </a>`
+            : `<a href="/Me" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Login</span>
+            </a>`
+        }
+  </form>
 
     </div>
 

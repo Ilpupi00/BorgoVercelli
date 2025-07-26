@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const userDao = require('../dao/dao-user');
@@ -45,5 +46,31 @@ router.get('/Logout', (req, res) => {
     });
 });
 
-
+// Nuova route per recuperare solo la foto profilo
+router.get('/api/user/profile-pic', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Non autenticato' });
+    }
+    try {
+        const user = await userDao.getUserById(req.user.id);
+        const profilePic = await userDao.getImmagineProfiloByUserId(user.id);
+        res.json({ profilePic });
+    } catch (err) {
+        res.status(500).json({ error: 'Errore nel recupero della foto profilo' });
+    }
+});
+// Route per aggiornare il profilo utente
+router.put('/Me/update', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ success: false, error: 'Non autenticato' });
+    }
+    try {
+        const { nome, cognome, email, telefono } = req.body;
+        // Aggiorna i dati nel DB
+        await userDao.updateUser(req.user.id, { nome, cognome, email, telefono });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Errore aggiornamento profilo' });
+    }
+});
 module.exports = router;
