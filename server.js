@@ -14,6 +14,7 @@ const routerRegistrazione = require('./router/login_register');
 const routerSession = require('./router/session');
 const routerRecensioni = require('./router/recensioni');
 const routerSendEmail = require('./router/email');
+const routerSquadre = require('./router/squadre');
 
 //passport configuration
 passport.use(new LocalStrategy(
@@ -83,8 +84,8 @@ app.use('/', routerNotizie);
 app.use('/',routerRegistrazione);
 app.use('/',routerSession);
 app.use('/',routerRecensioni);
-
 app.use('/', routerSendEmail);
+app.use('/', routerSquadre);
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../dao/dao-notizie');
-const daoEventi= require('../dao/dao-eventi')
+const daoEventi= require('../dao/dao-eventi');
 
 router.get('/notizie', async (req, res) => {
   try {
