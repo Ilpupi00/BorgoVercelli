@@ -14,17 +14,17 @@ document.addEventListener('DOMContentLoaded', async() => {
         case '/':
         case'/homepage':
             const {default:Homepage} = await import ('./components/Homepage.js');
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css')); 
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css')); 
             new Homepage(page,()=> loadCSS('/stylesheet/homepage.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             setupEmailFormListener();
             break;
 
 
         case '/campionato':
             const {default:Campionato}=await import('./components/Campionato.js')
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Campionato(page,()=>'/stylesheet/Campionato.css');
             
             setupEmailFormListener();
@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/squadre':
             const {default:Squadra} = await import ('./components/Squadre.js');
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Squadra(page,()=> loadCSS('/stylesheet/Squadra.css'));
             setupEmailFormListener();
             break;
@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/galleria':
             const {default:Galleria} = await import ('./components/Galleria.js');
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Galleria(page,()=> loadCSS('/stylesheet/Galleria.css'));
             
             setupEmailFormListener();
@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/societa':
             const {default:Societa} = await import ('./components/Società.js');
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Societa(page,()=> loadCSS('/stylesheet/Società.css'));
             
             setupEmailFormListener();
@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/prenotazione':
             const {default:Prenotazione} = await import ('./components/Prenotazione.js');
-            new Navbar(navbar,()=> loadCSS('/stylesheet/navbar.css'));
-            new Footer(footer,()=> loadCSS('/stylesheet/footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Prenotazione(page,()=> loadCSS('/stylesheet/Prenotazione.css'));
             
             setupEmailFormListener();
@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', async() => {
             
         case '/me':
             const {default:Profilo} = await import (`./components/Profilo.js`);
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Profilo(page,()=> loadCSS('/stylesheet/profilo.css'));
             setupEmailFormListener();
             break;

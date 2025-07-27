@@ -1,6 +1,7 @@
 
 class Navbar {
-  constructor(navbar) {
+  constructor(navbar,loadCSS) {
+    if(typeof loadCSS ==='function')loadCSS();
     this.navbar = navbar;
     this.path = window.location.pathname.toLowerCase();
     this.render();

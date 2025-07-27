@@ -1,4 +1,5 @@
 
+
 const express = require('express');
 const router = express.Router();
 const userDao = require('../dao/dao-user');
@@ -10,7 +11,7 @@ const fs = require('fs');
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
-            const uploadPath = path.join(__dirname, '../uploads');
+            const uploadPath = path.join(__dirname, '../public/uploads');
             if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
             cb(null, uploadPath);
         },
@@ -88,31 +89,7 @@ router.put('/update', upload.single('profilePic'), async (req, res) => {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
     }
     try {
-        let imageUrl = null;
-        // Se c'è un file, aggiorna la foto profilo
-        if (req.file) {
-            // Salva/aggiorna la foto profilo in tabella IMMAGINI
-            const url = '/uploads/' + req.file.filename;
-            imageUrl = url;
-            // Elimina eventuali vecchie immagini profilo
-            await new Promise((resolve, reject) => {
-                req.app.get('db').run(
-                    `DELETE FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ?`,
-                    [req.user.id],
-                    function(err) { if (err) reject(err); else resolve(); }
-                );
-            });
-            // Inserisci la nuova immagine
-            await new Promise((resolve, reject) => {
-                req.app.get('db').run(
-                    `INSERT INTO IMMAGINI (entita_riferimento, entita_id, url, ordine) VALUES ('utente', ?, ?, 0)`,
-                    [req.user.id, url],
-                    function(err) { if (err) reject(err); else resolve(); }
-                );
-            });
-        }
-
-        // Aggiorna i dati profilo se presenti
+        // Aggiorna solo i dati profilo
         let updateFields = {};
         if (req.body.nome && req.body.nome.trim() !== '') updateFields.nome = req.body.nome;
         if (req.body.cognome && req.body.cognome.trim() !== '') updateFields.cognome = req.body.cognome;
@@ -121,11 +98,36 @@ router.put('/update', upload.single('profilePic'), async (req, res) => {
         if (Object.keys(updateFields).length > 0) {
             await userDao.updateUser(req.user.id, updateFields);
         }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Errore aggiornamento profilo:', err);
+        res.status(500).json({ success: false, error: err.message || err });
+    }
+});
 
-        // Risposta
+// Route dedicata solo alla modifica della foto profilo
+router.put('/update-profile-pic', upload.single('profilePic'), async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ success: false, error: 'Non autenticato' });
+    }
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: 'Nessun file inviato' });
+        }
+        // Ottieni la vecchia immagine dal DB
+        const oldImageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+        if (oldImageUrl) {
+            const oldImagePath = path.join(__dirname, '../public', oldImageUrl.replace('/uploads/', 'uploads/'));
+            if (fs.existsSync(oldImagePath)) {
+                try { fs.unlinkSync(oldImagePath); } catch (e) { console.error('Errore eliminazione vecchia immagine:', e); }
+            }
+        }
+        const imageUrl = '/uploads/' + req.file.filename;
+        await userDao.updateProfilePicture(req.user.id, imageUrl);
         res.json({ success: true, imageUrl });
     } catch (err) {
-        res.status(500).json({ success: false, error: 'Errore aggiornamento profilo' });
+        console.error('Errore aggiornamento foto profilo:', err);
+        res.status(500).json({ success: false, error: err.message || err });
     }
 });
 module.exports = router;

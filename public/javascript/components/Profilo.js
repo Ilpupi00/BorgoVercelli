@@ -18,8 +18,14 @@ class Profilo{
         editBtn.innerHTML = '<i class="bi bi-pencil-square"></i> Modifica Profilo';
         profileCard.appendChild(editBtn);
 
+        // Elementi per la foto profilo
+        const avatar = document.querySelector('.profile-avatar');
+        const editPicBtn = document.getElementById('editPicBtn');
+        const profilePicForm = document.getElementById('profilePicForm');
         editBtn.addEventListener('click', () => {
-            // Trasforma i dati in input
+            // Mostra la matitina centrata
+            if (editPicBtn) editPicBtn.style.display = '';
+            // Mostra i campi in modalità modifica come prima
             const nomeCognome = profileCard.querySelector('h2').textContent.split(' ');
             const nome = nomeCognome[0] || '';
             const cognome = nomeCognome[1] || '';
@@ -75,6 +81,7 @@ class Profilo{
                         msgDiv.textContent = 'Errore interno, riprova più tardi.';
                     } else if (result.success) {
                         msgDiv.textContent = 'Profilo aggiornato!';
+                        if (editPicBtn) editPicBtn.style.display = 'none';
                         setTimeout(() => window.location.reload(), 1200);
                     } else {
                         msgDiv.textContent = result.error || 'Errore aggiornamento';
@@ -84,6 +91,18 @@ class Profilo{
                     msgDiv.textContent = 'Errore imprevisto: ' + (err?.message || 'Errore di rete');
                 });
             });
+
+            // Assicuro che il modal si apra correttamente al click sulla matitina
+            if (editPicBtn) {
+                editPicBtn.onclick = function(e) {
+                    e.preventDefault();
+                    const modal = document.getElementById('uploadPicModal');
+                    if (modal) {
+                        const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+                        bsModal.show();
+                    }
+                };
+            }
         });
 
         // Gestione submit del form modal
@@ -148,53 +167,77 @@ class Profilo{
         }
 
         // Avatar animation on click
-        const avatar = document.querySelector('.profile-avatar');
-        avatar.addEventListener('click', function() {
-            this.classList.add('animate__animated', 'animate__rubberBand');
-            this.addEventListener('animationend', () => {
-                this.classList.remove('animate__animated', 'animate__rubberBand');
-            }, {once: true});
-        });
+        if (avatar) {
+            avatar.addEventListener('click', function() {
+                this.classList.add('animate__animated', 'animate__rubberBand');
+                this.addEventListener('animationend', () => {
+                    this.classList.remove('animate__animated', 'animate__rubberBand');
+                }, {once: true});
+            });
+        }
 
-        // Modifica foto profilo (upload)
-        const uploadDiv = document.createElement('div');
-        uploadDiv.className = 'd-flex flex-column align-items-center my-2';
-        uploadDiv.innerHTML = `
-            <input type="file" id="profilePicInput" accept="image/*" class="form-control mb-2" style="max-width:220px;">
-            <button class="btn btn-secondary" id="uploadPicBtn"><i class="bi bi-upload"></i> Carica Foto</button>
-            <div id="uploadPicMsg" class="mt-2"></div>
-        `;
-        avatar.appendChild(uploadDiv);
-
-        document.getElementById('uploadPicBtn').addEventListener('click', async () => {
+        // Gestione upload foto profilo tramite modal
+        if (profilePicForm) {
+            // Aggiorna l'icona della navbar in tempo reale quando selezioni una nuova immagine
             const fileInput = document.getElementById('profilePicInput');
-            const msg = document.getElementById('uploadPicMsg');
-            if (!fileInput.files[0]) {
-                msg.textContent = 'Seleziona una foto!';
-                return;
-            }
-            const formData = new FormData();
-            formData.append('profilePic', fileInput.files[0]);
-            msg.textContent = 'Caricamento...';
-            try {
-                const res = await fetch('/update', {
-                    method: 'PUT',
-                    credentials: 'same-origin',
-                    body: formData
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files && fileInput.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Aggiorna avatar nella card
+                            const img = avatar.querySelector('img');
+                            if (img) img.src = e.target.result;
+                            // Aggiorna avatar nella navbar
+                            const navProfileImg = document.querySelector('#Profilo img');
+                            if (navProfileImg) navProfileImg.src = e.target.result;
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    }
                 });
-                const result = await res.json();
-                if (result.success && result.imageUrl) {
-                    // Aggiorna avatar
-                    const img = avatar.querySelector('img');
-                    if (img) img.src = result.imageUrl + '?t=' + Date.now();
-                    msg.textContent = 'Foto aggiornata!';
-                } else {
-                    msg.textContent = result.error || 'Errore caricamento foto';
-                }
-            } catch (err) {
-                msg.textContent = 'Errore di rete';
             }
-        });
+            profilePicForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('profilePicInput');
+                const msg = document.getElementById('uploadPicMsg');
+                if (!fileInput.files[0]) {
+                    msg.textContent = 'Seleziona una foto!';
+                    return;
+                }
+                const formData = new FormData();
+                formData.append('profilePic', fileInput.files[0]);
+                msg.textContent = 'Caricamento...';
+                try {
+                    const res = await fetch('/update-profile-pic', {
+                        method: 'PUT',
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+                    const result = await res.json();
+                    if (result.success && result.imageUrl) {
+                        // Aggiorna avatar
+                        const img = avatar.querySelector('img');
+                        if (img) img.src = result.imageUrl + '?t=' + Date.now();
+                        // Aggiorna avatar nella navbar
+                        const navProfileImg = document.querySelector('#Profilo img');
+                        if (navProfileImg) navProfileImg.src = result.imageUrl + '?t=' + Date.now();
+                        msg.textContent = 'Foto aggiornata!';
+                        // Chiudi modal Bootstrap
+                        const modal = document.getElementById('uploadPicModal');
+                        if (modal) {
+                            const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+                            bsModal.hide();
+                        }
+                        // La matita rimane visibile
+                        if (editPicBtn) editPicBtn.style.display = '';
+                    } else {
+                        msg.textContent = result.error || 'Errore caricamento foto';
+                    }
+                } catch (err) {
+                    msg.textContent = 'Errore di rete';
+                }
+            });
+        }
     }
 
 }

@@ -1,5 +1,5 @@
-'use strict';
 
+'use strict';
 const express=require('express');
 const morgan=require('morgan');
 const path=require('path');
@@ -85,6 +85,7 @@ app.use('/',routerSession);
 app.use('/',routerRecensioni);
 
 app.use('/', routerSendEmail);
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

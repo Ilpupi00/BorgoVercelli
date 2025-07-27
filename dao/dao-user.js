@@ -139,3 +139,22 @@ exports.updateUser=async (userId, fields) =>{
     });
 }
 
+exports.updateProfilePicture = async (userId, imageUrl) => {
+    if (!userId || !imageUrl) return false;
+
+    const sql = `
+        UPDATE IMMAGINI
+        SET url = ?
+        WHERE entita_riferimento = 'utente' AND entita_id = ?
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [imageUrl, userId], function(err) {
+            if (err) {
+                reject({ error: 'Errore aggiornamento immagine profilo: ' + err.message });
+            } else {
+                resolve(true);
+            }
+        });
+    });
+}
+
