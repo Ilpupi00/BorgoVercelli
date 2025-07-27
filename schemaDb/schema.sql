@@ -23,13 +23,7 @@ CREATE TABLE UTENTI (
 CREATE TABLE SQUADRE (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    categoria TEXT,
     anno_fondazione INTEGER,
-    colori_sociali TEXT,
-    stemma_url TEXT,
-    allenatore_id INTEGER,
-    created_at TEXT,
-    updated_at TEXT,
     FOREIGN KEY (allenatore_id) REFERENCES UTENTI(id)
 );
 
