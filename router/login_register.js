@@ -2,6 +2,29 @@
 const express = require('express');
 const router = express.Router();
 const userDao = require('../dao/dao-user');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Configurazione multer per upload immagini profilo
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadPath = path.join(__dirname, '../uploads');
+            if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
+            cb(null, uploadPath);
+        },
+        filename: function (req, file, cb) {
+            // Salva come userID-timestamp.ext
+            const ext = path.extname(file.originalname);
+            cb(null, `user_${req.user.id}_${Date.now()}${ext}`);
+        }
+    }),
+    fileFilter: function (req, file, cb) {
+        if (!file.mimetype.startsWith('image/')) return cb(new Error('Solo immagini!'));
+        cb(null, true);
+    }
+});
 
 router.post('/registrazione', async (req, res) => {
     try {
@@ -60,24 +83,47 @@ router.get('/api/user/profile-pic', async (req, res) => {
     }
 });
 // Route per aggiornare il profilo utente
-router.put('/update', async (req, res) => {
+router.put('/update', upload.single('profilePic'), async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
-        console.log("Errore nella update");
     }
     try {
-        const { nome, cognome, email, telefono } = req.body;
-        // Costruisci oggetto solo con i campi non vuoti
-        const updateFields = {};
-        if (nome && nome.trim() !== '') updateFields.nome = nome;
-        if (cognome && cognome.trim() !== '') updateFields.cognome = cognome;
-        if (email && email.trim() !== '') updateFields.email = email;
-        if (telefono && telefono.trim() !== '') updateFields.telefono = telefono;
-        if (Object.keys(updateFields).length === 0) {
-            return res.json({ success: false, error: 'Nessun campo da aggiornare' });
+        let imageUrl = null;
+        // Se c'è un file, aggiorna la foto profilo
+        if (req.file) {
+            // Salva/aggiorna la foto profilo in tabella IMMAGINI
+            const url = '/uploads/' + req.file.filename;
+            imageUrl = url;
+            // Elimina eventuali vecchie immagini profilo
+            await new Promise((resolve, reject) => {
+                req.app.get('db').run(
+                    `DELETE FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ?`,
+                    [req.user.id],
+                    function(err) { if (err) reject(err); else resolve(); }
+                );
+            });
+            // Inserisci la nuova immagine
+            await new Promise((resolve, reject) => {
+                req.app.get('db').run(
+                    `INSERT INTO IMMAGINI (entita_riferimento, entita_id, url, ordine) VALUES ('utente', ?, ?, 0)`,
+                    [req.user.id, url],
+                    function(err) { if (err) reject(err); else resolve(); }
+                );
+            });
         }
-        await userDao.updateUser(req.user.id, updateFields);
-        res.json({ success: true });
+
+        // Aggiorna i dati profilo se presenti
+        let updateFields = {};
+        if (req.body.nome && req.body.nome.trim() !== '') updateFields.nome = req.body.nome;
+        if (req.body.cognome && req.body.cognome.trim() !== '') updateFields.cognome = req.body.cognome;
+        if (req.body.email && req.body.email.trim() !== '') updateFields.email = req.body.email;
+        if (req.body.telefono && req.body.telefono.trim() !== '') updateFields.telefono = req.body.telefono;
+        if (Object.keys(updateFields).length > 0) {
+            await userDao.updateUser(req.user.id, updateFields);
+        }
+
+        // Risposta
+        res.json({ success: true, imageUrl });
     } catch (err) {
         res.status(500).json({ success: false, error: 'Errore aggiornamento profilo' });
     }

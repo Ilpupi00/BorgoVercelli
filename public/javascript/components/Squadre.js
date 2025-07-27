@@ -1,7 +1,7 @@
 
 class Squadre{
     constructor(page,loadCSS){
-        if (typeof loadCSS === 'function') loadCss(); 
+        if (typeof loadCSS === 'function') loadCSS(); 
         this.page = page;
         this.init();
     }
