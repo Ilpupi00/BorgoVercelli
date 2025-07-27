@@ -1,3 +1,4 @@
+
 'use strict';
 
 const sqlite=require('../db.js');
@@ -100,4 +101,41 @@ exports.getImmagineProfiloByUserId = async (userId) => {
     });
   });
 };
+
+exports.updateUser=async (userId, fields) =>{
+    if (!userId || !fields || Object.keys(fields).length === 0) return false;
+    const updates = [];
+    const values = [];
+    if (fields.nome) {
+        updates.push('nome = ?');
+        values.push(fields.nome);
+    }
+    if (fields.cognome) {
+        updates.push('cognome = ?');
+        values.push(fields.cognome);
+    }
+    if (fields.email) {
+        updates.push('email = ?');
+        values.push(fields.email);
+    }
+    if (fields.telefono) {
+        updates.push('telefono = ?');
+        values.push(fields.telefono);
+    }
+    if (updates.length === 0){
+        console.log('Nessun campo da aggiornare');
+        return false;
+    }
+    values.push(userId);
+    const sql = `UPDATE UTENTI SET ${updates.join(', ')} WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, values, function(err) {
+            if (err) {
+                reject({ error: 'Errore aggiornamento: ' + err.message });
+            } else {
+                resolve(true);
+            }
+        });
+    });
+}
 

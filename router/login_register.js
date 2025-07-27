@@ -63,11 +63,20 @@ router.get('/api/user/profile-pic', async (req, res) => {
 router.put('/Me/update', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
+        console.log("Errore nella update");
     }
     try {
         const { nome, cognome, email, telefono } = req.body;
-        // Aggiorna i dati nel DB
-        await userDao.updateUser(req.user.id, { nome, cognome, email, telefono });
+        // Costruisci oggetto solo con i campi non vuoti
+        const updateFields = {};
+        if (nome && nome.trim() !== '') updateFields.nome = nome;
+        if (cognome && cognome.trim() !== '') updateFields.cognome = cognome;
+        if (email && email.trim() !== '') updateFields.email = email;
+        if (telefono && telefono.trim() !== '') updateFields.telefono = telefono;
+        if (Object.keys(updateFields).length === 0) {
+            return res.json({ success: false, error: 'Nessun campo da aggiornare' });
+        }
+        await userDao.updateUser(req.user.id, updateFields);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ success: false, error: 'Errore aggiornamento profilo' });

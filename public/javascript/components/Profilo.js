@@ -44,9 +44,8 @@ class Profilo{
                 };
                 fetch('/Me/update', {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin', // oppure 'include'
                     body: JSON.stringify(data)
                 })
                 .then(res => res.json())
