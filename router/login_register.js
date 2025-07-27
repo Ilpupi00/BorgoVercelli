@@ -60,7 +60,7 @@ router.get('/api/user/profile-pic', async (req, res) => {
     }
 });
 // Route per aggiornare il profilo utente
-router.put('/Me/update', async (req, res) => {
+router.put('/update', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
         console.log("Errore nella update");
