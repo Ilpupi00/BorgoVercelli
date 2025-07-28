@@ -1,7 +1,6 @@
 class Giocatore {
     constructor({
         id,
-        utente_id,
         squadra_id,
         numero_maglia,
         ruolo,
@@ -19,7 +18,6 @@ class Giocatore {
         cognome
     }) {
         this.id = id;
-        this.utente_id = utente_id;
         this.squadra_id = squadra_id;
         this.numero_maglia = numero_maglia;
         this.ruolo = ruolo;

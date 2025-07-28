@@ -74,12 +74,13 @@ class Squadre {
             </section>
   
             `;
-        const filterGiocatori = new FilterGiocatori(squadre, this.page);
+        
         const searchInput = this.page.querySelector('#searchPlayer');
         const squadreSelect = this.page.querySelector('#squadreSelect');
         const annoSelect = this.page.querySelector('#annoSelect');
         const title = this.page.querySelector('#SquadraTitle');
         title.textContent = squadre.length > 0 ? squadre[0].nome : 'Nessuna squadra selezionata';
+        let squadreAnno = [];
         try {
             if (squadre.length === 0) {
                 squadreSelect.innerHTML = '<option value="">Nessuna squadra trovata</option>';
@@ -96,7 +97,7 @@ class Squadre {
             // Seleziona il primo anno disponibile
             annoSelect.value = anniUnici[0];
             // Popola il menu a tendina delle squadre solo per l'anno selezionato
-            const squadreAnno = squadre.filter(s => s.Anno === annoSelect.value);
+            squadreAnno = squadre.filter(s => s.Anno === annoSelect.value);
             squadreSelect.innerHTML = '';
             squadreAnno.forEach(squadra => {
                 const option = document.createElement('option');
@@ -115,6 +116,9 @@ class Squadre {
         } catch (error) {
             console.error('Errore nel recupero delle squadre:', error);
         }
+        // Dopo il try/catch
+        squadreSelect.value = squadreAnno[0] ? squadreAnno[0].id : '';
+        const filterGiocatori = new FilterGiocatori(squadre, this.page);
 
         squadreSelect.addEventListener('change', (event) => {
             const selectedSquadra = squadre.find(s => s.id === parseInt(event.target.value));
@@ -124,12 +128,13 @@ class Squadre {
             } else {
                 this.page.querySelector('img').src = '../../images/Logo.png';
             }
+            filterGiocatori.addRoster(parseInt(event.target.value));
         });
 
         annoSelect.addEventListener('change', (event) => {
             const selectedAnno = event.target.value;
             const filteredSquadre = squadre.filter(s => s.Anno === selectedAnno);
-            squadreSelect.innerHTML = ''; // Clear previous options
+            squadreSelect.innerHTML = '';
             filteredSquadre.forEach(squadra => {
                 const option = document.createElement('option');
                 option.value = squadra.id;
@@ -140,12 +145,14 @@ class Squadre {
                 const firstSquadra = filteredSquadre[0];
                 this.page.querySelector('img').src = firstSquadra.id_immagine || '../../images/Logo.png';
                 title.textContent = firstSquadra.nome;
+                squadreSelect.value = firstSquadra.id;
+                filterGiocatori.addRoster(firstSquadra.id);
             } else {
                 this.page.querySelector('img').src = '../../images/Logo.png';
+                title.textContent = 'Nessuna squadra selezionata';
+                filterGiocatori.addRoster(null);
             }
         });
-
-
     }
 }
 

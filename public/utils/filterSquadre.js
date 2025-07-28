@@ -22,24 +22,31 @@ class FilterSquadre {
     }
 
     async addRoster(squadraId) {
-        // Se squadraId non è passato, prendi quello selezionato dal select
+        console.log('Aggiungo roster per squadra ID:', squadraId);
         const squadreSelect = this.Section.querySelector('#squadreSelect');
-        console.log('Valore select:', squadreSelect ? squadreSelect.value : 'select non trovato');
-        if (squadreSelect) {
-            console.log('Opzioni select:', Array.from(squadreSelect.options).map(opt => opt.value));
-        }
-        console.log('Id passato a addRoster:', squadraId);
+        // Se non viene passato l'id, prendi quello selezionato
         if (squadraId === undefined || squadraId === null || squadraId === "") {
-            squadraId = squadreSelect ? parseInt(squadreSelect.value) : null;
+            if (squadreSelect && squadreSelect.value !== "") {
+                squadraId = parseInt(squadreSelect.value);
+            } else if (this.squadre.length > 0) {
+                squadraId = this.squadre[0].id;
+                if (squadreSelect) squadreSelect.value = squadraId;
+            } else {
+                console.warn('Nessuna squadra selezionata o disponibile');
+                return;
+            }
         }
-        if (squadraId === null || isNaN(squadraId) || squadraId === "") {
+        if (squadraId === null || isNaN(squadraId)) {
             console.warn('Nessuna squadra selezionata');
             return;
         }
-        // Filtra i giocatori della squadra
-        console.log('id_squadra dei giocatori:', this.giocatori.map(g => g.id_squadra));
-        const giocatori = this.giocatori.filter(g => Number(g.id_squadra) === Number(squadraId));
-        console.log('Giocatori per la squadra:', giocatori);  
+        // Listener per cambio squadra
+        if (squadreSelect && !squadreSelect._listenerAdded) {
+            squadreSelect.addEventListener('change', () => this.addRoster());
+            squadreSelect._listenerAdded = true;
+        }
+        // Filtra i giocatori della squadra (corretto)
+        const giocatori = this.giocatori.filter(g => Number(g.squadra_id) === Number(squadraId));
         const rosterTable = this.Section.querySelector('#rosterTable');
         rosterTable.innerHTML = '';
         if (giocatori.length === 0) {
@@ -53,15 +60,35 @@ class FilterSquadre {
         }
         giocatori.forEach((giocatore, idx) => {
             const tr = document.createElement('tr');
+            let fotoCell = '';
+            if (giocatore.foto && giocatore.foto.trim() !== '') {
+                fotoCell = `<img src="${giocatore.foto}" class="player-photo rounded-circle" style="width:32px;height:32px;object-fit:cover;" alt="Foto Giocatore">`;
+            } else {
+                fotoCell = `<i class="fa fa-user-circle fa-2x text-secondary"></i>`;
+            }
+            const ruoloClass = giocatore.ruolo ? giocatore.ruolo.toLowerCase().replace(/\s+/g, '').replace(/[àèéìòù]/g, '') : '';
+            // Calcola età dal campo data_nascita (formato: YYYY-MM-DD)
+            let eta = '';
+            if (giocatore.data_nascita) {
+                const oggi = new Date();
+                const nascita = new Date(giocatore.data_nascita);
+                eta = oggi.getFullYear() - nascita.getFullYear();
+                const m = oggi.getMonth() - nascita.getMonth();
+                if (m < 0 || (m === 0 && oggi.getDate() < nascita.getDate())) {
+                    eta--;
+                }
+            } else if (giocatore.eta) {
+                eta = giocatore.eta;
+            }
             tr.innerHTML = `
                 <td>${idx + 1}</td>
-                <td><img src="${giocatore.foto || ''}" class="player-photo" alt="Foto Giocatore"></td>
-                <td>${giocatore.nome || ''}</td>
-                <td>${giocatore.cognome || ''}</td>
+                <td>${fotoCell}</td>
+                <td>${giocatore.Nome || ''}</td>
+                <td>${giocatore.Cognome || ''}</td>
                 <td>${giocatore.numero_maglia || ''}</td>
-                <td><span class="position-badge position-${giocatore.ruolo ? giocatore.ruolo.toLowerCase() : ''}">${giocatore.ruolo || ''}</span></td>
-                <td>${giocatore.eta || ''}</td>
-                <td>${giocatore.piede_preferito || ''}</td>
+                <td><span class="position-badge position-${ruoloClass}">${giocatore.ruolo || ''}</span></td>
+                <td>${eta}</td>
+                <td>${giocatore.piede_preferito=== 'Sinistro' ? 'SX':'DX' || '' }</td>
             `;
             rosterTable.appendChild(tr);
         });
