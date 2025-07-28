@@ -13,3 +13,15 @@ exports.getSquadre = async () => {
         });
     });
 }
+
+exports.getGiocatori =async ()=>{
+    const sql = 'SELECT * FROM GIOCATORI';
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, (err, giocatori) => {
+            if (err) {
+                return reject({ error: 'Error retrieving players: ' + err.message });
+            }
+            resolve(giocatori || []);
+        });
+    });
+}
