@@ -14,6 +14,7 @@ class Giocatore {
         attivo,
         created_at,
         updated_at,
+        Nazionalita, 
         nome,
         cognome
     }) {
@@ -31,6 +32,7 @@ class Giocatore {
         this.attivo = attivo;
         this.created_at = created_at;
         this.updated_at = updated_at;
+        this.Nazionalita = Nazionalita; // Assuming this is
         this.nome = nome;
         this.cognome = cognome;
     }

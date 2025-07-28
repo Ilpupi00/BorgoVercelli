@@ -104,8 +104,6 @@ class Squadre {
                 option.textContent = `${squadra.nome}`;
                 squadreSelect.appendChild(option);
             });
-            //aggiungi Roster
-            filterGiocatori.addRoster(squadreAnno[0].id); // Aggiungi il roster della prima squadra dell'anno selezionato
             // Aggiorna titolo e immagine in base alla prima squadra dell'anno selezionato
             if (squadreAnno.length > 0) {
                 title.textContent = squadreAnno[0].nome;
