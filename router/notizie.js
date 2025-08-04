@@ -3,10 +3,25 @@ const express = require('express');
 const router = express.Router();
 const dao = require('../dao/dao-notizie');
 const daoEventi= require('../dao/dao-eventi');
+const Notizia= require('../model/notizia');
+
+
+// utilizzo del model di Notazia per creare un oggetto Notizia
+const makeNotizia = (row)=>{
+    return new Notizia(
+        row.titolo,
+        row.sottotitolo,
+        row.immagine,
+        row.contenuto,
+        row.autore,
+        row.data_pubblicazione || row.data
+    );
+}
 
 router.get('/notizie', async (req, res) => {
   try {
-    const notizie = await dao.getNotizie();
+    const rows = await dao.getNotizie();
+    const notizie = (rows || []).map(makeNotizia);
     res.json(notizie);
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);

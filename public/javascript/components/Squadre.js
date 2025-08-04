@@ -129,7 +129,7 @@ class Squadre {
                 this.page.querySelector('img').src = '../../images/Logo.png';
             }
             filterGiocatori.addRoster(parseInt(event.target.value));
-        });
+        }); 
 
         annoSelect.addEventListener('change', (event) => {
             const selectedAnno = event.target.value;

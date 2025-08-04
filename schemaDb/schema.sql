@@ -58,7 +58,9 @@ CREATE TABLE CAMPI (
     capienza_pubblico INTEGER,
     attivo INTEGER,
     created_at TEXT,
-    updated_at TEXT
+    updated_at TEXT,
+    id_immagine INTEGER,
+    FOREIGN KEY (id_immagine) REFERENCES IMMAGINI(id)
 );
 
 CREATE TABLE PRENOTAZIONI (
