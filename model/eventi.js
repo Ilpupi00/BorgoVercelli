@@ -32,3 +32,5 @@ class Eventi {
         return json;
     }
 }
+
+module.exports = Eventi;

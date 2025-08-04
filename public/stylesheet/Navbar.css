@@ -46,6 +46,10 @@
     margin: 0 auto 4px auto !important;
     padding: 0 !important;
     max-width: 90vw !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
   }
   form[role="search"] input {
     min-width: 80px !important;
@@ -144,9 +148,11 @@ form {
 }
 @media(max-width: 992px) {
   .form-control {
-    width: 1vw;
-    margin: 0 auto;
+    width: 50vw;
+    margin: auto;
     text-align: center;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -163,12 +169,45 @@ form {
   display: flex;
   float: right;
   z-index: 1100;
-  background-color: white;
-  border: none;
-}
-.navbar-toggler:focus {
-  outline: none;
+  background-color: #0d6efd;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
   box-shadow: none;
+  transition: background 0.2s, border 0.2s;
+}
+.navbar-toggler:hover, .navbar-toggler:focus {
+  background-color: #0d6efd;
+  border-color: #bdbdbd;
+  box-shadow: none;
+}
+.navbar-toggler-icon {
+  background-image: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.navbar-toggler-icon::before, .navbar-toggler-icon::after, .navbar-toggler-icon span {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+  transition: all 0.2s;
+}
+.navbar-toggler-icon span {
+  top: 10px;
+}
+.navbar-toggler-icon::before {
+  top: 5px;
+}
+.navbar-toggler-icon::after {
+  top: 15px;
 }
 
 .navbar-collapse {
