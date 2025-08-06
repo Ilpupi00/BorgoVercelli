@@ -2,10 +2,10 @@ class Registrazione{
     constructor(element,loader) {
         if(typeof loader === 'function') loader();
         this.element = element;
-        this.render();
+        this.init();
     }
 
-    render() {
+    init() {
         this.element.innerHTML = `
             <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card">

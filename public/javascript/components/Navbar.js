@@ -4,11 +4,13 @@ class Navbar {
     if(typeof loadCSS ==='function')loadCSS();
     this.navbar = navbar;
     this.path = window.location.pathname.toLowerCase();
-    this.render();
+    this.init();
     // Ricarica la navbar quando avviene login/logout
     window.addEventListener('authChanged', () => this.render());
   }
-
+  init(){
+    this.render();
+  }
   async render(){
     // Verifica autenticazione utente
     let isLogged = false;

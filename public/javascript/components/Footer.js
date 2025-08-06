@@ -5,6 +5,10 @@ class Footer{
         this.footer=footer;
 
 
+        this.init();
+    }
+
+    init(){
         this.render();
     }
     render(){

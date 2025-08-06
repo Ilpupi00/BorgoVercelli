@@ -3,9 +3,13 @@ class Login{
     constructor(element,loader) {
         if(typeof loader === 'function') loader();
         this.element = element;
-        this.render();
+        this.init();
     }
 
+    init(){
+        this.render();
+    }
+    
     render() {
         this.element.innerHTML = `
         <div class="container d-flex justify-content-center align-items-center vh-100">

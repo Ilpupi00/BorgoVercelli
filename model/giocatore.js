@@ -1,36 +1,34 @@
 class Giocatore {
     constructor({
         id,
+        id_immagine,
         squadra_id,
         numero_maglia,
         ruolo,
         data_nascita,
-        altezza,
-        peso,
         piede_preferito,
         data_inizio_tesseramento,
         data_fine_tesseramento,
         attivo,
         created_at,
         updated_at,
-        Nazionalita, 
+        nazionalita,
         nome,
         cognome
     }) {
         this.id = id;
+        this.id_immagine = id_immagine;
         this.squadra_id = squadra_id;
         this.numero_maglia = numero_maglia;
         this.ruolo = ruolo;
         this.data_nascita = data_nascita;
-        this.altezza = altezza;
-        this.peso = peso;
         this.piede_preferito = piede_preferito;
         this.data_inizio_tesseramento = data_inizio_tesseramento;
         this.data_fine_tesseramento = data_fine_tesseramento;
         this.attivo = attivo;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        this.Nazionalita = Nazionalita; // Assuming this is
+        this.nazionalita = nazionalita;
         this.nome = nome;
         this.cognome = cognome;
     }
