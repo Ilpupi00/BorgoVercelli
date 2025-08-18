@@ -16,6 +16,7 @@ const routerRecensioni = require('./router/recensioni');
 const routerSendEmail = require('./router/email');
 const routerSquadre = require('./router/squadre');
 const routerGalleria = require('./router/galleria');
+const routerPrenotazione = require('./router/prenotazione');
 
 //passport configuration
 passport.use(new LocalStrategy(
@@ -88,6 +89,7 @@ app.use('/',routerRecensioni);
 app.use('/', routerSendEmail);
 app.use('/', routerSquadre);
 app.use('/', routerGalleria);
+app.use('/api', routerPrenotazione);
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
