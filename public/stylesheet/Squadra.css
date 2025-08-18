@@ -1,3 +1,22 @@
+/* Contenitore select centrato e max-width su desktop */
+.select-container {
+  max-width: 400px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+@media (max-width: 576px) {
+  #squadreSelect,
+  #annoSelect,
+  select.form-select,
+  select.custom-select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    display: block;
+  }
+}
 .img-container {
     display: flex;
     justify-content: center;

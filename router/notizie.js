@@ -29,13 +29,24 @@ router.get('/notizie', async (req, res) => {
   }
 });
 
-router.get('/Notizia/:id',async(req,res)=>{
+router.get('/notizia/:id',async(req,res)=>{
   try{
     const notizia= await dao.getNotiziaById(req.params.id);
     res.json(notizia);
   }catch(error){
     console.error('errore nel recupero delle notizie:', error);
     res.status.json({ error: 'Errore nel caricamento delle notizie' });
+  }
+});
+
+router.get('/notizie/all', async (req, res) => {
+  try {
+    const rows = await dao.getNotizie();
+    const notizie = (rows || []).map(makeNotizia);
+    res.json(notizie);
+  } catch (error) {
+    console.error('Errore nel recupero delle notizie:', error);
+    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 

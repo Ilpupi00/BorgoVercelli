@@ -31,14 +31,13 @@ class Galleria{
                 </label>
                 <input type="file" id="uploadPhoto" class="d-none" accept="image/*">
             </div>
-        </section>
-        <section>
-            <div class="row mt-4">
-                <div class="col-12 text-center">
-                <button id="loadMoreBtn" class="btn btn-outline-primary rounded-pill px-4 py-2">Più Immagini</button>
+                <div class="gallery-container row g-4"></div>
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button id="loadMoreBtn" class="btn btn-outline-primary rounded-pill px-4 py-2">Più Immagini</button>
+                    </div>
+                </div>
             </div>
-
-            <div class="gallery-container row g-4">
         </section>
         `;
 
@@ -48,7 +47,7 @@ class Galleria{
 
     async fetchImages() {
         try {
-            const response = await fetch('/GetGalleria');
+            const response = await fetch('/GetImmagini');
             if (!response.ok) {
                 console.error('Errore nel recupero delle immagini:', response.statusText);
                 return;
@@ -56,6 +55,14 @@ class Galleria{
             const data = await response.json();
             this.allImages = data.immagini || [];
             this.imagesShown = 0;
+            // Mostra la prima immagine nell'header se presente
+            if (this.allImages.length > 0) {
+                const headerImg = document.querySelector('header .centered-image');
+                if (headerImg) {
+                    headerImg.src = this.allImages[0].url;
+                    headerImg.alt = this.allImages[0].descrizione || 'Immagine della galleria';
+                }
+            }
             this.clearGallery();
             this.showNextImages();
             this.setupLoadMoreButton();
@@ -107,9 +114,7 @@ class Galleria{
 
             const button = document.createElement('button');
             button.className = 'image-wrapper p-0 border-0 bg-transparent w-100';
-            button.setAttribute('data-bs-toggle', 'modal');
-            button.setAttribute('data-bs-target', '#imageModal');
-            button.setAttribute('data-img-src', img.url);
+            button.type = 'button';
 
             const imgElement = document.createElement('img');
             imgElement.src = img.url;
@@ -122,6 +127,18 @@ class Galleria{
             const span = document.createElement('span');
             span.className = 'btn btn-primary btn-sm';
             span.textContent = 'Visualizza';
+
+            // Click su "Visualizza": mostra l'immagine grande nell'header
+            span.addEventListener('click', (e) => {
+                e.preventDefault();
+                const headerImg = document.querySelector('header .centered-image');
+                if (headerImg) {
+                    headerImg.src = img.url;
+                    headerImg.alt = img.descrizione || 'Immagine della galleria';
+                }
+                // Scrolla in alto per vedere l'header
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
 
             overlay.appendChild(span);
             button.appendChild(imgElement);

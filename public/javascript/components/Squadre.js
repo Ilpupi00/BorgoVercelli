@@ -32,9 +32,9 @@ class Squadre {
     renderPage(squadre) {
         this.page.innerHTML = `
             <header class="m-5">
-                <div class="mb-5 w-25 overflow-hidden mx-auto col-2">
-                    <select class="form-select form-select-sm custom-select row-cols-2" aria-label="Select menu" id="squadreSelect"></select>
-                    <select class="form-select form-select-sm custom-select mt-4 row-cols-1" aria-label="Select menu" id="annoSelect"></select>
+                <div class="mb-5 select-container mx-auto">
+                    <select class="form-select form-select-sm custom-select" aria-label="Select menu" id="squadreSelect"></select>
+                    <select class="form-select form-select-sm custom-select mt-4" aria-label="Select menu" id="annoSelect"></select>
                 </div>
                 <div>
                     <h1 class="text-center mb-4 overflow-hidden" id="SquadraTitle"></h1>
