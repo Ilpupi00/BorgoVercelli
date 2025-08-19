@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const getLoggedUser = require('../middleware/getUser');
 
 // Login
 router.post('/session', (req, res, next) => {
@@ -29,7 +30,6 @@ router.get('/session', (req, res) => {
     res.status(405).json({ error: 'Metodo non consentito' });
 });
 
-
-
+router.get('/session/user', getLoggedUser);
 
 module.exports = router;

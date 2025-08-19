@@ -1,4 +1,4 @@
-import loadCSS from '../utils/loadCSS.js';
+import loadCSS from './utils/loadCSS.js';
 import Footer from './components/Footer.js';
 import Navbar from './components/Navbar.js';
 import { setupEmailFormListener } from './components/send_email.js';
@@ -64,7 +64,10 @@ document.addEventListener('DOMContentLoaded', async() => {
             const {default:Prenotazione} = await import ('./components/Prenotazione.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
-            new Prenotazione(page,()=> loadCSS('/stylesheet/Prenotazione.css'));
+            new Prenotazione(page,()=> {
+                console.log('Inizializzo Prenotazione, page:', page);
+                loadCSS('/stylesheet/Prenotazione.css');
+            });
             
             setupEmailFormListener();
             break;

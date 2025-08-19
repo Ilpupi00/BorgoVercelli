@@ -1,7 +1,7 @@
 'use strict';
 
 class Campo{
-    constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione){
+    constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione,Docce){
         this.id = id;
         this.nome = nome;
         this.indirizzo = indirizzo;
@@ -15,6 +15,7 @@ class Campo{
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.descrizione = descrizione;
+        this.Docce = Docce;
     }
 
     static from(json){

@@ -1,7 +1,7 @@
 'use strict';
 
 class Prenotazione{
-    constructor(id,campo_id,utente_id,squadra_id,data_prenotazione,ora_inizio,ora_fine,tipo_attivita,note,stato,created_at,updated_at){
+    constructor(id,campo_id,utente_id,squadra_id,data_prenotazione,ora_inizio,ora_fine,tipo_attivita,note,stato,created_at,updated_at,docce){
         this.id=id;
         this.campo_id=campo_id;
         this.utente_id=utente_id;

@@ -1,5 +1,5 @@
-import FilterGiocatori from "../../utils/filterSquadre.js"
-import SearchPlayer from "../../utils/cercaGiocatore.js";
+import FilterGiocatori from "../utils/filterSquadre.js"
+import SearchPlayer from "../utils/cercaGiocatore.js";
 
 class Squadre {
     constructor(page, loadCSS) {
