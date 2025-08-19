@@ -8,7 +8,8 @@ class Registrazione{
     init() {
         this.element.innerHTML = `
             <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow-lg login-card">
+        <div class="card p-4 shadow-lg login-card position-relative">
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeRegister" aria-label="Chiudi"></button>
             <h1 class="text-center mb-4 title">Registrati</h1>
             <form id="authForm">
                 <div class="mb-3">
@@ -42,6 +43,7 @@ class Registrazione{
         `;
 
         const form = document.getElementById('authForm');
+        const closeBtn = document.getElementById('closeRegister');
         const body = document.querySelector('body');
 
         if(body.classList.contains('login-page')){
@@ -54,6 +56,9 @@ class Registrazione{
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             this.handleRegistration();
+        });
+        closeBtn.addEventListener('click', () => {
+            window.location.href = '/Homepage';
         });
     }
 

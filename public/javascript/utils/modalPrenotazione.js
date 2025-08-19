@@ -97,6 +97,19 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
         }
         // Filtro solo orari validi (inizio < fine, formato HH:MM)
         orari = Array.isArray(orari) ? orari.filter(o => o.inizio && o.fine && o.inizio.match(/^\d{2}:\d{2}$/) && o.fine.match(/^\d{2}:\d{2}$/) && o.inizio < o.fine) : [];
+        // LOGICA: mostra solo orari non prenotati e, se oggi, solo quelli almeno 2 ore dopo ora attuale
+        const oggi = new Date().toISOString().slice(0,10);
+        if (data === oggi) {
+            const now = new Date();
+            orari = orari.filter(o => {
+                if (o.prenotato) return false;
+                const [h, m] = o.inizio.split(":");
+                const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
+                return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+            });
+        } else {
+            orari = orari.filter(o => !o.prenotato);
+        }
         const select = modal.querySelector('#orarioPrenotazione');
         select.innerHTML = orari.length > 0
             ? orari.map(o => `<option value='${o.inizio}|${o.fine}'>${o.inizio} - ${o.fine} (${campo.nome})</option>`).join('')

@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",

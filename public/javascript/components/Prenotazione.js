@@ -41,6 +41,7 @@ class Prenotazione {
         if (this.campi.length === 0) {
             html = '<div class="alert alert-warning">Nessun campo disponibile al momento.</div>';
         } else {
+            // Sostituisco la form globale con una form accanto alla disponibilità di ogni card campo
             html = this.campi.map(campo => {
                 // Usa la prima immagine associata, se presente, altrimenti fallback
                 let imgSrc = '/Sito/Immagini/default-news.jpg';
@@ -96,7 +97,10 @@ class Prenotazione {
                                     <h2 class="campo-tipo fw-bold text-primary mb-3 overflow-hidden">${campo.nome || campo.tipo}</h2>
                                     <div class="campo-features mb-4">
                                         <div class="row g-3">
-                                            <div class="col-6 col-md-4"><div class="feature-item d-flex align-items-center"><i class="bi bi-grass me-2 text-success"></i><span>${campo.tipo_superficie || 'Erba sintetica'}</span></div></div>
+                                            <div class="col-6 col-md-4"><div class="feature-item d-flex align-items-center">
+                                                <i class="bi bi-patch-check me-2 text-success"></i>
+                                                <span>${campo.tipo_superficie ? campo.tipo_superficie : 'Erba sintetica'}</span>
+                                            </div></div>
                                             <div class="col-6 col-md-4"><div class="feature-item d-flex align-items-center"><i class="bi bi-lightbulb me-2 text-warning"></i><span>${campo.illuminazione ? 'Illuminazione' : 'No illuminazione'}</span></div></div>
                                                     <div class="col-6 col-md-4"><div class="feature-item d-flex align-items-center"><i class="bi bi-droplet me-2 text-info"></i><span>${campo.Docce === 1 ? 'Docce' : 'No docce'}</span></div></div>
                                             <div class="col-6 col-md-4"><div class="feature-item d-flex align-items-center"><i class="bi bi-door-open me-2 text-secondary"></i><span>${campo.spogliatoi ? 'Spogliatoi' : 'No spogliatoi'}</span></div></div>
@@ -111,13 +115,33 @@ class Prenotazione {
                                             Prenota ora
                                         </button>
                                     </div>
-                                    <div class="mt-4">
-                                        <p class="mb-1"><strong>Orari disponibili oggi:</strong></p>
-                                        <div class="d-flex flex-wrap gap-2 mt-2">
-                                            ${this.orariDisponibili[campo.id] && this.orariDisponibili[campo.id].length > 0 ?
-                                                this.orariDisponibili[campo.id].map(orario => `<span class="badge bg-light text-dark border p-2">${orario.inizio}-${orario.fine}</span>`).join('')
-                                                : '<span class="badge bg-danger text-light p-2">Nessun orario disponibile</span>'}
-                                        </div>
+                                    <div class="mt-4 d-flex align-items-center gap-3">
+                                        <p class="mb-1"><strong>Orari disponibili per</strong></p>
+                                        <form class="d-flex align-items-center ms-3" onsubmit="return false;" data-campo-id="${campo.id}">
+                                            <input type="date" class="form-control form-control-sm input-orari-campo" value="${new Date().toISOString().slice(0,10)}" style="width:140px;" data-campo-id="${campo.id}">
+                                        </form>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-2" id="orariDisponibili-${campo.id}">
+                                        ${this.orariDisponibili[campo.id] && this.orariDisponibili[campo.id].length > 0 ?
+                                            this.orariDisponibili[campo.id]
+                                                .filter(orario => {
+                                                    // Mostra solo se non prenotato
+                                                    if (orario.prenotato) return false;
+                                                    // Se la data è oggi, mostra solo se l'orario di inizio è almeno 2 ore dopo l'ora attuale
+                                                    const oggi = new Date().toISOString().slice(0,10);
+                                                    const inputData = document.querySelector(`.input-orari-campo[data-campo-id='${campo.id}']`)?.value || oggi;
+                                                    if (inputData === oggi) {
+                                                        const now = new Date();
+                                                        // orario.inizio formato "HH:mm"
+                                                        const [h, m] = orario.inizio.split(":");
+                                                        const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
+                                                        // Limite: almeno 2 ore dopo ora attuale
+                                                        return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+                                                    }
+                                                    return true;
+                                                })
+                                                .map(orario => `<span class="badge bg-success text-light border p-2">${orario.inizio}-${orario.fine}</span>`).join('')
+                                            : ''}
                                     </div>
                                 </div>
                             </div>
@@ -128,6 +152,28 @@ class Prenotazione {
             }).join('');
         }
         this.page.innerHTML = html;
+        this.addDisponibilitaFormListener();
+    }
+
+    addDisponibilitaFormListener() {
+        const form = document.getElementById('formDisponibilita');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const campoId = document.getElementById('campoSelect').value;
+            const data = document.getElementById('dataSelect').value;
+            const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
+            const orari = await res.json();
+            const resultDiv = document.getElementById('disponibilitaResult');
+            resultDiv.innerHTML = `<div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Disponibilità per il ${data}</h5>
+                    ${orari.length > 0 ?
+                        `<ul class="list-group list-group-flush">${orari.map(o => `<li class="list-group-item"><span class="badge bg-success me-2">${o.inizio} - ${o.fine}</span></li>`).join('')}</ul>`
+                        : '<div class="alert alert-danger">Nessun orario disponibile per questa data.</div>'}
+                </div>
+            </div>`;
+        });
     }
 
     addEventListeners() {
@@ -137,6 +183,48 @@ class Prenotazione {
                 this.openPrenotaModal(campoId);
             });
         });
+        // Listener per le form orari accanto a ogni card
+        setTimeout(() => {
+            document.querySelectorAll('.btn-vedi-orari').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const campoId = btn.getAttribute('data-campo-id');
+                    const form = btn.closest('form');
+                    const data = form.querySelector('input[type="date"]').value;
+                    const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
+                    const orari = await res.json();
+                    const resultDiv = document.getElementById(`orariDisponibili-${campoId}`);
+                    resultDiv.innerHTML = orari.length > 0 ?
+                        orari.filter(o => !o.prenotato).map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('')
+                        : '';
+                });
+            });
+        }, 0);
+
+        // Listener per input data accanto a ogni card
+        setTimeout(() => {
+            document.querySelectorAll('.input-orari-campo').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const campoId = input.getAttribute('data-campo-id');
+                    const data = input.value;
+                    const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
+                    const orari = await res.json();
+                    const oggi = new Date().toISOString().slice(0,10);
+                    const now = new Date();
+                    const resultDiv = document.getElementById(`orariDisponibili-${campoId}`);
+                    resultDiv.innerHTML = orari.length > 0 ?
+                        orari.filter(o => {
+                            if (o.prenotato) return false;
+                            if (data === oggi) {
+                                const [h, m] = o.inizio.split(":");
+                                const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
+                                return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+                            }
+                            return true;
+                        }).map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('')
+                        : '';
+                });
+            });
+        }, 0);
     }
 
     async openPrenotaModal(campoId) {
@@ -169,41 +257,53 @@ class Prenotazione {
                     showLoginRequiredModal();
                     return;
                 }
+                // Gestione robusta risposta
+                if (!res.ok) {
+                    let msg = 'Errore nella prenotazione';
+                    try {
+                        const errJson = await res.json();
+                        msg = errJson.error || msg;
+                    } catch(e) {}
+                    showModalError(msg);
+                    return;
+                }
                 const result = await res.json();
-                if (result.success) {
-                    alert('Prenotazione confermata!');
+                if (result && result.success) {
+                    showModalSuccess();
                     await this.fetchOrari();
                     this.render();
                     this.addEventListeners();
                 } else {
-                    alert(result.error || 'Errore nella prenotazione');
+                    showModalError(result.error || 'Errore nella prenotazione');
                 }
             } catch (err) {
-                alert('Errore di rete nella prenotazione');
+                showModalError('Errore di rete nella prenotazione');
             }
         });
     }
 }
 
+// Fine classe Prenotazione
+
 // Modal per login richiesto
-    function showLoginRequiredModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal fade';
-        modal.id = 'modalLoginRequired';
-        modal.tabIndex = -1;
-        modal.innerHTML = `
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title">Accesso richiesto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <p>Devi essere loggato per effettuare una prenotazione.<br>Effettua il login per continuare.</p>
-                        <a href="/login" class="btn btn-primary">Vai al login</a>
-                    </div>
-                </div>
-            </div>
+function showLoginRequiredModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'modalLoginRequired';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Accesso richiesto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>Devi essere loggato per effettuare una prenotazione.<br>Effettua il login per continuare.</p>
+            <a href="/login" class="btn btn-primary">Vai al login</a>
+          </div>
+        </div>
+      </div>
     `;
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
@@ -211,32 +311,58 @@ class Prenotazione {
     modal.addEventListener('hidden.bs.modal', () => {
         modal.remove();
     });
+}
 
-    function showModalSuccess(){
-        const modal = document.createElement('div');
-        modal.className = 'modal fade';
-        modal.id = 'modalSuccess';
-        modal.tabIndex = -1;
-        modal.innerHTML = `
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header bg-success">
-                <h5 class="modal-title">Prenotazione avvenuta con successo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body text-center">
-                <p>La tua prenotazione è stata confermata!</p>
-              </div>
-            </div>
+function showModalSuccess(){
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'modalSuccess';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <h5 class="modal-title">Prenotazione avvenuta con successo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        `;
-        document.body.appendChild(modal);
-        const bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
-        modal.addEventListener('hidden.bs.modal', () => {
-            modal.remove();
-        });
-    }
+          <div class="modal-body text-center">
+            <p>La tua prenotazione è stata confermata!</p>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+    });
+}
+
+function showModalError(msg) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'modalError';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-danger">
+            <h5 class="modal-title">Errore prenotazione</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>${msg}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+    });
 }
 
 export default Prenotazione;

@@ -1,4 +1,3 @@
-
 class Login{
     constructor(element,loader) {
         if(typeof loader === 'function') loader();
@@ -13,7 +12,8 @@ class Login{
     render() {
         this.element.innerHTML = `
         <div class="container d-flex justify-content-center align-items-center vh-100">
-            <div class="card p-4 shadow-lg login-card">
+            <div class="card p-4 shadow-lg login-card position-relative">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeLogin" aria-label="Chiudi"></button>
                 <h1 class="text-center mb-4 title">Accedi</h1>
                 <form id="authForm">
                     <div class="mb-3">
@@ -37,6 +37,7 @@ class Login{
         `;
 
         const form = document.getElementById('authForm');
+        const closeBtn = document.getElementById('closeLogin');
         const body = document.querySelector('body');
 
         if(body.classList.contains('login-page')){
@@ -48,6 +49,9 @@ class Login{
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             this.handleLogin();
+        });
+        closeBtn.addEventListener('click', () => {
+            window.location.href = '/Homepage';
         });
     }
 

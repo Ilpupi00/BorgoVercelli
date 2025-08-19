@@ -29,6 +29,7 @@ router.get('/campi/:id/disponibilita', async (req, res) => {
 // 3. Prenota un campo
 router.post('/prenotazioni', isLoggedIn, async (req, res) => {
     const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note } = req.body;
+    console.log('[PRENOTAZIONE] Dati ricevuti:', req.body);
     if (!campo_id || !data_prenotazione || !ora_inizio || !ora_fine) {
         return res.status(400).json({ error: 'Dati obbligatori mancanti' });
     }
