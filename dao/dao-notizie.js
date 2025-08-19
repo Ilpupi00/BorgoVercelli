@@ -1,7 +1,22 @@
 'use strict';
 
 const sqlite = require('../db.js');
+const Notizie= require('../model/notizia.js');
 
+const makeNotizie= (row)=> {
+    return new Notizie(
+        row.titolo,
+        row.sottotitolo,
+        row.immagine,
+        row.contenuto,
+        row.autore_id,
+        row.pubblicata,
+        row.data_pubblicazione,
+        row.visualizzazioni,
+        row.created_at,
+        row.updated_at
+    );
+}
 exports.getNotizie = function(){
     const sql = `
         SELECT N.*, U.nome AS autore_nome, U.cognome AS autore_cognome

@@ -1,6 +1,6 @@
 'use strict';
 
-class Eventi {
+class Evento {
     constructor(id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, immagini_id) {
         this.id = id;
         this.titolo = titolo;
@@ -33,4 +33,4 @@ class Eventi {
     }
 }
 
-module.exports = Eventi;
+module.exports = Evento;

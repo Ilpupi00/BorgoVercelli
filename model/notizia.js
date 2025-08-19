@@ -6,13 +6,17 @@ const moment = require('moment');
 'use strict';
 
 class Notizia{
-    constructor(titolo,sottotitolo,immagine,contenuto,autore,data){
+    constructor(titolo,sottotitolo,immagine,contenuto,autore,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
         this.immagine = immagine;
         this.contenuto = contenuto;
         this.autore = autore;
-        this.data = moment(data);
+        this.pubblicata = pubblicata;
+        this.data_pubblicazione = moment(data_pubblicazione);
+        this.visualizzazioni=visualizzazioni;
+        this.created_at= moment(created_at);
+        this.updated_at=moment(updated_at);
     }
 
     static from(json){

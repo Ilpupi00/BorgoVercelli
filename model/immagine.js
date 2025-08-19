@@ -1,6 +1,6 @@
 'use strict';
 
-class Immagini{
+class Immagine{
     constructor(id,descrizione,url,tipo,entita_riferimento_entita_id,ordine,created_at,updated_at){
         this.id=id;
         this.descrizione=descrizione;
@@ -30,3 +30,5 @@ class Immagini{
     }
 
 }
+
+module.exports=Immagine;

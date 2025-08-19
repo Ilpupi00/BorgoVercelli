@@ -89,7 +89,7 @@ app.use('/',routerRecensioni);
 app.use('/', routerSendEmail);
 app.use('/', routerSquadre);
 app.use('/', routerGalleria);
-app.use('/api', routerPrenotazione);
+app.use('/prenotazione', routerPrenotazione);
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
