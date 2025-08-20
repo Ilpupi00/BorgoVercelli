@@ -126,16 +126,15 @@ class Prenotazione {
                                             this.orariDisponibili[campo.id]
                                                 .filter(orario => {
                                                     // Mostra solo se non prenotato
-                                                    if (orario.prenotato) return false;
-                                                    // Se la data è oggi, mostra solo se l'orario di inizio è almeno 2 ore dopo l'ora attuale
-                                                    const oggi = new Date().toISOString().slice(0,10);
-                                                    const inputData = document.querySelector(`.input-orari-campo[data-campo-id='${campo.id}']`)?.value || oggi;
-                                                    if (inputData === oggi) {
-                                                        const now = new Date();
-                                                        // orario.inizio formato "HH:mm"
-                                                        const [h, m] = orario.inizio.split(":");
-                                                        const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
-                                                        // Limite: almeno 2 ore dopo ora attuale
+                                                    if (typeof orario.prenotato !== 'undefined' && orario.prenotato) return false;
+                                                    // Usa la data selezionata dall'utente
+                                                    const inputData = document.querySelector(`.input-orari-campo[data-campo-id='${campo.id}']`)?.value || new Date().toISOString().slice(0,10);
+                                                    const now = new Date();
+                                                    // Costruisci la data locale
+                                                    const [h, m] = orario.inizio.split(":");
+                                                    const orarioDate = new Date(inputData + 'T' + orario.inizio);
+                                                    // Se la data è oggi, nascondi orari entro 2 ore
+                                                    if (inputData === now.toISOString().slice(0,10)) {
                                                         return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
                                                     }
                                                     return true;
@@ -192,9 +191,19 @@ class Prenotazione {
                     const data = form.querySelector('input[type="date"]').value;
                     const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
                     const orari = await res.json();
+                    const now = new Date();
                     const resultDiv = document.getElementById(`orariDisponibili-${campoId}`);
                     resultDiv.innerHTML = orari.length > 0 ?
-                        orari.filter(o => !o.prenotato).map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('')
+                        orari.filter(o => {
+                            if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
+                            // Usa la data selezionata
+                            const [h, m] = o.inizio.split(":");
+                            const orarioDate = new Date(data + 'T' + o.inizio);
+                            if (data === now.toISOString().slice(0,10)) {
+                                return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+                            }
+                            return true;
+                        }).map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('')
                         : '';
                 });
             });
@@ -208,15 +217,15 @@ class Prenotazione {
                     const data = input.value;
                     const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
                     const orari = await res.json();
-                    const oggi = new Date().toISOString().slice(0,10);
                     const now = new Date();
                     const resultDiv = document.getElementById(`orariDisponibili-${campoId}`);
                     resultDiv.innerHTML = orari.length > 0 ?
                         orari.filter(o => {
-                            if (o.prenotato) return false;
-                            if (data === oggi) {
-                                const [h, m] = o.inizio.split(":");
-                                const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
+                            if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
+                            // Usa la data selezionata
+                            const [h, m] = o.inizio.split(":");
+                            const orarioDate = new Date(data + 'T' + o.inizio);
+                            if (data === now.toISOString().slice(0,10)) {
                                 return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
                             }
                             return true;
@@ -229,7 +238,19 @@ class Prenotazione {
 
     async openPrenotaModal(campoId) {
         const campo = this.campi.find(c => c.id == campoId);
-        const orari = this.orariDisponibili[campoId] || [];
+        // Applica filtro anche agli orari passati al modal
+        const now = new Date();
+        // Recupera la data selezionata dall'input
+        const inputData = document.querySelector(`.input-orari-campo[data-campo-id='${campoId}']`)?.value || new Date().toISOString().slice(0,10);
+        const orari = (this.orariDisponibili[campoId] || []).filter(o => {
+            if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
+            const [h, m] = o.inizio.split(":");
+            const orarioDate = new Date(inputData + 'T' + o.inizio);
+            if (inputData === now.toISOString().slice(0,10)) {
+                return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+            }
+            return true;
+        });
         // Import dinamico per evitare errori di bundle
         const { showModalPrenotazione } = await import('../utils/modalPrenotazione.js');
         showModalPrenotazione(campo, orari, async (datiPrenotazione) => {

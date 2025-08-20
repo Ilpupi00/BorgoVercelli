@@ -103,9 +103,19 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
     if (dataNorm === now.toISOString().slice(0,10)) {
         orariDisponibili = orariDisponibili.filter(o => {
             const [h, m] = o.inizio.split(":");
+            // Costruisci la data locale con la data richiesta
             const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
             return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
         });
+    }
+    // Filtro sempre orari entro 2 ore anche se la data non è oggi (per sicurezza)
+    if (dataNorm !== now.toISOString().slice(0,10)) {
+        // Se la data è futura, non serve filtro
+        // Se la data è passata, non mostrare nulla
+        const richiestaDate = new Date(dataNorm);
+        if (richiestaDate < now) {
+            orariDisponibili = [];
+        }
     }
     return new Promise((resolve,reject)=>{
         db.all(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ?`, [campoId, dataNorm], (err, rows) => {

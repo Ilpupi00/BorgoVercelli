@@ -86,36 +86,34 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
     // Miglioramento UX: mostra orari con info aggiuntive
     async function aggiornaOrariDisponibili(data) {
         console.log('Chiamata aggiornaOrariDisponibili con data:', data);
-        let orari = [];
-        try {
-            const res = await fetch(`/prenotazione/campi/${campo.id}/disponibilita?data=${data}&_=${Date.now()}`); // aggiungo cache buster
-            orari = await res.json();
-            console.log('Orari disponibili per', data, orari);
-        } catch (e) {
-            console.error('Errore fetch orari:', e);
-            orari = [];
-        }
-        // Filtro solo orari validi (inizio < fine, formato HH:MM)
-        orari = Array.isArray(orari) ? orari.filter(o => o.inizio && o.fine && o.inizio.match(/^\d{2}:\d{2}$/) && o.fine.match(/^\d{2}:\d{2}$/) && o.inizio < o.fine) : [];
-        // LOGICA: mostra solo orari non prenotati e, se oggi, solo quelli almeno 2 ore dopo ora attuale
-        const oggi = new Date().toISOString().slice(0,10);
-        if (data === oggi) {
-            const now = new Date();
-            orari = orari.filter(o => {
-                if (o.prenotato) return false;
-                const [h, m] = o.inizio.split(":");
-                const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
-                return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
-            });
-        } else {
-            orari = orari.filter(o => !o.prenotato);
-        }
-        const select = modal.querySelector('#orarioPrenotazione');
-        select.innerHTML = orari.length > 0
-            ? orari.map(o => `<option value='${o.inizio}|${o.fine}'>${o.inizio} - ${o.fine} (${campo.nome})</option>`).join('')
-            : '<option value="">Nessun orario disponibile</option>';
-        // Log per controllo opzioni select
-        console.log('Select aggiornata, opzioni:', Array.from(select.options).map(opt => opt.value));
+    let orari = [];
+    try {
+      const res = await fetch(`/prenotazione/campi/${campo.id}/disponibilita?data=${data}&_=${Date.now()}`); // aggiungo cache buster
+      orari = await res.json();
+      console.log('Orari disponibili per', data, orari);
+    } catch (e) {
+      console.error('Errore fetch orari:', e);
+      orari = [];
+    }
+    // Filtro solo orari validi (inizio < fine, formato HH:MM, non prenotati, non entro 2 ore)
+    const now = new Date();
+    orari = Array.isArray(orari) ? orari.filter(o => {
+      if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
+      if (!o.inizio || !o.fine || !o.inizio.match(/^\d{2}:\d{2}$/) || !o.fine.match(/^\d{2}:\d{2}$/) || o.inizio >= o.fine) return false;
+      // Filtro orari entro 2 ore solo se la data è oggi
+      if (data === now.toISOString().slice(0,10)) {
+        const [h, m] = o.inizio.split(":");
+        const orarioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m));
+        return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
+      }
+      return true;
+    }) : [];
+    const select = modal.querySelector('#orarioPrenotazione');
+    select.innerHTML = orari.length > 0
+      ? orari.map(o => `<option value='${o.inizio}|${o.fine}'>${o.inizio} - ${o.fine} (${campo.nome})</option>`).join('')
+      : '<option value="">Nessun orario disponibile</option>';
+    // Log per controllo opzioni select
+    console.log('Select aggiornata, opzioni:', Array.from(select.options).map(opt => opt.value));
     }
 
     // Inizializza la select orari con la data di default
