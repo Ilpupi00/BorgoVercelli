@@ -64,7 +64,6 @@ class FilterNotizie {
                     let formattedDate = 'N/D';
                     if (notizia.data_pubblicazione) {
                         try {
-                            console.log('DEBUG data_pubblicazione:', notizia.data_pubblicazione);
                             const date = new Date(notizia.data_pubblicazione.replace(' ', 'T'));
                             if (!isNaN(date.getTime())) {
                                 formattedDate = date.toLocaleDateString('it-IT');
@@ -78,30 +77,61 @@ class FilterNotizie {
                         console.warn('DEBUG data_pubblicazione assente:', notizia);
                     }
                     
-                    // Handle image with better fallback
-                    const imageUrl = notizia.immagine || this.getDefaultImage();
-                    const fallbackImage = this.getDefaultImage();
-                    
-                    notiziaElement.innerHTML = `
-                        <div class="card h-100">
-                            <div class="card-img-container" style="height: 200px; overflow: hidden;">
-                                <img src="${imageUrl}" 
-                                     class="card-img-top" 
-                                     alt="${notizia.titolo || 'Notizia'}" 
-                                     style="object-fit: cover; height: 100%; width: 100%;"
-                                     onerror="this.src='${fallbackImage}'">
-                            </div>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title overflow-hidden">${notizia.titolo || 'Titolo non disponibile'}</h5>
-                                <p class="card-text">${notizia.sottotitolo || 'Descrizione non disponibile'}</p>
-                                <div class="mt-auto">
-                                    <div class="text-muted mb-2">${formattedDate}</div>
-                                    <a href="/Notizia/${notizia.N_id || notizia.id}" class="btn btn-primary btn-sm">Leggi di più</a>
+                        let imageUrl = this.getDefaultImage();
+                        if (notizia.immagine) {
+                            if (!isNaN(Number(notizia.immagine))) {
+                                imageUrl = `/uploads/${notizia.immagine}.jpg`;
+                            } else {
+                                imageUrl = notizia.immagine;
+                            }
+                        }
+                        const fallbackImage = this.getDefaultImage();
+
+                        // Calcolo id valido
+                        let idNotizia = null;
+                        if (notizia.N_id && !isNaN(Number(notizia.N_id)) && Number(notizia.N_id) > 0) {
+                            idNotizia = Number(notizia.N_id);
+                        } else if (notizia.id && !isNaN(Number(notizia.id)) && Number(notizia.id) > 0) {
+                            idNotizia = Number(notizia.id);
+                        }
+                        if (!idNotizia) {
+                            console.warn('Notizia con id non valido:', notizia);
+                        }
+                        const linkNotizia = idNotizia ? `/Notizia/${idNotizia}` : null;
+
+                        // Funzione per verificare se l'immagine esiste
+                        function checkImage(url) {
+                            return fetch(url, { method: 'HEAD' })
+                                .then(res => res.ok)
+                                .catch(() => false);
+                        }
+
+                        // Generazione asincrona della card per gestire l'immagine
+                        (async () => {
+                            const exists = await checkImage(imageUrl);
+                            const finalImageUrl = exists ? imageUrl : fallbackImage;
+                            notiziaElement.innerHTML = `
+                                <div class="card h-100">
+                                    <div class="card-img-container" style="height: 200px; overflow: hidden;">
+                                        <img src="${finalImageUrl}" 
+                                             class="card-img-top" 
+                                             alt="${notizia.titolo || 'Notizia'}" 
+                                             style="object-fit: cover; height: 100%; width: 100%;">
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title overflow-hidden">${notizia.titolo || 'Titolo non disponibile'}</h5>
+                                        <p class="card-text">${notizia.sottotitolo || 'Descrizione non disponibile'
+                                        }</p>
+                                        <div class="text-muted small">${(notizia.autore_nome || '') + (notizia.autore_cognome ? ' ' + notizia.autore_cognome : '')}</div>
+                                        <div class="mt-auto">
+                                            <div class="text-muted mb-2">${formattedDate}</div>
+                                            ${linkNotizia ? `<a href="${linkNotizia}" class="btn btn-primary btn-sm">Leggi di più</a>` : `<span class="btn btn-secondary btn-sm disabled">ID non valido</span>`}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    `;
-                    row.appendChild(notiziaElement);
+                            `;
+                            row.appendChild(notiziaElement);
+                        })();
                 });
             } else {
                 row.innerHTML = '<div class="col-12"><div class="alert alert-info">Nessuna notizia disponibile per il periodo selezionato</div></div>';

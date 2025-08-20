@@ -22,7 +22,7 @@ class Squadre {
                 return [];
             }
             const data = await response.json();
-            return data.squadre || [];
+            return data || [];
         } catch (error) {
             console.error('Errore nel recupero delle squadre:', error);
             return [];

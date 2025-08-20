@@ -6,7 +6,8 @@ const moment = require('moment');
 'use strict';
 
 class Notizia{
-    constructor(titolo,sottotitolo,immagine,contenuto,autore,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
+    constructor(id,titolo,sottotitolo,immagine,contenuto,autore,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
+        this.id = id;
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
         this.immagine = immagine;

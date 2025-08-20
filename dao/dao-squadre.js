@@ -2,7 +2,16 @@
 
 const sqlite = require('../db.js');
 const Giocatore = require('../model/giocatore.js');
-//const Squadre = require('../model/squadra.js');
+const Squadra = require('../model/squadra.js');
+
+const makeSquadra = (row) => {
+    return new Squadra(
+        row.id,
+        row.nome,
+        row.id_immagine,
+        row.Anno   
+    );
+}
 
 const makeGiocatore = (row) => {
     return new Giocatore({
@@ -33,7 +42,7 @@ exports.getSquadre = async () => {
             if (err) {
                 return reject({ error: 'Error retrieving teams: ' + err.message });
             }
-            resolve(squadre || []);
+            resolve(squadre.map(makeSquadra) || []);
         });
     });
 }
