@@ -15,12 +15,12 @@
     
     <div class="profile-container">
         <div class="profile-card animate__animated animate__fadeIn overflow-hidden">
-            <div class="profile-avatar mb-4 animate__animated animate__zoomIn d-flex justify-content-center align-items-center mt-4" style="min-height:140px;">
-                <div class="position-relative d-inline-block" style="width: 120px; height: 120px;">
+            <div class="profile-avatar mb-4 animate__animated animate__zoomIn d-flex justify-content-center align-items-center mt-4">
+                <div class="position-relative d-inline-block w-100" style="max-width: 120px; height: 120px;">
                   <% if (imageUrl) { %>
-                    <img src="<%= imageUrl %>" alt="Immagine profilo" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
+                    <img src="<%= imageUrl %>" alt="Immagine profilo" class="rounded-circle profile-img-mobile" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
                   <% } else { %>
-                    <i class="bi bi-person-circle" style="font-size: 120px;"></i>
+                    <i class="bi bi-person-circle profile-img-mobile" style="font-size: 120px;"></i>
                   <% } %>
                   <!-- Matitina centrata -->
                   <button id="editPicBtn" type="button" class="btn btn-light position-absolute top-50 start-50 translate-middle p-2 border" style="display:none; border-radius:50%; z-index:2; background:rgba(255,255,255,0.8); box-shadow:0 2px 8px rgba(0,0,0,0.12);" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
