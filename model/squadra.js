@@ -12,7 +12,7 @@ class Squadra{
         if (!json) {
             return null;
         }
-        const squadra = Object.assign(new SQUADRA(), json);
+        const squadra = Object.assign(new Squadra(), json);
         return squadra;
     }
 

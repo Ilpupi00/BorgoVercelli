@@ -35,15 +35,15 @@ class FilterEventi {
             filteredEventi.slice(0, 3).forEach(evento => {
                 // Gestione campi mancanti
                 const titolo = evento.titolo || 'Titolo non disponibile';
-                const sottotitolo = evento.sottotitolo || 'Descrizione non disponibile';
+                const sottotitolo = evento.descrizione || 'Descrizione non disponibile';
                 const imageUrl = evento.immagine || fallbackImage;
 
                 // Gestione data
                 let formattedDate = 'N/D';
-                if (evento.data) {
+                if (evento.data_inizio) {
                     try {
                         // Sostituisci spazio con T se necessario
-                        const date = new Date(evento.data.replace(' ', 'T'));
+                        const date = new Date(evento.data_inizio.replace(' ', 'T'));
                         if (!isNaN(date.getTime())) {
                             formattedDate = date.toLocaleDateString('it-IT');
                         }

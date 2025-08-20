@@ -1,3 +1,7 @@
+'use strict';
+
+const moment=require('moment');
+
 class Giocatore {
     constructor({
         id,
@@ -23,11 +27,11 @@ class Giocatore {
         this.ruolo = ruolo;
         this.data_nascita = data_nascita;
         this.piede_preferito = piede_preferito;
-        this.data_inizio_tesseramento = data_inizio_tesseramento;
-        this.data_fine_tesseramento = data_fine_tesseramento;
+        this.data_inizio_tesseramento = data_inizio_tesseramento ? moment(data_fine_tesseramento).format('YYYY-MM-DD HH:mm:ss') : null;
+        this.data_fine_tesseramento = data_fine_tesseramento ? moment(data_fine_tesseramento).format('YYYY-MM-DD HH:mm:ss') : null;
         this.attivo = attivo;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.created_at = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
+        this.updated_at = updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.nazionalita = nazionalita;
         this.nome = nome;
         this.cognome = cognome;

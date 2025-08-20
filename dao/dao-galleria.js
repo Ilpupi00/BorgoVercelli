@@ -1,16 +1,30 @@
 'use strict';
 
 const db= require('../db.js');
+const Immagine = require('../model/immagine.js');
+
+const makeImmagine=(row)=>{
+    return new Immagine(
+        row.id,
+        row.descrizione,
+        row.url,
+        row.tipo,
+        row.entita_riferimento_entita_id,
+        row.ordine,
+        row.created_at,
+        row.updated_at
+    );
+}
 
 exports.getImmagini = function() {
-    const sql = "SELECT id, url, descrizione FROM IMMAGINI WHERE tipo = 'upload della Galleria';";
+    const sql = "SELECT * FROM IMMAGINI WHERE tipo = 'upload della Galleria';";
     return new Promise((resolve, reject) => {
         db.all(sql, (err, immagini) => {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nel recupero delle immagini: ' + err.message });
             }
-            resolve(immagini || []);
+            resolve(immagini.map(makeImmagine) || []);
         });
     });
 }

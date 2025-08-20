@@ -1,5 +1,7 @@
 'use strict';
 
+const moment= require('moment');
+
 class Immagine{
     constructor(id,descrizione,url,tipo,entita_riferimento_entita_id,ordine,created_at,updated_at){
         this.id=id;
@@ -8,8 +10,8 @@ class Immagine{
         this.tipo=tipo;
         this.entita_riferimento_entita_id=entita_riferimento_entita_id;
         this.ordine=ordine;
-        this.created_at=created_at;
-        this.updated_at=updated_at;
+        this.created_at=created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
+        this.updated_at=updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
     }
 
     static from(json){

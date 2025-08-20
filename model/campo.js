@@ -1,5 +1,7 @@
 'use strict';
 
+const moment=require('moment');
+
 class Campo{
     constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione,Docce){
         this.id = id;
@@ -12,8 +14,8 @@ class Campo{
         this.spogliatoi = spogliatoi;
         this.capienza_pubblico = capienza_pubblico;
         this.attivo = attivo;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.created_at = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
+        this.updated_at = updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.descrizione = descrizione;
         this.Docce = Docce;
     }

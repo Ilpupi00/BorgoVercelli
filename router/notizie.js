@@ -30,12 +30,43 @@ router.get('/notizie', async (req, res) => {
 });
 
 router.get('/notizia/:id',async(req,res)=>{
-  try{
-    const notizia= await dao.getNotiziaById(req.params.id);
+  try {
+    const notizia = await dao.getNotiziaById(req.params.id);
     res.json(notizia);
-  }catch(error){
+  } catch (error) {
     console.error('errore nel recupero delle notizie:', error);
-    res.status.json({ error: 'Errore nel caricamento delle notizie' });
+    if (error && error.error === 'News not found') {
+      res.status(404).json({ error: 'Notizia non trovata' });
+    } else {
+      res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+    }
+  }
+});
+
+// Gestione anche della route con N maiuscola per compatibilità frontend
+router.get('/Notizia/:id', async (req, res) => {
+  try {
+    const notizia = await dao.getNotiziaById(req.params.id);
+    res.json(notizia);
+  } catch (error) {
+    if (error && error.error === 'News not found') {
+      // Risposta HTML user-friendly, nessun errore nel console.log del browser
+      res.status(200).send(`
+        <html>
+          <head>
+            <title>Notizia non trovata</title>
+            <link rel="stylesheet" href="/stylesheet/reviews.css">
+          </head>
+          <body style="text-align:center; margin-top:100px;">
+            <h2>Notizia non trovata</h2>
+            <p>La notizia che cerchi non esiste o è stata rimossa.</p>
+            <a href="/notizie/all" class="btn btn-primary">Torna alle notizie</a>
+          </body>
+        </html>
+      `);
+    } else {
+      res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+    }
   }
 });
 

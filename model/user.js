@@ -1,7 +1,8 @@
 'use strict';
 
 class User{
-    constructor(nome,cognome,email,telefono,tipo_utente){
+    constructor(id,nome,cognome,email,telefono,tipo_utente){
+        this.id=id;
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;

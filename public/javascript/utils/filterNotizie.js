@@ -64,13 +64,18 @@ class FilterNotizie {
                     let formattedDate = 'N/D';
                     if (notizia.data_pubblicazione) {
                         try {
+                            console.log('DEBUG data_pubblicazione:', notizia.data_pubblicazione);
                             const date = new Date(notizia.data_pubblicazione.replace(' ', 'T'));
                             if (!isNaN(date.getTime())) {
                                 formattedDate = date.toLocaleDateString('it-IT');
+                            } else {
+                                console.warn('DEBUG data non valida:', notizia.data_pubblicazione);
                             }
                         } catch (e) {
                             console.warn('Error formatting date:', notizia.data_pubblicazione);
                         }
+                    } else {
+                        console.warn('DEBUG data_pubblicazione assente:', notizia);
                     }
                     
                     // Handle image with better fallback
@@ -91,7 +96,7 @@ class FilterNotizie {
                                 <p class="card-text">${notizia.sottotitolo || 'Descrizione non disponibile'}</p>
                                 <div class="mt-auto">
                                     <div class="text-muted mb-2">${formattedDate}</div>
-                                    <a href="/Notizia/${notizia.id}" class="btn btn-primary btn-sm">Leggi di più</a>
+                                    <a href="/Notizia/${notizia.N_id || notizia.id}" class="btn btn-primary btn-sm">Leggi di più</a>
                                 </div>
                             </div>
                         </div>
