@@ -48,3 +48,7 @@ exports.getValutaMediaRecensioni = async () => {
         });
     });
 }
+
+exports.inserisciRecensione=async(recensione)=>{
+    
+}

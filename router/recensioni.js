@@ -48,4 +48,52 @@ router.get('/recensioni/all', async (req, res) => {
     }
 });
 
+// Salva una nuova recensione
+router.post('/recensione', async (req, res) => {
+    try {
+        const { valutazione, titolo, contenuto, entita_tipo, entita_id } = req.body;
+        if (!valutazione || !titolo || !contenuto || !entita_tipo || !entita_id) {
+            return res.json({ success: false, error: 'Dati mancanti' });
+        }
+        // Salva la recensione tramite DAO
+        const result = await dao.inserisciRecensione({ valutazione, titolo, contenuto, entita_tipo, entita_id });
+        if (result) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, error: 'Errore salvataggio recensione' });
+        }
+    } catch (error) {
+        console.error('Errore salvataggio recensione:', error);
+        res.json({ success: false, error: 'Errore server' });
+    }
+});
+
+// Salva una nuova recensione
+router.post('/recensioni', async (req, res) => {
+    try {
+        const { valutazione, titolo, contenuto, entita_tipo, entita_id } = req.body;
+        // Validazione base
+        if (!valutazione || !titolo || !contenuto || !entita_tipo || !entita_id) {
+            return res.status(400).json({ success: false, error: 'Tutti i campi sono obbligatori.' });
+        }
+        // Salva la recensione tramite DAO
+        const result = await dao.inserisciRecensione({
+            valutazione,
+            titolo,
+            contenuto,
+            entita_tipo,
+            entita_id,
+            // puoi aggiungere userId se serve
+        });
+        if (result && result.success) {
+            res.json({ success: true });
+        } else {
+            res.status(500).json({ success: false, error: 'Errore salvataggio recensione.' });
+        }
+    } catch (error) {
+        console.error('Errore salvataggio recensione:', error);
+        res.status(500).json({ success: false, error: 'Errore server.' });
+    }
+});
+
 module.exports = router;

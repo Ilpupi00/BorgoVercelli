@@ -73,7 +73,7 @@ class FilterdRecensioni {
         altreNotizie.className = 'd-flex justify-content-center mt-3'; 
         altreNotizie.innerHTML = `
             <a href="/recensioni/all" class="btn btn-primary btn-sm m-auto me-2 ms-2">Altre Recensioni</a>
-            <a href="/scrivi/recensioni" class="btn btn-primary btn-sm me-2 ms-2">Scrivi Recensioni</a>`;
+            <a href="/scrivi/Recensione" class="btn btn-primary btn-sm me-2 ms-2">Scrivi Recensione</a>`;
         this.section.appendChild(altreNotizie);
         return this.section;
     }

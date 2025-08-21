@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async() => {
     
     switch(path) {
 
-        case '/':
         case'/homepage':
             const {default:Homepage} = await import ('./components/Homepage.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css')); 
@@ -89,6 +88,13 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Profilo(page,()=> loadCSS('/stylesheet/profilo.css'));
+            setupEmailFormListener();
+            break;
+        case '/scrivi/recensione':
+            const {default:ScriviRecensione} = await import (`./components/ScriviRecensione.js`);
+            new ScriviRecensione(page,()=> loadCSS('/stylesheet/ScriviRecensioni.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             setupEmailFormListener();
             break;
         default:
