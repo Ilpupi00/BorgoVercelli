@@ -1,4 +1,6 @@
-class FilterdRecensioni {
+import showModal from '../utils/showModal.js';
+
+class FilteredRecensioni {
     constructor(section, recensioni) {
         this.section = section;
         this.recensioni = recensioni;
@@ -73,10 +75,29 @@ class FilterdRecensioni {
         altreNotizie.className = 'd-flex justify-content-center mt-3'; 
         altreNotizie.innerHTML = `
             <a href="/recensioni/all" class="btn btn-primary btn-sm m-auto me-2 ms-2">Altre Recensioni</a>
-            <a href="/scrivi/Recensione" class="btn btn-primary btn-sm me-2 ms-2">Scrivi Recensione</a>`;
+            <a href="#" id="scriviRecensioneBtn" class="btn btn-primary btn-sm me-2 ms-2">Scrivi Recensione</a>`;
         this.section.appendChild(altreNotizie);
+
+        // Gestione click su "Scrivi Recensione"
+        const scriviBtn = this.section.querySelector('#scriviRecensioneBtn');
+        if (scriviBtn) {
+            scriviBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch('/scrivi/Recensione', { method: 'GET' });
+                    if (response.status === 401) {
+                        showModal.showLoginRequiredModal('Devi essere autenticato per scrivere una recensione!');
+                        return;
+                    }
+                    // Se non 401, vai alla pagina
+                    window.location.href = '/scrivi/Recensione';
+                } catch (err) {
+                    alert('Errore di rete. Riprova più tardi.');
+                }
+            });
+        }
         return this.section;
     }
 }
 
-export default FilterdRecensioni;
+export default FilteredRecensioni;

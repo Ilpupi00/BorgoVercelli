@@ -1,3 +1,5 @@
+import showModal from '../utils/showModal.js';
+
 class Prenotazione {
     constructor(page, loadCSS) {
         if (typeof loadCSS === 'function') loadCSS();
@@ -275,7 +277,7 @@ class Prenotazione {
                     body: JSON.stringify({ ...datiPrenotazione, utente_id: utenteId })
                 });
                 if (res.status === 401) {
-                    showLoginRequiredModal();
+                    showModal.showLoginRequiredModal('Devi essere loggato per prenotare');
                     return;
                 }
                 // Gestione robusta risposta
@@ -285,105 +287,23 @@ class Prenotazione {
                         const errJson = await res.json();
                         msg = errJson.error || msg;
                     } catch(e) {}
-                    showModalError(msg);
+                    showModal.showModalError(msg,'Errore nella prenotazione');
                     return;
                 }
                 const result = await res.json();
                 if (result && result.success) {
-                    showModalSuccess();
+                    showModalshowModalSuccess('Prenotazione avvenuta con sucesso');
                     await this.fetchOrari();
                     this.render();
                     this.addEventListeners();
                 } else {
-                    showModalError(result.error || 'Errore nella prenotazione');
+                    showModal.showModalError(result.error || 'Errore nella prenotazione');
                 }
             } catch (err) {
-                showModalError('Errore di rete nella prenotazione');
+                showModalshowModalError('Errore di rete nella prenotazione');
             }
         });
     }
-}
-
-// Fine classe Prenotazione
-
-// Modal per login richiesto
-function showLoginRequiredModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalLoginRequired';
-    modal.tabIndex = -1;
-    modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-warning">
-            <h5 class="modal-title">Accesso richiesto</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-center">
-            <p>Devi essere loggato per effettuare una prenotazione.<br>Effettua il login per continuare.</p>
-            <a href="/login" class="btn btn-primary">Vai al login</a>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
-    });
-}
-
-function showModalSuccess(){
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalSuccess';
-    modal.tabIndex = -1;
-    modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-success">
-            <h5 class="modal-title">Prenotazione avvenuta con successo</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-center">
-            <p>La tua prenotazione è stata confermata!</p>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
-    });
-}
-
-function showModalError(msg) {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalError';
-    modal.tabIndex = -1;
-    modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-danger">
-            <h5 class="modal-title">Errore prenotazione</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-center">
-            <p>${msg}</p>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
-    });
 }
 
 export default Prenotazione;

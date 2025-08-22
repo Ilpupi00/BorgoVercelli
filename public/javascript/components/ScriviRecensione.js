@@ -1,5 +1,7 @@
 'use strict';
 
+import showModal from '../utils/showModal.js';
+
 class ScriviRecensione{
     constructor(page,loader){
         if(typeof(loader) ==='function') loader();
@@ -69,6 +71,7 @@ class ScriviRecensione{
                 document.getElementById('recensioneMsg').innerHTML = '<div class="alert alert-warning">Seleziona una valutazione con le stelle!</div>';
                 return;
             }
+            
             const titolo = container.querySelector('#titoloRecensione').value.trim();
             const contenuto = container.querySelector('#contenutoRecensione').value.trim();
             // TODO: aggiungi entita_tipo ed entita_id in base al contesto
@@ -86,12 +89,12 @@ class ScriviRecensione{
             });
             const result = await res.json();
             if (result.success) {
-                document.getElementById('recensioneMsg').innerHTML = '<div class="alert alert-success">Recensione inviata con successo!</div>';
+                await showModal.showModalSuccess('Recensione inviata con successo!');
                 container.querySelector('#recensioneForm').reset();
                 valutazione = 0;
                 stelle.forEach(s => s.style.color = '#ccc');
             } else {
-                document.getElementById('recensioneMsg').innerHTML = `<div class="alert alert-danger">${result.error || 'Errore invio recensione.'}</div>`;
+                showModal.showModalError(result.error || 'Errore invio recensione.');
             }
         });
     }

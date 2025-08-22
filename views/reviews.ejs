@@ -9,15 +9,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="/stylesheet/reviews.css" rel="stylesheet" type="text/css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" defer></script>
-    <script src="/javascript/reviews.js" type="module" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" defer></script>
+        <script>
+            window.reviews = <%- JSON.stringify(reviews || []) %>;
+        </script>
+        <script src="/javascript/reviews.js" type="module" defer></script>
 </head>
 <body>
     <%- include('partials/navbar') %>
 
     <main class="container my-5">
-        <h1 class="text-center mb-5">Recensioni dei nostri clienti</h1>
-
+        <h1 class="text-center mb-5 overflow-hidden">Recensioni dei nostri clienti</h1>
         <% if (typeof error !== 'undefined' && error) { %>
             <div class="alert alert-danger" role="alert">
                 <%= error %>
@@ -27,8 +29,8 @@
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <h2 class="card-title">Valutazione media</h2>
-                            <div class="display-4 text-center mb-3">
+                            <h2 class="card-title overflow-hidden">Valutazione media</h2>
+                            <div class="display-4 text-center mb-3 overflow-hidden ">
                                 <span id="averageRating">
                                     <%= (typeof averageRating === 'number' && !isNaN(averageRating)) ? averageRating.toFixed(1) : 'N/A' %>
                                 </span>
@@ -64,26 +66,7 @@
                         </select>
                     </div>
                     <div id="reviewsContainer">
-                        <% if (typeof reviews !== 'undefined' && reviews && reviews.length > 0) { %>
-                            <% reviews.slice(0,6).forEach(review => { %>
-                                <div class="card mb-3 review-card" data-rating="<%= review.valutazione %>">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><%= review.titolo %></h5>
-                                        <p class="card-text"><%= review.contenuto %></p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <% for (let i = 1; i <= 5; i++) { %>
-                                                    <i class="bi <%= i <= review.valutazione ? 'bi-star-fill' : 'bi-star' %> text-warning"></i>
-                                                <% } %>
-                                            </div>
-                                            <small class="text-muted"><%= new Date(review.data_recensione).toLocaleDateString('it-IT') %></small>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <p class="text-center">Nessuna recensione disponibile al momento.</p>
-                        <% } %>
+                        <!-- Le recensioni verranno gestite da reviews.js -->
                     </div>
                     <div class="text-center mt-4">
                         <button id="loadMoreBtn" class="btn btn-primary">Carica altre recensioni</button>
