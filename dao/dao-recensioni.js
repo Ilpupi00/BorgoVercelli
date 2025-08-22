@@ -50,5 +50,15 @@ exports.getValutaMediaRecensioni = async () => {
 }
 
 exports.inserisciRecensione=async(recensione)=>{
-    
+    // Estraggo i dati
+    const { valutazione, titolo, contenuto, entita_tipo, entita_id, utente_id } = recensione;
+    const sql = `INSERT INTO RECENSIONI (utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto, data_recensione, visibile) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 1)`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto], function(err) {
+            if (err) {
+                return resolve({ success: false, error: err.message });
+            }
+            resolve({ success: true, id: this.lastID });
+        });
+    });
 }

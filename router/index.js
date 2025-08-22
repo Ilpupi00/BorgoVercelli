@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const isLoggedIn=require('../middleware/isLogged');
+const isLoggedIn=require('../middleware/auth');
 
 router.get('/Homepage', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'), (err) => {

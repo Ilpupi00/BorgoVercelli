@@ -79,7 +79,7 @@ class ScriviRecensione{
                 entita_tipo: 'Campo', // esempio
                 entita_id: 1 // esempio
             };
-            const res = await fetch('/recensioni', {
+            const res = await fetch('/recensione', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
