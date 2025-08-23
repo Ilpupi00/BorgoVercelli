@@ -97,8 +97,11 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             setupEmailFormListener();
             break;
-        default:
-            page.innerHTML = `<h1>404 Not Found</h1>`;
+        case '/notizie':
+            new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
+            new Notizie(page,()=> loadCSS('/stylesheet/Notizie.css'));
+            setupEmailFormListener();
             break;
 
     }
