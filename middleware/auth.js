@@ -1,4 +1,4 @@
-// middleware/auth.js
+
 module.exports = function isLoggedIn(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
         console.log("Loggato");
