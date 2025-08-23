@@ -81,8 +81,6 @@ class ShowModal{
         modal.remove();
     });
   }
-
-
 }
 
 export default ShowModal;
