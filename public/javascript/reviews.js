@@ -1,3 +1,22 @@
+// Bottone "Torna su" in basso a destra
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollBtn = document.createElement('button');
+    scrollBtn.textContent = '↑';
+    scrollBtn.className = 'scroll-top-btn';
+    scrollBtn.title = 'Torna su';
+    document.body.appendChild(scrollBtn);
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollBtn.style.display = 'block';
+        } else {
+            scrollBtn.style.display = 'none';
+        }
+    });
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
 // Gestione dinamica delle recensioni con filtro stelle e caricamento progressivo
 document.addEventListener('DOMContentLoaded', () => {
     // Recupera tutte le recensioni dal backend (puoi modificarlo per paginazione)
@@ -68,6 +87,7 @@ class ReviewsManager {
         if (this.loadMoreBtn) {
             this.loadMoreBtn.addEventListener('click', () => this.loadMoreReviews());
         }
+        
     }
 
     loadMoreReviews() {

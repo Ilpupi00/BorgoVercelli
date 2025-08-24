@@ -55,3 +55,33 @@
 *{
     overflow: auto;
 }
+.scroll-top-btn {
+	position: fixed;
+	bottom: 32px;
+	right: 32px;
+	z-index: 9999;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: linear-gradient(90deg, #3a7bd5 0%, #00d2ff 100%);
+	color: #fff;
+	font-size: 2rem;
+	border: none;
+	box-shadow: 0 2px 8px rgba(58,123,213,0.18);
+	cursor: pointer;
+	display: none;
+	transition: background 0.2s, box-shadow 0.2s;
+}
+.scroll-top-btn:hover {
+	background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+	box-shadow: 0 4px 16px rgba(58,123,213,0.26);
+}
+@media (max-width: 600px) {
+	.scroll-top-btn {
+		bottom: 16px;
+		right: 16px;
+		width: 40px;
+		height: 40px;
+		font-size: 1.5rem;
+	}
+}
