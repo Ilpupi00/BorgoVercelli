@@ -14,7 +14,7 @@ class Notizie{
         const notizie = await this.fetchNotizie();
         const container = document.createElement('div');
         container.className = 'notizie-container';
-        this.page.innerHTML = '';
+        this.page.innerHTML = '<h1 class="text-center my-4 overflow-hidden">Tutte le notizie</h1>';
         this.page.appendChild(container);
 
         let shown = 9;
@@ -61,23 +61,36 @@ class Notizie{
             this.page.appendChild(loadMoreBtn);
         }
 
-    // Bottone "Torna su"
+    // Bottone "Torna su" sticky animato
     const scrollBtn = document.createElement('button');
     scrollBtn.textContent = '↑';
     scrollBtn.className = 'scroll-top-btn';
     scrollBtn.title = 'Torna su';
     document.body.appendChild(scrollBtn);
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                scrollBtn.style.display = 'block';
-            } else {
-                scrollBtn.style.display = 'none';
-            }
-        });
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+    const footer = document.getElementById('footer');
+    function updateScrollBtnPosition() {
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        if (window.scrollY > 300) {
+            scrollBtn.style.display = 'block';
+        } else {
+            scrollBtn.style.display = 'none';
+        }
+        let targetBottom = 40;
+        if (footerRect.top < windowHeight) {
+            const overlap = windowHeight - footerRect.top;
+            targetBottom = overlap + 40;
+        }
+        scrollBtn.style.transition = 'bottom 0.3s cubic-bezier(.4,0,.2,1)';
+        scrollBtn.style.bottom = targetBottom + 'px';
+    }
+    window.addEventListener('scroll', updateScrollBtnPosition);
+    window.addEventListener('resize', updateScrollBtnPosition);
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    updateScrollBtnPosition();
     }
     async fetchNotizie(){
             try {
