@@ -5,7 +5,12 @@ class Registrazione{
         this.init();
     }
 
-    init() {
+    async init() {
+        document.title = "Registrazione";
+        await this.render();
+    }
+
+    async render() {
         this.element.innerHTML = `
             <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card position-relative">

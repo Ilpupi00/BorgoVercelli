@@ -10,6 +10,7 @@ class Prenotazione {
     }
 
     async init() {
+        document.title = "Prenotazione";
         await this.fetchCampi();
         await this.fetchOrari();
         this.render();

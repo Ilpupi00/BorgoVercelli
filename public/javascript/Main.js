@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async() => {
         case'/homepage':
             const {default:Homepage} = await import ('./components/Homepage.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css')); 
-            new Homepage(page,()=> loadCSS('/stylesheet/homepage.css'));
+            new Homepage(page,()=> loadCSS('/stylesheet/Homepage.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             setupEmailFormListener();
             break;
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async() => {
 
         case '/login':
             const {default:login} = await import (`./components/Login.js`);
-            new login(page,()=> loadCSS('/stylesheet/login.css'));
+            new login(page,()=> loadCSS('/stylesheet/Login.css'));
             break;
 
 
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async() => {
             const {default:Profilo} = await import (`./components/Profilo.js`);
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
-            new Profilo(page,()=> loadCSS('/stylesheet/profilo.css'));
+            new Profilo(page,()=> loadCSS('/stylesheet/Profilo.css'));
             setupEmailFormListener();
             break;
         case '/scrivi/recensione':
@@ -97,13 +97,17 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             setupEmailFormListener();
             break;
-        case '/notizie':
+
+        case '/notizie/lista':
+            const { default: Notizie } = await import('./components/Notizie.js');
             new Navbar(navbar,()=> loadCSS('/stylesheet/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheet/Footer.css'));
             new Notizie(page,()=> loadCSS('/stylesheet/Notizie.css'));
             setupEmailFormListener();
             break;
-
+        default:
+            page.innerHTML=`<h1>404 - Pagina non trovata</h1>`;
+            break;
     }
     
 });

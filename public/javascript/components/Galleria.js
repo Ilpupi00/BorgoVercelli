@@ -9,11 +9,12 @@ class Galleria{
         this.init();
     }
 
-    init(){
-        this.render();
+    async init(){
+        document.title = "Galleria";
+        await this.render();
     }
 
-    render(){
+    async render(){
         this.page.innerHTML = `
         <header class="text-center py-3 text-white">
             <div class="row">

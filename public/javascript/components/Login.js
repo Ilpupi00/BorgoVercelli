@@ -6,10 +6,12 @@ class Login{
     }
 
     init(){
+        document.title = "Login";
         this.render();
     }
     
     render() {
+
         this.element.innerHTML = `
         <div class="container d-flex justify-content-center align-items-center vh-100">
             <div class="card p-4 shadow-lg login-card position-relative">

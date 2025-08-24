@@ -3,10 +3,15 @@ class Profilo{
         if (typeof LoadCSS === 'function') LoadCSS();
         this.page=page;
         console.log('Profilo component initialized');
-        this.render();
+        this.init();
     }
 
-    render(){
+    async init(){
+        document.title = "Profilo";
+        await this.render();
+    }
+
+    async render(){
         // Esegui direttamente la logica, il DOM è già pronto
         console.log('action listener attivo');
         const profileCard = document.querySelector('.profile-card');

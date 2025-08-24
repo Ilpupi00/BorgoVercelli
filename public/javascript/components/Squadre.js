@@ -9,6 +9,7 @@ class Squadre {
     }
 
     async init() {
+        document.title = "Squadre";
         const squadre = await this.fetchSquadre();
         this.renderPage(squadre);
         this.setupComponents(squadre);

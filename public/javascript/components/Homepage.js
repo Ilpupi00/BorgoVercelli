@@ -10,7 +10,8 @@ class Homepage {
         this.init();
     }
 
-    init(){
+    async init(){
+        document.title = "Homepage";
         this.container.innerHTML = `
         <header class="header container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
             <h1 class="title">Asd BorgoVercelli 2022</h1>

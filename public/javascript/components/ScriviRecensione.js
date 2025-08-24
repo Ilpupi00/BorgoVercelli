@@ -10,6 +10,7 @@ class ScriviRecensione{
     }
 
     init(){
+        document.title="Scrivi una recensione";
         this.render();
     }
 

@@ -138,7 +138,7 @@ class FilterNotizie {
             }
             const altreNotizie = document.createElement('div');
             altreNotizie.className = 'd-flex justify-content-center mt-5'; 
-            altreNotizie.innerHTML = `<a href="/notizie" class="btn btn-primary btn-sm">Altre notizie</a>`;
+            altreNotizie.innerHTML = `<a href="/notizie/lista" class="btn btn-primary btn-sm">Altre notizie</a>`;
             this.section.appendChild(altreNotizie);
         } catch (error) {
             console.error('Error rendering notizie:', error);

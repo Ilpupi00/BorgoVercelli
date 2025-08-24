@@ -34,7 +34,6 @@ exports.getNotizie = async function(){
 
             try {
                 const result = notizie.map(makeNotizie)|| [];
-                console.log('DEBUG notizie:', notizie[0]);
                 resolve(result);
             } catch (e) {
                 return reject({ error: 'Error mapping news: ' + e.message });

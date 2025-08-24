@@ -43,10 +43,10 @@ router.get('/Notizia/:id', async (req, res) => {
   }
 });
 
-router.get('/notizie/all', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const rows = await dao.getNotizie();
-    const notizie = (rows || []).map(makeNotizia);
+    const notizie = (rows || []);
     res.json(notizie);
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
