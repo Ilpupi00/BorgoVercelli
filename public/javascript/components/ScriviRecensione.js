@@ -75,7 +75,6 @@ class ScriviRecensione{
             
             const titolo = container.querySelector('#titoloRecensione').value.trim();
             const contenuto = container.querySelector('#contenutoRecensione').value.trim();
-            // TODO: aggiungi entita_tipo ed entita_id in base al contesto
             const body = {
                 valutazione,
                 titolo,
