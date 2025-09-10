@@ -83,7 +83,7 @@ router.get('/scrivi/Recensione',isLoggedIn,(req,res)=>{
     });
 });
 
-router.get('/notizie/lista',(req,res)=>{
+router.get('/notizie/all',(req,res)=>{
     res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if(err){
             console.log('Error sending file:', err);

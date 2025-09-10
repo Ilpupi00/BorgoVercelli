@@ -23,7 +23,7 @@ class ScriviRecensione{
             <form id="recensioneForm" class="bg-light rounded shadow p-4">
                 <div class="mb-3 text-center">
                     <label class="form-label fw-bold">Valutazione</label>
-                    <div id="stelleValutazione" class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                    <div id="stelleValutazione" class="d-flex justify-content-center align-items-center gap-2 mb-2 overflow-hidden">
                         ${[1,2,3,4,5].map(i => `<i class="bi bi-star star-recensione" data-value="${i}" style="font-size:2rem; color:#ccc; cursor:pointer;"></i>`).join('')}
                     </div>
                 </div>

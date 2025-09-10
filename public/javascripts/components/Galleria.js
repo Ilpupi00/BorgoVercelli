@@ -16,10 +16,10 @@ class Galleria{
 
     async render(){
         this.page.innerHTML = `
-        <header class="text-center py-3 text-white">
+        <header class="text-center py-3 text-white overflow-hidden">
             <div class="row">
               <div class="img-container">
-                    <img src="/Sito/Immagini/Foto2.jpg" alt="Descrizione dell'immagine" class="centered-image">
+                    <img alt="Descrizione dell'immagine" class="centered-image">
                 </div>
             </div>
         </header>

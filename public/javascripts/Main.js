@@ -95,11 +95,11 @@ document.addEventListener('DOMContentLoaded', async() => {
             setupEmailFormListener();
             break;
 
-        case '/notizie/lista':
+        case '/notizie/all':
             const { default: Notizie } = await import('./components/Notizie.js');
-            new Navbar(navbar,()=> loadCSS('./stylesheets/Navbar.css'));
-            new Footer(footer,()=> loadCSS('./stylesheets/Footer.css'));
-            new Notizie(page,()=> loadCSS('./stylesheets/Notizie.css'));
+            new Navbar(navbar,()=> loadCSS('/stylesheets/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheets/Footer.css'));
+            new Notizie(page,()=> loadCSS('/stylesheets/Notizie.css'));
             setupEmailFormListener();
             break;
         default:
