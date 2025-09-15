@@ -93,4 +93,13 @@ router.get('/notizie/all',(req,res)=>{
 
 });
 
+router.get('/eventi/all',(req,res)=>{
+    res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
+        if(err){
+            console.log('Error sending file:', err);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+});
+
 module.exports= router;

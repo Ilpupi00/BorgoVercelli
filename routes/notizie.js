@@ -80,4 +80,18 @@ router.get('/Evento/:id', async (req, res) => {
   }
 });
 
+router.get('/eventi/all', async (req, res) => {
+  try {
+    const eventi=daoEventi.getEventi();
+    res.json(eventi || []);
+  }
+  catch (error) {
+    console.error('Errore nel recupero degli eventi:', error);
+    res.status(500).json({ 
+      error: 'Errore nel caricamento degli eventi',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
