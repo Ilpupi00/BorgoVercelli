@@ -102,6 +102,13 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Notizie(page,()=> loadCSS('/stylesheets/Notizie.css'));
             setupEmailFormListener();
             break;
+        case '/eventi/all':
+            const { default: Eventi } = await import('./components/Eventi.js');
+            new Navbar(navbar,()=> loadCSS('/stylesheets/Navbar.css'));
+            new Footer(footer,()=> loadCSS('/stylesheets/Footer.css'));
+            new Eventi (page,()=> loadCSS('/stylesheets/Eventi.css'));
+            setupEmailFormListener();
+            break;
         default:
             page.innerHTML=`<h1>404 - Pagina non trovata</h1>`;
             break;

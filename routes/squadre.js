@@ -17,7 +17,6 @@ router.get('/GetSquadre', async (req, res) => {
 router.get('/GetGiocatori', (req,res)=>{
     daoSquadre.getGiocatori()
         .then((giocatori) => {
-            console.log('Giocatori recuperati con successo:', giocatori);
             if (!giocatori || giocatori.length === 0) {
                 console.warn('Nessun giocatore trovato');
                 return res.status(404).json({ error: 'Nessun giocatore trovato' });

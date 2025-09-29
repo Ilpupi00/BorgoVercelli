@@ -80,7 +80,7 @@ class FilterEventi {
         }
         const altreNotizie = document.createElement('div');
         altreNotizie.className = 'd-flex justify-content-center mt-5'; 
-        altreNotizie.innerHTML = `<a href="/Notizia/all" class="btn btn-primary btn-sm">Altre eventi</a>`;
+        altreNotizie.innerHTML = `<a href="/eventi/all" class="btn btn-primary btn-sm">Altre eventi</a>`;
         this.section.appendChild(altreNotizie);
     }
 }
