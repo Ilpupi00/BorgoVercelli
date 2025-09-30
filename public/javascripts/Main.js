@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async() => {
             const {default:Campionato}=await import('./components/Campionato.js')
             new Navbar(navbar,()=> loadCSS('/stylesheets/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheets/Footer.css'));
-            new Campionato(page,()=>'/stylesheet/Campionato.css');
+            new Campionato(page,()=> loadCSS('/stylesheets/Campionato.css'));
             
             setupEmailFormListener();
             break;
