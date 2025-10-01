@@ -27,7 +27,7 @@ class FilteredRecensioni {
         // Limita a solo 6 recensioni
         const limitedRecensioni = this.recensioni.slice(0, 6);
 
-        limitedRecensioni.forEach(recensione => {
+        limitedRecensioni.forEach((recensione, index) => {
             
             const col = document.createElement('div');
             col.className = 'col-md-4 mb-4';
@@ -52,17 +52,17 @@ class FilteredRecensioni {
             const starsHtml = filledStars + emptyStars;
 
             col.innerHTML = `
-                <div class="review-card bg-white">
-                    <div class="review-content">
-                        <div class="review-stars mb-2">
+                <div class="review-card bg-white overflow-hidden" style="--index: ${index}">
+                    <div class="review-content overflow-hidden">
+                        <div class="review-stars mb-2 overflow-hidden">
                             ${starsHtml}
                         </div>
-                        <p class="review-text">${text}</p>
-                        <div class="reviewer-info">
+                        <p class="review-text overflow-hidden">${text}</p>
+                        <div class="reviewer-info overflow-hidden">
                             ${imageElement}
                             <div>
-                                <p class="reviewer-name">${name}</p>
-                                <p class="review-date">${date}</p>
+                                <p class="reviewer-name overflow-hidden">${name}</p>
+                                <p class="review-date overflow-hidden">${date}</p>
                             </div>
                         </div>
                     </div>
