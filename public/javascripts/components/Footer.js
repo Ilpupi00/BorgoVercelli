@@ -13,7 +13,7 @@ class Footer{
     }
     render(){
         this.footer.innerHTML= `    
-          <footer class="bg-primary text-white py-5 mt-4" id="footer">
+          <footer class="bg-primary text-white py-5 " id="footer">
             <div class="container">
               <div class="row gy-4">
                 <div class="col-lg-6 mb-4 mb-lg-0">

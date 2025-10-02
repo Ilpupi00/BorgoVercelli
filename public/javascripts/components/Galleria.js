@@ -5,7 +5,7 @@ class Galleria{
         this.page = page;
         this.allImages = [];
         this.imagesShown = 0;
-        this.imagesPerPage = 6;
+        this.imagesPerPage = 8;
         this.init();
     }
 
@@ -32,11 +32,11 @@ class Galleria{
                 </label>
                 <input type="file" id="uploadPhoto" class="d-none" accept="image/*">
             </div>
-                <div class="gallery-container row g-4"></div>
-                <div class="row mt-4">
-                    <div class="col-12 text-center">
-                        <button id="loadMoreBtn" class="btn btn-outline-primary rounded-pill px-4 py-2">Più Immagini</button>
-                    </div>
+                <div class="gallery-container"></div>
+                <div class="text-center mb-5">
+                    <button id="loadMoreBtn" class="btn-primary">
+                        <i class="fas fa-plus-circle"></i> Più Immagini
+                    </button>
                 </div>
             </div>
         </section>
@@ -103,13 +103,10 @@ class Galleria{
         let galleryRow = document.querySelector('.gallery-container');
         if (!galleryRow) {
             galleryRow = document.createElement('div');
-            galleryRow.className = 'gallery-container row g-4';
+            galleryRow.className = 'gallery-container';
             document.body.appendChild(galleryRow);
         }
         immagini.forEach((img) => {
-            const colDiv = document.createElement('div');
-            colDiv.className = 'col-12 col-sm-6 col-lg-4';
-
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
 
@@ -145,8 +142,7 @@ class Galleria{
             button.appendChild(imgElement);
             button.appendChild(overlay);
             galleryItem.appendChild(button);
-            colDiv.appendChild(galleryItem);
-            galleryRow.appendChild(colDiv);
+            galleryRow.appendChild(galleryItem);
         });
     }
 
