@@ -123,6 +123,9 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="modificaPreferenze()">
+                            <i class="bi bi-pencil me-2"></i>Modifica Profilo
+                        </button>
                         <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
                             <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
                         </a>
@@ -132,8 +135,11 @@
                         <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
                             <i class="bi bi-star me-2"></i>Scrivi Recensione
                         </a>
-                        <a href="/Galleria" class="btn btn-outline-info w-100">
+                        <a href="/Galleria" class="btn btn-outline-info w-100 mb-2">
                             <i class="bi bi-images me-2"></i>Galleria Foto
+                        </a>
+                        <a href="/Logout" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
                         </a>
                     </div>
                 </div>
@@ -142,13 +148,22 @@
                 <div class="card preferences-card animate__animated animate__fadeInLeft animate__delay-3s mt-3">
                     <div class="card-header bg-info text-white">
                         <h5 class="card-title mb-0">
-                            <i class="bi bi-gear me-2"></i>Preferenze
+                            <i class="bi bi-gear me-2"></i>Preferenze e Sicurezza
                         </h5>
                     </div>
                     <div class="card-body">
-                        <button class="btn btn-outline-info w-100 mb-2" onclick="modificaPreferenze()">
-                            <i class="bi bi-sliders me-2"></i>Modifica Preferenze
-                        </button>
+                        <div class="row">
+                            <div class="col-6">
+                                <button class="btn btn-outline-info w-100 mb-2" onclick="modificaPreferenze()">
+                                    <i class="bi bi-sliders me-2"></i>Modifica Profilo
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="cambiaPassword()">
+                                    <i class="bi bi-key me-2"></i>Cambia Password
+                                </button>
+                            </div>
+                        </div>
                         <div class="preference-item">
                             <small class="text-muted">Ruolo preferito:</small>
                             <div class="fw-bold"><%= user.ruolo_preferito || 'Non specificato' %></div>
@@ -300,29 +315,20 @@
                 </div>
                 <% } %>
 
-                <!-- Card Azioni del Profilo -->
-                <div class="card actions-card animate__animated animate__fadeInRight animate__delay-4s mt-3">
-                    <div class="card-header bg-secondary text-white">
+                <!-- Card Le Mie Recensioni -->
+                <div class="card reviews-card animate__animated animate__fadeInRight animate__delay-5s mt-3">
+                    <div class="card-header bg-info text-white">
                         <h5 class="card-title mb-0">
-                            <i class="bi bi-gear me-2"></i>Gestione Profilo
+                            <i class="bi bi-star me-2"></i>Le Mie Recensioni
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                                    <i class="bi bi-pencil me-2"></i>Modifica Profilo
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-outline-info w-100" onclick="cambiaPassword()">
-                                    <i class="bi bi-key me-2"></i>Cambia Password
-                                </button>
-                            </div>
-                            <div class="col-12 mt-2">
-                                <a href="/Logout" class="btn btn-outline-danger w-100">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Esci dal Profilo
-                                </a>
+                        <div id="userReviewsContainer">
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Caricamento...</span>
+                                </div>
+                                <p class="text-muted mt-2">Caricamento recensioni...</p>
                             </div>
                         </div>
                     </div>
@@ -466,6 +472,77 @@
           </div>
         </form>
         <div id="changePasswordMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal modifica recensione -->
+<div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="editReviewModalLabel">
+          <i class="bi bi-pencil me-2"></i>Modifica Recensione
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editReviewForm">
+          <input type="hidden" id="editReviewId">
+          <div class="mb-3">
+            <label for="editReviewRating" class="form-label">Valutazione</label>
+            <select class="form-select" id="editReviewRating" name="valutazione" required>
+              <option value="1">⭐ - Molto insoddisfatto</option>
+              <option value="2">⭐⭐ - Insoddisfatto</option>
+              <option value="3">⭐⭐⭐ - Nella media</option>
+              <option value="4">⭐⭐⭐⭐ - Soddisfatto</option>
+              <option value="5">⭐⭐⭐⭐⭐ - Molto soddisfatto</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editReviewTitle" class="form-label">Titolo</label>
+            <input type="text" class="form-control" id="editReviewTitle" name="titolo" required>
+          </div>
+          <div class="mb-3">
+            <label for="editReviewContent" class="form-label">Contenuto</label>
+            <textarea class="form-control" id="editReviewContent" name="contenuto" rows="4" required></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-warning">
+              <i class="bi bi-check-lg me-2"></i>Salva Modifiche
+            </button>
+          </div>
+        </form>
+        <div id="editReviewMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal conferma eliminazione recensione -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteReviewModalLabel">
+          <i class="bi bi-exclamation-triangle me-2"></i>Conferma Eliminazione
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sei sicuro di voler eliminare questa recensione? Questa azione non può essere annullata.</p>
+        <div id="deleteReviewInfo" class="alert alert-warning">
+          <strong>Recensione:</strong> <span id="deleteReviewTitle"></span>
+        </div>
+        <input type="hidden" id="deleteReviewId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteReview">
+          <i class="bi bi-trash me-2"></i>Elimina Recensione
+        </button>
       </div>
     </div>
   </div>

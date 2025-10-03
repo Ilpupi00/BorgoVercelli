@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 const router = express.Router();
 const dao = require('../dao/dao-recensioni');
@@ -72,6 +70,51 @@ router.post('/recensione', isLoggedIn, async (req, res) => {
     } catch (error) {
         console.error('Errore salvataggio recensione:', error);
         res.json({ success: false, error: 'Errore server' });
+    }
+});
+
+// Ottieni le recensioni dell'utente autenticato
+router.get('/recensioni/mie', isLoggedIn, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const recensioni = await dao.getRecensioniByUserId(userId);
+        res.json({ success: true, recensioni });
+    } catch (error) {
+        console.error('Errore nel recupero delle recensioni utente:', error);
+        res.status(500).json({ success: false, error: 'Errore nel recupero delle recensioni' });
+    }
+});
+
+// Modifica una recensione dell'utente
+router.put('/recensioni/:id', isLoggedIn, async (req, res) => {
+    try {
+        const recensioneId = req.params.id;
+        const userId = req.user.id;
+        const { valutazione, titolo, contenuto } = req.body;
+
+        if (!valutazione || !titolo || !contenuto) {
+            return res.status(400).json({ success: false, error: 'Dati mancanti' });
+        }
+
+        await dao.updateRecensione(recensioneId, userId, { valutazione, titolo, contenuto });
+        res.json({ success: true, message: 'Recensione aggiornata con successo' });
+    } catch (error) {
+        console.error('Errore modifica recensione:', error);
+        res.status(500).json({ success: false, error: 'Errore nella modifica della recensione' });
+    }
+});
+
+// Elimina una recensione dell'utente
+router.delete('/recensioni/:id', isLoggedIn, async (req, res) => {
+    try {
+        const recensioneId = req.params.id;
+        const userId = req.user.id;
+
+        await dao.deleteRecensione(recensioneId, userId);
+        res.json({ success: true, message: 'Recensione eliminata con successo' });
+    } catch (error) {
+        console.error('Errore eliminazione recensione:', error);
+        res.status(500).json({ success: false, error: 'Errore nell\'eliminazione della recensione' });
     }
 });
 
