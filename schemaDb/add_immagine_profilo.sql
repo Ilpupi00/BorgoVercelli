@@ -1,0 +1,1 @@
+ALTER TABLE UTENTI ADD COLUMN immagine_profilo TEXT;

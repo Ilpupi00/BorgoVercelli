@@ -1,73 +1,558 @@
-/* Stili per il profilo migliorato */
+/* Profilo.css - Stili personalizzati per la pagina profilo di Borgo Vercelli */
+
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+html {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 .profile-container {
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.profile-card {
-    max-width: 500px;
-    margin: 40px auto;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    background: #fff;
-    padding: 3rem 2.5rem;
-    transition: all 0.3s ease;
-    animation: animation1 0.8s ease;
-    position: relative;
+.profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
     overflow: hidden;
-}
-
-.profile-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-}
-
-.profile-card::before {
-    content: "";
-    position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(130, 174, 255, 0.1), rgba(130, 174, 255, 0.4));
-    z-index: 0;
-}
-
-.profile-card::after {
-    content: "";
-    position: absolute;
-    bottom: -80px;
-    left: -80px;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255, 130, 174, 0.1), rgba(255, 130, 174, 0.3));
-    z-index: 0;
+    margin-bottom: 2rem;
 }
 
 .profile-avatar {
-    width: 120px;
-    height: 120px;
+    position: relative;
+}
+
+.profile-img-main {
+    border: 4px solid white !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.profile-img-main:hover {
+    transform: scale(1.05);
+}
+
+.profile-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-info p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.member-since {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.user-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Cards laterali */
+.stats-card,
+.quick-links-card,
+.preferences-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover,
+.quick-links-card:hover,
+.preferences-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #e6f0ff, #f0f5ff);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3.5rem;
-    color: #3f80ea;
-    margin: 0 auto 1.5rem auto;
-    border: 5px solid white;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    animation: pulseAvatar 2s infinite alternate;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.stat-content .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.stat-content .stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.preference-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+/* Cards destra */
+.activity-card,
+.sports-card,
+.management-card,
+.actions-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.activity-card:hover,
+.sports-card:hover,
+.management-card:hover,
+.actions-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.activity-timeline {
     position: relative;
-    z-index: 2;
-    overflow: hidden;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-left: 3px solid #e9ecef;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.activity-details {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.sports-info,
+.management-info {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: #555;
+}
+
+.sports-info i,
+.management-info i {
+    width: 20px;
+    margin-right: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+    }
+
+    .profile-info h1 {
+        font-size: 2rem;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .profile-header-card .row {
+        text-align: center;
+    }
+
+    .profile-avatar {
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem 0;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .stat-content .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .activity-item {
+        padding-left: 1rem;
+        word-wrap: break-word;
+    }
+
+    .activity-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    /* Impedisci overflow orizzontale nelle card */
+    .card {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-info h1 {
+        font-size: 1.8rem;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .user-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    .user-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    /* Gestione overflow per testi lunghi */
+    .activity-details,
+    .sports-info,
+    .management-info {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Assicurati che i bottoni non causino overflow */
+    .btn {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Animazioni personalizzate */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+.stats-card .stat-icon.bg-success {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Gradients per le cards */
+.stats-card .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.quick-links-card .card-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.preferences-card .card-header {
+    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+}
+
+.activity-card .card-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.sports-card .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.management-card .card-header {
+    background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%);
+}
+
+.actions-card .card-header {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+/* Hover effects per i bottoni */
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-info:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stili per i modali */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+}
+
+/* Loading states */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modali senza scrollbar */
+.modal-dialog,
+.modal-content,
+.modal-body,
+.modal-header,
+.modal-footer {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.modal-dialog::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.modal-header::-webkit-scrollbar,
+.modal-footer::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Form elements senza scrollbar */
+input,
+textarea,
+select,
+.form-control,
+.form-select {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+input::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+select::-webkit-scrollbar,
+.form-control::-webkit-scrollbar,
+.form-select::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Pulsanti e link senza scrollbar */
+a,
+button,
+.btn,
+.nav-link {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+a::-webkit-scrollbar,
+button::-webkit-scrollbar,
+.btn::-webkit-scrollbar,
+.nav-link::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Regola universale per nascondere scrollbar su tutti gli elementi della pagina profilo */
+#navbar *,
+#footer *,
+.profile-container *,
+.card *,
+.modal *,
+.form-control *,
+.form-select *,
+.btn *,
+.nav-link *,
+.activity-item *,
+.stat-item *,
+.preference-item *,
+.sports-info *,
+.management-info *,
+.user-badges * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#navbar *::-webkit-scrollbar,
+#footer *::-webkit-scrollbar,
+.profile-container *::-webkit-scrollbar,
+.card *::-webkit-scrollbar,
+.modal *::-webkit-scrollbar,
+.form-control *::-webkit-scrollbar,
+.form-select *::-webkit-scrollbar,
+.btn *::-webkit-scrollbar,
+.nav-link *::-webkit-scrollbar,
+.activity-item *::-webkit-scrollbar,
+.stat-item *::-webkit-scrollbar,
+.preference-item *::-webkit-scrollbar,
+.sports-info *::-webkit-scrollbar,
+.management-info *::-webkit-scrollbar,
+.user-badges *::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Regole generali per nascondere scrollbar */
+* {
+    box-sizing: border-box;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Elementi specifici senza scrollbar */
+.profile-container,
+.card,
+.card-body,
+.modal-content,
+.modal-body,
+.form-control,
+.form-select,
+.btn {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.profile-container::-webkit-scrollbar,
+.card::-webkit-scrollbar,
+.card-body::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.form-control::-webkit-scrollbar,
+.form-select::-webkit-scrollbar,
+.btn::-webkit-scrollbar {
+    display: none !important;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col, .col-lg-4, .col-lg-8, .col-md-6 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Gestione testi lunghi senza scrollbar */
+.text-break {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+.card-title {
+    word-wrap: break-word;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+.card-body {
+    word-wrap: break-word;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+/* Contenitori specifici senza scrollbar */
+.activity-timeline,
+.user-badges,
+.profile-details,
+.sports-info,
+.management-info {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.activity-timeline::-webkit-scrollbar,
+.user-badges::-webkit-scrollbar,
+.profile-details::-webkit-scrollbar,
+.sports-info::-webkit-scrollbar,
+.management-info::-webkit-scrollbar {
+    display: none !important;
 }
 
 .profile-avatar img,

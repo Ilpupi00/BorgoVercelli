@@ -1,11 +1,12 @@
 'use strict';
 
 class Squadra{
-    constructor(id ,nome,id_immagine,Anno){
+    constructor(id ,nome,id_immagine,Anno, dirigenti){
         this.id = id;
         this.nome = nome;
         this.id_immagine = id_immagine;
         this.Anno = Anno;
+        this.dirigenti = dirigenti || [];  // Array di dirigenti associati
     }
 
     static from (json){

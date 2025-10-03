@@ -87,6 +87,8 @@ document.addEventListener('DOMContentLoaded', async() => {
             new Profilo(page,()=> loadCSS('/stylesheets/Profilo.css'));
             setupEmailFormListener();
             break;
+        case '/admin':
+            break;
         case '/scrivi/recensione':
             const {default:ScriviRecensione} = await import (`./components/ScriviRecensione.js`);
             new ScriviRecensione(page,()=> loadCSS('/stylesheets/ScriviRecensioni.css'));

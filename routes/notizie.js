@@ -2,7 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../dao/dao-notizie');
-const daoEventi= require('../dao/dao-eventi');
+const { isLoggedIn,isAdmin} = require('../middleware/auth');
+
 
 
 
@@ -54,43 +55,13 @@ router.get('/all', async (req, res) => {
   }
 });
 
-router.get('/eventi', async (req, res) => {
+router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
   try {
-    const eventi = await daoEventi.getEventi();
-    res.json(eventi || []); // Restituisci array vuoto se eventi è null/undefined
+    const result = await dao.deleteNotiziaById(req.params.id);
+    res.json(result);
   } catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).json({ 
-      error: 'Errore nel caricamento degli eventi',
-      details: error.message 
-    });
-  }
-});
-
-router.get('/Evento/:id', async (req, res) => {
-  try {
-    const evento = await daoEventi.getEventoById(req.params.id);
-    res.json(evento);
-  } catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).json({ 
-      error: 'Errore nel caricamento degli eventi',
-      details: error.message 
-    });
-  }
-});
-
-router.get('/eventi/all', async (req, res) => {
-  try {
-    const eventi=daoEventi.getEventi();
-    res.json(eventi || []);
-  }
-  catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).json({ 
-      error: 'Errore nel caricamento degli eventi',
-      details: error.message 
-    });
+    console.error('Errore nel recupero delle notizie:', error);
+    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 

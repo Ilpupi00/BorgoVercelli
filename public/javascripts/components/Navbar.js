@@ -14,12 +14,12 @@ class Navbar {
   async render(){
     // Verifica autenticazione utente
     let isLogged = false;
+    let user = null;
     try {
-      const res = await fetch('/Me', { redirect: 'manual' });
-        if (res.status === 302) { 
-          isLogged=true;
-      } else if (res.ok) {
-        isLogged=true;
+      const res = await fetch('/session/user');
+      if (res.ok) {
+        user = await res.json();
+        isLogged = true;
       }
     } catch (err) {
       console.error('Error checking login status:', err);
@@ -84,10 +84,10 @@ class Navbar {
           ${
           isLogged
           ? profilePic
-            ? `<a href="/Me" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+            ? `<a href="${user && user.tipo_utente === 1 ? '/admin' : '/Me'}" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
                 <img src="${profilePic}" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
               </a>`
-            : `<a href="/Me" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+            : `<a href="${user && user.tipo_utente === 1 ? '/admin' : '/Me'}" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
               </a>`
             : `<a href="/Me" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">

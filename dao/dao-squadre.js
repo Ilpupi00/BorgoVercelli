@@ -3,13 +3,15 @@
 const sqlite = require('../db.js');
 const Giocatore = require('../model/giocatore.js');
 const Squadra = require('../model/squadra.js');
+const daoDirigenti = require('./dao-dirigenti-squadre.js');
 
 const makeSquadra = (row) => {
     return new Squadra(
         row.id,
         row.nome,
         row.id_immagine,
-        row.Anno   
+        row.Anno,
+        row.dirigenti || []  // Aggiunto per dirigenti
     );
 }
 
@@ -38,11 +40,16 @@ const makeGiocatore = (row) => {
 exports.getSquadre = async () => {
     const sql = 'SELECT * FROM SQUADRE';
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, squadre) => {
+        sqlite.all(sql, async (err, squadre) => {
             if (err) {
                 return reject({ error: 'Error retrieving teams: ' + err.message });
             }
-            resolve(squadre.map(makeSquadra) || []);
+            // Per ogni squadra, recupera i dirigenti
+            const squadreConDirigenti = await Promise.all(squadre.map(async (squadra) => {
+                const dirigenti = await daoDirigenti.getDirigentiBySquadra(squadra.id);
+                return { ...squadra, dirigenti };
+            }));
+            resolve(squadreConDirigenti.map(makeSquadra) || []);
         });
     });
 }

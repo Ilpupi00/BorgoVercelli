@@ -3,8 +3,9 @@ services:
   app:
     build: .
     ports:
-      - "3002:3002"
+      - "3002:3000"
     volumes:
       - ./public/uploads:/app/public/uploads
+      - ./database.db:/app/database.db
     environment:
       - NODE_ENV=production

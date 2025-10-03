@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const daoPrenotazione = require('../dao/dao-prenotazione');
-const isLoggedIn = require('../middleware/auth');
+const { isLoggedIn } = require('../middleware/auth');
 
 // 1. Lista campi attivi
 router.get('/campi', async (req, res) => {

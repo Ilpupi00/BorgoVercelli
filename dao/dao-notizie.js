@@ -56,3 +56,15 @@ exports.getNotiziaById = async function(id) {
         });
     });
 }
+
+exports.deleteNotiziaById = async function(id) {
+    const sql = 'DELETE FROM NOTIZIE WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                return reject({ error: 'Error deleting news: ' + err.message });
+            }   
+            resolve({ success: true });
+        });
+    });
+}

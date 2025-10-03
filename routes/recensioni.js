@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../dao/dao-recensioni');
-const isLoggedIn = require('../middleware/auth');
+const { isLoggedIn } = require('../middleware/auth');
 
 router.get('/recensioni', async (req, res) => {
     try {

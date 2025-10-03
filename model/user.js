@@ -1,13 +1,15 @@
 'use strict';
 
 class User{
-    constructor(id,nome,cognome,email,telefono,tipo_utente){
+    constructor(id,nome,cognome,email,telefono,tipo_utente,ruolo_preferito,piede_preferito){
         this.id=id;
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
         this.telefono = telefono;
         this.tipo_utente=tipo_utente;
+        this.ruolo_preferito = ruolo_preferito;
+        this.piede_preferito = piede_preferito;
     }
 
     static from(json){
@@ -25,6 +27,12 @@ class User{
         }
         const json = Object.assign({}, user);
         return json;
+    }
+
+    // Metodo per verificare se l'utente è un dirigente (da estendere con query al DB)
+    isDirigente() {
+        // Questo richiede una query a DIRIGENTI_SQUADRE, implementa nel DAO
+        return false; // Placeholder
     }
 }
 

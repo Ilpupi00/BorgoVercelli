@@ -3,87 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilo di <%= user.nome %> <%= user.cognome %></title>
+    <title>Profilo di <%= user.nome %> <%= user.cognome %> - Borgo Vercelli</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="/stylesheets/Profilo.css">
     <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dati utente per JavaScript
+        window.currentUser = <%- JSON.stringify({
+            nome: user.nome,
+            cognome: user.cognome,
+            email: user.email,
+            telefono: user.telefono || '',
+            ruolo_preferito: user.ruolo_preferito || '',
+            piede_preferito: user.piede_preferito || ''
+        }) %>;
+    </script>
+    <script src="/javascripts/Profilo.js" defer></script>
 </head>
 <body>
     <div id="navbar"></div>
-    
+
     <div class="profile-container">
-        <div class="profile-card animate__animated animate__fadeIn overflow-hidden">
-            <div class="profile-avatar mb-4 animate__animated animate__zoomIn d-flex justify-content-center align-items-center mt-4">
-                <div class="position-relative d-inline-block w-100" style="max-width: 120px; height: 120px;">
-                  <% if (imageUrl) { %>
-                    <img src="<%= imageUrl %>" alt="Immagine profilo" class="rounded-circle profile-img-mobile" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
-                  <% } else { %>
-                    <i class="bi bi-person-circle profile-img-mobile" style="font-size: 120px;"></i>
-                  <% } %>
-                  <!-- Matitina centrata -->
-                  <button id="editPicBtn" type="button" class="btn btn-light position-absolute top-50 start-50 translate-middle p-2 border" style="display:none; border-radius:50%; z-index:2; background:rgba(255,255,255,0.8); box-shadow:0 2px 8px rgba(0,0,0,0.12);" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
-                    <i class="bi bi-pencil" style="color:#007bff; font-size:2rem; filter:drop-shadow(0 0 4px #fff);"></i>
-                  </button>
+        <!-- Header principale con avatar e info base -->
+        <div class="profile-header-card animate__animated animate__fadeIn">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    <div class="profile-avatar mb-3 animate__animated animate__zoomIn">
+                        <div class="position-relative d-inline-block">
+                            <% if (imageUrl) { %>
+                                <img src="<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;">
+                            <% } else { %>
+                                <i class="bi bi-person-circle profile-img-main" style="font-size: 120px; color: #007bff;"></i>
+                            <% } %>
+                            <button id="editPicBtn" type="button" class="btn btn-primary position-absolute bottom-0 end-0 rounded-circle p-2" style="width: 40px; height: 40px;" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
+                                <i class="bi bi-camera-fill text-white" style="font-size: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="user-badges mt-2">
+                        <% if (user.tipo_utente_id === 1) { %>
+                            <span class="badge bg-danger me-1"><i class="bi bi-shield-check"></i> Admin</span>
+                        <% } else if (dirigente) { %>
+                            <span class="badge bg-warning me-1"><i class="bi bi-briefcase"></i> Dirigente</span>
+                        <% } else { %>
+                            <span class="badge bg-success me-1"><i class="bi bi-person-check"></i> Utente</span>
+                        <% } %>
+                        <% if (stats && stats.prenotazioni_totali > 10) { %>
+                            <span class="badge bg-info"><i class="bi bi-trophy"></i> Giocatore Attivo</span>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="profile-info">
+                        <h1 class="display-5 fw-bold text-dark mb-2"><%= user.nome %> <%= user.cognome %></h1>
+                        <p class="text-muted mb-3 fs-5">
+                            <i class="bi bi-envelope me-2"></i><%= user.email %>
+                            <% if (user.telefono) { %>
+                                <br><i class="bi bi-telephone me-2"></i><%= user.telefono %>
+                            <% } %>
+                        </p>
+                        <div class="member-since">
+                            <i class="bi bi-calendar-check text-primary me-2"></i>
+                            Utente dal <%= user.data_registrazione ? new Date(user.data_registrazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }) : 'N/D' %>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <h2 class="text-center mb-1 animate__animated animate__fadeIn animate__delay-1s overflow-hidden"><%= user.nome %> <%= user.cognome %></h2>
-            <p class="text-center text-muted mb-4 animate__animated animate__fadeIn animate__delay-1s">
-                <i class="bi bi-envelope"></i> <%= user.email %>
-            </p>
-            
-            <dl class="row profile-details animate__animated animate__fadeIn animate__delay-2s">
-                <dt class="col-5"><i class="bi bi-telephone"></i> Telefono</dt>
-                <dd class="col-7"><%= user.telefono ? user.telefono : 'Non specificato' %></dd>
+        </div>
 
-                <dt class="col-5"><i class="bi bi-person-badge"></i> Tipo utente</dt>
-                <dd class="col-7"><span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-pill">
-                    <%= user.tipo_utente_nome ? user.tipo_utente_nome : 'Non specificato' %>
-                </span></dd>
+        <div class="row mt-4">
+            <!-- Colonna sinistra: Statistiche e Link Rapidi -->
+            <div class="col-lg-4">
+                <!-- Card Statistiche -->
+                <div class="card stats-card animate__animated animate__fadeInLeft animate__delay-1s">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bar-chart-line me-2"></i>Le tue Statistiche
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="bi bi-calendar-check-fill text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number"><%= stats.prenotazioni_totali || 0 %></div>
+                                <div class="stat-label">Prenotazioni Totali</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="bi bi-star-fill text-warning"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number"><%= stats.recensioni_totali || 0 %></div>
+                                <div class="stat-label">Recensioni Scritte</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="bi bi-calendar-event text-info"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number"><%= stats.prenotazioni_mese || 0 %></div>
+                                <div class="stat-label">Questo Mese</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <dt class="col-5"><i class="bi bi-calendar-check"></i> Registrato il</dt>
-                <dd class="col-7"><%= user.data_registrazione ? user.data_registrazione.substring(0,10) : 'N/D' %></dd>
-            </dl>
-            
-            <div class="text-center mt-4 animate__animated animate__fadeIn animate__delay-3s">
-                <a href="/Logout" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right"></i> Esci
-                </a>
+                <!-- Card Link Rapidi -->
+                <div class="card quick-links-card animate__animated animate__fadeInLeft animate__delay-2s mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-lightning-charge me-2"></i>Azioni Rapide
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
+                            <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
+                        </a>
+                        <a href="/eventi/all" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
+                        </a>
+                        <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="bi bi-star me-2"></i>Scrivi Recensione
+                        </a>
+                        <a href="/Galleria" class="btn btn-outline-info w-100">
+                            <i class="bi bi-images me-2"></i>Galleria Foto
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card Preferenze Sportive -->
+                <div class="card preferences-card animate__animated animate__fadeInLeft animate__delay-3s mt-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-gear me-2"></i>Preferenze
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-info w-100 mb-2" onclick="modificaPreferenze()">
+                            <i class="bi bi-sliders me-2"></i>Modifica Preferenze
+                        </button>
+                        <div class="preference-item">
+                            <small class="text-muted">Ruolo preferito:</small>
+                            <div class="fw-bold"><%= user.ruolo_preferito || 'Non specificato' %></div>
+                        </div>
+                        <div class="preference-item">
+                            <small class="text-muted">Piede preferito:</small>
+                            <div class="fw-bold"><%= user.piede_preferito || 'Non specificato' %></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>    
-      </div>
 
+            <!-- Colonna destra: Attività e Dettagli -->
+            <div class="col-lg-8">
+                <!-- Card Attività Recente -->
+                <div class="card activity-card animate__animated animate__fadeInRight animate__delay-1s">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-activity me-2"></i>Attività Recente
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <% if ((activity.prenotazioni && activity.prenotazioni.length > 0) || (activity.recensioni && activity.recensioni.length > 0)) { %>
+                            <div class="activity-timeline">
+                                <% (activity.prenotazioni || []).slice(0, 2).forEach(prenotazione => { %>
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-success">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Prenotazione Campo</div>
+                                            <div class="activity-details">
+                                                <%= prenotazione.campo_nome || 'Campo' %> -
+                                                <%= new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') %> alle <%= prenotazione.ora_inizio %>
+                                            </div>
+                                            <small class="text-muted">
+                                                <%= new Date(prenotazione.created_at).toLocaleDateString('it-IT') %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                <% }); %>
+
+                                <% (activity.recensioni || []).slice(0, 2).forEach(recensione => { %>
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-warning">
+                                            <i class="bi bi-star"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Recensione Scritta</div>
+                                            <div class="activity-details">
+                                                "<%= recensione.titolo %>" - <%= '★'.repeat(recensione.valutazione) %>
+                                            </div>
+                                            <small class="text-muted">
+                                                <%= new Date(recensione.created_at).toLocaleDateString('it-IT') %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
+                                <p class="text-muted">Nessuna attività recente da mostrare.</p>
+                                <p class="text-muted small">Le tue attività appariranno qui quando prenoterai campi o scriverai recensioni.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Card Informazioni Sportive -->
+                <% if (giocatore) { %>
+                <div class="card sports-card animate__animated animate__fadeInRight animate__delay-2s mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-trophy me-2"></i>Informazioni Sportive
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="sports-info">
+                                    <i class="bi bi-person-badge text-success me-2"></i>
+                                    <strong>Ruolo:</strong> <%= giocatore.ruolo || 'Non specificato' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sports-info">
+                                    <i class="bi bi-hash text-success me-2"></i>
+                                    <strong>Numero Maglia:</strong> <%= giocatore.numero_maglia || 'N/A' %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="sports-info">
+                                    <i class="bi bi-calendar-event text-success me-2"></i>
+                                    <strong>Tesseramento:</strong> <%= giocatore.data_inizio_tesseramento ? new Date(giocatore.data_inizio_tesseramento).getFullYear() : 'N/D' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sports-info">
+                                    <i class="bi bi-flag text-success me-2"></i>
+                                    <strong>Nazionalità:</strong> <%= giocatore.nazionalita || 'Non specificata' %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Card Ruolo Dirigenziale -->
+                <% if (dirigente) { %>
+                <div class="card management-card animate__animated animate__fadeInRight animate__delay-3s mt-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-briefcase me-2"></i>Ruolo Dirigenziale
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="management-info">
+                                    <i class="bi bi-building text-warning me-2"></i>
+                                    <strong>Squadra:</strong> <%= dirigente.squadra_nome || 'Societario' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="management-info">
+                                    <i class="bi bi-person-badge text-warning me-2"></i>
+                                    <strong>Ruolo:</strong> <%= dirigente.ruolo || 'Non specificato' %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="management-info">
+                                    <i class="bi bi-calendar-check text-warning me-2"></i>
+                                    <strong>Nomina:</strong> <%= dirigente.data_nomina ? new Date(dirigente.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="management-info">
+                                    <i class="bi bi-calendar-x text-warning me-2"></i>
+                                    <strong>Scadenza:</strong> <%= dirigente.data_scadenza ? new Date(dirigente.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Card Azioni del Profilo -->
+                <div class="card actions-card animate__animated animate__fadeInRight animate__delay-4s mt-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-gear me-2"></i>Gestione Profilo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                    <i class="bi bi-pencil me-2"></i>Modifica Profilo
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-info w-100" onclick="cambiaPassword()">
+                                    <i class="bi bi-key me-2"></i>Cambia Password
+                                </button>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <a href="/Logout" class="btn btn-outline-danger w-100">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Esci dal Profilo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
     <!-- Modal Modifica Profilo -->
-<div class="modal fade m-auto p-auto" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editProfileModalLabel">Modifica Profilo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editProfileModalLabel">
+          <i class="bi bi-pencil me-2"></i>Modifica Profilo
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="editProfileForm" autocomplete="off">
-          <div class="mb-3">
-            <label for="editNome" class="form-label">Nome</label>
-            <input type="text" class="form-control" id="editNome" name="nome">
-          </div>
-          <div class="mb-3">
-            <label for="editCognome" class="form-label">Cognome</label>
-            <input type="text" class="form-control" id="editCognome" name="cognome">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="editNome" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="editNome" name="nome" value="<%= user.nome %>">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="editCognome" class="form-label">Cognome</label>
+              <input type="text" class="form-control" id="editCognome" name="cognome" value="<%= user.cognome %>">
+            </div>
           </div>
           <div class="mb-3">
             <label for="editEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="editEmail" name="email">
+            <input type="email" class="form-control" id="editEmail" name="email" value="<%= user.email %>">
           </div>
           <div class="mb-3">
             <label for="editTelefono" class="form-label">Telefono</label>
-            <input type="text" class="form-control" id="editTelefono" name="telefono">
+            <input type="text" class="form-control" id="editTelefono" name="telefono" value="<%= user.telefono || '' %>">
           </div>
-          <button type="submit" class="btn btn-success w-100">Salva modifiche</button>
+          <div class="border-top pt-3">
+            <h6 class="text-muted mb-3">Preferenze Sportive</h6>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="ruoloPreferito" class="form-label">Ruolo Preferito</label>
+                <select class="form-select" id="ruoloPreferito" name="ruolo_preferito">
+                  <option value="">Seleziona ruolo</option>
+                  <option value="portiere">Portiere</option>
+                  <option value="difensore">Difensore</option>
+                  <option value="centrocampista">Centrocampista</option>
+                  <option value="attaccante">Attaccante</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="piedePreferito" class="form-label">Piede Preferito</label>
+                <select class="form-select" id="piedePreferito" name="piede_preferito">
+                  <option value="">Seleziona piede</option>
+                  <option value="destro">Destro</option>
+                  <option value="sinistro">Sinistro</option>
+                  <option value="ambidestro">Ambidestro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-2"></i>Salva modifiche
+            </button>
+          </div>
         </form>
         <div id="editProfileMsg" class="mt-2"></div>
       </div>
@@ -93,24 +401,78 @@
 
     <div id="page"></div>
 
-<!-- Modal upload foto profilo (fuori dalla card, solo upload) -->
+<!-- Modal upload foto profilo -->
 <div class="modal fade" id="uploadPicModal" tabindex="-1" aria-labelledby="uploadPicModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="background:rgba(255,255,255,0.6); box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div class="modal-header" style="background:transparent; border-bottom:none;">
-        <h5 class="modal-title" id="uploadPicModalLabel">Carica nuova foto profilo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="uploadPicModalLabel">
+          <i class="bi bi-camera me-2"></i>Carica nuova foto profilo
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body d-flex flex-column align-items-center" style="background:transparent;">
+      <div class="modal-body d-flex flex-column align-items-center">
+        <div class="text-center mb-3">
+          <i class="bi bi-image display-4 text-muted mb-3"></i>
+          <p class="text-muted">Seleziona una foto dal tuo dispositivo</p>
+        </div>
         <form id="profilePicForm" enctype="multipart/form-data" class="w-100">
-          <input type="file" id="profilePicInput" name="profilePic" accept="image/*" class="form-control mb-2">
-          <button type="submit" class="btn btn-secondary w-100" id="uploadPicBtn"><i class="bi bi-upload"></i> Carica Foto</button>
+          <input type="file" id="profilePicInput" name="profilePic" accept="image/*" class="form-control mb-3">
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-primary flex-fill" id="uploadPicBtn">
+              <i class="bi bi-upload me-2"></i>Carica Foto
+            </button>
+          </div>
           <div id="uploadPicMsg" class="mt-2"></div>
         </form>
       </div>
     </div>
   </div>
+    </div>
+
+<!-- Modal cambio password -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="changePasswordModalLabel">
+          <i class="bi bi-key me-2"></i>Cambia Password
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="changePasswordForm" autocomplete="off">
+          <div class="mb-3">
+            <label for="currentPassword" class="form-label">Password Attuale</label>
+            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+            <div class="form-text">Inserisci la tua password attuale per confermare l'identità.</div>
+          </div>
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">Nuova Password</label>
+            <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+            <div class="form-text">La password deve essere di almeno 6 caratteri.</div>
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Conferma Nuova Password</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="6">
+            <div class="form-text">Ripeti la nuova password per conferma.</div>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-info">
+              <i class="bi bi-check-lg me-2"></i>Cambia Password
+            </button>
+          </div>
+        </form>
+        <div id="changePasswordMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
 </div>
-  <div id="footer"></div>
+
+        <div id="footer"></div>
+</body>
+</html>
 </body>
 </html>

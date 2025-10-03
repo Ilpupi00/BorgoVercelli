@@ -160,6 +160,28 @@ exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazio
     });
 }
 
+exports.getAllPrenotazioni = async () => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT p.*, 
+                   c.nome as campo_nome,
+                   u.nome as utente_nome, u.cognome as utente_cognome,
+                   s.nome as squadra_nome
+            FROM PRENOTAZIONI p
+            LEFT JOIN CAMPI c ON p.campo_id = c.id
+            LEFT JOIN UTENTI u ON p.utente_id = u.id
+            LEFT JOIN SQUADRE s ON p.squadra_id = s.id
+            ORDER BY p.data_prenotazione DESC, p.ora_inizio DESC
+        `;
+        db.all(sql, [], (err, prenotazioni) => {
+            if (err) {
+                return reject({ error: 'Error retrieving prenotazioni: ' + err.message });
+            }
+            resolve(prenotazioni || []);
+        });
+    });
+}
+
 
 
 

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Eventi - <%= user.nome %> <%= user.cognome %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="/javascripts/Main.js" type="module" defer></script>
+    <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/Admin.css">
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('../../partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <div class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <!-- Header con profilo -->
+                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-8 text-center text-md-start">
+                                    <h1 class="display-5 fw-bold text-dark mb-2">
+                                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                                        Gestione Eventi
+                                    </h1>
+                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
+                                </div>
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2">
+                                        <i class="bi bi-arrow-left"></i> Torna al Pannello
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenuto principale -->
+                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="mb-0">
+                                    <i class="bi bi-list-ul text-primary me-2"></i>
+                                    Tutti gli Eventi
+                                </h2>
+                                <a href="/crea-evento" class="btn btn-primary btn-modern">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                    Crea Nuovo Evento
+                                </a>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Titolo</th>
+                                                    <th>Data Inizio</th>
+                                                    <th>Data Fine</th>
+                                                    <th>Luogo</th>
+                                                    <th>Tipo</th>
+                                                    <th>Stato</th>
+                                                    <th>Partecipanti Max</th>
+                                                    <th>Azioni</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% if (eventi && eventi.length > 0) { %>
+                                                    <% eventi.forEach(evento => { %>
+                                                        <tr>
+                                                            <td><%= evento.id %></td>
+                                                            <td>
+                                                                <strong><%= evento.titolo %></strong>
+                                                                <% if (evento.descrizione) { %>
+                                                                    <br><small class="text-muted"><%= evento.descrizione.substring(0, 50) %>...</small>
+                                                                <% } %>
+                                                            </td>
+                                                            <td><%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'N/A' %></td>
+                                                            <td><%= evento.data_fine ? new Date(evento.data_fine).toLocaleDateString('it-IT') : 'N/A' %></td>
+                                                            <td><%= evento.luogo || 'N/A' %></td>
+                                                            <td><%= evento.tipo_evento || 'N/A' %></td>
+                                                            <td>
+                                                                <% if (evento.pubblicato) { %>
+                                                                    <span class="badge bg-success">Pubblicato</span>
+                                                                <% } else { %>
+                                                                    <span class="badge bg-warning">Bozza</span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td><%= evento.max_partecipanti || 'N/A' %></td>
+                                                            <td>
+                                                                <div class="btn-group" role="group">
+                                                                    <a href="/evento/<%= evento.id %>" class="btn btn-sm btn-outline-primary" title="Visualizza">
+                                                                        <i class="bi bi-eye"></i>
+                                                                    </a>
+                                                                    <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaEvento('<%= evento.id %>')">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" onclick="eliminaEvento('<%= evento.id %>')">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="9" class="text-center text-muted py-4">
+                                                            <i class="bi bi-info-circle display-4 mb-3"></i>
+                                                            <p>Nessun evento presente nel sistema.</p>
+                                                            <a href="/crea-evento" class="btn btn-primary">Crea il primo evento</a>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page"></div>
+
+    <script>
+        function modificaEvento(id) {
+            // Per ora, reindirizza alla pagina di creazione (da implementare modifica)
+            window.location.href = '/crea-evento?id=' + id;
+        }
+
+        function eliminaEvento(id) {
+            if (confirm('Sei sicuro di voler eliminare questo evento?')) {
+                // Implementare eliminazione
+                alert('Funzionalità di eliminazione da implementare');
+            }
+        }
+    </script>
+</body>
+</html>

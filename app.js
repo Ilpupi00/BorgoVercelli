@@ -9,6 +9,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const routes = require('./routes/index');
 const routesNotizie = require('./routes/notizie');
+const routesEventi = require('./routes/eventi');
 const routesRegistrazione = require('./routes/login_register');
 const routesSession = require('./routes/session');
 const routesRecensioni = require('./routes/recensioni');
@@ -16,6 +17,7 @@ const routesSendEmail = require('./routes/email');
 const routesSquadre = require('./routes/squadre');
 const routesGalleria = require('./routes/galleria');
 const routesPrenotazione = require('./routes/prenotazione');
+const routesAdmin = require('./routes/admin');
 
 // passport configuration
 passport.use(new LocalStrategy(
@@ -71,6 +73,7 @@ app.use(passport.session());
 // Routing
 app.use('/', routes);
 app.use('/', routesNotizie);
+app.use('/', routesEventi);
 app.use('/', routesRegistrazione);
 app.use('/', routesSession);
 app.use('/', routesRecensioni);
@@ -78,6 +81,7 @@ app.use('/', routesSendEmail);
 app.use('/', routesSquadre);
 app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
+app.use('/', routesAdmin);
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
