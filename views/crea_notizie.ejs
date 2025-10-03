@@ -1,0 +1,39 @@
+<DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crea Notizie</title> 
+    <link href="/stylesheets/Navbar.css" rel="stylesheet" type="text/css">
+    <link href="/stylesheets/Footer.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Quill CSS & JS CDN -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="./javascripts/crea_notizie.js" defer></script>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <main class="container my-5">
+        <h1 class="text-center mb-5">Crea una Nuova Notizia</h1>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
+        <form method="POST" action="/notizie/nuova" onsubmit="return submitQuillContent()">
+            <div class="mb-3">
+                <input type="text" name="titolo" placeholder="Titolo" required>
+            </div>
+            <div class="mb-3">
+                <div id="editor" style="height: 300px; background: #fff;"></div>
+                <input type="hidden" name="contenuto" id="contenuto">
+            </div>
+            <button type="submit">Pubblica</button>
+        </form>
+    </main>
+    <%-include('partials/footer') %>
+</body>
+</html>
