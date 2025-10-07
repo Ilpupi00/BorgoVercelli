@@ -31,9 +31,9 @@
         </li>
       </ul>
       <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden" >
-        <% if (isLogged) { %>
+        <% if (typeof isLogged !== 'undefined' && isLogged) { %>
           <a href="/Me" class="text-light w-100 text-align-center text-center d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
-            <% if (imageUrl) { %>
+            <% if (typeof imageUrl !== 'undefined' && imageUrl) { %>
               <img src="<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
             <% } else { %>
               <i class="bi bi-person-circle" style="font-size: 1.8rem; vertical-align: middle;"></i>

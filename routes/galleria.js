@@ -1,10 +1,10 @@
-
 const express = require('express');
 const router = express.Router();
 const daoGalleria = require('../dao/dao-galleria');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { isLoggedIn, isAdmin } = require('../middleware/auth');
 
 // Configurazione multer per upload immagini
 const uploadDir = path.join(__dirname, '../public/uploads');
@@ -54,6 +54,29 @@ router.get('/GetImmagini', (req, res) => {
             console.error('Errore nel recupero delle immagini:', err);
             res.status(500).json({ error: 'Errore nel caricamento delle immagini' });
         });
+});
+
+router.put('/UpdateImmagine/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { descrizione } = req.body;
+        await daoGalleria.updateImmagine(id, descrizione);
+        res.json({ message: 'Immagine aggiornata con successo' });
+    } catch (err) {
+        console.error('Errore aggiornamento immagine:', err);
+        res.status(500).json({ error: err.error || 'Errore durante l\'aggiornamento dell\'immagine' });
+    }
+});
+
+router.delete('/DeleteImmagine/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await daoGalleria.deleteImmagine(id);
+        res.json({ message: 'Immagine eliminata con successo' });
+    } catch (err) {
+        console.error('Errore eliminazione immagine:', err);
+        res.status(500).json({ error: err.error || 'Errore durante l\'eliminazione dell\'immagine' });
+    }
 });
 
 module.exports = router;

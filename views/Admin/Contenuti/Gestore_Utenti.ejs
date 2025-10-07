@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <!--<script src="/javascripts/Main.js" type="module" defer></script>-->
     <script src="/javascripts/components/Admin.js" defer></script>
     <script src="/javascripts/components/Gestore_utenti.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
@@ -59,6 +58,31 @@
                                 </button>
                             </div>
 
+                            <!-- Barra di ricerca -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-search"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="searchInput" placeholder="Cerca per ID, nome, cognome, email...">
+                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">
+                                                <span id="totalCount"><%= utenti ? utenti.length : 0 %></span> utenti totali
+                                                <span id="filteredCount" class="ms-3">(<%= utenti ? utenti.length : 0 %> filtrate)</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="card">
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -75,10 +99,15 @@
                                                     <th>Azioni</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="utentiTableBody">
                                                 <% if (utenti && utenti.length > 0) { %>
                                                     <% utenti.forEach(utente => { %>
-                                                        <tr>
+                                                        <tr data-utente-id="<%= utente.id %>" 
+                                                            data-nome="<%= (utente.nome || '').toLowerCase() %>"
+                                                            data-cognome="<%= (utente.cognome || '').toLowerCase() %>"
+                                                            data-email="<%= (utente.email || '').toLowerCase() %>"
+                                                            data-telefono="<%= (utente.telefono || '').toLowerCase() %>"
+                                                            data-tipo="<%= utente.tipo_utente_id %>">
                                                             <td><%= utente.id %></td>
                                                             <td><%= utente.nome %></td>
                                                             <td><%= utente.cognome %></td>

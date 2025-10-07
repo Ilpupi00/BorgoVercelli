@@ -117,3 +117,88 @@ exports.deleteRecensione = async (recensioneId, userId) => {
         });
     });
 }
+
+exports.getAllRecensioni = async () => {
+    const sql = `SELECT
+    RECENSIONI.id,
+    RECENSIONI.valutazione,
+    RECENSIONI.titolo,
+    RECENSIONI.contenuto,
+    RECENSIONI.data_recensione,
+    RECENSIONI.visibile,
+    UTENTI.nome AS utente_nome,
+    UTENTI.cognome AS utente_cognome,
+    IMMAGINI.url AS immagine_utente
+    FROM
+        RECENSIONI
+    JOIN
+        UTENTI ON RECENSIONI.utente_id = UTENTI.id
+    LEFT JOIN
+        IMMAGINI ON IMMAGINI.entita_riferimento = 'utente'
+            AND IMMAGINI.entita_id = UTENTI.id
+            AND (IMMAGINI.ordine = 1 OR IMMAGINI.ordine IS NULL)
+    ORDER BY
+        RECENSIONI.data_recensione DESC`;
+        
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, (err, reviews) => {
+            if (err) {
+                return reject({ error: 'Error retrieving reviews: ' + err.message });
+            }
+            resolve(reviews);
+        });
+    });
+}
+
+exports.getRecensioneById = async (id) => {
+    const sql = `SELECT
+    RECENSIONI.id,
+    RECENSIONI.valutazione,
+    RECENSIONI.titolo,
+    RECENSIONI.contenuto,
+    RECENSIONI.data_recensione,
+    RECENSIONI.visibile,
+    UTENTI.nome AS utente_nome,
+    UTENTI.cognome AS utente_cognome
+    FROM
+        RECENSIONI
+    JOIN
+        UTENTI ON RECENSIONI.utente_id = UTENTI.id
+    WHERE
+        RECENSIONI.id = ?`;
+        
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, [id], (err, review) => {
+            if (err) {
+                return reject({ error: 'Error retrieving review: ' + err.message });
+            }
+            resolve(review);
+        });
+    });
+}
+
+exports.updateRecensioneVisibile = async (id, visibile) => {
+    const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
+    
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [visibile ? 1 : 0, id], function(err) {
+            if (err) {
+                return reject({ error: 'Error updating review visibility: ' + err.message });
+            }
+            resolve({ success: true, changes: this.changes });
+        });
+    });
+}
+
+exports.deleteRecensioneAdmin = async (id) => {
+    const sql = `DELETE FROM RECENSIONI WHERE id = ?`;
+    
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                return reject({ error: 'Error deleting review: ' + err.message });
+            }
+            resolve({ success: true, changes: this.changes });
+        });
+    });
+}

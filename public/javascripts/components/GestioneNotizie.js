@@ -16,6 +16,7 @@ class GestioneNotizie {
             element: row,
             id: row.dataset.notiziaId,
             titolo: row.dataset.titolo || '',
+            contenuto: row.dataset.contenuto || '',
             stato: row.dataset.stato || '',
             data: row.dataset.data || ''
         }));
@@ -68,7 +69,9 @@ class GestioneNotizie {
             let isVisible = true;
 
             // Filtro ricerca
-            if (searchTerm && !notizia.titolo.includes(searchTerm)) {
+            if (searchTerm && !(notizia.titolo.includes(searchTerm) || 
+                               notizia.contenuto.includes(searchTerm) || 
+                               notizia.id.includes(searchTerm))) {
                 isVisible = false;
             }
 

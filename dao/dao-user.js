@@ -208,16 +208,17 @@ exports.getGiocatoreByUserId = function (userId) {
 exports.getAllUsers = function() {
     return new Promise((resolve, reject) => {
         const sql = `
-            SELECT u.*, t.nome AS tipo_utente_nome
+            SELECT u.id, u.nome, u.cognome, u.email, u.telefono, u.tipo_utente_id, u.data_registrazione,
+                   i.url AS immagine_profilo
             FROM UTENTI u
-            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
-            ORDER BY u.created_at DESC
+            LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
+            ORDER BY u.data_registrazione DESC
         `;
         sqlite.all(sql, [], (err, users) => {
             if (err) {
                 return reject({ error: 'Error retrieving users: ' + err.message });
             }
-            resolve(users || []);
+            resolve(users);
         });
     });
 }
@@ -338,6 +339,167 @@ exports.deleteUser = function(userId) {
         });
     });
 };
+
+exports.getStatistiche = async () => {
+    try {
+        const statistiche = {};
+
+        // Utenti totali
+        const utentiTotali = await new Promise((resolve, reject) => {
+            sqlite.get('SELECT COUNT(*) as count FROM UTENTI', (err, row) => {
+                if (err) reject(err);
+                else resolve(row.count);
+            });
+        });
+        statistiche.utentiTotali = utentiTotali;
+
+        // Notizie pubblicate
+        const notiziePubblicate = await new Promise((resolve, reject) => {
+            sqlite.get('SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = 1', (err, row) => {
+                if (err) reject(err);
+                else resolve(row.count);
+            });
+        });
+        statistiche.notiziePubblicate = notiziePubblicate;
+
+        // Eventi attivi (pubblicati e data_fine futura o null)
+        const eventiAttivi = await new Promise((resolve, reject) => {
+            sqlite.get(`
+                SELECT COUNT(*) as count FROM EVENTI 
+                WHERE pubblicato = 1 AND (data_fine IS NULL OR data_fine >= date('now'))
+            `, (err, row) => {
+                if (err) reject(err);
+                else resolve(row.count);
+            });
+        });
+        statistiche.eventiAttivi = eventiAttivi;
+
+        // Prenotazioni attive (future)
+        const prenotazioniAttive = await new Promise((resolve, reject) => {
+            sqlite.get(`
+                SELECT COUNT(*) as count FROM PRENOTAZIONI 
+                WHERE data_prenotazione >= date('now')
+            `, (err, row) => {
+                if (err) reject(err);
+                else resolve(row.count);
+            });
+        });
+        statistiche.prenotazioniAttive = prenotazioniAttive;
+
+        // Distribuzione utenti per tipo
+        const distribuzioneUtenti = await new Promise((resolve, reject) => {
+            sqlite.all(`
+                SELECT t.nome as tipo, COUNT(u.id) as count
+                FROM UTENTI u
+                LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+                GROUP BY u.tipo_utente_id, t.nome
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        statistiche.distribuzioneUtenti = distribuzioneUtenti;
+
+        // Attività recenti (ultimi 30 giorni)
+        const attivitaRecenti = await new Promise((resolve, reject) => {
+            sqlite.all(`
+                SELECT 
+                    'registrazione' as tipo,
+                    COUNT(*) as count,
+                    strftime('%Y-%m', data_registrazione) as periodo
+                FROM UTENTI 
+                WHERE data_registrazione >= date('now', '-30 days')
+                GROUP BY strftime('%Y-%m', data_registrazione)
+                UNION ALL
+                SELECT 
+                    'notizia' as tipo,
+                    COUNT(*) as count,
+                    strftime('%Y-%m', data_pubblicazione) as periodo
+                FROM NOTIZIE 
+                WHERE data_pubblicazione >= date('now', '-30 days') AND pubblicata = 1
+                GROUP BY strftime('%Y-%m', data_pubblicazione)
+                UNION ALL
+                SELECT 
+                    'evento' as tipo,
+                    COUNT(*) as count,
+                    strftime('%Y-%m', data_inizio) as periodo
+                FROM EVENTI 
+                WHERE data_inizio >= date('now', '-30 days') AND pubblicato = 1
+                GROUP BY strftime('%Y-%m', data_inizio)
+                ORDER BY periodo DESC
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        statistiche.attivitaRecenti = attivitaRecenti;
+
+        // Tendenze mensili (ultimi 6 mesi)
+        const tendenzeMensili = await new Promise((resolve, reject) => {
+            sqlite.all(`
+                SELECT 
+                    strftime('%Y-%m', data_registrazione) as mese,
+                    COUNT(*) as nuovi_utenti
+                FROM UTENTI 
+                WHERE data_registrazione >= date('now', '-6 months')
+                GROUP BY strftime('%Y-%m', data_registrazione)
+                ORDER BY mese ASC
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        // Prenotazioni mensili
+        const prenotazioniMensili = await new Promise((resolve, reject) => {
+            sqlite.all(`
+                SELECT 
+                    strftime('%Y-%m', data_prenotazione) as mese,
+                    COUNT(*) as prenotazioni
+                FROM PRENOTAZIONI 
+                WHERE data_prenotazione >= date('now', '-6 months')
+                GROUP BY strftime('%Y-%m', data_prenotazione)
+                ORDER BY mese ASC
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        // Combina i dati delle tendenze
+        const mesi = {};
+        const mesiNomi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+
+        // Inizializza ultimi 6 mesi
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const meseKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const meseNome = `${mesiNomi[date.getMonth()]} ${date.getFullYear()}`;
+            mesi[meseKey] = { mese: meseNome, nuovi_utenti: 0, prenotazioni: 0 };
+        }
+
+        // Popola con dati reali
+        tendenzeMensili.forEach(item => {
+            if (mesi[item.mese]) {
+                mesi[item.mese].nuovi_utenti = item.nuovi_utenti;
+            }
+        });
+
+        prenotazioniMensili.forEach(item => {
+            if (mesi[item.mese]) {
+                mesi[item.mese].prenotazioni = item.prenotazioni;
+            }
+        });
+
+        statistiche.tendenzeMensili = Object.values(mesi);
+
+        return statistiche;
+    } catch (error) {
+        console.error('Errore nel calcolo delle statistiche:', error);
+        return {};
+    }
+}
 
 module.exports = exports;
 

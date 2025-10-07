@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="/javascripts/components/GestioneSquadreAdmin.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
@@ -52,7 +52,7 @@
                                     <i class="bi bi-list-ul text-primary me-2"></i>
                                     Tutte le Squadre
                                 </h2>
-                                <button class="btn btn-primary btn-modern" onclick="creaSquadra()">
+                                <button class="btn btn-primary btn-modern crea-squadra-btn">
                                     <i class="bi bi-plus-circle me-2"></i>
                                     Crea Nuova Squadra
                                 </button>
@@ -98,13 +98,13 @@
                                                             </td>
                                                             <td>
                                                                 <div class="btn-group" role="group">
-                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza" onclick="visualizzaSquadra('<%= squadra.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-primary visualizza-btn" title="Visualizza" data-id="<%= squadra.id %>">
                                                                         <i class="bi bi-eye"></i>
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaSquadra('<%= squadra.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-warning modifica-btn" title="Modifica" data-id="<%= squadra.id %>" data-nome="<%= squadra.nome %>" data-anno="<%= squadra.Anno %>">
                                                                         <i class="bi bi-pencil"></i>
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" onclick="eliminaSquadra('<%= squadra.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-danger elimina-btn" title="Elimina" data-id="<%= squadra.id %>" data-nome="<%= squadra.nome %>">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </div>
@@ -132,30 +132,101 @@
         </div>
     </div>
 
+    <!-- Modal per creare nuova squadra -->
+    <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crea Nuova Squadra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createForm">
+                        <div class="mb-3">
+                            <label for="nomeInput" class="form-label">Nome Squadra *</label>
+                            <input type="text" class="form-control" id="nomeInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="annoInput" class="form-label">Anno Fondazione *</label>
+                            <input type="number" class="form-control" id="annoInput" min="1900" max="<%= new Date().getFullYear() %>" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="saveCreateBtn">Crea Squadra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per modificare squadra -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Squadra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="editNomeInput" class="form-label">Nome Squadra *</label>
+                            <input type="text" class="form-control" id="editNomeInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAnnoInput" class="form-label">Anno Fondazione *</label>
+                            <input type="number" class="form-control" id="editAnnoInput" min="1900" max="<%= new Date().getFullYear() %>" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">Salva Modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per visualizzare dettagli squadra -->
+    <div class="modal fade" id="viewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalTitle">Dettagli Squadra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewModalBody">
+                    <!-- Contenuto caricato dinamicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per conferma eliminazione -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler eliminare la squadra <strong id="deleteSquadraNome"></strong>?</p>
+                    <p class="text-danger">Questa azione eliminerà anche tutti i giocatori associati alla squadra e non può essere annullata.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Elimina Squadra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page"></div>
 
-    <script>
-        function visualizzaSquadra(id) {
-            // Implementare visualizzazione dettagliata squadra
-            alert('Funzionalità di visualizzazione squadra da implementare');
-        }
-
-        function modificaSquadra(id) {
-            // Implementare modifica squadra
-            alert('Funzionalità di modifica squadra da implementare');
-        }
-
-        function eliminaSquadra(id) {
-            if (confirm('Sei sicuro di voler eliminare questa squadra?')) {
-                // Implementare eliminazione
-                alert('Funzionalità di eliminazione da implementare');
-            }
-        }
-
-        function creaSquadra() {
-            // Implementare creazione nuova squadra
-            alert('Funzionalità di creazione squadra da implementare');
-        }
-    </script>
 </body>
 </html>

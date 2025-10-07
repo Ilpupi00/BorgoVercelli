@@ -83,3 +83,65 @@ exports.getGiocatori =async ()=>{
         });
     });
 }
+
+exports.createSquadra = function(nome, annoFondazione) {
+    const sql = 'INSERT INTO SQUADRE (nome, Anno) VALUES (?, ?)';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [nome, annoFondazione], function(err) {
+            if (err) {
+                console.error('Errore SQL insert squadra:', err);
+                return reject({ error: 'Errore nella creazione della squadra: ' + err.message });
+            }
+            resolve({ id: this.lastID, message: 'Squadra creata con successo' });
+        });
+    });
+}
+
+exports.updateSquadra = function(id, nome, annoFondazione) {
+    const sql = 'UPDATE SQUADRE SET nome = ?, Anno = ? WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [nome, annoFondazione, parseInt(id)], function(err) {
+            if (err) {
+                console.error('Errore SQL update squadra:', err);
+                return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Squadra non trovata' });
+            }
+            resolve({ message: 'Squadra aggiornata con successo' });
+        });
+    });
+}
+
+exports.deleteSquadra = function(id) {
+    const sql = 'DELETE FROM SQUADRE WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [parseInt(id)], function(err) {
+            if (err) {
+                console.error('Errore SQL delete squadra:', err);
+                return reject({ error: 'Errore nella cancellazione della squadra: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Squadra non trovata' });
+            }
+            resolve({ message: 'Squadra cancellata con successo' });
+        });
+    });
+}
+
+exports.getSquadraById = function(id) {
+    const sql = 'SELECT * FROM SQUADRE WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, [parseInt(id)], async (err, squadra) => {
+            if (err) {
+                return reject({ error: 'Errore nel recupero della squadra: ' + err.message });
+            }
+            if (!squadra) {
+                return reject({ error: 'Squadra non trovata' });
+            }
+            // Recupera i dirigenti
+            const dirigenti = await daoDirigenti.getDirigentiBySquadra(squadra.id);
+            resolve({ ...squadra, dirigenti });
+        });
+    });
+}

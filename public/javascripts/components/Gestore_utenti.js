@@ -1,5 +1,75 @@
 
 class GestoreUtente {
+    constructor() {
+        this.originalUtenti = [];
+        this.initialize();
+    }
+
+    initialize() {
+        this.loadUtentiData();
+        this.setupEventListeners();
+    }
+
+    loadUtentiData() {
+        const rows = document.querySelectorAll('#utentiTableBody tr[data-utente-id]');
+        this.originalUtenti = Array.from(rows).map(row => ({
+            element: row,
+            id: row.dataset.utenteId,
+            nome: row.dataset.nome || '',
+            cognome: row.dataset.cognome || '',
+            email: row.dataset.email || '',
+            telefono: row.dataset.telefono || '',
+            tipo: row.dataset.tipo || ''
+        }));
+    }
+
+    setupEventListeners() {
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => this.filtraUtenti());
+        }
+
+        if (clearSearch) {
+            clearSearch.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    this.filtraUtenti();
+                    searchInput.focus();
+                }
+            });
+        }
+    }
+
+    filtraUtenti() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        this.originalUtenti.forEach(utente => {
+            const matchesSearch = !searchTerm || 
+                utente.id.includes(searchTerm) ||
+                utente.nome.includes(searchTerm) ||
+                utente.cognome.includes(searchTerm) ||
+                utente.email.includes(searchTerm) ||
+                utente.telefono.includes(searchTerm);
+
+            if (matchesSearch) {
+                utente.element.style.display = '';
+                visibleCount++;
+            } else {
+                utente.element.style.display = 'none';
+            }
+        });
+
+        this.updateFilteredCount(visibleCount);
+    }
+
+    updateFilteredCount(count) {
+        const totalCount = this.originalUtenti.length;
+        document.getElementById('totalCount').textContent = totalCount;
+        document.getElementById('filteredCount').textContent = `(${count} filtrate)`;
+    }
     static showNotification(message, type = 'info') {
         const modal = document.getElementById('notificaModal');
         const header = document.getElementById('notificaHeader');
@@ -181,3 +251,6 @@ window.modificaUtente = GestoreUtente.modificaUtente;
 window.salvaModifica = GestoreUtente.salvaModifica;
 window.eliminaUtente = GestoreUtente.eliminaUtente;
 window.showNotification = GestoreUtente.showNotification;
+
+// Istanza globale
+const gestoreUtente = new GestoreUtente();

@@ -261,7 +261,7 @@ router.get('/admin/squadre', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
-    try{
+    try {
         const utenti = await userDao.getAllUsers();
         res.render('Admin/Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
     } catch (err) {
@@ -272,7 +272,7 @@ router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
 
 router.get('/admin/recensioni', isLoggedIn, isAdmin, async (req, res) => {
     try{
-        const recensioni = await recensioniDao.getRecensioni();
+        const recensioni = await recensioniDao.getAllRecensioni();
         res.render('Admin/Contenuti/Gestione_Recensioni.ejs', { user: req.user, recensioni });
     } catch (err) {
         console.error('Errore nel caricamento delle recensioni:', err);
@@ -280,24 +280,37 @@ router.get('/admin/recensioni', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
-    try{
-        const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
-        res.render('Admin/Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
+router.get('/admin/recensioni/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const recensione = await recensioniDao.getRecensioneById(req.params.id);
+        if (!recensione) {
+            return res.status(404).json({ error: 'Recensione non trovata' });
+        }
+        res.json(recensione);
     } catch (err) {
-        console.error('Errore nel caricamento delle prenotazioni:', err);
-        res.status(500).send('Errore interno del server');
+        console.error('Errore nel caricamento della recensione:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
     }
 });
 
-router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
-    try{
-        // Per ora passiamo dati vuoti, da implementare la logica per le statistiche
-        const statistiche = {};
-        res.render('Admin/Contenuti/Statistiche.ejs', { user: req.user, statistiche });
+router.put('/admin/recensioni/:id/toggle', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { visibile } = req.body;
+        await recensioniDao.updateRecensioneVisibile(req.params.id, visibile);
+        res.json({ success: true });
     } catch (err) {
-        console.error('Errore nel caricamento delle statistiche:', err);
-        res.status(500).send('Errore interno del server');
+        console.error('Errore nell\'aggiornamento della visibilità:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+router.delete('/admin/recensioni/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        await recensioniDao.deleteRecensioneAdmin(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Errore nell\'eliminazione della recensione:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
     }
 });
 
@@ -353,6 +366,38 @@ router.delete('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
         res.json({ message: 'Utente eliminato con successo' });
     } catch (err) {
         console.error('Errore nell\'eliminazione dell\'utente:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
+    try{
+        const statistiche = await userDao.getStatistiche();
+        res.render('Admin/Contenuti/Statistiche.ejs', { user: req.user, statistiche });
+    } catch (err) {
+        console.error('Errore nel caricamento delle statistiche:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+// Route per la gestione prenotazioni
+router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
+        res.render('Admin/Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
+    } catch (err) {
+        console.error('Errore nel caricamento delle prenotazioni:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+// Endpoint per refresh dati statistiche (JSON)
+router.get('/admin/statistiche/data', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const statistiche = await userDao.getStatistiche();
+        res.json(statistiche);
+    } catch (err) {
+        console.error('Errore nel refresh delle statistiche:', err);
         res.status(500).json({ error: 'Errore interno del server' });
     }
 });

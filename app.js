@@ -78,6 +78,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Middleware to set global locals for templates
+app.use(function(req, res, next) {
+  res.locals.isLogged = req.isAuthenticated();
+  next();
+});
+
 // Routing
 app.use('/', routes);
 app.use('/', routesNotizie);

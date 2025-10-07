@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="/javascripts/components/GalleriaAdmin.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
@@ -38,9 +38,8 @@
                                     <a href="/admin" class="btn btn-outline-secondary btn-modern me-2">
                                         <i class="bi bi-arrow-left"></i> Torna al Pannello
                                     </a>
-                                    <a href="/upload-galleria" class="btn btn-primary btn-modern">
-                                        <i class="bi bi-plus-circle me-2"></i>
-                                        Carica Immagine
+                                    <a href="/Logout" class="btn btn-outline-danger btn-modern">
+                                        <i class="bi bi-box-arrow-right"></i> Esci
                                     </a>
                                 </div>
                             </div>
@@ -53,6 +52,10 @@
                                     <i class="bi bi-grid text-primary me-2"></i>
                                     Tutte le Immagini
                                 </h2>
+                                <a href="/upload-galleria" class="btn btn-primary btn-modern">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Carica Immagine
+                                </a>
                             </div>
 
                             <div class="row">
@@ -72,13 +75,16 @@
                                                     </p>
                                                     <div class="mt-auto">
                                                         <div class="btn-group w-100" role="group">
-                                                            <button class="btn btn-sm btn-outline-primary" onclick="visualizzaImmagine('<%= immagine.url %>')">
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="galleriaAdmin.visualizzaImmagine('<%= immagine.url %>')">
                                                                 <i class="bi bi-eye"></i>
                                                             </button>
-                                                            <button class="btn btn-sm btn-outline-warning" onclick="modificaImmagine('<%= immagine.id %>')">
+                                                            <button class="btn btn-sm btn-outline-warning modifica-btn" 
+                                                                    data-id="<%= immagine.id %>" 
+                                                                    data-descrizione="<%= (immagine.descrizione || '').replace(/"/g, '&quot;') %>">
                                                                 <i class="bi bi-pencil"></i>
                                                             </button>
-                                                            <button class="btn btn-sm btn-outline-danger" onclick="eliminaImmagine('<%= immagine.id %>')">
+                                                            <button class="btn btn-sm btn-outline-danger elimina-btn" 
+                                                                    data-id="<%= immagine.id %>">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </div>
@@ -118,25 +124,50 @@
         </div>
     </div>
 
+    <!-- Modal per modificare descrizione -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Descrizione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="descrizioneInput" class="form-label">Descrizione</label>
+                            <textarea class="form-control" id="descrizioneInput" rows="3" placeholder="Inserisci una descrizione per l'immagine"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per conferma eliminazione -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler eliminare questa immagine?</p>
+                    <p class="text-muted">Questa azione non può essere annullata.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page"></div>
-
-    <script>
-        function visualizzaImmagine(url) {
-            document.getElementById('modalImage').src = url;
-            new bootstrap.Modal(document.getElementById('imageModal')).show();
-        }
-
-        function modificaImmagine(id) {
-            // Per ora, placeholder
-            alert('Funzionalità di modifica da implementare per ID: ' + id);
-        }
-
-        function eliminaImmagine(id) {
-            if (confirm('Sei sicuro di voler eliminare questa immagine?')) {
-                // Implementare eliminazione
-                alert('Funzionalità di eliminazione da implementare per ID: ' + id);
-            }
-        }
-    </script>
 </body>
 </html>

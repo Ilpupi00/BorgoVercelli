@@ -16,6 +16,7 @@ class GestioneEventi {
             element: row,
             id: row.dataset.eventoId,
             titolo: row.dataset.titolo || '',
+            descrizione: row.dataset.descrizione || '',
             stato: row.dataset.stato || '',
             dataInizio: row.dataset.dataInizio || '',
             dataFine: row.dataset.dataFine || '',
@@ -103,7 +104,10 @@ class GestioneEventi {
             let isVisible = true;
 
             // Filtro ricerca
-            if (searchTerm && !evento.titolo.includes(searchTerm) && !evento.luogo.includes(searchTerm)) {
+            if (searchTerm && !(evento.titolo.includes(searchTerm) || 
+                               evento.descrizione.includes(searchTerm) || 
+                               evento.luogo.includes(searchTerm) || 
+                               evento.id.includes(searchTerm))) {
                 isVisible = false;
             }
 
