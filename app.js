@@ -3,6 +3,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
+const methodOverride = require('method-override');
 const userDao = require('./dao/dao-user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -49,9 +50,16 @@ app.get('/', (req, res) => {
   res.redirect('/Homepage');
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(morgan('tiny'));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(methodOverride(function (req, res) {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    var method = req.body._method;
+    delete req.body._method;
+    return method;
+  }
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const isLoggedIn = (req, res, next) => {

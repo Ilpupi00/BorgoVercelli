@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="/javascripts/components/GestioneNotizie.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
@@ -27,14 +28,14 @@
                         <!-- Header con profilo -->
                         <div class="admin-header animate__animated animate__fadeInDown mb-4">
                             <div class="row align-items-center">
-                                <div class="col-md-8 text-center text-md-start">
+                                <div class="col-md-6 text-center text-md-start">
                                     <h1 class="display-5 fw-bold text-dark mb-2">
                                         <i class="bi bi-newspaper text-primary me-2"></i>
                                         Gestione Notizie
                                     </h1>
                                     <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
                                 </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
                                     <a href="/admin" class="btn btn-outline-secondary btn-modern me-2">
                                         <i class="bi bi-arrow-left"></i> Torna al Pannello
                                     </a>
@@ -54,8 +55,58 @@
                                 </h2>
                                 <a href="/crea-notizie" class="btn btn-primary btn-modern">
                                     <i class="bi bi-plus-circle me-2"></i>
-                                    Crea Nuova Notizia
+                                    Crea Notizia
                                 </a>
+                            </div>
+
+                            <!-- Barra di ricerca e filtri -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <!-- Barra di ricerca -->
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-search"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="searchInput" placeholder="Cerca per titolo...">
+                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Filtro stato -->
+                                        <div class="col-md-3">
+                                            <select class="form-select" id="statusFilter">
+                                                <option value="all">Tutti gli stati</option>
+                                                <option value="published">Pubblicate</option>
+                                                <option value="draft">Bozze</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- Filtro data -->
+                                        <div class="col-md-3">
+                                            <select class="form-select" id="dateFilter">
+                                                <option value="all">Tutte le date</option>
+                                                <option value="today">Oggi</option>
+                                                <option value="week">Questa settimana</option>
+                                                <option value="month">Questo mese</option>
+                                                <option value="year">Quest'anno</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiche filtrate -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <small class="text-muted">
+                                                <span id="totalCount"><%= notizie ? notizie.length : 0 %></span> notizie totali
+                                                <span id="filteredCount" class="ms-3">(<%= notizie ? notizie.length : 0 %> filtrate)</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="card">
@@ -73,10 +124,13 @@
                                                     <th>Azioni</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="notizieTableBody">
                                                 <% if (notizie && notizie.length > 0) { %>
                                                     <% notizie.forEach(notizia => { %>
-                                                        <tr>
+                                                        <tr data-notizia-id="<%= notizia.id %>" 
+                                                            data-titolo="<%= notizia.titolo.toLowerCase() %>"
+                                                            data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
+                                                            data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">
                                                             <td><%= notizia.id %></td>
                                                             <td>
                                                                 <strong><%= notizia.titolo %></strong>
@@ -109,8 +163,16 @@
                                                             </td>
                                                         </tr>
                                                     <% }); %>
+                                                    <!-- Riga per nessun risultato dai filtri (inizialmente nascosta) -->
+                                                    <tr id="noResultsRow" style="display: none;">
+                                                        <td colspan="7" class="text-center text-muted py-4">
+                                                            <i class="bi bi-search display-4 mb-3"></i>
+                                                            <p>Nessuna notizia corrisponde ai filtri selezionati.</p>
+                                                            <button class="btn btn-outline-secondary" onclick="clearAllFilters()">Rimuovi filtri</button>
+                                                        </td>
+                                                    </tr>
                                                 <% } else { %>
-                                                    <tr>
+                                                    <tr id="noResultsRow">
                                                         <td colspan="7" class="text-center text-muted py-4">
                                                             <i class="bi bi-info-circle display-4 mb-3"></i>
                                                             <p>Nessuna notizia presente nel sistema.</p>
@@ -132,18 +194,5 @@
 
     <div id="page"></div>
 
-    <script>
-        function modificaNotizia(id) {
-            // Per ora, reindirizza alla pagina di creazione (da implementare modifica)
-            window.location.href = '/crea-notizie?id=' + id;
-        }
-
-        function eliminaNotizia(id) {
-            if (confirm('Sei sicuro di voler eliminare questa notizia?')) {
-                // Implementare eliminazione
-                alert('Funzionalità di eliminazione da implementare');
-            }
-        }
-    </script>
 </body>
 </html>

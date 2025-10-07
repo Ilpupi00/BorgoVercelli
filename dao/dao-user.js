@@ -121,6 +121,10 @@ exports.updateUser=async (userId, fields) =>{
         updates.push('telefono = ?');
         values.push(fields.telefono);
     }
+    if (fields.tipo_utente_id !== undefined) {
+        updates.push('tipo_utente_id = ?');
+        values.push(fields.tipo_utente_id);
+    }
     if (fields.ruolo_preferito !== undefined) {
         updates.push('ruolo_preferito = ?');
         values.push(fields.ruolo_preferito);
@@ -321,4 +325,19 @@ exports.changePassword = function(userId, currentPassword, newPassword) {
         });
     });
 };
+
+exports.deleteUser = function(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = 'DELETE FROM UTENTI WHERE id = ?';
+        sqlite.run(sql, [userId], function(err) {
+            if (err) {
+                reject({ error: 'Error deleting user: ' + err.message });
+            } else {
+                resolve({ message: 'User deleted successfully' });
+            }
+        });
+    });
+};
+
+module.exports = exports;
 

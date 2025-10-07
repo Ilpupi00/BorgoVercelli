@@ -1,39 +1,163 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crea Notizie</title> 
-    <link href="/stylesheets/Navbar.css" rel="stylesheet" type="text/css">
-    <link href="/stylesheets/Footer.css" rel="stylesheet" type="text/css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title><%= notizia ? 'Modifica Notizia' : 'Crea Notizia' %> - Borgo Vercelli</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="/stylesheets/Navbar.css">
+    <link rel="stylesheet" href="/stylesheets/Footer.css">
     <!-- Quill CSS & JS CDN -->
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-    <script src="./javascripts/crea_notizie.js" defer></script>
+    <script src="/javascripts/Main.js" type="module" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/crea_notizie.js" defer></script>
 </head>
 <body>
-    <%- include('partials/navbar') %>
+    <div id="navbar"></div>
 
     <main class="container my-5">
-        <h1 class="text-center mb-5">Crea una Nuova Notizia</h1>
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="alert alert-danger" role="alert">
-                <%= error %>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card animate__animated animate__fadeInUp">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="card-title mb-0">
+                            <i class="bi bi-<%= notizia ? 'pencil' : 'plus-circle' %> me-2"></i>
+                            <%= notizia ? 'Modifica Notizia' : 'Crea una Nuova Notizia' %>
+                        </h1>
+                    </div>
+                    <div class="card-body">
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger animate__animated animate__shakeX" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+                            </div>
+                        <% } %>
+
+                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>" onsubmit="return submitQuillContent()">
+                            <div class="mb-3">
+                                <label for="titolo" class="form-label">Titolo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="titolo" name="titolo" placeholder="Inserisci il titolo della notizia"
+                                       value="<%= notizia ? notizia.titolo : '' %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="sottotitolo" class="form-label">Sottotitolo</label>
+                                <input type="text" class="form-control" id="sottotitolo" name="sottotitolo" placeholder="Inserisci un sottotitolo (opzionale)"
+                                       value="<%= notizia ? notizia.sottotitolo : '' %>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="contenuto" class="form-label">Contenuto <span class="text-danger">*</span></label>
+                                <div id="editor" style="height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 4px;"></div>
+                                <input type="hidden" name="contenuto" id="contenuto">
+                                <div class="form-text">Usa l'editor per formattare il testo della notizia.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="immagine_principale_id" class="form-label">ID Immagine Principale</label>
+                                <input type="number" class="form-control" id="immagine_principale_id" name="immagine_principale_id"
+                                       placeholder="ID dell'immagine dalla galleria (opzionale)"
+                                       value="<%= notizia && notizia.immagine ? notizia.immagine : '' %>">
+                                <div class="form-text">Inserisci l'ID di un'immagine dalla galleria per usarla come immagine principale.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="pubblicata" name="pubblicata" <%= notizia && notizia.pubblicata ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="pubblicata">
+                                        Pubblica immediatamente la notizia
+                                    </label>
+                                </div>
+                                <div class="form-text">Se non selezionato, la notizia verrà salvata come bozza.</div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/notizie" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Annulla
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-<%= notizia ? 'check-lg' : 'save' %> me-2"></i>
+                                    <%= notizia ? 'Aggiorna Notizia' : 'Crea Notizia' %>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        <% } %>
-        <form method="POST" action="/notizie/nuova" onsubmit="return submitQuillContent()">
-            <div class="mb-3">
-                <input type="text" name="titolo" placeholder="Titolo" required>
-            </div>
-            <div class="mb-3">
-                <div id="editor" style="height: 300px; background: #fff;"></div>
-                <input type="hidden" name="contenuto" id="contenuto">
-            </div>
-            <button type="submit">Pubblica</button>
-        </form>
+        </div>
     </main>
-    <%-include('partials/footer') %>
+
+    <div id="footer"></div>
+
+    <script type="text/javascript">
+        // Dati per JavaScript
+        window.notiziaData = <%- JSON.stringify({
+            id: notizia ? notizia.id : null,
+            titolo: notizia ? notizia.titolo : '',
+            sottotitolo: notizia ? notizia.sottotitolo : '',
+            contenuto: notizia ? notizia.contenuto : '',
+            immagine: notizia ? notizia.immagine : null,
+            pubblicata: notizia ? !!notizia.pubblicata : false
+        }) %>;
+    </script>
+
+    <script>
+        // Inizializza Quill editor
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Scrivi il contenuto della notizia...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Carica contenuto esistente se in modifica
+        if (window.notiziaData.contenuto) {
+            quill.root.innerHTML = window.notiziaData.contenuto;
+        }
+
+        // Funzione per submit del form
+        function submitQuillContent() {
+            const contenuto = document.getElementById('contenuto');
+            contenuto.value = quill.root.innerHTML;
+
+            // Controlla la dimensione del contenuto (limite approssimativo 5MB per sicurezza)
+            const contentSize = new Blob([contenuto.value]).size;
+            if (contentSize > 5 * 1024 * 1024) { // 5MB
+                alert('Il contenuto della notizia è troppo grande. Riduci il contenuto o rimuovi alcune immagini.');
+                return false;
+            }
+
+            if (!contenuto.value || contenuto.value.trim() === '<p><br></p>') {
+                alert('Il contenuto della notizia è obbligatorio');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Auto-save ogni 30 secondi (solo se ci sono modifiche)
+        let lastContent = quill.getContents();
+        setInterval(() => {
+            const currentContent = quill.getContents();
+            if (JSON.stringify(currentContent) !== JSON.stringify(lastContent)) {
+                console.log('Contenuto modificato - auto-save disponibile');
+                lastContent = currentContent;
+            }
+        }, 30000);
+    </script>
 </body>
 </html>

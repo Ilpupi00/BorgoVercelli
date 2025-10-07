@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/Main.js" type="module" defer></script>
+    <!--<script src="/javascripts/Main.js" type="module" defer></script>-->
     <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="/javascripts/components/Gestore_utenti.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
@@ -129,30 +130,138 @@
         </div>
     </div>
 
+    <!-- Modal Visualizza Utente -->
+    <div class="modal fade" id="visualizzaModal" tabindex="-1" aria-labelledby="visualizzaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="visualizzaModalLabel">Dettagli Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="visualizzaContent">
+                    <!-- Contenuto caricato dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crea Utente -->
+    <div class="modal fade" id="creaModal" tabindex="-1" aria-labelledby="creaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="creaModalLabel">Crea Nuovo Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="creaForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cognome" class="form-label">Cognome *</label>
+                                <input type="text" class="form-control" id="cognome" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="telefono">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_utente_id" class="form-label">Tipo Utente</label>
+                            <select class="form-select" id="tipo_utente_id">
+                                <option value="3">Utente</option>
+                                <option value="2">Dirigente</option>
+                                <option value="1">Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="salvaCrea()">Crea Utente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Utente -->
+    <div class="modal fade" id="modificaModal" tabindex="-1" aria-labelledby="modificaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modificaModalLabel">Modifica Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modificaForm">
+                        <input type="hidden" id="modificaId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modificaNome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="modificaNome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modificaCognome" class="form-label">Cognome *</label>
+                                <input type="text" class="form-control" id="modificaCognome" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaEmail" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="modificaEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaTelefono" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="modificaTelefono">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaTipo" class="form-label">Tipo Utente</label>
+                            <select class="form-select" id="modificaTipo">
+                                <option value="3">Utente</option>
+                                <option value="2">Dirigente</option>
+                                <option value="1">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="salvaModifica()">Salva Modifiche</button>
+                </div>
+            </div>
+        </div>
+    <!-- Modal Notifica -->
+    <div class="modal fade" id="notificaModal" tabindex="-1" aria-labelledby="notificaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" id="notificaHeader">
+                    <h5 class="modal-title" id="notificaModalLabel">Notifica</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="notificaBody">
+                    Messaggio di notifica
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page"></div>
 
     <script>
-        function visualizzaUtente(id) {
-            // Implementare visualizzazione dettagliata utente
-            alert('Funzionalità di visualizzazione utente da implementare');
-        }
-
-        function modificaUtente(id) {
-            // Implementare modifica utente
-            alert('Funzionalità di modifica utente da implementare');
-        }
-
-        function eliminaUtente(id) {
-            if (confirm('Sei sicuro di voler eliminare questo utente?')) {
-                // Implementare eliminazione
-                alert('Funzionalità di eliminazione da implementare');
-            }
-        }
-
-        function creaUtente() {
-            // Implementare creazione nuovo utente
-            alert('Funzionalità di creazione utente da implementare');
-        }
+        // Funzioni implementate in Gestore_utente.js
     </script>
 </body>
 </html>

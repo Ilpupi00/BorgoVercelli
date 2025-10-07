@@ -5,17 +5,17 @@ const Notizie= require('../model/notizia.js');
 
 const makeNotizie = (row) => {
     return new Notizie(
-        row.N_id,
+        row.N_id || row.id,
         row.N_titolo || row.titolo,
         row.N_sottotitolo || row.sottotitolo,
-        row.N_immagine || row.img || row.immagine,
+        row.N_immagine || row.img || row.immagine_principale_id || row.immagine,
         row.N_contenuto || row.contenuto,
         row.N_autore_id || row.autore_id,
         row.N_pubblicata || row.pubblicata,
-        (row.N_data_pubblicazione || row.data_pubblicazione || row.N_pubblicata || row.pubblicata),
+        row.N_data_pubblicazione || row.data_pubblicazione || null,
         row.N_visualizzazioni || row.visualizzazioni,
-        row.N_created_at || row.created_at,
-        row.N_updated_at || row.updated_at
+        row.N_created_at || row.created_at || null,
+        row.N_updated_at || row.updated_at || null
     );
 }
 exports.getNotizie = async function(){
@@ -65,6 +65,69 @@ exports.deleteNotiziaById = async function(id) {
                 return reject({ error: 'Error deleting news: ' + err.message });
             }   
             resolve({ success: true });
+        });
+    });
+}
+
+exports.createNotizia = async function(notiziaData) {
+    const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, datetime('now'), datetime('now'))`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            notiziaData.titolo,
+            notiziaData.sottotitolo,
+            notiziaData.contenuto,
+            notiziaData.immagine_principale_id,
+            notiziaData.autore_id,
+            notiziaData.pubblicata,
+            notiziaData.data_pubblicazione
+        ], function(err) {
+            if (err) {
+                return reject({ error: 'Error creating news: ' + err.message });
+            }
+            resolve({ success: true, id: this.lastID });
+        });
+    });
+}
+
+exports.updateNotizia = async function(id, notiziaData) {
+    const sql = `UPDATE NOTIZIE SET
+                 titolo = ?, sottotitolo = ?, contenuto = ?, immagine_principale_id = ?,
+                 pubblicata = ?, data_pubblicazione = ?, updated_at = datetime('now')
+                 WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            notiziaData.titolo,
+            notiziaData.sottotitolo,
+            notiziaData.contenuto,
+            notiziaData.immagine_principale_id,
+            notiziaData.pubblicata ? 1 : 0,
+            notiziaData.data_pubblicazione,
+            id
+        ], function(err) {
+            if (err) {
+                return reject({ error: 'Error updating news: ' + err.message });
+            }
+            resolve({ success: true, changes: this.changes });
+        });
+    });
+}
+
+exports.togglePubblicazioneNotizia = async function(id) {
+    const sql = `UPDATE NOTIZIE SET
+                 pubblicata = CASE WHEN pubblicata = 1 THEN 0 ELSE 1 END,
+                 data_pubblicazione = CASE WHEN pubblicata = 0 THEN datetime('now') ELSE data_pubblicazione END,
+                 updated_at = datetime('now')
+                 WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                return reject({ error: 'Error toggling news publication: ' + err.message });
+            }
+            resolve({ success: true, changes: this.changes });
         });
     });
 }

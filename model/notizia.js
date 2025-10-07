@@ -21,6 +21,8 @@ class Notizia{
     }
 
     static parseDate(dateStr) {
+        if (!dateStr) return null;
+        
         // Se già ISO, usa direttamente, altrimenti prova a normalizzare
         if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
             return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');

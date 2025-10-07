@@ -37,18 +37,110 @@ exports.getEventi = function(){
 }
 
 exports.getEventoById = function(id) {
-    // Puoi aggiungere anche qui gli alias se necessario
     const sql = 'SELECT * FROM EVENTI WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id])
-        .then((evento) => {
+        sqlite.get(sql, [id], (err, evento) => {
+            if (err) {
+                console.error('Errore SQL get evento by id:', err);
+                return reject({ error: 'Error retrieving event: ' + err.message });
+            }
             if (!evento) {
                 return reject({ error: 'Event not found' });
             }
             resolve(makeEvento(evento));
-        })
-        .catch((err) => {
-            reject({ error: 'Error retrieving event: ' + err.message });
+        });
+    });
+}
+
+exports.createEvento = function(eventoData) {
+    const sql = `INSERT INTO EVENTI (
+        titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento,
+        squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            eventoData.titolo,
+            eventoData.descrizione,
+            eventoData.data_inizio,
+            eventoData.data_fine,
+            eventoData.luogo,
+            eventoData.tipo_evento,
+            eventoData.squadra_id,
+            eventoData.campo_id,
+            eventoData.max_partecipanti,
+            eventoData.pubblicato ? 1 : 0
+        ], function(err) {
+            if (err) {
+                console.error('Errore SQL create evento:', err);
+                return reject({ error: 'Error creating event: ' + err.message });
+            }
+            resolve({ id: this.lastID, success: true });
+        });
+    });
+}
+
+exports.updateEvento = function(id, eventoData) {
+    const sql = `UPDATE EVENTI SET
+        titolo = ?, descrizione = ?, data_inizio = ?, data_fine = ?,
+        luogo = ?, tipo_evento = ?, squadra_id = ?, campo_id = ?,
+        max_partecipanti = ?, pubblicato = ?, updated_at = datetime('now')
+        WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            eventoData.titolo,
+            eventoData.descrizione,
+            eventoData.data_inizio,
+            eventoData.data_fine,
+            eventoData.luogo,
+            eventoData.tipo_evento,
+            eventoData.squadra_id,
+            eventoData.campo_id,
+            eventoData.max_partecipanti,
+            eventoData.pubblicato ? 1 : 0,
+            id
+        ], function(err) {
+            if (err) {
+                console.error('Errore SQL update evento:', err);
+                return reject({ error: 'Error updating event: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Event not found' });
+            }
+            resolve({ success: true });
+        });
+    });
+}
+
+exports.deleteEventoById = function(id) {
+    const sql = 'DELETE FROM EVENTI WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                console.error('Errore SQL delete evento:', err);
+                return reject({ error: 'Error deleting event: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Event not found' });
+            }
+            resolve({ success: true });
+        });
+    });
+}
+
+exports.togglePubblicazioneEvento = function(id) {
+    const sql = 'UPDATE EVENTI SET pubblicato = CASE WHEN pubblicato = 1 THEN 0 ELSE 1 END, updated_at = datetime(\'now\') WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                console.error('Errore SQL toggle pubblicazione evento:', err);
+                return reject({ error: 'Error toggling event publication: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Event not found' });
+            }
+            resolve({ success: true });
         });
     });
 }

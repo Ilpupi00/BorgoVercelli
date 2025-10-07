@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="/javascripts/components/GestioneEventi.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
@@ -55,6 +56,69 @@
                                 </a>
                             </div>
 
+                            <!-- Barra di ricerca e filtri -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <!-- Barra di ricerca -->
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-search"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="searchInput" placeholder="Cerca per titolo o luogo...">
+                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filtro stato -->
+                                        <div class="col-md-2">
+                                            <select class="form-select" id="statusFilter">
+                                                <option value="all">Tutti gli stati</option>
+                                                <option value="published">Pubblicati</option>
+                                                <option value="draft">Bozze</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Filtro tipo -->
+                                        <div class="col-md-2">
+                                            <select class="form-select" id="typeFilter">
+                                                <option value="all">Tutti i tipi</option>
+                                                <option value="Torneo">Torneo</option>
+                                                <option value="Partita">Partita</option>
+                                                <option value="Allenamento">Allenamento</option>
+                                                <option value="Evento Sociale">Evento Sociale</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Filtro data -->
+                                        <div class="col-md-2">
+                                            <select class="form-select" id="dateFilter">
+                                                <option value="all">Tutte le date</option>
+                                                <option value="upcoming">Futuri</option>
+                                                <option value="past">Passati</option>
+                                                <option value="today">Oggi</option>
+                                                <option value="week">Questa settimana</option>
+                                                <option value="month">Questo mese</option>
+                                                <option value="year">Quest'anno</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Statistiche filtrate -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <small class="text-muted">
+                                                <span id="totalCount"><%= eventi ? eventi.length : 0 %></span> eventi totali
+                                                <span id="filteredCount" class="ms-3">(<%= eventi ? eventi.length : 0 %> filtrate)</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="card">
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -72,10 +136,16 @@
                                                     <th>Azioni</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="eventiTableBody">
                                                 <% if (eventi && eventi.length > 0) { %>
                                                     <% eventi.forEach(evento => { %>
-                                                        <tr>
+                                                        <tr data-evento-id="<%= evento.id %>" 
+                                                            data-titolo="<%= evento.titolo.toLowerCase() %>"
+                                                            data-stato="<%= evento.pubblicato ? 'published' : 'draft' %>"
+                                                            data-data-inizio="<%= evento.data_inizio || '' %>"
+                                                            data-data-fine="<%= evento.data_fine || '' %>"
+                                                            data-luogo="<%= (evento.luogo || '').toLowerCase() %>"
+                                                            data-tipo="<%= evento.tipo_evento || '' %>">
                                                             <td><%= evento.id %></td>
                                                             <td>
                                                                 <strong><%= evento.titolo %></strong>
@@ -100,18 +170,29 @@
                                                                     <a href="/evento/<%= evento.id %>" class="btn btn-sm btn-outline-primary" title="Visualizza">
                                                                         <i class="bi bi-eye"></i>
                                                                     </a>
-                                                                    <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaEvento('<%= evento.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-warning btn-modifica-evento" title="Modifica" data-evento-id="<%= evento.id %>">
                                                                         <i class="bi bi-pencil"></i>
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" onclick="eliminaEvento('<%= evento.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-success toggle-pubblicazione" title="<%= evento.pubblicato ? 'Sospendi' : 'Pubblica' %>" data-evento-id="<%= evento.id %>" data-current-status="<%= evento.pubblicato ? 1 : 0 %>">
+                                                                        <i class="bi bi-<%= evento.pubblicato ? 'eye-slash' : 'eye' %>"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-outline-danger btn-elimina-evento" title="Elimina" data-evento-id="<%= evento.id %>">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                     <% }); %>
+                                                    <!-- Riga per nessun risultato dai filtri (inizialmente nascosta) -->
+                                                    <tr id="noResultsRow" style="display: none;">
+                                                        <td colspan="9" class="text-center text-muted py-4">
+                                                            <i class="bi bi-search display-4 mb-3"></i>
+                                                            <p>Nessun evento corrisponde ai filtri selezionati.</p>
+                                                            <button class="btn btn-outline-secondary" onclick="gestioneEventi.clearAllFilters()">Rimuovi filtri</button>
+                                                        </td>
+                                                    </tr>
                                                 <% } else { %>
-                                                    <tr>
+                                                    <tr id="noResultsRow">
                                                         <td colspan="9" class="text-center text-muted py-4">
                                                             <i class="bi bi-info-circle display-4 mb-3"></i>
                                                             <p>Nessun evento presente nel sistema.</p>
@@ -133,18 +214,5 @@
 
     <div id="page"></div>
 
-    <script>
-        function modificaEvento(id) {
-            // Per ora, reindirizza alla pagina di creazione (da implementare modifica)
-            window.location.href = '/crea-evento?id=' + id;
-        }
-
-        function eliminaEvento(id) {
-            if (confirm('Sei sicuro di voler eliminare questo evento?')) {
-                // Implementare eliminazione
-                alert('Funzionalità di eliminazione da implementare');
-            }
-        }
-    </script>
 </body>
 </html>
