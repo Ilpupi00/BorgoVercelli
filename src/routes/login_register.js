@@ -38,9 +38,9 @@ router.post('/registrazione', async (req, res) => {
     }
 });
 
-router.get('/Me', async (req, res) => {
+router.get('/me', async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect('/Login');
+        return res.redirect('/login');
     }
     if (req.user.tipo_utente_id === 1) {
         return res.redirect('/admin');
@@ -90,7 +90,7 @@ router.get('/Me', async (req, res) => {
 
 router.get('/profilo', async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect('/Login');
+        return res.redirect('/login');
     }
     if (req.user.tipo_utente_id === 1) {
         return res.redirect('/admin');
@@ -149,7 +149,7 @@ router.get('/Logout', (req, res) => {
                 console.error('Errore nella distruzione della sessione:', err);
                 return res.status(500).json({ error: 'Errore durante il logout' });
             }
-            res.redirect('/Homepage');
+            res.redirect('/homepage');
         });
     });
 });

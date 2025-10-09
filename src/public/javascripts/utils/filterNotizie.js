@@ -97,7 +97,7 @@ class FilterNotizie {
                         if (!idNotizia) {
                             console.warn('Notizia con id non valido:', notizia);
                         }
-                        const linkNotizia = idNotizia ? `/Notizia/${idNotizia}` : null;
+                        const linkNotizia = idNotizia ? `/notizia/${idNotizia}` : null;
 
                         // Funzione per verificare se l'immagine esiste
                         function checkImage(url) {

@@ -4,46 +4,17 @@ class Galleria{
         if (typeof loadCSS === 'function') loadCSS(); 
         this.page = page;
         this.allImages = [];
-        this.imagesShown = 0;
+        this.imagesShown = 8; // Since 8 are already shown in EJS
         this.imagesPerPage = 8;
         this.init();
     }
 
     async init(){
         document.title = "Galleria";
-        await this.render();
-    }
-
-    async render(){
-        this.page.innerHTML = `
-        <header class="text-center py-3 text-white overflow-hidden">
-            <div class="row">
-              <div class="img-container">
-                    <img alt="Descrizione dell'immagine" class="centered-image">
-                </div>
-            </div>
-        </header>
-        <section class="gallery-section mt-0">
-            <div class="container">
-                <h2 class="text-center mb-5 overflow-hidden">La Nostra Galleria</h2>
-                <div class="text-center mb-4">
-                <label for="uploadPhoto" class="btn btn-success upload-btn">
-                    <i class="bi bi-cloud-upload"></i> Carica Foto
-                </label>
-                <input type="file" id="uploadPhoto" class="d-none" accept="image/*">
-            </div>
-                <div class="gallery-container"></div>
-                <div class="text-center mb-5">
-                    <button id="loadMoreBtn" class="btn-primary">
-                        <i class="fas fa-plus-circle"></i> Più Immagini
-                    </button>
-                </div>
-            </div>
-        </section>
-        `;
-
+        await this.fetchImages();
         this.setupUploadButton();
-        this.fetchImages();
+        this.setupLoadMoreButton();
+        this.setupImageClicks();
     }
 
     async fetchImages() {
@@ -55,57 +26,44 @@ class Galleria{
             }
             const data = await response.json();
             this.allImages = data.immagini || [];
-            this.imagesShown = 0;
-            // Mostra la prima immagine nell'header se presente
+            // Update header image if available
             if (this.allImages.length > 0) {
-                const headerImg = document.querySelector('header .centered-image');
+                const headerImg = this.page.querySelector('header .centered-image');
                 if (headerImg) {
                     headerImg.src = this.allImages[0].url;
                     headerImg.alt = this.allImages[0].descrizione || 'Immagine della galleria';
                 }
             }
-            this.clearGallery();
-            this.showNextImages();
-            this.setupLoadMoreButton();
+            // Clear and reload gallery if needed, but since EJS has initial, perhaps only add more
+            // For simplicity, assume EJS has first 8, and JS handles load more
         } catch (error) {
             console.error('Errore nel recupero delle immagini:', error);
         }
     }
 
-    clearGallery() {
-        let galleryRow = document.querySelector('.gallery-container');
-        if (galleryRow) galleryRow.innerHTML = '';
+    setupLoadMoreButton() {
+        const loadMoreBtn = this.page.querySelector('#loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.onclick = () => this.showNextImages();
+        }
     }
 
     showNextImages() {
         const nextImages = this.allImages.slice(this.imagesShown, this.imagesShown + this.imagesPerPage);
         this.addImage(nextImages);
         this.imagesShown += nextImages.length;
-        // Nascondi il pulsante se non ci sono più immagini
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        // Hide button if no more images
+        const loadMoreBtn = this.page.querySelector('#loadMoreBtn');
         if (loadMoreBtn) {
             if (this.imagesShown >= this.allImages.length) {
                 loadMoreBtn.style.display = 'none';
-            } else {
-                loadMoreBtn.style.display = '';
             }
         }
     }
 
-    setupLoadMoreButton() {
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
-        if (loadMoreBtn) {
-            loadMoreBtn.onclick = () => this.showNextImages();
-        }
-    }
-
-    async addImage(immagini) {
-        let galleryRow = document.querySelector('.gallery-container');
-        if (!galleryRow) {
-            galleryRow = document.createElement('div');
-            galleryRow.className = 'gallery-container';
-            document.body.appendChild(galleryRow);
-        }
+    addImage(immagini) {
+        const galleryRow = this.page.querySelector('.gallery-container');
+        if (!galleryRow) return;
         immagini.forEach((img) => {
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
@@ -126,15 +84,14 @@ class Galleria{
             span.className = 'btn btn-primary btn-sm';
             span.textContent = 'Visualizza';
 
-            // Click su "Visualizza": mostra l'immagine grande nell'header
+            // Click handler
             span.addEventListener('click', (e) => {
                 e.preventDefault();
-                const headerImg = document.querySelector('header .centered-image');
+                const headerImg = this.page.querySelector('header .centered-image');
                 if (headerImg) {
                     headerImg.src = img.url;
                     headerImg.alt = img.descrizione || 'Immagine della galleria';
                 }
-                // Scrolla in alto per vedere l'header
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
@@ -147,14 +104,13 @@ class Galleria{
     }
 
     setupUploadButton() {
-        const uploadInput = document.getElementById('uploadPhoto');
+        const uploadInput = this.page.querySelector('#uploadPhoto');
         if (!uploadInput) return;
         uploadInput.addEventListener('change', async (event) => {
             const file = event.target.files[0];
             if (!file) return;
             const formData = new FormData();
             formData.append('image', file);
-            // opzionale: chiedi descrizione
             const descrizione = prompt('Inserisci una descrizione per la foto (opzionale):');
             if (descrizione) formData.append('descrizione', descrizione);
             try {
@@ -166,9 +122,32 @@ class Galleria{
                     alert('Errore durante il caricamento della foto');
                     return;
                 }
-                this.fetchImages(); // ricarica la galleria
+                // Reload page or update
+                location.reload(); // Simple way
             } catch (err) {
                 alert('Errore durante il caricamento della foto');
+            }
+        });
+    }
+
+    setupImageClicks() {
+        // For existing images in EJS
+        const buttons = this.page.querySelectorAll('.image-wrapper');
+        buttons.forEach(button => {
+            const span = button.querySelector('.btn');
+            if (span) {
+                span.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const img = button.querySelector('img');
+                    if (img) {
+                        const headerImg = this.page.querySelector('header .centered-image');
+                        if (headerImg) {
+                            headerImg.src = img.src;
+                            headerImg.alt = img.alt;
+                        }
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
             }
         });
     }

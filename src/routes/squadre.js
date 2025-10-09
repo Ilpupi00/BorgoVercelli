@@ -5,7 +5,7 @@ const router = express.Router();
 const daoSquadre = require('../services/dao-squadre');
 const { isLoggedIn, isAdmin } = require('../middlewares/auth');
 
-router.get('/GetSquadre', async (req, res) => {
+router.get('/getsquadre', async (req, res) => {
     try {
         const squadre = await daoSquadre.getSquadre();
         res.json(squadre || []);
@@ -15,7 +15,7 @@ router.get('/GetSquadre', async (req, res) => {
     }
 });
 
-router.get('/GetGiocatori', (req,res)=>{
+router.get('/getgiocatori', (req,res)=>{
     daoSquadre.getGiocatori()
         .then((giocatori) => {
             if (!giocatori || giocatori.length === 0) {
@@ -30,7 +30,7 @@ router.get('/GetGiocatori', (req,res)=>{
         });
 });
 
-router.post('/CreateSquadra', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/createsquadra', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const { nome, annoFondazione } = req.body;
         if (!nome || !annoFondazione) {
@@ -44,7 +44,7 @@ router.post('/CreateSquadra', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.put('/UpdateSquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/updatesquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, annoFondazione } = req.body;
@@ -59,7 +59,7 @@ router.put('/UpdateSquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.delete('/DeleteSquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/deletesquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         await daoSquadre.deleteSquadra(id);
@@ -70,7 +70,7 @@ router.delete('/DeleteSquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.get('/GetSquadra/:id', async (req, res) => {
+router.get('/getsquadra/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const squadra = await daoSquadre.getSquadraById(id);

@@ -18,7 +18,7 @@ router.get('/notizie', async (req, res) => {
 });
 
 // Gestione anche della route con N maiuscola per compatibilità frontend
-router.get('/Notizia/:id', async (req, res) => {
+router.get('/notizia/:id', async (req, res) => {
   try {
     const notizia = await dao.getNotiziaById(req.params.id);
     res.json(notizia);

@@ -41,7 +41,7 @@ class Navbar {
 <nav class="navbar sticky-top navbar-expand-lg bg-primary" id="navbar">
   <div class="container-fluid">
 
-    <a class="navbar-brand" href="/Homepage">
+    <a class="navbar-brand" href="/homepage">
       <img src="/images/Logo.png" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
     </a>
 
@@ -60,7 +60,7 @@ class Navbar {
       <!-- Navbar Links -->
       <ul class="navbar-nav mb-3 mb-lg-0 ms-auto align-items-center justify-content-center">
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/Homepage">Home</a>
+          <a class="nav-link" aria-current="page" href="/homepage">Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/Squadre">Squadre</a>

@@ -21,7 +21,7 @@ class CercaGiocatore {
         const query = this.searchInput.value.trim();
         const rosterTable = document.getElementById('rosterTable');
         if (!rosterTable) return;
-        const response = await fetch('/GetGiocatori');
+        const response = await fetch('/getgiocatori');
         if (!response.ok) {
             this.resultsContainer.innerHTML = 'Errore nel recupero dei giocatori.';
             return;

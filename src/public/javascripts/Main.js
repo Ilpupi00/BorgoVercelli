@@ -70,16 +70,13 @@ document.addEventListener('DOMContentLoaded', async() => {
 
 
         case '/login':
-            const {default:login} = await import (`./components/Login.js`);
-            new login(page,()=> loadCSS('/stylesheets/Login.css'));
+            // No navbar or footer for login page
             break;
-
 
         case '/registrazione':
-            const {default:Registrazione} = await import (`./components/Registrazione.js`);
-            new Registrazione(page,()=> loadCSS('/stylesheets/login.css'));
+            // No navbar or footer for registration page
             break;
-            
+
         case '/me':
         case '/profilo':
         case '/admin/profilo':

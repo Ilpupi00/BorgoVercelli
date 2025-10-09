@@ -137,24 +137,57 @@
                                         <p class="reviewer-name fw-bold mb-0"><%= recensione.nome_utente %> <%= recensione.cognome_utente %></p>
                                     </div>
                                 </div>
-                                <div class="mt-3">
-                                    <a href="/scrivi/Recensione" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-star me-1"></i>Lascia una recensione
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
                 <% }); %>
             </div>
             <div class="text-center mt-5">
-                <a href="/scrivi/Recensione" class="btn btn-outline-primary btn-lg px-4 py-2">
-                    <i class="fas fa-star me-2"></i>Lascia una recensione
+                <a href="/recensioni/all" class="btn btn-outline-primary btn-lg px-4 py-2 me-3">
+                    <i class="fas fa-star me-2"></i>Vedi tutte le recensioni
+                </a>
+                <a href="/scrivi/recensione" class="btn btn-outline-primary btn-lg px-4 py-2 me-3">
+                    <i class="fas fa-edit me-2"></i>Vedi tutte le recensioni
                 </a>
             </div>
         </div>
     </section>
 
-    <div id="footer"></div>
+    <!-- Modal per login richiesto -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Accesso richiesto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Devi essere loggato per scrivere una recensione. Effettua il login per continuare.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <a href="/login" class="btn btn-primary">Vai al Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loggedIn = <%= isLoggedIn %>;
+            const links = document.querySelectorAll('a[href="/scrivi/recensione"]');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!loggedIn) {
+                        e.preventDefault();
+                        const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                        modal.show();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

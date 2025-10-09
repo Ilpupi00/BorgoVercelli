@@ -44,7 +44,7 @@ class ShowModal{
               <p>La tua prenotazione è stata confermata!</p>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-              <a href="/Homepage" class="btn btn-primary btn-sm me-2 ms-2">Vai alla homepage</a>
+              <a href="/homepage" class="btn btn-primary btn-sm me-2 ms-2">Vai alla homepage</a>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 
 'use strict';
+
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
@@ -47,7 +48,7 @@ const app = express();
 
 // Redirect dalla root alla Homepage
 app.get('/', (req, res) => {
-  res.redirect('/Homepage');
+  res.redirect('/homepage');
 });
 
 app.use(express.json({ limit: '10mb' }));

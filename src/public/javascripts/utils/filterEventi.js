@@ -68,7 +68,7 @@ class FilterEventi {
                             <p class="card-text">${sottotitolo}</p>
                             <div class="mt-auto">
                                 <div class="text-muted mb-2">${formattedDate}</div>
-                                <a href="/Evento/${evento.id}" class="btn btn-primary btn-sm">Leggi di più</a>
+                                <a href="/evento/${evento.id}" class="btn btn-primary btn-sm">Leggi di più</a>
                             </div>
                         </div>
                     </div>

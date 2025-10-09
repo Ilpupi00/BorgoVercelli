@@ -81,7 +81,7 @@ class Profilo{
                     }
                     if (res.status === 401) {
                         msgDiv.textContent = 'Sessione scaduta, effettua di nuovo il login.';
-                        setTimeout(() => window.location.href = '/Login', 1500);
+                        setTimeout(() => window.location.href = '/login', 1500);
                     } else if (res.status === 500) {
                         msgDiv.textContent = 'Errore interno, riprova più tardi.';
                     } else if (result.success) {
@@ -134,7 +134,7 @@ class Profilo{
                     saveBtn.disabled = true;
                     saveBtn.textContent = 'Salvataggio...';
                 }
-                fetch('/Me/update', {
+                fetch('/update', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',

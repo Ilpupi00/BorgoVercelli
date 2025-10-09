@@ -7,7 +7,7 @@ class FilterSquadre {
     }
 
     async init() {
-        const response = await fetch('/GetGiocatori');
+        const response = await fetch('/getgiocatori');
         if (!response.ok) {
             console.error('Errore nel recupero dei giocatori:', response.statusText);
             return;
