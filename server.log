@@ -1,7 +1,0 @@
-
-> sito-borgovercelli@0.0.0 start
-> node ./bin/www
-
-Server is running on http://localhost:3000
-Connected to the SQLite database.
-GET /evento/1 200 881 - 9.596 ms
