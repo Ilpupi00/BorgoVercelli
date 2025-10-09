@@ -9,7 +9,7 @@ const makeUser=(row)=>{
         row.cognome,
         row.email,
         row.telefono,
-        row.tipo_utente
+        row.tipo_utente_id
     );
 }
 module.exports = function getLoggedUser(req, res) {

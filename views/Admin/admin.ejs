@@ -34,6 +34,9 @@
                                     <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
                                 </div>
                                 <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                                    <a href="/admin/profilo" class="btn btn-outline-primary btn-modern me-2">
+                                        <i class="bi bi-person-circle"></i> Visualizza Profilo
+                                    </a>
                                     <a href="/Logout" class="btn btn-outline-danger btn-modern">
                                         <i class="bi bi-box-arrow-right"></i> Esci
                                     </a>
@@ -55,43 +58,55 @@
                                         <i class="bi bi-newspaper me-2"></i>Gestione Contenuti
                                     </h4>
                                 </div>
-                                        <div class="col-lg-3 col-md-6 mb-3">
+                                <!-- Prima riga: 3 card -->
+                                <div class="col-xl-4 col-lg-4 col-md-4 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
                                             <i class="bi bi-newspaper display-4 text-primary mb-3"></i>
                                             <h5 class="card-title">Notizie</h5>
                                             <p class="card-text text-muted">Gestisci le notizie del sito</p>
-                                            <a href="/admin/notizie" class="btn btn-primary btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/notizie" class="btn btn-primary btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="col-xl-4 col-lg-4 col-md-4 mb-3">
+                                    <div class="card action-card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-geo-alt display-4 text-warning mb-3"></i>
+                                            <h5 class="card-title">Campi</h5>
+                                            <p class="card-text text-muted">Gestisci campi e orari</p>
+                                            <a href="/admin/campi" class="btn btn-warning btn-modern w-100 text-white">Gestisci</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
                                             <i class="bi bi-calendar-event display-4 text-success mb-3"></i>
                                             <h5 class="card-title">Eventi</h5>
                                             <p class="card-text text-muted">Organizza e modifica gli eventi</p>
-                                            <a href="/admin/eventi" class="btn btn-success btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/eventi" class="btn btn-success btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-6 mb-3">
+                                <!-- Seconda riga: 2 card -->
+                                <div class="col-xl-6 col-lg-6 col-md-6 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
                                             <i class="bi bi-images display-4 text-info mb-3"></i>
                                             <h5 class="card-title">Galleria</h5>
                                             <p class="card-text text-muted">Carica e organizza le immagini</p>
-                                            <a href="/admin/galleria" class="btn btn-info btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/galleria" class="btn btn-info btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="col-xl-6 col-lg-6 col-md-6 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
-                                            <i class="bi bi-people display-4 text-warning mb-3"></i>
+                                            <i class="bi bi-people display-4 text-secondary mb-3"></i>
                                             <h5 class="card-title">Squadre</h5>
                                             <p class="card-text text-muted">Gestisci le squadre e i giocatori</p>
-                                            <a href="/admin/squadre" class="btn btn-warning btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/squadre" class="btn btn-secondary btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
@@ -110,7 +125,7 @@
                                             <i class="bi bi-person-lines-fill display-4 text-secondary mb-3"></i>
                                             <h5 class="card-title">Utenti</h5>
                                             <p class="card-text text-muted">Visualizza e gestisci tutti gli utenti</p>
-                                            <a href="/admin/utenti" class="btn btn-secondary btn-modern w-100">Visualizza</a>
+                                            <a href="/admin/utenti" class="btn btn-secondary btn-modern w-100 text-white">Visualizza</a>
                                         </div>
                                     </div>
                                 </div>
@@ -120,7 +135,7 @@
                                             <i class="bi bi-star display-4 text-danger mb-3"></i>
                                             <h5 class="card-title">Recensioni</h5>
                                             <p class="card-text text-muted">Modera e gestisci le recensioni</p>
-                                            <a href="/admin/recensioni" class="btn btn-danger btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/recensioni" class="btn btn-danger btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
@@ -139,7 +154,7 @@
                                             <i class="bi bi-calendar-check display-4 text-dark mb-3"></i>
                                             <h5 class="card-title">Prenotazioni</h5>
                                             <p class="card-text text-muted">Gestisci le prenotazioni dei campi</p>
-                                            <a href="/admin/prenotazioni" class="btn btn-dark btn-modern w-100">Gestisci</a>
+                                            <a href="/admin/prenotazioni" class="btn btn-dark btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +164,7 @@
                                             <i class="bi bi-bar-chart display-4 text-primary mb-3"></i>
                                             <h5 class="card-title">Statistiche</h5>
                                             <p class="card-text text-muted">Visualizza statistiche del sito</p>
-                                            <a href="/admin/statistiche" class="btn btn-primary btn-modern w-100">Visualizza</a>
+                                            <a href="/admin/statistiche" class="btn btn-primary btn-modern w-100 text-white">Visualizza</a>
                                         </div>
                                     </div>
                                 </div>

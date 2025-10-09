@@ -11,6 +11,7 @@ const squadreDao = require('../dao/dao-squadre');
 const campiDao = require('../dao/dao-campi');
 const recensioniDao = require('../dao/dao-recensioni');
 const prenotazioniDao = require('../dao/dao-prenotazione');
+const dirigenteDao = require('../dao/dao-dirigenti-squadre');
 
 router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
     try {
@@ -399,6 +400,146 @@ router.get('/admin/statistiche/data', isLoggedIn, isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Errore nel refresh delle statistiche:', err);
         res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+// Route per gestire orari campi
+router.get('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campoId = req.params.id;
+        const orariDefault = await campiDao.getOrariCampo(campoId, null);
+        const giorniSettimana = [];
+        for (let i = 0; i < 7; i++) {
+            const orariGiorno = await campiDao.getOrariCampo(campoId, i);
+            giorniSettimana.push({
+                giorno: i,
+                nome: ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'][i],
+                orari: orariGiorno
+            });
+        }
+        const campo = await campiDao.getCampoById(campoId);
+        res.render('Admin/Contenuti/Gestione_Orari_Campi.ejs', { 
+            user: req.user, 
+            campo, 
+            orariDefault, 
+            giorniSettimana 
+        });
+    } catch (err) {
+        console.error('Errore nel caricamento degli orari campi:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+router.post('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campoId = req.params.id;
+        const { giorno_settimana, ora_inizio, ora_fine } = req.body;
+        await campiDao.addOrarioCampo(campoId, giorno_settimana || null, ora_inizio, ora_fine);
+        res.redirect(`/admin/campi/${campoId}/orari`);
+    } catch (err) {
+        console.error('Errore nell\'aggiunta orario:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+router.put('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const orarioId = req.params.id;
+        const { ora_inizio, ora_fine, attivo } = req.body;
+        await campiDao.updateOrarioCampo(orarioId, ora_inizio, ora_fine, attivo ? 1 : 0);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Errore nell\'aggiornamento orario:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const orarioId = req.params.id;
+        await campiDao.deleteOrarioCampo(orarioId);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Errore nella cancellazione orario:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Route per la gestione campi
+router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campi = await campiDao.getCampi();
+        res.render('Admin/Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
+    } catch (err) {
+        console.error('Errore nel caricamento dei campi:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+// Route per creare un nuovo campo
+router.post('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campoData = req.body;
+        const result = await campiDao.createCampo(campoData);
+        // Dopo aver creato il campo, aggiungi orari di default
+        const orariDefault = [
+            { ora_inizio: '16:00', ora_fine: '17:00' },
+            { ora_inizio: '18:00', ora_fine: '19:00' },
+            { ora_inizio: '20:00', ora_fine: '21:00' },
+            { ora_inizio: '21:00', ora_fine: '22:00' }
+        ];
+        for (const orario of orariDefault) {
+            await campiDao.addOrarioCampo(result.id, null, orario.ora_inizio, orario.ora_fine);
+        }
+        res.redirect('/admin/campi');
+    } catch (err) {
+        console.error('Errore nella creazione del campo:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+// Route per il profilo admin
+router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const user = await userDao.getUserById(req.user.id);
+        const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
+        // const giocatore = await userDao.getGiocatoreByUserId(user.id);
+        const giocatore = null; // Temporaneamente disabilitato per incompatibilità schema DB
+        let dirigente = null;
+        try {
+            dirigente = await dirigenteDao.getDirigenteByUserId(user.id);
+        } catch (dirErr) {
+            console.error('Errore recupero dirigente:', dirErr);
+        }
+
+        // Recupera statistiche e attività recenti
+        let stats = { prenotazioni_totali: 0, recensioni_totali: 0, prenotazioni_mese: 0, recensioni_mese: 0 };
+        let activity = { prenotazioni: [], recensioni: [] };
+        
+        try {
+            stats = await userDao.getUserStats(user.id) || stats;
+        } catch (statsErr) {
+            console.error('Errore recupero statistiche:', statsErr);
+        }
+        
+        try {
+            activity = await userDao.getUserRecentActivity(user.id) || activity;
+        } catch (activityErr) {
+            console.error('Errore recupero attività:', activityErr);
+        }
+
+        res.render('profilo', {
+            user,
+            imageUrl,
+            giocatore,
+            dirigente,
+            stats,
+            activity,
+            isLogged: true
+        });
+    } catch (err) {
+        console.error('Errore nel caricamento del profilo admin:', err);
+        res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });
     }
 });
 

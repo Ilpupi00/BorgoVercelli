@@ -88,6 +88,56 @@ router.get('/Me', async (req, res) => {
     }
 });
 
+router.get('/profilo', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect('/Login');
+    }
+    if (req.user.tipo_utente_id === 1) {
+        return res.redirect('/admin');
+    }
+    try {
+        const user = await userDao.getUserById(req.user.id);
+        const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
+        // const giocatore = await userDao.getGiocatoreByUserId(user.id);
+        const giocatore = null; // Temporaneamente disabilitato per incompatibilità schema DB
+        let dirigente = null;
+        try {
+            dirigente = await dirigenteDao.getDirigenteByUserId(user.id);
+        } catch (dirErr) {
+            console.error('Errore recupero dirigente:', dirErr);
+        }
+
+        // Recupera statistiche e attività recenti
+        let stats = { prenotazioni_totali: 0, recensioni_totali: 0, prenotazioni_mese: 0, recensioni_mese: 0 };
+        let activity = { prenotazioni: [], recensioni: [] };
+        
+        try {
+            stats = await userDao.getUserStats(user.id) || stats;
+        } catch (statsErr) {
+            console.error('Errore recupero statistiche:', statsErr);
+        }
+        
+        try {
+            activity = await userDao.getUserRecentActivity(user.id) || activity;
+        } catch (activityErr) {
+            console.error('Errore recupero attività:', activityErr);
+        }
+
+        res.render('profilo', {
+            user,
+            imageUrl,
+            giocatore,
+            dirigente,
+            stats,
+            activity,
+            isLogged: true
+        });
+    } catch (err) {
+        console.error('Errore nel caricamento del profilo:', err);
+        res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });
+    }
+});
+
 router.get('/Logout', (req, res) => {
     req.logout((err) => {
         if (err) {

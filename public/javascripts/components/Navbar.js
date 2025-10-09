@@ -84,13 +84,13 @@ class Navbar {
           ${
           isLogged
           ? profilePic
-            ? `<a href="${user && user.tipo_utente === 1 ? '/admin' : '/Me'}" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+            ? `<a href="/profilo" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
                 <img src="${profilePic}" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
               </a>`
-            : `<a href="${user && user.tipo_utente === 1 ? '/admin' : '/Me'}" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
+            : `<a href="/profilo" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
               </a>`
-            : `<a href="/Me" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">
+            : `<a href="/profilo" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span>Login</span>
             </a>`

@@ -90,15 +90,29 @@ exports.getCampiAttivi = async () =>{
 
 // Restituisce orari disponibili per un campo in una data
 exports.getDisponibilitaCampo=async (campoId, data) => {
-    const orariPossibili = [
-        { inizio: '16:00', fine: '17:00' },
-        { inizio: '18:00', fine: '19:00' },
-        { inizio: '20:00', fine: '21:00' },
-        { inizio: '21:00', fine: '22:00' }
-    ];
     const dataNorm = normalizeDate(data);
+    // Ottieni il giorno della settimana (0 = Domenica, 1 = Lunedì, ..., 6 = Sabato)
+    const dateObj = new Date(dataNorm + 'T00:00:00');
+    const giornoSettimana = dateObj.getDay(); // 0=Dom, 1=Lun, ..., 6=Sab
+
+    // Ottieni orari disponibili per questo campo e giorno
+    const orariCampo = await new Promise((resolve, reject) => {
+        const sql = `
+            SELECT ora_inizio, ora_fine 
+            FROM ORARI_CAMPI 
+            WHERE campo_id = ? AND attivo = 1 
+            AND (giorno_settimana = ? OR giorno_settimana IS NULL)
+            ORDER BY ora_inizio
+        `;
+        db.all(sql, [campoId, giornoSettimana], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows || []);
+        });
+    });
+
+    let orariDisponibili = orariCampo.map(o => ({ inizio: o.ora_inizio, fine: o.ora_fine }));
+
     // LOGICA: se la data è oggi, mostra solo orari almeno 2 ore dopo ora attuale
-    let orariDisponibili = [...orariPossibili];
     const now = new Date();
     if (dataNorm === now.toISOString().slice(0,10)) {
         orariDisponibili = orariDisponibili.filter(o => {
@@ -178,6 +192,86 @@ exports.getAllPrenotazioni = async () => {
                 return reject({ error: 'Error retrieving prenotazioni: ' + err.message });
             }
             resolve(prenotazioni || []);
+        });
+    });
+}
+
+exports.getPrenotazioneById = async (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT p.*, 
+                   c.nome as campo_nome,
+                   u.nome as utente_nome, u.cognome as utente_cognome,
+                   s.nome as squadra_nome
+            FROM PRENOTAZIONI p
+            LEFT JOIN CAMPI c ON p.campo_id = c.id
+            LEFT JOIN UTENTI u ON p.utente_id = u.id
+            LEFT JOIN SQUADRE s ON p.squadra_id = s.id
+            WHERE p.id = ?
+        `;
+        db.get(sql, [id], (err, row) => {
+            if (err) {
+                return reject({ error: 'Error retrieving prenotazione: ' + err.message });
+            }
+            resolve(row);
+        });
+    });
+}
+
+exports.updateStatoPrenotazione = async (id, stato) => {
+    return new Promise((resolve, reject) => {
+        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = datetime('now') WHERE id = ?`, [stato, id], function (err) {
+            if (err) return reject(err);
+            resolve({ success: true, changes: this.changes });
+        });
+    });
+}
+
+exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
+    const dataNorm = normalizeDate(data_prenotazione);
+    return new Promise((resolve, reject) => {
+        db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, updated_at = datetime('now') WHERE id = ?`,
+            [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, id], function (err) {
+                if (err) return reject(err);
+                resolve({ success: true, changes: this.changes });
+            });
+    });
+}
+
+exports.deletePrenotazione = async (id) => {
+    return new Promise((resolve, reject) => {
+        db.run(`DELETE FROM PRENOTAZIONI WHERE id = ?`, [id], function (err) {
+            if (err) return reject(err);
+            resolve({ success: true, changes: this.changes });
+        });
+    });
+}
+
+exports.checkAndUpdateScadute = async () => {
+    const now = new Date();
+    const currentDate = now.toISOString().slice(0, 10);
+    const currentTime = now.toTimeString().slice(0, 5); // HH:MM
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT * FROM PRENOTAZIONI WHERE stato = 'confermata' AND (data_prenotazione < ? OR (data_prenotazione = ? AND ora_fine <= ?))`, [currentDate, currentDate, currentTime], (err, rows) => {
+            if (err) return reject(err);
+            const ids = rows.map(row => row.id);
+            if (ids.length > 0) {
+                db.run(`UPDATE PRENOTAZIONI SET stato = 'scaduta', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`, ids, function (err) {
+                    if (err) return reject(err);
+                    resolve({ success: true, updated: this.changes });
+                });
+            } else {
+                resolve({ success: true, updated: 0 });
+            }
+        });
+    });
+}
+
+exports.deleteScadute = async () => {
+    return new Promise((resolve, reject) => {
+        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
+            if (err) return reject(err);
+            resolve({ success: true, deleted: this.changes });
         });
     });
 }

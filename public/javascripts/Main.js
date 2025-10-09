@@ -81,6 +81,8 @@ document.addEventListener('DOMContentLoaded', async() => {
             break;
             
         case '/me':
+        case '/profilo':
+        case '/admin/profilo':
             const {default:Profilo} = await import (`./components/Profilo.js`);
             new Navbar(navbar,()=> loadCSS('/stylesheets/Navbar.css'));
             new Footer(footer,()=> loadCSS('/stylesheets/Footer.css'));

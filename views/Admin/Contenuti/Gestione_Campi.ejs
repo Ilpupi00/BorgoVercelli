@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Campi - <%= user.nome %> <%= user.cognome %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="/javascripts/components/Admin.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/Admin.css">
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('../../partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <div class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <!-- Header con profilo -->
+                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-8 text-center text-md-start">
+                                    <h1 class="display-5 fw-bold text-dark mb-2">
+                                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                                        Gestione Campi
+                                    </h1>
+                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
+                                </div>
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2">
+                                        <i class="bi bi-arrow-left"></i> Torna al Pannello
+                                    </a>
+                                    <a href="/Logout" class="btn btn-outline-danger btn-modern">
+                                        <i class="bi bi-box-arrow-right"></i> Esci
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenuto principale -->
+                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="mb-0">
+                                    <i class="bi bi-list-ul text-primary me-2"></i>
+                                    Tutti i Campi
+                                </h2>
+                                <button class="btn btn-success btn-modern" onclick="showAddCampoModal()">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Aggiungi Campo
+                                </button>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Nome</th>
+                                                    <th>Indirizzo</th>
+                                                    <th>Tipo Superficie</th>
+                                                    <th>Attivo</th>
+                                                    <th>Azioni</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% if (campi && campi.length > 0) { %>
+                                                    <% campi.forEach(campo => { %>
+                                                        <tr>
+                                                            <td><%= campo.id %></td>
+                                                            <td><%= campo.nome %></td>
+                                                            <td><%= campo.indirizzo %></td>
+                                                            <td><%= campo.tipo_superficie %></td>
+                                                            <td>
+                                                                <% if (campo.attivo) { %>
+                                                                    <span class="badge bg-success">Attivo</span>
+                                                                <% } else { %>
+                                                                    <span class="badge bg-danger">Inattivo</span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group" role="group">
+                                                                    <a href="/admin/campi/<%= campo.id %>/orari" class="btn btn-sm btn-outline-primary">
+                                                                        <i class="bi bi-clock"></i> Gestisci Orari
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted py-4">
+                                                            <i class="bi bi-info-circle display-4 mb-3"></i>
+                                                            <p>Nessun campo presente nel sistema.</p>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per aggiungere campo -->
+    <div class="modal fade" id="addCampoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aggiungi Nuovo Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCampoForm" method="POST" action="/admin/campi">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome Campo *</label>
+                                <input type="text" class="form-control" id="nome" name="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="indirizzo" class="form-label">Indirizzo *</label>
+                                <input type="text" class="form-control" id="indirizzo" name="indirizzo" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo_superficie" class="form-label">Tipo Superficie</label>
+                                <select class="form-control" id="tipo_superficie" name="tipo_superficie">
+                                    <option value="Erba">Erba</option>
+                                    <option value="Sintetico">Sintetico</option>
+                                    <option value="Cemento">Cemento</option>
+                                    <option value="Parquet">Parquet</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dimensioni" class="form-label">Dimensioni</label>
+                                <input type="text" class="form-control" id="dimensioni" name="dimensioni" placeholder="es. 100x60">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="capienza_pubblico" class="form-label">Capienza Pubblico</label>
+                                <input type="number" class="form-control" id="capienza_pubblico" name="capienza_pubblico">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="descrizione" class="form-label">Descrizione</label>
+                                <textarea class="form-control" id="descrizione" name="descrizione" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="illuminazione" name="illuminazione" value="1">
+                                    <label class="form-check-label" for="illuminazione">
+                                        Illuminazione
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="coperto" name="coperto" value="1">
+                                    <label class="form-check-label" for="coperto">
+                                        Coperto
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="spogliatoi" name="spogliatoi" value="1">
+                                    <label class="form-check-label" for="spogliatoi">
+                                        Spogliatoi
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="Docce" name="Docce" value="1">
+                                    <label class="form-check-label" for="Docce">
+                                        Docce
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="attivo" name="attivo" value="1" checked>
+                                <label class="form-check-label" for="attivo">
+                                    Campo Prenotabile
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Se spuntato, il campo sarà disponibile per le prenotazioni.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" form="addCampoForm" class="btn btn-primary">Crea Campo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAddCampoModal() {
+            new bootstrap.Modal(document.getElementById('addCampoModal')).show();
+        }
+    </script>
+</body>
+</html>

@@ -175,8 +175,6 @@ CREATE TABLE PARTECIPAZIONI_EVENTI (
     UNIQUE(evento_id, utente_id)
 );
 
-SQL
-
 CREATE TABLE RECENSIONI (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     utente_id INTEGER NOT NULL,
@@ -207,4 +205,17 @@ CREATE TABLE DIRIGENTI_SQUADRE (
     FOREIGN KEY (utente_id) REFERENCES UTENTI(id),
     FOREIGN KEY (squadra_id) REFERENCES SQUADRE(id),
     UNIQUE(utente_id, squadra_id, ruolo)  -- Un utente può avere un ruolo per squadra
+);
+
+CREATE TABLE ORARI_CAMPI (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    campo_id INTEGER NOT NULL,
+    giorno_settimana INTEGER,  -- 0=Lunedì, 1=Martedì, ..., 6=Domenica, NULL=Default
+    ora_inizio TEXT NOT NULL,
+    ora_fine TEXT NOT NULL,
+    attivo INTEGER DEFAULT 1,
+    created_at TEXT,
+    updated_at TEXT,
+    FOREIGN KEY (campo_id) REFERENCES CAMPI(id),
+    UNIQUE(campo_id, giorno_settimana, ora_inizio, ora_fine)
 );
