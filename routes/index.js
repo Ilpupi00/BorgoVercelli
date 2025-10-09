@@ -3,17 +3,27 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const { isLoggedIn } = require('../middleware/auth');
+const daoNotizie = require('../dao/dao-notizie');
+const daoEventi = require('../dao/dao-eventi');
+const daoRecensioni = require('../dao/dao-recensioni');
 
-router.get('/Homepage', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'), (err) => {
-        if (err) {
-            console.error('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
-        }
-    });
+router.get('/homepage', async (req, res) => {
+    try {
+        const notizie = await daoNotizie.getNotizie() || [];
+        const eventi = await daoEventi.getEventi() || [];
+        const recensioni = await daoRecensioni.getRecensioni() || [];
+        res.render('homepage', {
+            notizie: notizie,
+            eventi: eventi,
+            recensioni: recensioni
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento della homepage:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-router.get('/Campionato',(req,res)=>{
+router.get('/campionato',(req,res)=>{
         res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -22,7 +32,7 @@ router.get('/Campionato',(req,res)=>{
     });
 });
 
-router.get('/Squadre',(req,res)=>{
+router.get('/squadre',(req,res)=>{
         res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -31,7 +41,7 @@ router.get('/Squadre',(req,res)=>{
     });
 });
 
-router.get('/Galleria',(req,res)=>{
+router.get('/galleria',(req,res)=>{
         res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -39,7 +49,7 @@ router.get('/Galleria',(req,res)=>{
         }
     });
 });
-router.get('/Societa',(req,res)=>{
+router.get('/societa',(req,res)=>{
         res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -47,7 +57,7 @@ router.get('/Societa',(req,res)=>{
         }
     });
 });
-router.get('/Prenotazione',(req,res)=>{
+router.get('/prenotazione',(req,res)=>{
         res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -56,7 +66,7 @@ router.get('/Prenotazione',(req,res)=>{
     });
 });
 
-router.get('/Login',(req,res)=>{
+router.get('/login',(req,res)=>{
     res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);
@@ -65,7 +75,7 @@ router.get('/Login',(req,res)=>{
     });
 });
 
-router.get('/Registrazione',(req,res)=>{
+router.get('/registrazione',(req,res)=>{
     res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
         if (err) {
             console.error('Error sending file:', err);

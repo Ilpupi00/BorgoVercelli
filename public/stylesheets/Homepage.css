@@ -37,14 +37,6 @@ body {
   margin: 1em; /* Aggiunto margine per spazio extra */
 }
 
-.news-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(13,110,253,0.25), 0 4px 16px rgba(0,0,0,0.1);
-  border: 2px solid var(--primary-color);
-  background: var(--gradient-primary);
-  backdrop-filter: blur(20px);
-}
-
 .news-card:active {
   transform: scale(0.98);
 }
@@ -102,26 +94,6 @@ body {
   font-size: 1.1em;
   margin-right: 0.3em;
 }
-.card-button:hover {
-  background: var(--gradient-secondary);
-  box-shadow: 0 8px 25px rgba(34,139,34,0.3);
-  transform: translateY(-2px) scale(1.05);
-  backdrop-filter: blur(15px);
-}
-.card-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.5s;
-}
-
-.card-button:hover::before {
-  left: 100%;
-}
 
 @keyframes slideInRight {
   from {
@@ -165,12 +137,6 @@ body {
   box-shadow: var(--shadow-light);
   filter: brightness(1.1) contrast(1.05);
 }
-
-.news-card:hover .card-img-container img {
-  transform: scale(1.15) rotate(-3deg);
-  box-shadow: 0 12px 40px rgba(34,139,34,0.25);
-  filter: brightness(1.2) contrast(1.1) saturate(1.2);
-}
 @keyframes slideInLeft {
   from {
     opacity: 0;
@@ -198,11 +164,6 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: var(--transition);
-}
-
-.card-title:hover {
-  transform: scale(1.02);
-  text-shadow: 0 4px 20px rgba(13,110,253,0.25), 0 2px 12px rgba(34,139,34,0.25);
 }
 
 .card-title .fa-trophy {
@@ -307,6 +268,21 @@ body {
   }
 }
 
+/* Additional mobile fix for logo and overflow */
+@media (max-width: 480px) {
+  .title {
+    font-size: clamp(1em, 10vw, 1.8em);
+    white-space: normal;
+    word-wrap: break-word;
+    hyphens: auto;
+    max-width: 90vw;
+  }
+  .header::after {
+    width: 70vw;
+    height: 5vw;
+  }
+}
+
 
 .header {
   display: flex;
@@ -338,6 +314,8 @@ body {
   animation: shimmer 4s ease-in-out infinite;
 }
 
+/* Removed ::after to prevent overflow on mobile */
+/*
 .header::after {
   content: '';
   position: absolute;
@@ -352,6 +330,7 @@ body {
   pointer-events: none;
   filter: blur(1px);
 }
+*/
 
 
 .reviews-section {
@@ -448,12 +427,6 @@ section.vw100 {
   margin: 1em; /* Aggiunto margine per spazio extra */
 }
 
-.review-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(13,110,253,0.25), 0 4px 16px rgba(0,0,0,0.1);
-  backdrop-filter: blur(20px);
-}
-
 .review-card::before {
   content: '';
   position: absolute;
@@ -464,10 +437,6 @@ section.vw100 {
   background: var(--gradient-primary);
   transform: scaleX(0);
   transition: transform 0.3s ease;
-}
-
-.review-card:hover::before {
-  transform: scaleX(1);
 }
 
 .review-content {
@@ -587,12 +556,6 @@ section.vw100 {
   transition: var(--transition);
 }
 
-.reviewer-image:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 6px 20px rgba(34,139,34,0.3);
-  filter: brightness(1.1) saturate(1.2);
-}
-
 .reviewer-icon {
   font-size: clamp(2.5em, 8vw, 3.5em);
   color: var(--secondary-color);
@@ -609,11 +572,6 @@ section.vw100 {
   background-clip: text;
   animation: glow 3s ease-in-out infinite alternate;
   transition: var(--transition);
-}
-
-.reviewer-icon:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 6px 12px rgba(13,110,253,0.6));
 }
 
 /* Modal overlay per custom modal */
@@ -700,23 +658,59 @@ section.vw100 {
   overflow: visible;
 }
 
-.btn-primary:hover {
-  background: var(--gradient-secondary);
-  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
-  transform: translateY(-2px);
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .header.vh-100 {
+    height: 60vh !important; /* Reduce height on mobile for better usability */
+  }
+  .news-card {
+    margin: 0.5em; /* Reduce margin on mobile */
+  }
+  .news-grid {
+    padding: 1em; /* Reduce padding on mobile to prevent horizontal overflow */
+  }
+  .review-card {
+    margin: 0.5em; /* Reduce margin on mobile */
+  }
 }
 
-.btn-primary::before {
-  content: '';
+/* Hero Section Styles */
+.hero-section {
+  position: relative;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  overflow: hidden;
+}
+
+.hero-overlay {
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../images/Campo.png') center/cover no-repeat;
+  opacity: 0.1;
+  z-index: 1;
 }
 
-.btn-primary:hover::before {
-  left: 100%;
+.hero-section .container-fluid {
+  position: relative;
+  z-index: 2;
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.text-white {
+  color: white !important;
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section .display-1 {
+    font-size: 3rem;
+  }
+  .hero-section .lead {
+    font-size: 1.25rem;
+  }
 }

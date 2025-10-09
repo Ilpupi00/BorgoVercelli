@@ -8,7 +8,7 @@
     transition: box-shadow 0.3s, background 0.3s;
   }
   .navbar-brand {
-    margin: 0 auto;
+    margin: 0;
     padding: 0;
     height: 54px;
     display: flex;
@@ -33,7 +33,7 @@
   }
 }
   .navbar-toggler {
-    margin: 0 auto;
+    margin-left: auto;
     padding: 4px 8px;
     height: 40px;
     width: 40px;
@@ -232,12 +232,12 @@
 * {
   padding: 0;
   margin: 0;
-  overflow-x: hidden;
+  /* Removed overflow-x: hidden to prevent issues */
 }
 
 body {
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto; /* Changed from hidden to auto to allow vertical scrolling */
 }
 
 form {
