@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Società</title>
+    <link href="/stylesheets/Navbar.css" rel="stylesheet">
+    <link href="/stylesheets/Footer.css" rel="stylesheet">
+    <link href="/stylesheets/Società.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <header>
+        <div class="container-fluid text-black text-center py-5 px-4">
+            <h1 class="display-4 overflow-hidden py-4 px-4">ASD BorgoVercelli</h1>
+            <p class="lead mt-3 text-black">La tua squadra di calcio locale</p>
+        </div>
+    </header>
+
+    <% membriSocieta.forEach(membro => { %>
+    <section class="my-5 py-4">
+        <div class="container">
+            <div class="card border-0 shadow-lg rounded-lg hover-card mb-5">
+                <div class="row g-0 align-items-center p-5">
+                    <div class="col-md-3 col-lg-2 text-center mb-3 mb-md-0">
+                        <div class="profile-img-container">
+                            <% if (membro.immagine_profilo) { %>
+                                <img class="img-fluid rounded-circle border border-4 border-primary shadow"
+                                     src="<%= membro.immagine_profilo %>"
+                                     alt="Foto di <%= membro.nome %> <%= membro.cognome %>" width="150">
+                            <% } else { %>
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                                     style="width: 150px; height: 150px; border: 4px solid #007bff;">
+                                    <i class="bi bi-person-fill" style="font-size: 4rem;"></i>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-lg-10">
+                        <div class="card-body ps-md-5">
+                            <h2 class="card-title display-4 fw-bold text-primary mb-2 overflow-hidden"><%= membro.nome %> <%= membro.cognome %></h2>
+                            <h5 class="card-subtitle fs-3 text-muted mb-4 fst-italic overflow-hidden">
+                                <i class="fas fa-star me-2"></i><%= membro.ruolo %>
+                            </h5>
+                            <p class="card-text fs-4 mb-4">Membro attivo della nostra società sportiva, impegnato nel <%= membro.ruolo.toLowerCase() %> dell'ASD BorgoVercelli.</p>
+                            <div class="mt-4 d-flex gap-3">
+                                <button class="btn btn-lg btn-outline-primary rounded-pill px-4 py-2" onclick="contattaMembro('<%= membro.email %>')">
+                                    <i class="fas fa-envelope me-2"></i> Contatta
+                                </button>
+                                <button class="btn btn-lg btn-outline-secondary rounded-pill px-4 py-2" onclick="vediDettagli(<%= membro.id %>)">
+                                    <i class="fas fa-info-circle me-2"></i> Dettagli
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <% }); %>
+
+    <%- include('partials/footer') %>
+
+    <script type="module">
+        import Societa from '/javascripts/components/Società.js';
+
+        new Societa(document.body);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
+</body>
+</html>

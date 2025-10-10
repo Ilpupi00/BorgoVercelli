@@ -6,6 +6,7 @@ const { isLoggedIn } = require('../middlewares/auth');
 const daoNotizie = require('../services/dao-notizie');
 const daoEventi = require('../services/dao-eventi');
 const daoRecensioni = require('../services/dao-recensioni');
+const daoMembriSocieta = require('../services/dao-membri-societa');
 
 router.get('/homepage', async (req, res) => {
     try {
@@ -81,13 +82,18 @@ router.get('/galleria', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-router.get('/societa',(req,res)=>{
-        res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
-        if (err) {
-            console.error('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
-        }
-    });
+router.get('/societa', async (req, res) => {
+    try {
+        const membriSocieta = await daoMembriSocieta.getMembriSocieta() || [];
+        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        res.render('societa', {
+            membriSocieta: membriSocieta,
+            isLoggedIn: isLoggedIn
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento della pagina società:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 router.get('/prenotazione', async (req, res) => {
     try {

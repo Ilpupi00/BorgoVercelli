@@ -1,2 +1,9 @@
-INSERT INTO TIPI_UTENTE 
-VALUES(0,'Utente','Tipo utente standard, con accesso limitato alle funzionalità di base del sistema.');
+
+INSERT INTO TIPI_UTENTE
+VALUES(2,'Presidente','Presidente della società sportiva.');
+
+INSERT INTO TIPI_UTENTE
+VALUES(3,'Vice Presidente','Vice Presidente della società sportiva.');
+
+INSERT INTO TIPI_UTENTE
+VALUES(4,'Dirigente','Dirigente della società sportiva.');

@@ -1,0 +1,48 @@
+  /* CSS aggiuntivo per migliorare l'aspetto */
+  .hover-card {
+    transition: all 0.3s ease;
+    border-radius: 20px !important;
+    background: linear-gradient(to right, #ffffff, #f8f9fa);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .hover-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+  }
+  
+  .profile-img-container {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-card:hover .profile-img-container {
+    transform: scale(1.05);
+  }
+  
+  .card-title {
+    color: #2c3e50 !important;
+    font-size: 2.8rem;
+  }
+  
+  .card-subtitle {
+    color: #7f8c8d !important;
+  }
+  
+  /* Aggiungere Font Awesome per le icone */
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+  
+  /* Per schermi più piccoli */
+  @media (max-width: 768px) {
+    .card-title {
+      font-size: 2.2rem;
+    }
+    
+    .card-subtitle {
+      font-size: 1.4rem;
+    }
+    
+    .card-text {
+      font-size: 1.2rem;
+    }
+  }
