@@ -1,6 +1,7 @@
+import { setupEmailFormListener } from './send_email.js';
+
 class Profilo{
-    constructor(page,LoadCSS){
-        if (typeof LoadCSS === 'function') LoadCSS();
+    constructor(page){
         this.page=page;
         console.log('Profilo component initialized');
         this.init();
@@ -9,6 +10,7 @@ class Profilo{
     async init(){
         document.title = "Profilo";
         await this.render();
+        setupEmailFormListener();
     }
 
     async render(){

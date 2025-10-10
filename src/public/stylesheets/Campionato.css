@@ -182,21 +182,51 @@ header h1 {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 576px) {
+  header {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+
+  .custom-select {
+    max-width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .legend-box-container {
+    max-width: 100% !important;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+  /* Tablet portrait */
   header {
     margin: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .table-responsive {
     font-size: 0.9rem;
   }
 
-  .custom-select {
-    max-width: 100%;
+  .legend-box-container {
+    max-width: 80%;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Tablet landscape and desktop */
+  header {
+    margin: 2rem auto;
+    padding: 2rem;
   }
 
   .legend-box-container {
-    max-width: 100% !important;
+    max-width: 500px;
   }
 }

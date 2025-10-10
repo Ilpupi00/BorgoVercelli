@@ -11,11 +11,10 @@
     <link rel="stylesheet" href="/stylesheets/Navbar.css">
     <link rel="stylesheet" href="/stylesheets/Footer.css">
     <link rel="stylesheet" href="/stylesheets/Homepage.css">
-    <script src="/javascripts/Main.js" type="module" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div id="navbar"></div>
+    <%- include('partials/navbar') %>
 
     <!-- Hero Section -->
     <main class="hero-section bg-gradient-primary text-white d-flex align-items-center min-vh-100">
@@ -172,22 +171,12 @@
         </div>
     </div>
 
-    <div id="footer">    </div>
+    <%- include('partials/footer') %>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loggedIn = <%= isLoggedIn %>;
-            const links = document.querySelectorAll('a[href="/scrivi/recensione"]');
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (!loggedIn) {
-                        e.preventDefault();
-                        const modal = new bootstrap.Modal(document.getElementById('loginModal'));
-                        modal.show();
-                    }
-                });
-            });
-        });
+    <script type="module">
+        import Homepage from '/javascripts/components/Homepage.js';
+        
+        new Homepage(document.body);
     </script>
 </body>
 </html>

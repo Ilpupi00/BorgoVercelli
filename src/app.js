@@ -82,6 +82,12 @@ app.use(passport.session());
 // Middleware to set global locals for templates
 app.use(function(req, res, next) {
   res.locals.isLogged = req.isAuthenticated();
+  res.locals.currentPath = req.path;
+  if (req.isAuthenticated()) {
+    res.locals.imageUrl = req.user.immagine_profilo;
+  } else {
+    res.locals.imageUrl = null;
+  }
   next();
 });
 

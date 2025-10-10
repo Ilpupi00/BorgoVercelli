@@ -10,10 +10,9 @@
     <link rel="stylesheet" href="/stylesheets/Campionato.css">
     <link rel="stylesheet" href="/stylesheets/Navbar.css">
     <link rel="stylesheet" href="/stylesheets/Footer.css">
-    <script src="/javascripts/Main.js" type="module" defer></script>
 </head>
 <body>
-    <div id="navbar"></div>
+    <%- include('partials/navbar') %>
     <div id="page">
         <br>
         <header class="container-fluid d-flex flex-column justify-content-center align-items-center">
@@ -73,7 +72,12 @@
             </div>
         </section>
     </div>
-    <div id="footer"></div>
+    <%- include('partials/footer') %>
+    <script type="module">
+        import Campionato from '/javascripts/components/Campionato.js';
+        
+        new Campionato(document.getElementById('page'));
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
 </body>
 </html>

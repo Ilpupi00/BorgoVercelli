@@ -1,7 +1,6 @@
 
 class Navbar {
-  constructor(navbar,loadCSS) {
-    if(typeof loadCSS ==='function')loadCSS();
+  constructor(navbar) {
     this.navbar = navbar;
     this.path = window.location.pathname.toLowerCase();
     this.init();
@@ -35,73 +34,139 @@ class Navbar {
       } catch (err) {
         profilePic = null;
       }
-}
+    }
 
-    this.navbar.innerHTML = `
-<nav class="navbar sticky-top navbar-expand-lg bg-primary" id="navbar">
-  <div class="container-fluid">
+    // Clear existing content
+    this.navbar.innerHTML = '';
 
-    <a class="navbar-brand" href="/homepage">
-      <img src="/images/Logo.png" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
-    </a>
+    // Create navbar element
+    const nav = document.createElement('nav');
+    nav.className = 'navbar sticky-top navbar-expand-lg bg-primary';
+    nav.id = 'navbar';
 
-    <!-- Search Bar -->
-    <form class="d-flex me-auto mb-2 mb-lg-0 ms-4" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-    </form>
+    const container = document.createElement('div');
+    container.className = 'container-fluid';
 
-    <!-- Hamburger Menu for Mobile View -->
-    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    // Logo
+    const brandLink = document.createElement('a');
+    brandLink.className = 'navbar-brand';
+    brandLink.href = '/homepage';
+    const logoImg = document.createElement('img');
+    logoImg.src = '/images/Logo.png';
+    logoImg.alt = 'Logo';
+    logoImg.width = 60;
+    logoImg.height = 60;
+    logoImg.className = 'd-inline-block align-text-top';
+    brandLink.appendChild(logoImg);
+    container.appendChild(brandLink);
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    // Search Bar
+    const searchForm = document.createElement('form');
+    searchForm.className = 'd-flex me-auto mb-2 mb-lg-0 ms-4';
+    searchForm.role = 'search';
+    const searchInput = document.createElement('input');
+    searchInput.className = 'form-control me-2';
+    searchInput.type = 'search';
+    searchInput.placeholder = 'Search';
+    searchInput.setAttribute('aria-label', 'Search');
+    searchForm.appendChild(searchInput);
+    container.appendChild(searchForm);
 
-      <!-- Navbar Links -->
-      <ul class="navbar-nav mb-3 mb-lg-0 ms-auto align-items-center justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/homepage">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/Squadre">Squadre</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/Campionato">Campionato</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/Galleria">Galleria</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/Societa">Società</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/Prenotazione">Prenotazione</a>
-        </li>
-      </ul>
+    // Hamburger Menu
+    const toggler = document.createElement('button');
+    toggler.className = 'navbar-toggler ms-auto';
+    toggler.type = 'button';
+    toggler.setAttribute('data-bs-toggle', 'collapse');
+    toggler.setAttribute('data-bs-target', '#navbarSupportedContent');
+    toggler.setAttribute('aria-controls', 'navbarSupportedContent');
+    toggler.setAttribute('aria-expanded', 'false');
+    toggler.setAttribute('aria-label', 'Toggle navigation');
+    const togglerIcon = document.createElement('span');
+    togglerIcon.className = 'navbar-toggler-icon';
+    toggler.appendChild(togglerIcon);
+    container.appendChild(toggler);
 
-      <!-- Login/Profile Button -->
-      <form class="d-flex ms-auto mt-3 mt-lg-0 overflow-hidden">
-          ${
-          isLogged
-          ? profilePic
-            ? `<a href="/profilo" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
-                <img src="${profilePic}" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-              </a>`
-            : `<a href="/profilo" class="text-light d-flex justify-content-center align-items-center w-100" id="Profilo" title="Profilo">
-                <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
-              </a>`
-            : `<a href="/profilo" class="btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0" id="Login">
-                <i class="bi bi-box-arrow-in-right"></i>
-                <span>Login</span>
-            </a>`
-        }
-  </form>
+    // Collapse div
+    const collapseDiv = document.createElement('div');
+    collapseDiv.className = 'collapse navbar-collapse';
+    collapseDiv.id = 'navbarSupportedContent';
 
-    </div>
+    // Navbar Links
+    const navUl = document.createElement('ul');
+    navUl.className = 'navbar-nav mb-3 mb-lg-0 ms-auto align-items-center justify-content-center';
 
-  </div>
-</nav>
-    `;
+    const links = [
+      { href: '/homepage', text: 'Home' },
+      { href: '/Squadre', text: 'Squadre' },
+      { href: '/Campionato', text: 'Campionato' },
+      { href: '/Galleria', text: 'Galleria' },
+      { href: '/Societa', text: 'Società' },
+      { href: '/Prenotazione', text: 'Prenotazione' }
+    ];
+
+    links.forEach(linkData => {
+      const li = document.createElement('li');
+      li.className = 'nav-item';
+      const a = document.createElement('a');
+      a.className = 'nav-link';
+      a.href = linkData.href;
+      a.textContent = linkData.text;
+      li.appendChild(a);
+      navUl.appendChild(li);
+    });
+
+    collapseDiv.appendChild(navUl);
+
+    // Login/Profile Button
+    const form = document.createElement('form');
+    form.className = 'd-flex ms-auto mt-3 mt-lg-0 overflow-hidden';
+
+    if (isLogged) {
+      const profileLink = document.createElement('a');
+      profileLink.href = '/profilo';
+      profileLink.className = 'text-light d-flex justify-content-center align-items-center w-100';
+      profileLink.id = 'Profilo';
+      profileLink.title = 'Profilo';
+      
+      if (profilePic) {
+        const img = document.createElement('img');
+        img.src = profilePic;
+        img.alt = 'Foto Profilo';
+        img.className = 'rounded-circle';
+        img.style.width = '40px';
+        img.style.height = '40px';
+        img.style.objectFit = 'cover';
+        profileLink.appendChild(img);
+      } else {
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-person-circle';
+        icon.style.fontSize = '1.8rem';
+        profileLink.appendChild(icon);
+      }
+      
+      form.appendChild(profileLink);
+    } else {
+      const loginBtn = document.createElement('a');
+      loginBtn.href = '/profilo';
+      loginBtn.className = 'btn btn-outline-light d-flex align-items-center justify-content-center gap-2 mx-auto mx-lg-0';
+      loginBtn.id = 'Login';
+      
+      const icon = document.createElement('i');
+      icon.className = 'bi bi-box-arrow-in-right';
+      loginBtn.appendChild(icon);
+      
+      const span = document.createElement('span');
+      span.textContent = 'Login';
+      loginBtn.appendChild(span);
+      
+      form.appendChild(loginBtn);
+    }
+
+    collapseDiv.appendChild(form);
+    container.appendChild(collapseDiv);
+    nav.appendChild(container);
+    this.navbar.appendChild(nav);
+
     this.links = this.navbar.querySelectorAll('.nav-link');
     this.updateActiveLink();
   }

@@ -1,8 +1,8 @@
 import showModal from '../utils/showModal.js';
+import { setupEmailFormListener } from './send_email.js';
 
 class Prenotazione {
-    constructor(page, loadCSS) {
-        if (typeof loadCSS === 'function') loadCSS();
+    constructor(page) {
         this.page = page;
         this.campi = [];
         this.orariDisponibili = {};
@@ -13,6 +13,7 @@ class Prenotazione {
         document.title = "Prenotazione";
         await this.fetchCampi();
         this.addEventListeners();
+        setupEmailFormListener();
     }
 
     async fetchCampi() {

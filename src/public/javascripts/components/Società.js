@@ -1,6 +1,5 @@
 class Societa{
-    constructor(page,loadCSS){
-        if (typeof loadCSS === 'function') loadCSS(); 
+    constructor(page){
         this.page = page;
         this.init();
     }

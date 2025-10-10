@@ -32,9 +32,35 @@
     background-color: #0056b3;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 576px) {
     .col-md-4, .col-md-8 {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    #averageRating {
+        font-size: 2rem;
+    }
+    
+    #filterStars {
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+    /* Tablet adjustments */
+    .col-md-4, .col-md-8 {
+        margin-bottom: 1.5rem;
+    }
+    
+    #averageRating {
+        font-size: 2.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    /* Desktop adjustments */
+    #averageRating {
+        font-size: 3rem;
     }
 }
 

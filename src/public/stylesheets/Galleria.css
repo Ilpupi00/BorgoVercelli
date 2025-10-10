@@ -235,6 +235,23 @@ body {
 
 /* Media Queries per Responsive */
 
+/* Mobile small */
+@media (max-width: 575px) {
+  .gallery-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .image-wrapper {
+    min-height: 180px;
+  }
+
+  .centered-image {
+    max-width: 95%;
+  }
+}
+
 /* Tablet */
 @media (min-width: 768px) {
   .gallery-container {

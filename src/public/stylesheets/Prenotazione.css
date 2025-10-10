@@ -45,7 +45,7 @@
   color: white;
   cursor: pointer;
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Cambiato da visible */
 }
 
 .btn-prenota:hover {
@@ -100,17 +100,40 @@
   line-height: 1.6;
 }
 /* Responsive */
-@media (max-width: 767.98px) {
+@media (max-width: 575px) {
   .campo-img {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
   
   .col-md-2 {
-    margin-top: 20px;
+    margin-top: 15px;
   }
   
   .btn-prenota {
     width: 100%;
+    padding: 10px 20px;
+  }
+  
+  .campo-prenotazione {
+    margin: 10px 0;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  /* Tablet portrait */
+  .campo-img {
+    margin-bottom: 20px;
+  }
+  
+  .btn-prenota {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Tablet landscape and desktop */
+  .btn-prenota {
+    width: auto;
   }
 }
 .btn-primary {
@@ -125,7 +148,7 @@
   color: white;
   cursor: pointer;
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Cambiato da visible */
 }
 
 .btn-primary:hover {
@@ -160,7 +183,7 @@
   color: white;
   cursor: pointer;
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Cambiato da visible */
 }
 
 .btn-cancel:hover {

@@ -1,7 +1,6 @@
 class Notizie{
-    constructor(page,loadCSS){
+    constructor(page){
         this.page=page;
-        if(typeof(loadCSS)==='function') loadCSS();
         this.init();
     }
 

@@ -1,9 +1,9 @@
 import FilterGiocatori from "../utils/filterSquadre.js"
 import SearchPlayer from "../utils/cercaGiocatore.js";
+import { setupEmailFormListener } from './send_email.js';
 
 class Squadre {
-    constructor(page, loadCSS) {
-        if (typeof loadCSS === 'function') loadCSS();
+    constructor(page) {
         this.page = page;
         this.init();
     }
@@ -12,6 +12,7 @@ class Squadre {
         document.title = "Squadre";
         const squadre = await this.fetchSquadre();
         this.setupComponents(squadre);
+        setupEmailFormListener();
     }
 
     async fetchSquadre() {

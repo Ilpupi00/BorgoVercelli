@@ -1,7 +1,8 @@
 
+import { setupEmailFormListener } from './send_email.js';
+
 class Galleria{
-    constructor(page,loadCSS){
-        if (typeof loadCSS === 'function') loadCSS(); 
+    constructor(page){
         this.page = page;
         this.allImages = [];
         this.imagesShown = 8; // Since 8 are already shown in EJS
@@ -15,6 +16,7 @@ class Galleria{
         this.setupUploadButton();
         this.setupLoadMoreButton();
         this.setupImageClicks();
+        setupEmailFormListener();
     }
 
     async fetchImages() {

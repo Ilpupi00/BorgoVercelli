@@ -1,6 +1,5 @@
 class Footer{
-    constructor(footer,loadCSS){
-        if(typeof loadCSS ==='function')loadCSS();
+    constructor(footer){
 
         this.footer=footer;
 

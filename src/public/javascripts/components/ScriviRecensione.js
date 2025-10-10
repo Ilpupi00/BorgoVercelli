@@ -3,8 +3,7 @@
 import showModal from '../utils/showModal.js';
 
 class ScriviRecensione{
-    constructor(page,loader){
-        if(typeof(loader) ==='function') loader();
+    constructor(page){
         this.page = page;
         this.init();
     }

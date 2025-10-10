@@ -1,6 +1,7 @@
+import { setupEmailFormListener } from './send_email.js';
+
 class Campionato {
-    constructor(page, loadCSS) {
-        if (typeof loadCSS === 'function') loadCSS();
+    constructor(page) {
         this.page = page;
         this.init();
     }
@@ -8,6 +9,7 @@ class Campionato {
     init() {
         document.title = "Campionato";
         this.setupSelect();
+        setupEmailFormListener();
         // Aggiungere altre inizializzazioni se necessario
     }
 

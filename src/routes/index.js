@@ -151,13 +151,27 @@ router.get('/eventi/all',(req,res)=>{
     });
 });
 
-router.get('/recensioni/all',(req,res)=>{
-    res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
-        if(err){
-            console.log('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
+router.get('/recensioni/all', async (req, res) => {
+    try {
+        const recensioni = await daoRecensioni.getRecensioni() || [];
+        const totalReviews = recensioni.length;
+        const averageRating = totalReviews > 0 ? recensioni.reduce((sum, r) => sum + r.valutazione, 0) / totalReviews : 0;
+        const ratingCounts = {};
+        for (let i = 1; i <= 5; i++) {
+            ratingCounts[i] = recensioni.filter(r => r.valutazione === i).length;
         }
-    });
+        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        res.render('reviews', {
+            reviews: recensioni,
+            averageRating: averageRating,
+            ratingCounts: ratingCounts,
+            totalReviews: totalReviews,
+            isLoggedIn: isLoggedIn
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento delle recensioni:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 

@@ -17,9 +17,28 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent horizontal overflow on all components */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
   overflow-y: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
 }
 
 .news-card {
@@ -29,12 +48,19 @@ body {
   animation-delay: calc(var(--index, 0) * 0.1s);
   background: var(--light-bg);
   border-radius: var(--border-radius);
-  overflow: visible;
+  overflow: hidden; /* Cambiato da visible a hidden */
   box-shadow: var(--shadow-light);
   transition: var(--transition);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 1em; /* Aggiunto margine per spazio extra */
+  margin: 0; /* Rimosso margine per mobile */
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .news-card {
+    margin: 1em; /* Margine solo su tablet/desktop */
+  }
 }
 
 .news-card:active {
@@ -108,13 +134,19 @@ body {
 
 /* --- CARD IMG MODERNA E CALCISTICA --- */
 .card-img-container {
-  height: 32vw;
-  min-height: 160px;
-  max-height: 220px;
-  overflow: visible;
+  height: 200px; /* Mobile first: altezza fissa */
+  overflow: hidden; /* Cambiato da visible a hidden per prevenire overflow */
   border-bottom: 3px solid var(--secondary-color);
   background: url('../images/Campo.png') center/cover no-repeat;
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .card-img-container {
+    height: 32vw; /* Tablet e desktop: altezza relativa */
+    min-height: 160px;
+    max-height: 220px;
+  }
 }
 
 .card-img-container::after {
@@ -706,6 +738,45 @@ section.vw100 {
 }
 
 /* Mobile-first responsive adjustments */
+@media (min-width: 576px) {
+  /* Small devices (landscape phones, 576px and up) */
+  .news-card {
+    margin: 0.5em;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Medium devices (tablets, 768px and up) */
+  .news-card {
+    margin: 1em;
+  }
+  
+  .card-img-container {
+    height: 32vw;
+    min-height: 160px;
+    max-height: 220px;
+  }
+  
+  .hero-section .display-1 {
+    font-size: 4rem;
+  }
+  
+  .hero-section .lead {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  /* Large devices (desktops, 992px and up) */
+  .hero-section .display-1 {
+    font-size: 5rem;
+  }
+  
+  .hero-section .lead {
+    font-size: 1.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-section .display-1 {
     font-size: 3rem;
