@@ -34,7 +34,7 @@
                             </div>
                         <% } %>
 
-                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>" onsubmit="return submitQuillContent()">
+                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>">
                             <div class="mb-3">
                                 <label for="titolo" class="form-label">Titolo <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="titolo" name="titolo" placeholder="Inserisci il titolo della notizia"
@@ -102,61 +102,6 @@
         }) %>;
     </script>
 
-    <script>
-        // Inizializza Quill editor
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            placeholder: 'Scrivi il contenuto della notizia...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'align': [] }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
-            }
-        });
-
-        // Carica contenuto esistente se in modifica
-        if (window.notiziaData.contenuto) {
-            quill.root.innerHTML = window.notiziaData.contenuto;
-        }
-
-        // Funzione per submit del form
-        function submitQuillContent() {
-            const contenuto = document.getElementById('contenuto');
-            contenuto.value = quill.root.innerHTML;
-
-            // Controlla la dimensione del contenuto (limite approssimativo 5MB per sicurezza)
-            const contentSize = new Blob([contenuto.value]).size;
-            if (contentSize > 5 * 1024 * 1024) { // 5MB
-                alert('Il contenuto della notizia è troppo grande. Riduci il contenuto o rimuovi alcune immagini.');
-                return false;
-            }
-
-            if (!contenuto.value || contenuto.value.trim() === '<p><br></p>') {
-                alert('Il contenuto della notizia è obbligatorio');
-                return false;
-            }
-
-            return true;
-        }
-
-        // Auto-save ogni 30 secondi (solo se ci sono modifiche)
-        let lastContent = quill.getContents();
-        setInterval(() => {
-            const currentContent = quill.getContents();
-            if (JSON.stringify(currentContent) !== JSON.stringify(lastContent)) {
-                console.log('Contenuto modificato - auto-save disponibile');
-                lastContent = currentContent;
-            }
-        }, 30000);
-    </script>
     <%- include('../partials/footer') %>
 </body>
 </html>

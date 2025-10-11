@@ -1,106 +1,123 @@
-class Notizie{
-    constructor(page){
-        this.page=page;
+import { setupEmailFormListener } from './send_email.js';
+
+class Notizie {
+    constructor(page) {
+        this.page = page;
+        this.loadedNews = 6; // Inizialmente caricate 6
+        this.newsPerLoad = 6; // Carica 6 alla volta
+        this.isLoading = false;
         this.init();
     }
 
-    async init(){
+    async init() {
         document.title = "Notizie";
-        await this.render();
+        setupEmailFormListener();
+        this.setupLoadMore();
     }
 
-    async render(){
-        const notizie = await this.fetchNotizie();
-        const container = document.createElement('div');
-        container.className = 'notizie-container';
-        this.page.innerHTML = '<h1 class="text-center my-4 overflow-hidden">Tutte le notizie</h1>';
-        this.page.appendChild(container);
-
-        let shown = 9;
-        function renderCards() {
-            container.innerHTML = '';
-            if (notizie.length === 0) {
-                container.innerHTML = '<p class="no-news">Nessuna notizia disponibile.</p>';
-                return;
-            }
-            notizie.slice(0, shown).forEach(notizia => {
-                const card = document.createElement('div');
-                card.className = 'notizia-card notizia-cliccabile';
-                card.innerHTML = `
-                    <div class="notizia-img-wrap">
-                        <img src="${notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/default-news.jpg'}" alt="Immagine notizia" class="notizia-img" />
-                    </div>
-                    <div class="notizia-content">
-                        <h2 class="notizia-titolo">${notizia.titolo}</h2>
-                        <span class="notizia-data">${new Date(notizia.data_pubblicazione).toLocaleDateString()}</span>
-                        <p class="notizia-testo">${notizia.contenuto}</p>
-                    </div>
-                `;
-                card.addEventListener('click', () => {
-                    window.location.href = `/notizie/${notizia.id || notizia.N_id}`;
-                });
-                container.appendChild(card);
-            });
+    setupLoadMore() {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => this.loadMoreNews());
         }
+    }
 
-        renderCards();
+    async loadMoreNews() {
+        if (this.isLoading) return;
 
-        // Bottone per caricare altre notizie
-        if (notizie.length > shown) {
-            const loadMoreBtn = document.createElement('button');
-            loadMoreBtn.textContent = 'Carica altre notizie';
-            loadMoreBtn.className = 'btn btn-primary d-block mx-auto my-4';
-            loadMoreBtn.addEventListener('click', () => {
-                shown += 9;
-                renderCards();
-                if (shown >= notizie.length) {
+        this.isLoading = true;
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const originalText = loadMoreBtn.innerHTML;
+        loadMoreBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Caricamento...';
+        loadMoreBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/notizie?offset=${this.loadedNews}&limit=${this.newsPerLoad}`);
+            if (!response.ok) throw new Error('Errore nel caricamento');
+
+            const data = await response.json();
+            const newNews = data.notizie || [];
+
+            if (newNews.length > 0) {
+                this.appendNews(newNews);
+                this.loadedNews += newNews.length;
+
+                // Se non ci sono più notizie, nascondi il bottone
+                if (newNews.length < this.newsPerLoad) {
                     loadMoreBtn.style.display = 'none';
                 }
-            });
-            this.page.appendChild(loadMoreBtn);
-        }
-
-    // Bottone "Torna su" sticky animato
-    const scrollBtn = document.createElement('button');
-    scrollBtn.textContent = '↑';
-    scrollBtn.className = 'scroll-top-btn';
-    scrollBtn.title = 'Torna su';
-    document.body.appendChild(scrollBtn);
-
-    const footer = document.getElementById('footer');
-    function updateScrollBtnPosition() {
-        const footerRect = footer.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        if (window.scrollY > 300) {
-            scrollBtn.style.display = 'block';
-        } else {
-            scrollBtn.style.display = 'none';
-        }
-        let targetBottom = 40;
-        if (footerRect.top < windowHeight) {
-            const overlap = windowHeight - footerRect.top;
-            targetBottom = overlap + 40;
-        }
-        scrollBtn.style.transition = 'bottom 0.3s cubic-bezier(.4,0,.2,1)';
-        scrollBtn.style.bottom = targetBottom + 'px';
-    }
-    window.addEventListener('scroll', updateScrollBtnPosition);
-    window.addEventListener('resize', updateScrollBtnPosition);
-    scrollBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    updateScrollBtnPosition();
-    }
-    async fetchNotizie(){
-            try {
-                const response = await fetch('/all');
-                const data = await response.json();
-                console.log(data[0].immagine);
-                return data;
-            } catch (error) {
-                console.error('Errore fetch notizie:', error);
-                return [];
+            } else {
+                loadMoreBtn.style.display = 'none';
             }
+        } catch (error) {
+            console.error('Errore nel caricamento delle notizie:', error);
+            // Mostra un messaggio di errore
+            this.showError('Errore nel caricamento delle notizie. Riprova più tardi.');
+        } finally {
+            this.isLoading = false;
+            loadMoreBtn.innerHTML = originalText;
+            loadMoreBtn.disabled = false;
+        }
+    }
+
+    appendNews(news) {
+        const container = document.getElementById('notizieContainer');
+
+        news.forEach(notizia => {
+            const article = this.createNewsCard(notizia);
+            container.appendChild(article);
+        });
+    }
+
+    createNewsCard(notizia) {
+        const article = document.createElement('article');
+        article.className = 'notizia-card animate__animated animate__fadeInUp';
+
+        const imageUrl = notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/default-news.jpg';
+        const dateStr = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const excerpt = notizia.contenuto.length > 120 ? notizia.contenuto.substring(0, 120) + '...' : notizia.contenuto;
+        const linkId = notizia.id || notizia.N_id;
+
+        article.innerHTML = `
+            <div class="card-image">
+                <img src="${imageUrl}" alt="${notizia.titolo}" class="card-img">
+                <div class="card-overlay">
+                    <span class="read-more-btn">
+                        <i class="bi bi-eye"></i> Leggi
+                    </span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-meta">
+                    <span class="date">
+                        <i class="bi bi-calendar-event"></i> ${dateStr}
+                    </span>
+                </div>
+                <h3 class="card-title">${notizia.titolo}</h3>
+                <p class="card-excerpt">${excerpt}</p>
+                <a href="/notizia/${linkId}" class="read-full-link">
+                    Leggi tutto <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        `;
+
+        return article;
+    }
+
+    showError(message) {
+        const container = document.getElementById('notizieContainer');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger text-center mt-3';
+        errorDiv.innerHTML = `<i class="bi bi-exclamation-triangle"></i> ${message}`;
+        container.appendChild(errorDiv);
+
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
     }
 }
 

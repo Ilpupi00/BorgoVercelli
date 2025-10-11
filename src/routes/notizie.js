@@ -4,8 +4,54 @@ const router = express.Router();
 const dao = require('../services/dao-notizie');
 const { isLoggedIn,isAdmin} = require('../middlewares/auth');
 
+router.get('/notizie/all', async (req, res) => {
+  try {
+    const rows = await dao.getNotizie();
+    const notizie = (rows || []);
+    console.log('Notizie recuperate:', notizie.length);
+    console.log('Rendering notizie.ejs');
+    res.render('notizie', {
+      user: req.user,
+      notizie: notizie
+    });
+  } catch (error) {
+    console.error('Errore nel recupero delle notizie:', error);
+    res.status(500).send('Errore interno del server: ' + error.message);
+  }
+});
 
+// Route per visualizzare una singola notizia
+router.get('/notizie/:id', async (req, res) => {
+  try {
+    const notizia = await dao.getNotiziaById(req.params.id);
+    console.log('Notizia recuperata:', notizia);
+    if (!notizia) {
+      return res.status(404).render('error', {
+        message: 'Notizia non trovata',
+        error: { status: 404 }
+      });
+    }
+    res.render('Notizie/visualizza_notizia', { notizia });
+  } catch (error) {
+    console.error('Errore nel caricamento della notizia:', error);
+    res.status(500).render('error', {
+      message: 'Errore nel caricamento della notizia',
+      error: { status: 500 }
+    });
+  }
+});
+router.get('/api/notizie', async (req, res) => {
+  try {
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 6;
 
+    const rows = await dao.getNotiziePaginated(offset, limit);
+    res.json({ notizie: rows || [] });
+  } catch (error) {
+    console.error('Errore nel recupero delle notizie:', error);
+    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+  }
+});
 
 router.get('/notizie', async (req, res) => {
   try {
@@ -14,6 +60,22 @@ router.get('/notizie', async (req, res) => {
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
     res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+  }
+});
+
+router.get('/notizie/all', async (req, res) => {
+  try {
+    const rows = await dao.getNotizie();
+    const notizie = (rows || []);
+    console.log('Notizie recuperate:', notizie.length);
+    console.log('Rendering notizie.ejs');
+    res.render('notizie', {
+      user: req.user,
+      notizie: notizie
+    });
+  } catch (error) {
+    console.error('Errore nel recupero delle notizie:', error);
+    res.status(500).send('Errore interno del server: ' + error.message);
   }
 });
 
@@ -41,17 +103,6 @@ router.get('/notizia/:id', async (req, res) => {
     } else {
       res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
     }
-  }
-});
-
-router.get('/all', async (req, res) => {
-  try {
-    const rows = await dao.getNotizie();
-    const notizie = (rows || []);
-    res.json(notizie);
-  } catch (error) {
-    console.error('Errore nel recupero delle notizie:', error);
-    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 
