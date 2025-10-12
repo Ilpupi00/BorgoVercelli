@@ -60,6 +60,18 @@
                                        placeholder="ID dell'immagine dalla galleria (opzionale)"
                                        value="<%= notizia && notizia.immagine ? notizia.immagine : '' %>">
                                 <div class="form-text">Inserisci l'ID di un'immagine dalla galleria per usarla come immagine principale.</div>
+
+                                <!-- Anteprima Immagine -->
+                                <div class="mt-3">
+                                    <label class="form-label">Anteprima Immagine:</label>
+                                    <div class="image-preview-container">
+                                        <img id="imagePreview" src="<%= notizia && notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/default-news.jpg' %>"
+                                             alt="Anteprima immagine notizia" class="img-fluid rounded image-preview">
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        <small>Questa sarà l'immagine mostrata nella notizia. Se non selezioni un'immagine, verrà usata quella di default.</small>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mb-4">

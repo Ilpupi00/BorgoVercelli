@@ -7,16 +7,36 @@ class Evento {
         this.id = id;
         this.titolo = titolo;
         this.descrizione = descrizione;
-        this.data_inizio = data_inizio ? Evento.parseDate(data_inizio) : null;
-        this.data_fine = data_fine ? Evento.parseDate(data_fine) : null;
+        try {
+            this.data_inizio = data_inizio ? Evento.parseDate(data_inizio) : null;
+        } catch (error) {
+            console.warn('Errore nel parsing data_inizio:', data_inizio, error);
+            this.data_inizio = data_inizio;
+        }
+        try {
+            this.data_fine = data_fine ? Evento.parseDate(data_fine) : null;
+        } catch (error) {
+            console.warn('Errore nel parsing data_fine:', data_fine, error);
+            this.data_fine = data_fine;
+        }
         this.luogo = luogo;
         this.tipo_evento = tipo_evento;
         this.squadra_id = squadra_id;
         this.campo_id = campo_id;
         this.max_partecipanti = max_partecipanti;
         this.pubblicato = pubblicato;
-        this.created_at = created_at ? Evento.parseDate(created_at) : null;
-        this.updated_at = updated_at ? Evento.parseDate(updated_at) : null;
+        try {
+            this.created_at = created_at ? Evento.parseDate(created_at) : null;
+        } catch (error) {
+            console.warn('Errore nel parsing created_at:', created_at, error);
+            this.created_at = created_at;
+        }
+        try {
+            this.updated_at = updated_at ? Evento.parseDate(updated_at) : null;
+        } catch (error) {
+            console.warn('Errore nel parsing updated_at:', updated_at, error);
+            this.updated_at = updated_at;
+        }
         this.immagini_id = immagini_id;
     }
 

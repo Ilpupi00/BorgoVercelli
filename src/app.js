@@ -11,7 +11,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const routes = require('./routes/index');
 const routesNotizie = require('./routes/notizie');
-const routesEventi = require('./routes/eventi');
+const routesEventi = require('./routes/routes-eventi');
 const routesRegistrazione = require('./routes/login_register');
 const routesSession = require('./routes/session');
 const routesRecensioni = require('./routes/recensioni');
@@ -63,6 +63,18 @@ app.use(methodOverride(function (req, res) {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Route specifica per eventi/all - messa dopo i middleware di base
+app.get('/all', async (req, res) => {
+  try {
+    const dao = require('./services/dao-eventi');
+    const eventi = await dao.getEventi();
+    res.json({ eventi: eventi || [] });
+  } catch (error) {
+    console.error('Errore nel recupero degli eventi:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
 const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
@@ -90,11 +102,29 @@ app.use(function(req, res, next) {
   }
   next();
 });
+app.get('/eventi', async (req, res) => {
+  try {
+    const dao = require('./services/dao-eventi');
+    const eventi = await dao.getEventi();
+    // Filtra solo gli eventi pubblicati
+    const eventiPubblicati = eventi.filter(evento => evento.pubblicato === 1 || evento.pubblicato === true);
+    res.render('eventi', {
+      title: 'Eventi - Asd BorgoVercelli 2022',
+      eventi: eventiPubblicati || []
+    });
+  } catch (error) {
+    console.error('Errore nel caricamento degli eventi:', error);
+    res.render('eventi', {
+      title: 'Eventi - Asd BorgoVercelli 2022',
+      eventi: []
+    });
+  }
+});
 
 // Routing
+app.use('/', routesEventi);
 app.use('/', routes);
 app.use('/', routesNotizie);
-app.use('/', routesEventi);
 app.use('/', routesRegistrazione);
 app.use('/', routesSession);
 app.use('/', routesRecensioni);
@@ -103,6 +133,7 @@ app.use('/', routesSquadre);
 app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
+
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
@@ -110,12 +141,22 @@ app.set('views', path.join(__dirname, 'views'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  res.status(404);
-  res.render('error', { message: 'Pagina non trovata', error: {} });
+  // Per richieste API, restituisci JSON
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    res.status(404).json({ error: 'Endpoint non trovato' });
+  } else {
+    res.status(404);
+    res.render('error', { message: 'Pagina non trovata', error: {} });
+  }
 });
 
 // error handler
 app.use(function(err, req, res, next) {
+  // Imposta valori di default per le variabili locali
+  res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
+  res.locals.currentPath = req.path || '/';
+  res.locals.imageUrl = req.isAuthenticated && req.user ? req.user.immagine_profilo : null;
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);

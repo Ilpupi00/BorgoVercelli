@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= evento.titolo %> - Asd BorgoVercelli 2022</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/stylesheets/Navbar.css">
+    <link rel="stylesheet" href="/stylesheets/Footer.css">
+    <link rel="stylesheet" href="/stylesheets/Eventi.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= evento.titolo %> - Asd BorgoVercelli 2022">
+    <meta property="og:description" content="<%= evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Scopri questo evento organizzato da Asd BorgoVercelli 2022' %>">
+    <meta property="og:image" content="<%= evento.immagine_url || '/images/Campo.png' %>">
+    <meta property="og:url" content="/evento/<%= evento.id %>">
+    <meta property="og:type" content="article">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <!-- Hero Section with Event Image -->
+    <section class="event-hero-section position-relative">
+        <div class="hero-overlay"></div>
+        <div class="hero-image" style="background-image: url(&quot;<%= evento.immagine_url || '/images/Campo.png' %>&quot;);"></div>
+        <div class="container-fluid px-4 position-relative" style="z-index: 2;">
+            <div class="row justify-content-center min-vh-50">
+                <div class="col-12 col-md-10 col-lg-8 text-center text-white">
+                    <div class="event-type-badge-hero mb-4">
+                        <span class="badge fs-6 px-3 py-2"><%= evento.tipo_evento || 'Evento' %></span>
+                    </div>
+                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown"><%= evento.titolo %></h1>
+                    <div class="event-meta-hero mb-4">
+                        <div class="meta-item">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span><%= new Date(evento.data_inizio).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                        </div>
+                        <% if (evento.data_fine && evento.data_fine !== evento.data_inizio) { %>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                <span>Fino al <%= new Date(evento.data_fine).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                            </div>
+                        <% } %>
+                        <% if (evento.luogo) { %>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <span><%= evento.luogo %></span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Content Section -->
+    <section class="event-content-section py-5">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <!-- Event Details Card -->
+                    <div class="event-details-card card shadow-sm mb-5">
+                        <div class="card-body p-4">
+                            <div class="row g-4">
+                                <!-- Date & Time -->
+                                <div class="col-12 col-md-6">
+                                    <div class="detail-section">
+                                        <h5 class="detail-title">
+                                            <i class="fas fa-clock text-primary me-2"></i>Data e Ora
+                                        </h5>
+                                        <div class="detail-content">
+                                            <div class="mb-2">
+                                                <strong>Inizio:</strong>
+                                                <%= new Date(evento.data_inizio).toLocaleDateString('it-IT', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) %>
+                                            </div>
+                                            <% if (evento.data_fine && evento.data_fine !== evento.data_inizio) { %>
+                                                <div>
+                                                    <strong>Fine:</strong>
+                                                    <%= new Date(evento.data_fine).toLocaleDateString('it-IT', {
+                                                        weekday: 'long',
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    }) %>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Location -->
+                                <% if (evento.luogo) { %>
+                                    <div class="col-12 col-md-6">
+                                        <div class="detail-section">
+                                            <h5 class="detail-title">
+                                                <i class="fas fa-map-marker-alt text-primary me-2"></i>Luogo
+                                            </h5>
+                                            <div class="detail-content">
+                                                <p class="mb-0"><%= evento.luogo %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+
+                                <!-- Participants -->
+                                <% if (evento.max_partecipanti) { %>
+                                    <div class="col-12 col-md-6">
+                                        <div class="detail-section">
+                                            <h5 class="detail-title">
+                                                <i class="fas fa-users text-primary me-2"></i>Partecipanti
+                                            </h5>
+                                            <div class="detail-content">
+                                                <p class="mb-0">Max <%= evento.max_partecipanti %> partecipanti</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+
+                                <!-- Event Type -->
+                                <div class="col-12 col-md-6">
+                                    <div class="detail-section">
+                                        <h5 class="detail-title">
+                                            <i class="fas fa-tag text-primary me-2"></i>Tipo Evento
+                                        </h5>
+                                        <div class="detail-content">
+                                            <span class="badge bg-primary fs-6"><%= evento.tipo_evento || 'Evento' %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Description -->
+                    <% if (evento.descrizione) { %>
+                        <div class="event-description-card card shadow-sm">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4">
+                                    <i class="fas fa-info-circle text-primary me-2"></i>Descrizione
+                                </h4>
+                                <div class="event-description">
+                                    <%= evento.descrizione %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Events Button -->
+    <section class="back-to-events-section py-4 bg-light">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 text-center">
+                    <a href="/eventi" class="btn btn-outline-primary btn-lg px-4 py-2">
+                        <i class="fas fa-arrow-left me-2"></i>Torna agli eventi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <%- include('../partials/footer') %>
+
+    <script type="module">
+        import EventoView from '/javascripts/components/EventoView.js';
+
+        new EventoView(document.body);
+    </script>
+</body>
+</html>

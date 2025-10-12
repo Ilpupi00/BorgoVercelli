@@ -18,6 +18,7 @@ class NewsEditor {
         this.loadExistingContent();
         this.setupAutoSave();
         this.setupFormValidation();
+        this.setupImagePreview();
     }
 
     /**
@@ -108,6 +109,58 @@ class NewsEditor {
         }
 
         return true;
+    }
+
+    /**
+     * Gestisce l'anteprima dell'immagine principale
+     */
+    setupImagePreview() {
+        const imageIdInput = document.getElementById('immagine_principale_id');
+        const imagePreview = document.getElementById('imagePreview');
+
+        if (!imageIdInput || !imagePreview) return;
+
+        // Funzione per aggiornare l'anteprima
+        const updatePreview = (imageId) => {
+            if (!imageId || imageId.trim() === '' || isNaN(imageId)) {
+                // Mostra immagine di default se non c'è ID valido
+                imagePreview.src = '/images/default-news.jpg';
+                return;
+            }
+
+            // Per ora, assumiamo che l'immagine sia in /uploads/ con il nome basato sull'ID
+            // In futuro, puoi sostituire con una chiamata API reale
+            const possibleUrl = `/uploads/image_${imageId}.jpg`;
+
+            // Test se l'immagine esiste creando un'immagine temporanea
+            const testImg = new Image();
+            testImg.onload = () => {
+                // Immagine esiste, usa questa
+                imagePreview.src = possibleUrl;
+            };
+            testImg.onerror = () => {
+                // Immagine non esiste, usa quella di default
+                imagePreview.src = '/images/default-news.jpg';
+            };
+            testImg.src = possibleUrl;
+        };
+
+        // Gestisci l'evento input con debounce
+        let timeoutId;
+        imageIdInput.addEventListener('input', (e) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                updatePreview(e.target.value);
+            }, 500); // Aspetta 500ms dopo che l'utente smette di digitare
+        });
+
+        // Gestisci l'evento blur (quando l'utente esce dal campo)
+        imageIdInput.addEventListener('blur', (e) => {
+            updatePreview(e.target.value);
+        });
+
+        // Carica l'anteprima iniziale
+        updatePreview(imageIdInput.value);
     }
 
     /**

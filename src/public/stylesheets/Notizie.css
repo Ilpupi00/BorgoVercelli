@@ -61,6 +61,8 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(255,255,255,0.8);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .notizia-card:hover {
@@ -72,6 +74,7 @@ body {
     position: relative;
     overflow: hidden;
     height: 150px;
+    flex-shrink: 0; /* Previene compressione dell'immagine */
 }
 
 .card-img {
@@ -79,6 +82,12 @@ body {
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+    min-height: 150px;
+}
+
+.card-img[src="/images/default-news.jpg"] {
+    object-fit: contain; /* Centra l'immagine di default se è più piccola */
+    background: #f8f9fa; /* Sfondo chiaro per l'immagine di default */
 }
 
 .notizia-card:hover .card-img {
@@ -116,6 +125,8 @@ body {
 
 .card-content {
     padding: 1rem;
+    position: relative;
+    z-index: 5;
 }
 
 .card-meta {
@@ -412,35 +423,34 @@ body {
     }
 }
 
-/* Read Full Button Styles */
-.read-full-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    text-decoration: none;
+/* Image Preview Styles */
+.image-preview-container {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #f8f9fa;
+    text-align: center;
     transition: all 0.3s ease;
-    border: 2px solid var(--primary-color);
-    background: var(--primary-color);
-    color: white;
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
 }
 
-.read-full-btn:hover {
-    background: var(--btn-hover-bg);
-    border-color: var(--btn-hover-bg);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-    text-decoration: none;
+.image-preview-container:hover {
+    border-color: var(--primary-color);
+    background: rgba(13, 110, 253, 0.05);
 }
 
-.read-full-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+.image-preview {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.image-preview[src="/images/default-news.jpg"] {
+    object-fit: contain;
+    background: #fff;
+    border: 1px solid #dee2e6;
 }
 
 /* Single News View Styles */

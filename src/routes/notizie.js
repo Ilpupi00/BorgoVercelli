@@ -21,7 +21,7 @@ router.get('/notizie/all', async (req, res) => {
 });
 
 // Route per visualizzare una singola notizia
-router.get('/notizie/:id', async (req, res) => {
+router.get('/notizia/:id', async (req, res) => {
   try {
     const notizia = await dao.getNotiziaById(req.params.id);
     console.log('Notizia recuperata:', notizia);

@@ -23,15 +23,14 @@ const makeEvento=(row)=>{
 }
 
 exports.getEventi = function(){
-    // Usa i nomi originali delle colonne per compatibilità con il costruttore Evento
-    const sql = 'SELECT E.id, E.titolo, E.descrizione, E.data_inizio, E.data_fine, E.luogo, E.tipo_evento, E.squadra_id, E.campo_id, E.max_partecipanti, E.pubblicato, E.created_at, E.updated_at, E.immagini_id, I.url as immagine_url FROM EVENTI E LEFT JOIN IMMAGINI I ON I.entita_riferimento = \'evento\' AND I.entita_id = E.id AND I.ordine = 1;';
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Error retrieving events: ' + err.message });
             }
-            resolve(eventi.map(makeEvento) || []);
+            resolve(eventi || []);
         });
     });
 }

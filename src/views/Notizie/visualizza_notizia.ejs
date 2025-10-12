@@ -52,11 +52,10 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <article class="notizia-article animate__animated animate__fadeInUp">
-                            <% if (notizia.immagine) { %>
-                                <div class="notizia-immagine mb-4">
-                                    <img src="<%= notizia.immagine %>" alt="<%= notizia.titolo %>" class="img-fluid rounded shadow">
-                                </div>
-                            <% } %>
+                            <div class="notizia-immagine mb-4">
+                                <img src="<%= notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' ? notizia.immagine.url : '/images/default-news.jpg' %>"
+                                     alt="<%= notizia.titolo %>" class="img-fluid rounded shadow">
+                            </div>
                             <div class="notizia-contenuto ql-editor">
                                 <%- notizia.contenuto %>
                             </div>

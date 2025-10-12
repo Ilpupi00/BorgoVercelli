@@ -170,5 +170,36 @@ router.get('/recensioni/all', async (req, res) => {
     }
 });
 
+router.get('/eventi/all', async (req, res) => {
+  try {
+    // const eventi = await daoEventi.getEventi();
+    res.json([]);
+  }
+  catch (error) {
+    console.error('Errore nel recupero degli eventi:', error);
+    res.status(500).json({
+      error: 'Errore nel caricamento degli eventi',
+      details: error.message
+    });
+  }
+});
+
+router.get('/eventi', async (req, res) => {
+  try {
+    const eventi = await daoEventi.getEventi();
+    res.render('eventi', {
+      title: 'Eventi - Asd BorgoVercelli 2022',
+      eventi: eventi || []
+    });
+  }
+  catch (error) {
+    console.error('Errore nel recupero degli eventi:', error);
+    res.status(500).render('error', {
+      message: 'Errore nel caricamento degli eventi',
+      error: process.env.NODE_ENV === 'development' ? error : {}
+    });
+  }
+});
+
 
 module.exports= router;

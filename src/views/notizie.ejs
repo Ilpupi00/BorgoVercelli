@@ -91,7 +91,7 @@
                             <% initialNews.forEach(notizia => { %>
                                 <article class="notizia-card animate__animated animate__fadeInUp">
                                     <div class="card-image">
-                                        <img src="<%= notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/default-news.jpg' %>"
+                                        <img src="<%= notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' ? notizia.immagine.url : '/images/default-news.jpg' %>"
                                              alt="<%= notizia.titolo %>"
                                              class="card-img">
                                         <div class="card-overlay">
@@ -109,9 +109,9 @@
                                         </div>
                                         <h3 class="card-title"><%= notizia.titolo %></h3>
                                         <p class="card-excerpt">
-                                            <%= notizia.contenuto.length > 120 ? notizia.contenuto.substring(0, 120) + '...' : notizia.contenuto %>
+                                            <%= notizia.contenuto.replace(/<[^>]*>/g, '').length > 120 ? notizia.contenuto.replace(/<[^>]*>/g, '').substring(0, 120) + '...' : notizia.contenuto.replace(/<[^>]*>/g, '') %>
                                         </p>
-                                        <a href="/notizie/<%= notizia.id || notizia.N_id %>" class="btn btn-primary read-full-btn">
+                                        <a href="/notizia/<%= notizia.id || notizia.N_id %>" class="btn btn-primary read-full-btn">
                                             <i class="bi bi-arrow-right me-2"></i>Leggi tutto
                                         </a>
                                     </div>
@@ -396,13 +396,17 @@
                 const article = document.createElement('article');
                 article.className = 'notizia-card animate__animated animate__fadeInUp';
 
-                const imageUrl = notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/default-news.jpg';
+                const imageUrl = notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' 
+                    ? notizia.immagine.url 
+                    : '/images/default-news.jpg';
                 const dateStr = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                 });
-                const excerpt = notizia.contenuto.length > 120 ? notizia.contenuto.substring(0, 120) + '...' : notizia.contenuto;
+                const excerpt = notizia.contenuto.replace(/<[^>]*>/g, '').length > 120 
+                    ? notizia.contenuto.replace(/<[^>]*>/g, '').substring(0, 120) + '...' 
+                    : notizia.contenuto.replace(/<[^>]*>/g, '');
                 const linkId = notizia.id || notizia.N_id;
 
                 article.innerHTML = `
@@ -422,7 +426,7 @@
                         </div>
                         <h3 class="card-title">${notizia.titolo}</h3>
                         <p class="card-excerpt">${excerpt}</p>
-                        <a href="/notizie/${linkId}" class="btn btn-primary read-full-btn">
+                        <a href="/notizia/${linkId}" class="btn btn-primary read-full-btn">
                             <i class="bi bi-arrow-right me-2"></i>Leggi tutto
                         </a>
                     </div>
