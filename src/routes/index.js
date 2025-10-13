@@ -129,13 +129,24 @@ router.get('/registrazione',(req,res)=>{
     res.render('Registrazione');
 });
 
-router.get('/scrivi/recensione',isLoggedIn,(req,res)=>{
-    res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
-        if (err) {
-            console.error('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
-        };
-    });
+router.get('/scrivi/recensione',(req,res)=>{
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+        return res.redirect('/login');
+    }
+    try {
+        res.render('scrivi_recensione', {
+            isLogged: true,
+            user: req.user,
+            error: null
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento della pagina scrivi recensione:', error);
+        res.render('scrivi_recensione', {
+            isLogged: true,
+            user: req.user,
+            error: 'Errore nel caricamento della pagina'
+        });
+    }
 });
 
 router.get('/eventi/all',(req,res)=>{
@@ -157,7 +168,7 @@ router.get('/recensioni/all', async (req, res) => {
             ratingCounts[i] = recensioni.filter(r => r.valutazione === i).length;
         }
         const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
-        res.render('reviews', {
+        res.render('recensioni', {
             reviews: recensioni,
             averageRating: averageRating,
             ratingCounts: ratingCounts,

@@ -175,3 +175,31 @@ exports.togglePubblicazioneNotizia = async function(id) {
         });
     });
 }
+
+exports.searchNotizie = async function(searchTerm) {
+    const sql = `
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        FROM NOTIZIE N
+        LEFT JOIN UTENTI U ON N.autore_id = U.id
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
+        WHERE N.pubblicata = 1 AND (N.titolo LIKE ? OR N.sottotitolo LIKE ?)
+        ORDER BY N.data_pubblicazione DESC
+        LIMIT 5
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [searchTerm, searchTerm], (err, notizie) => {
+            if (err) {
+                console.error('Errore SQL search notizie:', err);
+                return reject({ error: 'Error searching news: ' + err.message });
+            }
+
+            try {
+                const result = notizie.map(makeNotizie) || [];
+                resolve(result);
+            } catch (e) {
+                console.error('Errore nella mappatura delle notizie:', e);
+                reject({ error: 'Error mapping news data' });
+            }
+        });
+    });
+}

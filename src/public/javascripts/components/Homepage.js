@@ -10,6 +10,7 @@ class Homepage {
         document.title = "Homepage - Asd BorgoVercelli 2022";
         setupEmailFormListener();
         this.setupModalListeners();
+        this.setupRecensioneLink();
     }
 
     setupModalListeners() {
@@ -17,6 +18,29 @@ class Homepage {
         const loginModal = document.getElementById('loginModal');
         if (loginModal) {
             // Eventuali listener aggiuntivi se necessari
+        }
+    }
+
+    setupRecensioneLink() {
+        const link = this.page.querySelector('#scrivi-recensione-link');
+        if (link) {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await fetch('/session/user');
+                    if (res.ok) {
+                        window.location.href = '/scrivi/recensione';
+                    } else {
+                        // Mostra modal
+                        const { default: showModal } = await import('../utils/showModal.js');
+                        showModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
+                    }
+                } catch (err) {
+                    // Errore, mostra modal
+                    const { default: showModal } = await import('../utils/showModal.js');
+                    showModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
+                }
+            });
         }
     }
 }

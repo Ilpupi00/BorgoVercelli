@@ -6,17 +6,21 @@
         <form id="emailForm" action="/send_email" method="POST">
           <div class="row g-3 mb-3">
             <div class="col-sm-6">
-              <input type="text" class="form-control" placeholder="Nome e Cognome" name="name" required>
+              <label for="contact_name" class="form-label text-white">Nome e Cognome</label>
+              <input type="text" class="form-control" id="contact_name" name="name" placeholder="Nome e Cognome" required autocomplete="name">
             </div>
             <div class="col-sm-6">
-              <input type="email" class="form-control" placeholder="Email" name="email" required>
+              <label for="contact_email" class="form-label text-white">Email</label>
+              <input type="email" class="form-control" id="contact_email" name="email" placeholder="Email" required autocomplete="email">
             </div>
           </div>
           <div class="mb-3">
-            <input type="text" class="form-control" placeholder="Oggetto" name="subject" required>
+            <label for="contact_subject" class="form-label text-white">Oggetto</label>
+            <input type="text" class="form-control" id="contact_subject" name="subject" placeholder="Oggetto" required>
           </div>
           <div class="mb-4">
-            <textarea class="form-control" placeholder="Messaggio" name="message" rows="4" required></textarea>
+            <label for="contact_message" class="form-label text-white">Messaggio</label>
+            <textarea class="form-control" id="contact_message" name="message" placeholder="Messaggio" rows="4" required></textarea>
           </div>
           <div class="text-center">
             <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>

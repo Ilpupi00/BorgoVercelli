@@ -12,6 +12,7 @@ const campiDao = require('../services/dao-campi');
 const recensioniDao = require('../services/dao-recensioni');
 const prenotazioniDao = require('../services/dao-prenotazione');
 const dirigenteDao = require('../services/dao-dirigenti-squadre');
+const campionatiDao = require('../services/dao-campionati');
 
 router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
     try {
@@ -540,6 +541,107 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Errore nel caricamento del profilo admin:', err);
         res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });
+    }
+});
+
+// Route per la gestione campionati
+router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campionati = await campionatiDao.getCampionati();
+        res.render('Admin/Contenuti/Gestione_Campionati.ejs', { user: req.user, campionati });
+    } catch (err) {
+        console.error('Errore nel caricamento dei campionati:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
+// API Routes per campionati
+router.get('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campionati = await campionatiDao.getCampionati();
+        // Trasforma i dati per il frontend
+        const campionatiFormatted = campionati.map(c => ({
+            id: c.id,
+            nome: c.nome,
+            stagione: c.stagione,
+            categoria: c.categoria,
+            fonte_esterna_id: c.fonte_esterna_id,
+            url_fonte: c.url_fonte,
+            is_active: c.attivo === 1,
+            stato: c.attivo === 1 ? 'attivo' : 'inattivo',
+            tipo: c.categoria || 'generico',
+            numero_squadre: 0, // Placeholder, da implementare se necessario
+            partite_programmate: 0, // Placeholder, da implementare se necessario
+            data_inizio: c.created_at,
+            created_at: c.created_at,
+            updated_at: c.updated_at
+        }));
+        res.json({ campionati: campionatiFormatted });
+    } catch (err) {
+        console.error('Errore nel recupero dei campionati:', err);
+        res.status(500).json({ error: 'Errore nel recupero dei campionati' });
+    }
+});
+
+router.post('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campionatoData = {
+            nome: req.body.nome,
+            stagione: req.body.stagione || new Date().getFullYear().toString(),
+            categoria: req.body.categoria,
+            fonte_esterna_id: req.body.fonte_esterna_id,
+            url_fonte: req.body.url_fonte,
+            attivo: req.body.is_active || false
+        };
+
+        const result = await campionatiDao.createCampionato(campionatoData);
+        res.status(201).json(result);
+    } catch (err) {
+        console.error('Errore nella creazione del campionato:', err);
+        res.status(500).json({ error: err.error || 'Errore nella creazione del campionato' });
+    }
+});
+
+router.put('/api/admin/campionati/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const campionatoData = {
+            nome: req.body.nome,
+            stagione: req.body.stagione,
+            categoria: req.body.categoria,
+            fonte_esterna_id: req.body.fonte_esterna_id,
+            url_fonte: req.body.url_fonte,
+            attivo: req.body.is_active
+        };
+
+        const result = await campionatiDao.updateCampionato(id, campionatoData);
+        res.json(result);
+    } catch (err) {
+        console.error('Errore nell\'aggiornamento del campionato:', err);
+        res.status(500).json({ error: err.error || 'Errore nell\'aggiornamento del campionato' });
+    }
+});
+
+router.delete('/api/admin/campionati/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await campionatiDao.deleteCampionato(id);
+        res.json(result);
+    } catch (err) {
+        console.error('Errore nell\'eliminazione del campionato:', err);
+        res.status(500).json({ error: err.error || 'Errore nell\'eliminazione del campionato' });
+    }
+});
+
+router.patch('/api/admin/campionati/:id/toggle', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const isActive = req.body.is_active;
+        const result = await campionatiDao.toggleCampionatoStatus(id, isActive);
+        res.json(result);
+    } catch (err) {
+        console.error('Errore nel toggle dello stato del campionato:', err);
+        res.status(500).json({ error: err.error || 'Errore nel toggle dello stato del campionato' });
     }
 });
 

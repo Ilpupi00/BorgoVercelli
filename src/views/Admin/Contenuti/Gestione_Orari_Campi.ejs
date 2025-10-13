@@ -60,9 +60,18 @@
                                     <tbody id="orariDefaultTable">
                                         <% orariDefault.forEach(orario => { %>
                                             <tr data-id="<%= orario.id %>">
-                                                <td><input type="time" class="form-control" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)"></td>
-                                                <td><input type="time" class="form-control" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)"></td>
-                                                <td><input type="checkbox" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)"></td>
+                                                <td>
+                                                    <label for="ora_inizio_default_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
+                                                    <input type="time" class="form-control" id="ora_inizio_default_<%= orario.id %>" name="ora_inizio_default_<%= orario.id %>" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)">
+                                                </td>
+                                                <td>
+                                                    <label for="ora_fine_default_<%= orario.id %>" class="visually-hidden">Ora fine</label>
+                                                    <input type="time" class="form-control" id="ora_fine_default_<%= orario.id %>" name="ora_fine_default_<%= orario.id %>" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)">
+                                                </td>
+                                                <td>
+                                                    <label for="attivo_default_<%= orario.id %>" class="visually-hidden">Attivo</label>
+                                                    <input type="checkbox" id="attivo_default_<%= orario.id %>" name="attivo_default_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)">
+                                                </td>
                                                 <td><button class="btn btn-sm btn-outline-danger" onclick="deleteOrario(<%= orario.id %>)"><i class="bi bi-trash"></i></button></td>
                                             </tr>
                                         <% }); %>
@@ -89,9 +98,18 @@
                                         <tbody id="orari<%= giorno.giorno %>Table">
                                             <% giorno.orari.forEach(orario => { %>
                                                 <tr data-id="<%= orario.id %>">
-                                                    <td><input type="time" class="form-control" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)"></td>
-                                                    <td><input type="time" class="form-control" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)"></td>
-                                                    <td><input type="checkbox" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)"></td>
+                                                    <td>
+                                                        <label for="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
+                                                        <input type="time" class="form-control" id="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" name="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)">
+                                                    </td>
+                                                    <td>
+                                                        <label for="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora fine</label>
+                                                        <input type="time" class="form-control" id="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" name="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)">
+                                                    </td>
+                                                    <td>
+                                                        <label for="attivo_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Attivo</label>
+                                                        <input type="checkbox" id="attivo_<%= giorno.giorno %>_<%= orario.id %>" name="attivo_<%= giorno.giorno %>_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)">
+                                                    </td>
                                                     <td><button class="btn btn-sm btn-outline-danger" onclick="deleteOrario(<%= orario.id %>)"><i class="bi bi-trash"></i></button></td>
                                                 </tr>
                                             <% }); %>
@@ -122,11 +140,11 @@
                         <input type="hidden" id="modalGiornoSettimana">
                         <div class="mb-3">
                             <label for="ora_inizio" class="form-label">Ora Inizio</label>
-                            <input type="time" class="form-control" id="ora_inizio" required>
+                            <input type="time" class="form-control" id="ora_inizio" name="ora_inizio" required>
                         </div>
                         <div class="mb-3">
                             <label for="ora_fine" class="form-label">Ora Fine</label>
-                            <input type="time" class="form-control" id="ora_fine" required>
+                            <input type="time" class="form-control" id="ora_fine" name="ora_fine" required>
                         </div>
                     </form>
                 </div>

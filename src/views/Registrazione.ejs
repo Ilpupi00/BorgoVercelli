@@ -18,23 +18,23 @@
             <form id="authForm">
                 <div class="mb-3">
                     <label for="registerName" class="form-label">Nome</label>
-                    <input type="text" class="form-control" id="registerName" placeholder="Inserisci il tuo nome" required>
+                    <input type="text" class="form-control" id="registerName" name="nome" placeholder="Inserisci il tuo nome" required autocomplete="given-name">
                 </div>
                 <div class="mb-3">
                     <label for="registerSurname" class="form-label">Cognome</label>
-                    <input type="text" class="form-control" id="registerSurname" placeholder="Inserisci il tuo cognome" required>
+                    <input type="text" class="form-control" id="registerSurname" name="cognome" placeholder="Inserisci il tuo cognome" required autocomplete="family-name">
                 </div>
                 <div class="mb-3">
                     <label for="registerEmail" class="form-label">Indirizzo Email</label>
-                    <input type="email" class="form-control" id="registerEmail" placeholder="Inserisci la tua email" required>
+                    <input type="email" class="form-control" id="registerEmail" name="email" placeholder="Inserisci la tua email" required autocomplete="email">
                 </div>
                 <div class="mb-3">
                     <label for="registerPassword" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="registerPassword" placeholder="Crea una password" required>
+                    <input type="password" class="form-control" id="registerPassword" name="password" placeholder="Crea una password" required autocomplete="new-password">
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Conferma Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Conferma la tua password" required>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Conferma la tua password" required autocomplete="new-password">
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Registrati</button>
             </form>

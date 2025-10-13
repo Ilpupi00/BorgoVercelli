@@ -142,14 +142,41 @@ router.get('/crea-notizie', isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
+// Route per mostrare il form semplice di creazione/modifica notizia
+router.get('/crea-notizia-semplice', isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    let notizia = null;
+    const id = req.query.id;
+
+    if (id) {
+      // Modifica notizia esistente
+      notizia = await dao.getNotiziaById(id);
+    }
+
+    res.render('Notizie/notizia_semplice', {
+      user: req.user,
+      notizia: notizia,
+      error: null
+    });
+  } catch (error) {
+    console.error('Errore nel caricamento del form notizia semplice:', error);
+    res.render('Notizie/notizia_semplice', {
+      user: req.user,
+      notizia: null,
+      error: 'Errore nel caricamento della notizia'
+    });
+  }
+});
+
 // Route per creare una nuova notizia
 router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
   try {
-    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata } = req.body;
+    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
+    const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
 
     // Validazione dimensione contenuto (max 5MB)
     if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
-      return res.render('Notizie/notizia', {
+      return res.render(templateName, {
         user: req.user,
         notizia: null,
         error: 'Il contenuto della notizia è troppo grande (max 5MB). Riduci il contenuto.'
@@ -157,10 +184,41 @@ router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
     }
 
     if (!titolo || !contenuto) {
-      return res.render('Notizie/notizia', {
+      return res.render(templateName, {
         user: req.user,
         notizia: null,
         error: 'Titolo e contenuto sono obbligatori'
+      });
+    }
+
+    // Validazione contenuto più approfondita
+    if (!contenuto || !contenuto.trim()) {
+      return res.render(templateName, {
+        user: req.user,
+        notizia: null,
+        error: 'Il contenuto della notizia non può essere vuoto'
+      });
+    }
+
+    // Controlla che non sia solo tag HTML vuoti
+    const emptyPatterns = ['<p><br></p>', '<p></p>', '<p><br/></p>', '<div><br></div>', '<div></div>'];
+    if (emptyPatterns.includes(contenuto.trim())) {
+      return res.render(templateName, {
+        user: req.user,
+        notizia: null,
+        error: 'Il contenuto della notizia non può essere vuoto'
+      });
+    }
+
+    // Controlla che ci sia del testo effettivo (non solo tag HTML)
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(contenuto);
+    const textContent = $.text().trim();
+    if (textContent.length < 1) {
+      return res.render(templateName, {
+        user: req.user,
+        notizia: null,
+        error: 'Il contenuto della notizia deve contenere del testo effettivo'
       });
     }
 
@@ -179,7 +237,7 @@ router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
     res.redirect('/admin/notizie');
   } catch (error) {
     console.error('Errore nella creazione della notizia:', error);
-    res.render('Notizie/notizia', {
+    res.render(templateName, {
       user: req.user,
       notizia: null,
       error: 'Errore nella creazione della notizia'
@@ -190,13 +248,14 @@ router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
 // Route per aggiornare una notizia esistente
 router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
   try {
-    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata } = req.body;
+    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const id = req.params.id;
+    const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
 
     // Validazione dimensione contenuto (max 5MB)
     if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
       const notizia = await dao.getNotiziaById(id);
-      return res.render('Notizie/notizia', {
+      return res.render(templateName, {
         user: req.user,
         notizia: notizia,
         error: 'Il contenuto della notizia è troppo grande (max 5MB). Riduci il contenuto.'
@@ -205,10 +264,33 @@ router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
 
     if (!titolo || !contenuto) {
       const notizia = await dao.getNotiziaById(id);
-      return res.render('Notizie/notizia', {
+      return res.render(templateName, {
         user: req.user,
         notizia: notizia,
         error: 'Titolo e contenuto sono obbligatori'
+      });
+    }
+
+    // Validazione contenuto più approfondita
+    if (!contenuto.trim() || contenuto.trim() === '<p><br></p>' || contenuto.trim() === '<p></p>') {
+      const notizia = await dao.getNotiziaById(id);
+      return res.render(templateName, {
+        user: req.user,
+        notizia: notizia,
+        error: 'Il contenuto della notizia non può essere vuoto'
+      });
+    }
+
+    // Controlla che ci sia del testo effettivo (non solo tag HTML)
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(contenuto);
+    const textContent = $.text().trim();
+    if (textContent.length < 1) {
+      const notizia = await dao.getNotiziaById(id);
+      return res.render(templateName, {
+        user: req.user,
+        notizia: notizia,
+        error: 'Il contenuto della notizia deve contenere del testo effettivo'
       });
     }
 
@@ -227,7 +309,7 @@ router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
   } catch (error) {
     console.error('Errore nell\'aggiornamento della notizia:', error);
     const notizia = await dao.getNotiziaById(req.params.id);
-    res.render('Notizie/notizia', {
+    res.render(templateName, {
       user: req.user,
       notizia: notizia,
       error: 'Errore nell\'aggiornamento della notizia'

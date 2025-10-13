@@ -1,101 +1,182 @@
-'use strict';
-
 import showModal from '../utils/showModal.js';
 
-class ScriviRecensione{
-    constructor(page){
+class ScriviRecensione {
+    constructor(page) {
         this.page = page;
+        this.rating = 0;
         this.init();
     }
 
-    init(){
-        document.title="Scrivi una recensione";
-        this.render();
+    init() {
+        document.title = "Scrivi Recensione - Asd BorgoVercelli 2022";
+        this.setupRatingStars();
+        this.setupFormValidation();
+        this.setupCharCounter();
+        this.setupFormSubmission();
     }
 
-    render(){
-        // Container principale
-        const container = document.createElement('div');
-        container.className = 'recensione-form-container p-4';
-        container.innerHTML = `
-            <h2 class="mb-4 text-center">Scrivi una recensione</h2>
-            <form id="recensioneForm" class="bg-light rounded shadow p-4">
-                <div class="mb-3 text-center">
-                    <label class="form-label fw-bold">Valutazione</label>
-                    <div id="stelleValutazione" class="d-flex justify-content-center align-items-center gap-2 mb-2 overflow-hidden">
-                        ${[1,2,3,4,5].map(i => `<i class="bi bi-star star-recensione" data-value="${i}" style="font-size:2rem; color:#ccc; cursor:pointer;"></i>`).join('')}
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="titoloRecensione" class="form-label">Titolo</label>
-                    <input type="text" class="form-control" id="titoloRecensione" name="titolo" maxlength="60" required>
-                </div>
-                <div class="mb-3">
-                    <label for="contenutoRecensione" class="form-label">Contenuto</label>
-                    <textarea class="form-control" id="contenutoRecensione" name="contenuto" rows="4" maxlength="500" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Invia Recensione</button>
-                <div id="recensioneMsg" class="mt-3"></div>
-            </form>
-        `;
-        document.getElementById('page').innerHTML = '';
-        document.getElementById('page').appendChild(container);
-
-        // Gestione stelle
-        const stelle = container.querySelectorAll('.star-recensione');
-        let valutazione = 0;
-        stelle.forEach(star => {
-            star.addEventListener('mouseenter', () => {
-                const val = parseInt(star.getAttribute('data-value'));
-                stelle.forEach((s, i) => {
-                    s.style.color = i < val ? '#ffc107' : '#ccc';
-                });
+    setupRatingStars() {
+        const stars = this.page.querySelectorAll('#ratingStars i');
+        stars.forEach(star => {
+            star.addEventListener('click', (e) => {
+                const rating = parseInt(e.target.getAttribute('data-rating'));
+                this.setRating(rating);
             });
-            star.addEventListener('mouseleave', () => {
-                stelle.forEach((s, i) => {
-                    s.style.color = i < valutazione ? '#ffc107' : '#ccc';
-                });
+            star.addEventListener('mouseover', (e) => {
+                const rating = parseInt(e.target.getAttribute('data-rating'));
+                this.highlightStars(rating);
             });
-            star.addEventListener('click', () => {
-                valutazione = parseInt(star.getAttribute('data-value'));
-                stelle.forEach((s, i) => {
-                    s.style.color = i < valutazione ? '#ffc107' : '#ccc';
-                });
+            star.addEventListener('mouseout', () => {
+                this.highlightStars(this.rating);
             });
         });
+    }
 
-        // Gestione submit
-        container.querySelector('#recensioneForm').addEventListener('submit', async (e) => {
+    setRating(rating) {
+        this.rating = rating;
+        this.page.querySelector('#valutazione').value = rating;
+        this.highlightStars(rating);
+        this.validateRating();
+    }
+
+    highlightStars(rating) {
+        const stars = this.page.querySelectorAll('#ratingStars i');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.remove('far');
+                star.classList.add('fas', 'active');
+            } else {
+                star.classList.remove('fas', 'active');
+                star.classList.add('far');
+            }
+        });
+    }
+
+    validateRating() {
+        const ratingInput = this.page.querySelector('#valutazione');
+        const isValid = this.rating > 0;
+        ratingInput.setCustomValidity(isValid ? '' : 'Seleziona una valutazione');
+        return isValid;
+    }
+
+    setupFormValidation() {
+        const form = this.page.querySelector('#reviewForm');
+        const inputs = form.querySelectorAll('input, textarea');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                this.validateField(input);
+            });
+            input.addEventListener('input', () => {
+                if (input.classList.contains('is-invalid')) {
+                    this.validateField(input);
+                }
+            });
+        });
+    }
+
+    validateField(field) {
+        let isValid = true;
+        const value = field.value.trim();
+
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+        }
+
+        if (field.id === 'titolo' && value.length > 100) {
+            isValid = false;
+        }
+
+        if (field.id === 'contenuto' && value.length > 500) {
+            isValid = false;
+        }
+
+        field.classList.toggle('is-invalid', !isValid);
+        field.classList.toggle('is-valid', isValid && value);
+
+        return isValid;
+    }
+
+    setupCharCounter() {
+        const textarea = this.page.querySelector('#contenuto');
+        const counter = this.page.querySelector('#charCount');
+
+        textarea.addEventListener('input', () => {
+            const length = textarea.value.length;
+            counter.textContent = `${length}/500`;
+            counter.classList.toggle('text-danger', length > 500);
+            counter.classList.toggle('text-success', length <= 500 && length > 0);
+        });
+    }
+
+    setupFormSubmission() {
+        const form = this.page.querySelector('#reviewForm');
+        const submitBtn = this.page.querySelector('#submitBtn');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (valutazione === 0) {
-                document.getElementById('recensioneMsg').innerHTML = '<div class="alert alert-warning">Seleziona una valutazione con le stelle!</div>';
+
+            if (!this.validateForm()) {
                 return;
             }
-            
-            const titolo = container.querySelector('#titoloRecensione').value.trim();
-            const contenuto = container.querySelector('#contenutoRecensione').value.trim();
-            const body = {
-                valutazione,
-                titolo,
-                contenuto,
-                entita_tipo: 'Campo', // esempio
-                entita_id: 1 // esempio
-            };
-            const res = await fetch('/recensione', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            const result = await res.json();
-            if (result.success) {
-                await showModal.showModalSuccess('Recensione inviata con successo!');
-                container.querySelector('#recensioneForm').reset();
-                valutazione = 0;
-                stelle.forEach(s => s.style.color = '#ccc');
-            } else {
-                showModal.showModalError(result.error || 'Errore invio recensione.');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
+
+            try {
+                const formData = new FormData(form);
+                const data = {
+                    valutazione: parseInt(formData.get('valutazione')),
+                    titolo: formData.get('titolo').trim(),
+                    contenuto: formData.get('contenuto').trim(),
+                    entita_tipo: 'societa', // Per ora fisso
+                    entita_id: 1 // Per ora fisso
+                };
+
+                const response = await fetch('/recensione', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showModal.showModalSuccess('Recensione inviata con successo!');
+                    form.reset();
+                    this.setRating(0);
+                    this.page.querySelector('#charCount').textContent = '0/500';
+                } else {
+                    showModal.showModalError(result.error || 'Errore nell\'invio della recensione');
+                }
+            } catch (error) {
+                console.error('Errore invio recensione:', error);
+                showModal.showModalError('Errore di rete. Riprova più tardi.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Invia Recensione';
             }
         });
+    }
+
+    validateForm() {
+        const form = this.page.querySelector('#reviewForm');
+        const inputs = form.querySelectorAll('input, textarea');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!this.validateField(input)) {
+                isValid = false;
+            }
+        });
+
+        if (!this.validateRating()) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 }
 

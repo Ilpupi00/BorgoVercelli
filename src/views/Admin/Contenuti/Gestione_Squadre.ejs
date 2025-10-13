@@ -144,11 +144,11 @@
                     <form id="createForm">
                         <div class="mb-3">
                             <label for="nomeInput" class="form-label">Nome Squadra *</label>
-                            <input type="text" class="form-control" id="nomeInput" required>
+                            <input type="text" class="form-control" id="nomeInput" name="nome" required>
                         </div>
                         <div class="mb-3">
                             <label for="annoInput" class="form-label">Anno Fondazione *</label>
-                            <input type="number" class="form-control" id="annoInput" min="1900" max="<%= new Date().getFullYear() %>" required>
+                            <input type="number" class="form-control" id="annoInput" name="anno_fondazione" min="1900" max="<%= new Date().getFullYear() %>" required>
                         </div>
                     </form>
                 </div>
@@ -172,11 +172,11 @@
                     <form id="editForm">
                         <div class="mb-3">
                             <label for="editNomeInput" class="form-label">Nome Squadra *</label>
-                            <input type="text" class="form-control" id="editNomeInput" required>
+                            <input type="text" class="form-control" id="editNomeInput" name="nome" required>
                         </div>
                         <div class="mb-3">
                             <label for="editAnnoInput" class="form-label">Anno Fondazione *</label>
-                            <input type="number" class="form-control" id="editAnnoInput" min="1900" max="<%= new Date().getFullYear() %>" required>
+                            <input type="number" class="form-control" id="editAnnoInput" name="anno_fondazione" min="1900" max="<%= new Date().getFullYear() %>" required>
                         </div>
                     </form>
                 </div>

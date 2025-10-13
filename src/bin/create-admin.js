@@ -39,7 +39,7 @@ function ask(question) {
     // Modifica la funzione createUser per accettare tipo_utente_id
     const sql = `INSERT INTO UTENTI (email, password_hash, nome, cognome, telefono, tipo_utente_id, data_registrazione, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const bcrypt = require('bcrypt');
-    const sqlite = require('../db');
+    const sqlite = require('../config/database');
     const hash = await bcrypt.hash(user.password, 10);
     await new Promise((resolve, reject) => {
       sqlite.run(sql, [

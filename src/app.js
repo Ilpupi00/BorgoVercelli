@@ -20,6 +20,7 @@ const routesSquadre = require('./routes/squadre');
 const routesGalleria = require('./routes/galleria');
 const routesPrenotazione = require('./routes/prenotazione');
 const routesAdmin = require('./routes/admin');
+const routesSearch = require('./routes/search');
 
 // passport configuration
 passport.use(new LocalStrategy(
@@ -133,6 +134,7 @@ app.use('/', routesSquadre);
 app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
+app.use('/', routesSearch);
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 

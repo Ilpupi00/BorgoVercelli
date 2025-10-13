@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/stylesheets/Profilo.css">
+    <link rel="stylesheet" href="/stylesheets/Navbar.css">
+    <link rel="stylesheet" href="/stylesheets/Footer.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/javascripts/Profilo.js" defer></script>
 </head>
@@ -123,7 +126,7 @@
                         <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
                             <i class="bi bi-star me-2"></i>Scrivi Recensione
                         </a>
-                        <a href="/Galleria" class="btn btn-outline-info w-100 mb-2">
+                        <a href="/galleria" class="btn btn-outline-info w-100 mb-2">
                             <i class="bi bi-images me-2"></i>Galleria Foto
                         </a>
                         <a href="/Logout" class="btn btn-outline-danger w-100">
@@ -337,24 +340,24 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="editProfileForm" autocomplete="off">
+        <form id="editProfileForm">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="editNome" class="form-label">Nome</label>
-              <input type="text" class="form-control" id="editNome" name="nome" value="<%= user.nome %>">
+              <input type="text" class="form-control" id="editNome" name="nome" value="<%= user.nome %>" autocomplete="given-name">
             </div>
             <div class="col-md-6 mb-3">
               <label for="editCognome" class="form-label">Cognome</label>
-              <input type="text" class="form-control" id="editCognome" name="cognome" value="<%= user.cognome %>">
+              <input type="text" class="form-control" id="editCognome" name="cognome" value="<%= user.cognome %>" autocomplete="family-name">
             </div>
           </div>
           <div class="mb-3">
             <label for="editEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="editEmail" name="email" value="<%= user.email %>">
+            <input type="email" class="form-control" id="editEmail" name="email" value="<%= user.email %>" autocomplete="email">
           </div>
           <div class="mb-3">
             <label for="editTelefono" class="form-label">Telefono</label>
-            <input type="text" class="form-control" id="editTelefono" name="telefono" value="<%= user.telefono || '' %>">
+            <input type="text" class="form-control" id="editTelefono" name="telefono" value="<%= user.telefono || '' %>" autocomplete="tel">
           </div>
           <div class="border-top pt-3">
             <h6 class="text-muted mb-3">Preferenze Sportive</h6>
@@ -436,20 +439,20 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="changePasswordForm" autocomplete="off">
+        <form id="changePasswordForm">
           <div class="mb-3">
             <label for="currentPassword" class="form-label">Password Attuale</label>
-            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required autocomplete="current-password">
             <div class="form-text">Inserisci la tua password attuale per confermare l'identità.</div>
           </div>
           <div class="mb-3">
             <label for="newPassword" class="form-label">Nuova Password</label>
-            <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+            <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6" autocomplete="new-password">
             <div class="form-text">La password deve essere di almeno 6 caratteri.</div>
           </div>
           <div class="mb-3">
             <label for="confirmPassword" class="form-label">Conferma Nuova Password</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="6">
+            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="6" autocomplete="new-password">
             <div class="form-text">Ripeti la nuova password per conferma.</div>
           </div>
           <div class="d-flex justify-content-end gap-2">

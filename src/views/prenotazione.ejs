@@ -88,7 +88,8 @@
                                     <div class="mt-4 d-flex align-items-center gap-3">
                                         <p class="mb-1"><strong>Orari disponibili per</strong></p>
                                         <form class="d-flex align-items-center ms-3" onsubmit="return false;" data-campo-id="<%= campo.id %>">
-                                            <input type="date" class="form-control form-control-sm input-orari-campo" value="<%= oggi %>" style="width:140px;" data-campo-id="<%= campo.id %>">
+                                            <label for="data_orari_<%= campo.id %>" class="visually-hidden">Seleziona data</label>
+                                            <input type="date" class="form-control form-control-sm input-orari-campo" id="data_orari_<%= campo.id %>" value="<%= oggi %>" style="width:140px;" data-campo-id="<%= campo.id %>">
                                         </form>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2 mt-2" id="orariDisponibili-<%= campo.id %>">

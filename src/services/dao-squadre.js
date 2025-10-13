@@ -145,3 +145,27 @@ exports.getSquadraById = function(id) {
         });
     });
 }
+
+exports.searchSquadre = async function(searchTerm) {
+    const sql = `
+        SELECT id, nome, id_immagine, Anno
+        FROM SQUADRE
+        WHERE nome LIKE ?
+        ORDER BY nome ASC
+        LIMIT 10
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [searchTerm], async (err, squadre) => {
+            if (err) {
+                console.error('Errore SQL search squadre:', err);
+                return reject({ error: 'Error searching teams: ' + err.message });
+            }
+            // Per ogni squadra, recupera i dirigenti
+            const squadreConDirigenti = await Promise.all(squadre.map(async (squadra) => {
+                const dirigenti = await daoDirigenti.getDirigentiBySquadra(squadra.id);
+                return makeSquadra({ ...squadra, dirigenti });
+            }));
+            resolve(squadreConDirigenti || []);
+        });
+    });
+}

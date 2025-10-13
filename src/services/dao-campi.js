@@ -18,12 +18,18 @@ const makeCampo = (row) => {
         row.created_at,
         row.updated_at,
         row.descrizione,
-        row.Docce
+        row.Docce,
+        row.immagine_url || '/images/campo-default.jpg'
     );
 }
 
 exports.getCampi = function(){
-    const sql = 'SELECT * FROM CAMPI WHERE attivo = 1';
+    const sql = `
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        FROM CAMPI C
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo da calcio' AND I.entita_id = C.id AND I.ordine = 1
+        WHERE C.attivo = 1
+    `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, campi) => {
             if (err) {
@@ -36,7 +42,12 @@ exports.getCampi = function(){
 }
 
 exports.getCampoById = function(id) {
-    const sql = 'SELECT * FROM CAMPI WHERE id = ?';
+    const sql = `
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        FROM CAMPI C
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo da calcio' AND I.entita_id = C.id AND I.ordine = 1
+        WHERE C.id = ?
+    `;
     return new Promise((resolve, reject) => {
         sqlite.get(sql, [id], (err, campo) => {
             if (err) {
@@ -143,6 +154,26 @@ exports.createCampo = function(campoData) {
                 return reject({ error: 'Error creating campo: ' + err.message });
             }
             resolve({ success: true, id: this.lastID });
+        });
+    });
+}
+
+exports.searchCampi = async function(searchTerm) {
+    const sql = `
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        FROM CAMPI C
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo da calcio' AND I.entita_id = C.id AND I.ordine = 1
+        WHERE C.attivo = 1 AND (C.nome LIKE ? OR C.indirizzo LIKE ? OR C.descrizione LIKE ?)
+        ORDER BY C.nome ASC
+        LIMIT 10
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, campi) => {
+            if (err) {
+                console.error('Errore SQL search campi:', err);
+                return reject({ error: 'Error searching fields: ' + err.message });
+            }
+            resolve(campi.map(makeCampo) || []);
         });
     });
 }

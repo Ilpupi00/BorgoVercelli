@@ -143,3 +143,22 @@ exports.togglePubblicazioneEvento = function(id) {
         });
     });
 }
+
+exports.searchEventi = async function(searchTerm) {
+    const sql = `
+        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id
+        FROM EVENTI
+        WHERE pubblicato = 1 AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
+        ORDER BY data_inizio DESC
+        LIMIT 10
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, eventi) => {
+            if (err) {
+                console.error('Errore SQL search eventi:', err);
+                return reject({ error: 'Error searching events: ' + err.message });
+            }
+            resolve(eventi.map(makeEvento) || []);
+        });
+    });
+}

@@ -1,11 +1,16 @@
-<nav class="navbar sticky-top navbar-expand-lg bg-primary" id="navbar">
+<nav class="navbar sticky-top navbar-expand-lg bg-primary navbar-dark" id="navbar">
   <div class="container-fluid">
     <a class="navbar-brand" href="/homepage">
       <img src="/images/Logo.png" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
     </a>
 
-    <form class="d-flex me-auto mb-2 mb-lg-0 ms-4" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+    <form class="d-flex me-auto mb-2 mb-lg-0 ms-4" role="search" action="/search" method="GET">
+      <div class="input-group">
+        <input class="form-control" type="search" id="searchInput" placeholder="Cerca notizie, eventi, squadre..." aria-label="Search" name="q">
+        <button class="btn btn-outline-light" type="submit">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
     </form>
 
     <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

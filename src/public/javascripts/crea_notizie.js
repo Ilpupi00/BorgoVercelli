@@ -42,6 +42,16 @@ class NewsEditor {
                 ]
             }
         });
+
+        // Aggiorna il campo hidden ogni volta che il contenuto cambia
+        this.quill.on('text-change', () => {
+            const contenutoElement = document.getElementById('contenuto');
+            if (contenutoElement) {
+                const html = this.quill.root.innerHTML;
+                contenutoElement.value = html;
+                console.log('Contenuto aggiornato:', html);
+            }
+        });
     }
 
     /**
@@ -51,6 +61,11 @@ class NewsEditor {
         if (window.notiziaData && window.notiziaData.contenuto) {
             this.quill.root.innerHTML = window.notiziaData.contenuto;
             this.lastContent = this.quill.getContents();
+            // Aggiorna anche il campo hidden
+            const contenutoElement = document.getElementById('contenuto');
+            if (contenutoElement) {
+                contenutoElement.value = window.notiziaData.contenuto;
+            }
         }
     }
 
@@ -80,9 +95,14 @@ class NewsEditor {
     setupFormValidation() {
         const form = document.querySelector('form');
         if (form) {
+            // Trasferisci sempre il contenuto prima dell'invio
             form.addEventListener('submit', (e) => {
+                console.log('Form submit triggered');
                 if (!this.validateForm()) {
                     e.preventDefault();
+                    console.log('Form validation failed');
+                } else {
+                    console.log('Form validation passed');
                 }
             });
         }
@@ -93,21 +113,72 @@ class NewsEditor {
      * @returns {boolean} true se valido, false altrimenti
      */
     validateForm() {
-        const contenuto = document.getElementById('contenuto');
-        contenuto.value = this.quill.root.innerHTML;
+        console.log('Starting form validation');
 
-        // Controlla la dimensione del contenuto (limite approssimativo 5MB per sicurezza)
-        const contentSize = new Blob([contenuto.value]).size;
-        if (contentSize > 5 * 1024 * 1024) { // 5MB
-            alert('Il contenuto della notizia è troppo grande. Riduci il contenuto o rimuovi alcune immagini.');
+        // Trova gli elementi
+        const titoloElement = document.getElementById('titolo');
+        const contenutoElement = document.getElementById('contenuto');
+
+        if (!titoloElement) {
+            console.error('Titolo element not found');
+            alert('Errore: campo titolo non trovato');
             return false;
         }
 
-        if (!contenuto.value || contenuto.value.trim() === '<p><br></p>') {
-            alert('Il contenuto della notizia è obbligatorio');
+        if (!contenutoElement) {
+            console.error('Contenuto element not found');
+            alert('Errore: campo contenuto non trovato');
             return false;
         }
 
+        // Ottieni i valori
+        const titolo = titoloElement.value.trim();
+        console.log('Titolo value:', titolo);
+
+        // Ottieni il contenuto direttamente dall'editor
+        const contenutoHtml = this.quill.root.innerHTML;
+        contenutoElement.value = contenutoHtml; // Assicurati che sia aggiornato
+        console.log('Contenuto HTML:', contenutoHtml);
+
+        // Validazione titolo
+        if (!titolo) {
+            console.log('Titolo validation failed: empty');
+            alert('Il titolo della notizia è obbligatorio');
+            titoloElement.focus();
+            return false;
+        }
+
+        // Validazione contenuto - controlla prima il valore trasferito
+        if (!contenutoElement.value || contenutoElement.value.trim() === '') {
+            console.log('Contenuto validation failed: empty value');
+            alert('Il contenuto della notizia è obbligatorio. Scrivi qualcosa nel testo della notizia.');
+            this.quill.focus();
+            return false;
+        }
+
+        // Controlla contenuti vuoti comuni dell'editor
+        const emptyPatterns = ['<p><br></p>', '<p></p>', '<p><br/></p>', '<div><br></div>', '<div></div>'];
+        if (emptyPatterns.includes(contenutoElement.value.trim())) {
+            console.log('Contenuto validation failed: empty pattern detected');
+            alert('Il contenuto della notizia è obbligatorio. Scrivi qualcosa nel testo della notizia.');
+            this.quill.focus();
+            return false;
+        }
+
+        // Controlla che ci sia del testo effettivo (non solo tag HTML)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contenutoElement.value;
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+        console.log('Text content extracted:', textContent);
+
+        if (textContent.trim().length < 1) {
+            console.log('Contenuto validation failed: no text content');
+            alert('Il contenuto della notizia deve contenere del testo effettivo.');
+            this.quill.focus();
+            return false;
+        }
+
+        console.log('Form validation passed');
         return true;
     }
 
@@ -116,7 +187,7 @@ class NewsEditor {
      */
     setupImagePreview() {
         const imageIdInput = document.getElementById('immagine_principale_id');
-        const imagePreview = document.getElementById('imagePreview');
+        const imagePreview = document.querySelector('.image-preview');
 
         if (!imageIdInput || !imagePreview) return;
 
