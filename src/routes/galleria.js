@@ -2,37 +2,66 @@ const express = require('express');
 const router = express.Router();
 const daoGalleria = require('../services/dao-galleria');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { isLoggedIn, isAdmin } = require('../middlewares/auth');
 
-// Configurazione multer per upload immagini
-const uploadDir = path.join(__dirname, '../public/uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'galleria_' + uniqueSuffix + path.extname(file.originalname));
+  destination: (req, file, cb) => {
+    cb(null, 'src/public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
+    cb(null, uniqueName);
+  }
+});
+
+// File filter per accettare solo immagini
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo file immagine sono permessi'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max
+  }
+});
+
+router.get('/GetImmagini', async (req, res) => {
+    try {
+        const immagini = await daoGalleria.getImmagini();
+        res.json({ immagini: immagini });
+    } catch (err) {
+        console.error('Errore recupero immagini:', err);
+        res.status(500).json({ error: 'Errore nel recupero delle immagini' });
     }
 });
-const upload = multer({ storage: storage });
 
-router.post('/UploadImmagine', upload.single('image'), async (req, res) => {
+router.post('/UploadImmagine', (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File troppo grande. Dimensione massima: 5MB' });
+      }
+    } else if (err) {
+      return res.status(400).json({ error: err.message || 'Errore durante il caricamento del file' });
+    }
+    next();
+  });
+}, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'Nessun file caricato' });
         }
+        const filePath = 'src/public/uploads/' + req.file.filename;
         const descrizione = req.body.descrizione || '';
-        const nome = req.file.originalname;
-        const url = '/uploads/' + req.file.filename;
         const now = new Date().toISOString();
-        await daoGalleria.insertImmagine(url,now, now);
-        res.json({ message: 'Immagine caricata con successo', url });
+        await daoGalleria.insertImmagine(filePath, now, now, descrizione);
+        res.json({ message: 'Immagine caricata con successo', url: filePath });
 
     } catch (err) {
         console.error('Errore upload immagine:', err);
@@ -40,20 +69,9 @@ router.post('/UploadImmagine', upload.single('image'), async (req, res) => {
     }
 });
 
-router.get('/GetImmagini', (req, res) => {
-    daoGalleria.getImmagini()
-        .then((immagini) => {
-            console.log('Immagini recuperate con successo:', immagini);
-            if (!immagini || immagini.length === 0) {
-                console.warn('Nessuna immagine trovata');
-                return res.status(404).json({ error: 'Nessuna immagine trovata' });
-            }
-            res.json({ immagini: immagini });
-        })
-        .catch((err) => {
-            console.error('Errore nel recupero delle immagini:', err);
-            res.status(500).json({ error: 'Errore nel caricamento delle immagini' });
-        });
+router.get('/test', (req, res) => {
+    console.log('Route /test chiamata');
+    res.json({ immagini: [{ test: 'ok' }] });
 });
 
 router.put('/UpdateImmagine/:id', isLoggedIn, isAdmin, async (req, res) => {

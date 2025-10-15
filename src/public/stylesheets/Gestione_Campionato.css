@@ -1,0 +1,90 @@
+.championship-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.championship-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+}
+.table-modern {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.btn-modern {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.search-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+.stats-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.stats-sidebar .stats-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stats-sidebar .stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stats-sidebar .stats-card .card-body {
+    padding: 1.5rem 1rem;
+}
+
+.stats-sidebar .stats-card i {
+    font-size: 2.5rem;
+    opacity: 0.9;
+}
+
+.stats-sidebar .stats-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-sidebar .stats-card p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+.modal-modern .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}
+.championship-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+}

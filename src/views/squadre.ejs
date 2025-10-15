@@ -13,6 +13,15 @@
 </head>
 <body>
     <%- include('partials/navbar') %>
+
+    <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
     <div id="page">
         <header class="m-5">
             <div class="mb-5 select-container mx-auto">

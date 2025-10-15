@@ -11,7 +11,8 @@ const makeSquadra = (row) => {
         row.nome,
         row.id_immagine,
         row.Anno,
-        row.dirigenti || []  // Aggiunto per dirigenti
+        row.dirigenti || [],  // Aggiunto per dirigenti
+        row.giocatori || []   // Aggiunto per giocatori
     );
 }
 
@@ -97,10 +98,17 @@ exports.createSquadra = function(nome, annoFondazione) {
     });
 }
 
-exports.updateSquadra = function(id, nome, annoFondazione) {
-    const sql = 'UPDATE SQUADRE SET nome = ?, Anno = ? WHERE id = ?';
+exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
+    let sql = 'UPDATE SQUADRE SET nome = ?, Anno = ?';
+    let params = [nome, anno];
+    if (id_immagine !== null) {
+        sql += ', id_immagine = ?';
+        params.push(id_immagine);
+    }
+    sql += ' WHERE id = ?';
+    params.push(parseInt(id));
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [nome, annoFondazione, parseInt(id)], function(err) {
+        sqlite.run(sql, params, function(err) {
             if (err) {
                 console.error('Errore SQL update squadra:', err);
                 return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
@@ -137,11 +145,14 @@ exports.getSquadraById = function(id) {
                 return reject({ error: 'Errore nel recupero della squadra: ' + err.message });
             }
             if (!squadra) {
-                return reject({ error: 'Squadra non trovata' });
+                // Restituisci null invece di errore per gestire meglio il caso
+                return resolve(null);
             }
             // Recupera i dirigenti
             const dirigenti = await daoDirigenti.getDirigentiBySquadra(squadra.id);
-            resolve({ ...squadra, dirigenti });
+            // Recupera i giocatori
+            const giocatori = await this.getGiocatoriBySquadra(squadra.id);
+            resolve({ ...squadra, dirigenti, giocatori });
         });
     });
 }
@@ -166,6 +177,243 @@ exports.searchSquadre = async function(searchTerm) {
                 return makeSquadra({ ...squadra, dirigenti });
             }));
             resolve(squadreConDirigenti || []);
+        });
+    });
+}
+
+exports.getGiocatoriBySquadra = function(squadraId) {
+    const sql = `SELECT 
+        id,
+        immagini_id AS id_immagine,
+        squadra_id,
+        numero_maglia,
+        ruolo,
+        data_nascita,
+        piede_preferito,
+        data_inizio_tesseramento,
+        data_fine_tesseramento,
+        attivo,
+        created_at,
+        updated_at,
+        Nazionalità AS nazionalita,
+        Nome AS nome,
+        Cognome AS cognome
+    FROM GIOCATORI 
+    WHERE squadra_id = ? AND attivo = 1
+    ORDER BY numero_maglia ASC`;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [parseInt(squadraId)], (err, rows) => {
+            if (err) {
+                return reject({ error: 'Errore nel recupero dei giocatori: ' + err.message });
+            }
+            const giocatori = (rows || []).map(makeGiocatore);
+            resolve(giocatori);
+        });
+    });
+}
+
+exports.createGiocatore = function(giocatoreData) {
+    const sql = `INSERT INTO GIOCATORI
+        (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, attivo, data_inizio_tesseramento)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            giocatoreData.nome,
+            giocatoreData.cognome,
+            giocatoreData.numero_maglia || null,
+            giocatoreData.ruolo || null,
+            giocatoreData.data_nascita || null,
+            giocatoreData.piede_preferito || null,
+            giocatoreData.nazionalita || null,
+            giocatoreData.squadra_id
+        ], function(err) {
+            if (err) {
+                console.error('Errore SQL insert giocatore:', err);
+                return reject({ error: 'Errore nella creazione del giocatore: ' + err.message });
+            }
+            resolve({ id: this.lastID, message: 'Giocatore creato con successo' });
+        });
+    });
+}
+
+exports.updateGiocatore = function(id, giocatoreData) {
+    const sql = `UPDATE GIOCATORI SET
+        Nome = ?, Cognome = ?, numero_maglia = ?, ruolo = ?, data_nascita = ?,
+        piede_preferito = ?, Nazionalità = ?, updated_at = datetime('now')
+        WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            giocatoreData.nome,
+            giocatoreData.cognome,
+            giocatoreData.numero_maglia || null,
+            giocatoreData.ruolo || null,
+            giocatoreData.data_nascita || null,
+            giocatoreData.piede_preferito || null,
+            giocatoreData.nazionalita || null,
+            parseInt(id)
+        ], function(err) {
+            if (err) {
+                console.error('Errore SQL update giocatore:', err);
+                return reject({ error: 'Errore nell\'aggiornamento del giocatore: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            resolve({ message: 'Giocatore aggiornato con successo' });
+        });
+    });
+}
+
+exports.deleteGiocatore = function(id) {
+    const sql = 'UPDATE GIOCATORI SET attivo = 0, data_fine_tesseramento = datetime(\'now\') WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [parseInt(id)], function(err) {
+            if (err) {
+                console.error('Errore SQL delete giocatore:', err);
+                return reject({ error: 'Errore nella rimozione del giocatore: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            resolve({ message: 'Giocatore rimosso con successo' });
+        });
+    });
+}
+
+exports.getGiocatoreById = function(id) {
+    const sql = `SELECT
+        id,
+        immagini_id AS id_immagine,
+        squadra_id,
+        numero_maglia,
+        ruolo,
+        data_nascita,
+        piede_preferito,
+        data_inizio_tesseramento,
+        data_fine_tesseramento,
+        attivo,
+        created_at,
+        updated_at,
+        Nazionalità AS nazionalita,
+        Nome AS nome,
+        Cognome AS cognome
+    FROM GIOCATORI WHERE id = ? AND attivo = 1`;
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, [parseInt(id)], (err, row) => {
+            if (err) {
+                return reject({ error: 'Errore nel recupero del giocatore: ' + err.message });
+            }
+            if (!row) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            const giocatore = makeGiocatore(row);
+            resolve(giocatore);
+        });
+    });
+}
+
+exports.addGiocatore = function(squadraId, giocatoreData) {
+    const sql = `INSERT INTO GIOCATORI (
+        squadra_id, numero_maglia, ruolo, piede_preferito, nazionalita, Nome, Cognome, id_immagine,
+        data_inizio_tesseramento, attivo, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), 1, datetime('now'), datetime('now'))`;
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            parseInt(squadraId),
+            giocatoreData.numero_maglia,
+            giocatoreData.ruolo,
+            giocatoreData.piede_preferito,
+            giocatoreData.nazionalita,
+            giocatoreData.nome,
+            giocatoreData.cognome,
+            giocatoreData.foto
+        ], function(err) {
+            if (err) {
+                return reject({ error: 'Errore nell\'aggiunta del giocatore: ' + err.message });
+            }
+            // Recupera il giocatore appena creato
+            exports.getGiocatoreById(this.lastID)
+                .then(giocatore => resolve(giocatore))
+                .catch(err => reject(err));
+        });
+    });
+}
+
+exports.removeGiocatore = function(id) {
+    const sql = 'UPDATE GIOCATORI SET attivo = 0, updated_at = datetime(\'now\') WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [parseInt(id)], function(err) {
+            if (err) {
+                return reject({ error: 'Errore nella rimozione del giocatore: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            resolve({ message: 'Giocatore rimosso con successo' });
+        });
+    });
+}
+
+exports.addDirigente = function(squadraId, email) {
+    // Prima recupera l'utente dall'email
+    const sqlGetUser = 'SELECT id FROM UTENTI WHERE email = ?';
+    const sqlInsertDirigente = 'INSERT INTO DIRIGENTI_SQUADRE (squadra_id, utente_id) VALUES (?, ?)';
+
+    return new Promise((resolve, reject) => {
+        sqlite.get(sqlGetUser, [email], (err, user) => {
+            if (err) {
+                return reject({ error: 'Errore nel recupero dell\'utente: ' + err.message });
+            }
+            if (!user) {
+                return reject({ error: 'Utente con questa email non trovato' });
+            }
+
+            // Verifica se l'utente è già dirigente di questa squadra
+            const sqlCheck = 'SELECT id FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND utente_id = ?';
+            sqlite.get(sqlCheck, [parseInt(squadraId), user.id], (err, existing) => {
+                if (err) {
+                    return reject({ error: 'Errore nella verifica: ' + err.message });
+                }
+                if (existing) {
+                    return reject({ error: 'Questo utente è già dirigente di questa squadra' });
+                }
+
+                // Aggiungi il dirigente
+                sqlite.run(sqlInsertDirigente, [parseInt(squadraId), user.id], function(err) {
+                    if (err) {
+                        return reject({ error: 'Errore nell\'aggiunta del dirigente: ' + err.message });
+                    }
+                    // Recupera i dati completi del dirigente appena aggiunto
+                    const sqlGetDirigente = `
+                        SELECT ds.id, u.email, u.nome, u.cognome, u.immagine_profilo as immagine
+                        FROM DIRIGENTI_SQUADRE ds
+                        JOIN UTENTI u ON ds.utente_id = u.id
+                        WHERE ds.id = ?
+                    `;
+                    sqlite.get(sqlGetDirigente, [this.lastID], (err, dirigente) => {
+                        if (err) {
+                            return reject({ error: 'Errore nel recupero del dirigente: ' + err.message });
+                        }
+                        resolve(dirigente);
+                    });
+                });
+            });
+        });
+    });
+}
+
+exports.removeDirigente = function(squadraId, dirigenteId) {
+    const sql = 'DELETE FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [parseInt(squadraId), parseInt(dirigenteId)], function(err) {
+            if (err) {
+                return reject({ error: 'Errore nella rimozione del dirigente: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Dirigente non trovato in questa squadra' });
+            }
+            resolve({ message: 'Dirigente rimosso con successo' });
         });
     });
 }

@@ -99,7 +99,7 @@ exports.removeDirigente = function(id) {
 exports.getDirigenteByUserId = function (userId) {
     return new Promise((resolve, reject) => {
         const sql = `
-            SELECT ds.*, s.nome AS squadra_nome
+            SELECT ds.*, s.nome AS squadra_nome, s.id AS squadra_id
             FROM DIRIGENTI_SQUADRE ds
             LEFT JOIN SQUADRE s ON ds.squadra_id = s.id
             WHERE ds.utente_id = ? AND ds.attivo = 1

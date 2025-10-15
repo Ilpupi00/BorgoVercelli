@@ -25,16 +25,6 @@ class GestioneSquadreAdmin {
             });
         });
 
-        // Event listeners per i bottoni di modifica
-        document.querySelectorAll('.modifica-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.dataset.id;
-                const nome = e.currentTarget.dataset.nome;
-                const anno = e.currentTarget.dataset.anno;
-                this.modificaSquadra(id, nome, anno);
-            });
-        });
-
         // Event listeners per i bottoni di eliminazione
         document.querySelectorAll('.elimina-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -91,7 +81,7 @@ class GestioneSquadreAdmin {
             return;
         }
 
-        fetch('/CreateSquadra', {
+        fetch('/createsquadra', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -148,7 +138,7 @@ class GestioneSquadreAdmin {
             return;
         }
 
-        fetch(`/UpdateSquadra/${this.currentSquadraId}`, {
+        fetch(`/updatesquadra/${this.currentSquadraId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -177,7 +167,7 @@ class GestioneSquadreAdmin {
 
     visualizzaSquadra(id) {
         // Carica i dettagli della squadra via API
-        fetch(`/GetSquadra/${id}`)
+        fetch(`/getsquadra/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -233,7 +223,7 @@ class GestioneSquadreAdmin {
             return;
         }
 
-        fetch(`/DeleteSquadra/${this.currentSquadraId}`, {
+        fetch(`/deletesquadra/${this.currentSquadraId}`, {
             method: 'DELETE',
             credentials: 'include'
         })

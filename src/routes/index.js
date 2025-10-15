@@ -1,31 +1,22 @@
 'use strict';
 const express = require('express');
-const router = express.Router();
 const path = require('path');
-const { isLoggedIn } = require('../middlewares/auth');
+const router = express.Router();
 const daoNotizie = require('../services/dao-notizie');
 const daoEventi = require('../services/dao-eventi');
 const daoRecensioni = require('../services/dao-recensioni');
 const daoMembriSocieta = require('../services/dao-membri-societa');
+const daoSquadre = require('../services/dao-squadre');
+const daoCampi = require('../services/dao-campi');
 
-router.get('/homepage', async (req, res) => {
-    try {
-        const notizie = await daoNotizie.getNotizie() || [];
-        const eventi = await daoEventi.getEventi() || [];
-        const recensioni = await daoRecensioni.getRecensioni() || [];
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
-        res.render('homepage', {
-            notizie: notizie,
-            eventi: eventi,
-            recensioni: recensioni,
-            isLoggedIn: isLoggedIn
-        });
-    } catch (error) {
-        console.error('Errore nel caricamento della homepage:', error);
-        res.status(500).send('Internal Server Error');
-    }
+router.get('/homepage', (req, res) => {
+    res.render('homepage', {
+        notizie: [],
+        eventi: [],
+        recensioni: [],
+        isLoggedIn: false
+    });
 });
-
 router.get('/campionato',(req,res)=>{
     try {
         // Dati fittizi per la classifica, da sostituire con dati reali dal DB
@@ -59,9 +50,14 @@ router.get('/squadre', async (req, res) => {
     try {
         const squadre = await require('../services/dao-squadre').getSquadre() || [];
         const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const errorMessage = req.session ? req.session.errorMessage : null;
+        if (req.session) {
+            req.session.errorMessage = null; // Cancella il messaggio dopo averlo mostrato
+        }
         res.render('squadre', {
             squadre: squadre,
-            isLoggedIn: isLoggedIn
+            isLoggedIn: isLoggedIn,
+            errorMessage: errorMessage
         });
     } catch (error) {
         console.error('Errore nel caricamento delle squadre:', error);
@@ -212,5 +208,54 @@ router.get('/eventi', async (req, res) => {
   }
 });
 
+// Route per mostrare la pagina di ricerca
+router.get('/search', async (req, res) => {
+    try {
+        const query = req.query.q || '';
+        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
 
-module.exports= router;
+        let searchResults = null;
+
+        // Se c'è una query, fai la ricerca lato server
+        if (query && query.trim().length >= 1) {
+            const searchTerm = `%${query.trim()}%`;
+
+            // Cerca in notizie
+            const notizie = await daoNotizie.searchNotizie(searchTerm);
+
+            // Cerca in eventi
+            const eventi = await daoEventi.searchEventi(searchTerm);
+
+            // Cerca in squadre
+            const squadre = await daoSquadre.searchSquadre(searchTerm);
+
+            // Cerca in campi
+            const campi = await daoCampi.searchCampi(searchTerm);
+
+            searchResults = {
+                notizie: notizie || [],
+                eventi: eventi || [],
+                squadre: squadre || [],
+                campi: campi || []
+            };
+        }
+
+        res.render('search', {
+            query: query,
+            isLogged: isLoggedIn,
+            currentPath: req.path,
+            searchResults: searchResults
+        });
+    } catch (error) {
+        console.error('Errore nella ricerca:', error);
+        res.render('search', {
+            query: req.query.q || '',
+            isLogged: req.isAuthenticated && req.isAuthenticated(),
+            currentPath: req.path,
+            searchResults: null,
+            error: 'Errore nella ricerca'
+        });
+    }
+});
+
+module.exports = router;

@@ -23,7 +23,21 @@ const isAdmin = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && req.user.tipo_utente_id === 1) {
         return next();
     }
-    res.status(403).send({ error: 'Forbidden' });
+    res.status(403).json({ error: 'Forbidden' });
 };
 
-module.exports = { isLoggedIn, isAdmin };
+const isDirigente = function(req,res,next){
+    if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2)) {
+        return next();
+    }
+    res.status(403).send({ error: 'Forbidden' });
+}
+
+const isSquadraDirigente =function(req,res,next){
+    if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2 && (req.user.squadra_id == req.params.id))) {
+        return next();
+    }
+    res.status(403).send({ error: 'Forbidden' });
+}
+
+module.exports = { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente };

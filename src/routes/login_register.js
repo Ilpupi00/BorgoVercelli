@@ -4,29 +4,22 @@ const express = require('express');
 const router = express.Router();
 const userDao = require('../services/dao-user');
 const dirigenteDao = require('../services/dao-dirigenti-squadre');
-const multer = require('multer');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+const { isLoggedIn } = require('../middlewares/auth');
 
-// Configurazione multer per upload immagini profilo
-const upload = multer({
-    storage: multer.diskStorage({
-        destination: function (req, file, cb) {
-            const uploadPath = path.join(__dirname, '../public/uploads');
-            if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
-            cb(null, uploadPath);
-        },
-        filename: function (req, file, cb) {
-            // Salva come userID-timestamp.ext
-            const ext = path.extname(file.originalname);
-            cb(null, `user_${req.user.id}_${Date.now()}${ext}`);
-        }
-    }),
-    fileFilter: function (req, file, cb) {
-        if (!file.mimetype.startsWith('image/')) return cb(new Error('Solo immagini!'));
-        cb(null, true);
-    }
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'src/public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = 'user_' + req.user.id + '_' + Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
 });
+
+const upload = multer({ storage });
 
 router.post('/registrazione', async (req, res) => {
     try {
@@ -98,6 +91,8 @@ router.get('/profilo', async (req, res) => {
     try {
         const user = await userDao.getUserById(req.user.id);
         const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
+        console.log('imageUrl length:', imageUrl ? imageUrl.length : 'null');
+        console.log('imageUrl starts with:', imageUrl ? imageUrl.substring(0, 50) : 'null');
         // const giocatore = await userDao.getGiocatoreByUserId(user.id);
         const giocatore = null; // Temporaneamente disabilitato per incompatibilità schema DB
         let dirigente = null;
@@ -168,7 +163,7 @@ router.get('/api/user/profile-pic', async (req, res) => {
     }
 });
 // Route per aggiornare il profilo utente
-router.put('/update', upload.single('profilePic'), async (req, res) => {
+router.put('/update', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
     }
@@ -192,38 +187,44 @@ router.put('/update', upload.single('profilePic'), async (req, res) => {
 });
 
 // Route dedicata solo alla modifica della foto profilo
-router.post('/update-profile-pic', upload.single('profilePic'), async (req, res) => {
-    console.log('Richiesta upload foto profilo ricevuta');
+router.post('/update-profile-pic', isLoggedIn, upload.single('profilePic'), async (req, res) => {
+    console.log('Route /update-profile-pic chiamata');
     console.log('User autenticato:', req.isAuthenticated());
     console.log('File ricevuto:', req.file ? req.file.filename : 'nessun file');
     
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
     }
+    
+    // Validazione file
+    if (!req.file) {
+        console.log('Nessun file ricevuto');
+        return res.status(400).json({ success: false, error: 'File non valido o danneggiato.' });
+    }
+    
+    // Controlla dimensione file (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+        return res.status(400).json({ success: false, error: 'File troppo grande. Massimo 5MB.' });
+    }
+    
+    // Controlla tipo MIME
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(400).json({ success: false, error: 'Tipo file non supportato. Usa JPEG, PNG, GIF o WebP.' });
+    }
+    
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, error: 'Nessun file inviato' });
-        }
-        // Ottieni la vecchia immagine dal DB
-        const oldImageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
-        console.log('Vecchia immagine:', oldImageUrl);
+        const filePath = 'src/public/uploads/' + req.file.filename;
+        console.log('File path:', filePath);
         
-        if (oldImageUrl) {
-            const oldImagePath = path.join(__dirname, '../public', oldImageUrl.replace('/uploads/', 'uploads/'));
-            if (fs.existsSync(oldImagePath)) {
-                try { fs.unlinkSync(oldImagePath); } catch (e) { console.error('Errore eliminazione vecchia immagine:', e); }
-            }
-        }
-        const imageUrl = '/uploads/' + req.file.filename;
-        console.log('Nuova immagine URL:', imageUrl);
-        
-        await userDao.updateProfilePicture(req.user.id, imageUrl);
+        await userDao.updateProfilePicture(req.user.id, filePath);
         console.log('Foto profilo aggiornata nel database');
         
-        res.json({ success: true, imageUrl });
+        res.json({ success: true, imageUrl: filePath });
     } catch (err) {
         console.error('Errore aggiornamento foto profilo:', err);
-        res.status(500).json({ success: false, error: err.message || err });
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
     }
 });
 
@@ -251,6 +252,21 @@ router.post('/api/user/change-password', async (req, res) => {
         console.error('Errore cambio password:', err);
         res.status(400).json({ error: err.error || err.message || 'Errore durante il cambio password' });
     }
+});
+
+// Gestore errori per multer
+router.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ success: false, error: 'File troppo grande. Max 10MB.' });
+    }
+    if (err.message === 'Solo immagini!') {
+        return res.status(400).json({ success: false, error: 'Solo immagini! (JPEG, PNG, GIF, BMP, WebP, HEIC)' });
+    }
+    if (err.message.includes('Unexpected end of form')) {
+        return res.status(400).json({ success: false, error: 'File danneggiato o incompleto.' });
+    }
+    console.error('Errore non gestito:', err);
+    res.status(500).json({ success: false, error: 'Errore interno del server' });
 });
 
 module.exports = router;

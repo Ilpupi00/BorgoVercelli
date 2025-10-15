@@ -15,93 +15,57 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
     <script src="/javascripts/components/Admin.js" defer></script>
-    <style>
-        .championship-card {
-            transition: all 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        .championship-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 0.375rem 0.75rem;
-            border-radius: 20px;
-        }
-        .table-modern {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        .btn-modern {
-            border-radius: 25px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .search-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            color: white;
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 15px;
-            color: white;
-        }
-        .modal-modern .modal-content {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        .form-floating > label {
-            padding: 1rem 0.75rem;
-        }
-        .championship-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/stylesheets/Gestione_Campionato.css">
+    <link rel="stylesheet" href="/stylesheets/Admin.css">
 </head>
 <body>
-    <%- include('../../partials/sidebar.ejs'); %>
-
+    
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-9 col-xl-10 offset-lg-3 offset-xl-2 px-4 py-5">
-                <!-- Header -->
-                <div class="championship-header animate__animated animate__fadeInDown">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h1 class="display-5 fw-bold mb-2">
-                                <i class="bi bi-trophy-fill me-3"></i>
-                                Gestione Campionati
-                            </h1>
-                            <p class="mb-0 opacity-75">Organizza e gestisci i campionati della società</p>
+            <!-- Sidebar -->
+            <%- include('../../partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <div class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <!-- Header con profilo -->
+                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-8 text-center text-md-start">
+                                    <h1 class="display-5 fw-bold text-dark mb-2">
+                                        <i class="bi bi-trophy-fill text-primary me-2"></i>
+                                        Gestione Campionati
+                                    </h1>
+                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
+                                </div>
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
+                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
+                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
+                                    </a>
+                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
+                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <button type="button" class="btn btn-light btn-modern" data-bs-toggle="modal" data-bs-target="#createChampionshipModal">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Nuovo Campionato
-                            </button>
-                        </div>
-                    </div>
-                </div>
+
+                        <!-- Contenuto principale -->
+                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="mb-0">
+                                    <i class="bi bi-trophy-fill text-primary me-2"></i>
+                                    Campionati
+                                </h2>
+                                <button type="button" class="btn btn-primary btn-modern" data-bs-toggle="modal" data-bs-target="#createChampionshipModal">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Nuovo Campionato
+                                </button>
+                            </div>
 
                 <!-- Stats Cards -->
-                <div class="row mb-4">
+                <div class="row mb-4 g-3">
                     <div class="col-md-3 mb-3">
                         <div class="card stats-card h-100">
                             <div class="card-body text-center">
@@ -141,7 +105,7 @@
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="search-container animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="search-container animate__animated animate__fadeInUp animate__delay-1s mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-6">
                             <h5 class="mb-3">
@@ -399,8 +363,7 @@
                 </div>
             </div>
         </div>
+        </div>
     </div>
-
-    <div id="page"></div>
 </body>
 </html>

@@ -91,6 +91,24 @@ exports.getUser = function(email, password) {
     });
 }
 
+exports.getUserByEmail = function(email) {
+    return new Promise((resolve, reject) => {
+        email = email.toLowerCase();
+        const sql = `
+            SELECT u.*, t.nome AS tipo_utente_nome
+            FROM UTENTI u
+            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+            WHERE u.email = ?
+        `;
+        sqlite.get(sql, [email], (err, user) => {
+            if (err) {
+                return reject({ error: 'Error retrieving user: ' + err.message });
+            }
+            resolve(user || null);
+        });
+    });
+}
+
 exports.getImmagineProfiloByUserId = async (userId) => {
   const sql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ? ORDER BY ordine LIMIT 1`;
   return new Promise((resolve, reject) => {
@@ -171,7 +189,7 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
 
     // Poi inserisci il nuovo record
     const insertSql = `
-        INSERT INTO IMMAGINI (titolo, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
+        INSERT INTO IMMAGINI (descrizione, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
         VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, datetime('now'), datetime('now'))
     `;
     console.log('Eseguo INSERT per nuovo record');
@@ -499,6 +517,31 @@ exports.getStatistiche = async () => {
         console.error('Errore nel calcolo delle statistiche:', error);
         return {};
     }
+}
+
+exports.searchUsers = function(query) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT u.id, u.nome, u.cognome, u.email, COALESCE(t.nome, 'Utente') AS tipo_utente_nome
+            FROM UTENTI u
+            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+            WHERE (u.nome LIKE ? OR u.cognome LIKE ? OR u.email LIKE ?)
+            AND u.id NOT IN (
+                SELECT DISTINCT utente_id 
+                FROM DIRIGENTI_SQUADRE 
+                WHERE utente_id IS NOT NULL
+            )
+            ORDER BY u.nome, u.cognome
+            LIMIT 10
+        `;
+        const searchTerm = `%${query}%`;
+        sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
+            if (err) {
+                return reject({ error: 'Error searching users: ' + err.message });
+            }
+            resolve(users || []);
+        });
+    });
 }
 
 module.exports = exports;

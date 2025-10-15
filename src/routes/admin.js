@@ -16,7 +16,12 @@ const campionatiDao = require('../services/dao-campionati');
 
 router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+        if (!req.user) {
+            return res.status(401).send('User not authenticated');
+        }
+        // Temporaneamente disabilitato per evitare errori di recupero squadra
+        // const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+        const imageUrl = req.user.immagine_profilo || null;
         res.render('Admin/admin.ejs', { user: req.user, imageUrl });
     } catch (err) {
         console.error('Errore nel caricamento della pagina admin:', err);

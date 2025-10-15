@@ -5,26 +5,4 @@ nohup: ignoring input
 
 Server is running on http://localhost:3000
 Connected to the SQLite database.
-GET /api/search?q=campo 200 1999 - 17.218 ms
-GET /search?q=P 304 - - 7.364 ms
-GET /stylesheets/Footer.css 304 - - 1.822 ms
-GET /stylesheets/Navbar.css 304 - - 0.515 ms
-GET /javascripts/components/Search.js 200 9675 - 2.861 ms
-GET /stylesheets/Search.css 304 - - 0.331 ms
-GET /images/Logo.png 304 - - 0.342 ms
-GET /search?q=P 200 8727 - 2.988 ms
-GET /stylesheets/Navbar.css 304 - - 0.777 ms
-GET /stylesheets/Footer.css 304 - - 1.056 ms
-GET /stylesheets/Search.css 304 - - 0.428 ms
-GET /javascripts/components/Search.js 304 - - 0.379 ms
-GET /images/Logo.png 304 - - 0.431 ms
-GET /search?q=p 304 - - 1.657 ms
-GET /javascripts/components/Search.js 304 - - 0.821 ms
-GET /stylesheets/Navbar.css 304 - - 0.964 ms
-GET /stylesheets/Search.css 304 - - 0.378 ms
-GET /stylesheets/Footer.css 304 - - 0.339 ms
-GET /images/Logo.png 304 - - 0.309 ms
-GET /api/search?q=p 200 12450 - 6.792 ms
-GET /images/Campo.png 304 - - 0.348 ms
-GET /uploads/Campo_a_5.jpg 304 - - 1.822 ms
-GET /images/campo-default.jpg 404 8948 - 3.586 ms
+Killed

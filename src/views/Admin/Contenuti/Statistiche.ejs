@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistiche - <%= user.nome %> <%= user.cognome %></title>
+    <title>Statistiche - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -36,16 +36,16 @@
                                     </h1>
                                     <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
                                 </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                                    <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-2">
-                                        <button type="button" class="btn btn-success btn-modern" onclick="statistichePage.exportData()">
-                                            <i class="bi bi-download"></i> Esporta Dati
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
+                                    <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2 w-100">
+                                        <button type="button" class="btn btn-success btn-modern flex-fill flex-md-auto" style="max-width: 120px;" onclick="statistichePage.exportData()">
+                                            <i class="bi bi-download"></i> <span class="d-none d-sm-inline">Esporta</span>
                                         </button>
-                                        <a href="/admin" class="btn btn-outline-secondary btn-modern">
-                                            <i class="bi bi-arrow-left"></i> Torna al Pannello
+                                        <a href="/admin" class="btn btn-outline-secondary btn-modern flex-fill flex-md-auto" style="max-width: 140px;">
+                                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
                                         </a>
-                                        <a href="/Logout" class="btn btn-outline-danger btn-modern">
-                                            <i class="bi bi-box-arrow-right"></i> Esci
+                                        <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
+                                            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
                                         </a>
                                     </div>
                                 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Squadre - <%= user.nome %> <%= user.cognome %></title>
+    <title>Gestione Squadre - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -34,12 +34,12 @@
                                     </h1>
                                     <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
                                 </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2">
-                                        <i class="bi bi-arrow-left"></i> Torna al Pannello
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
+                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
+                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
                                     </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern">
-                                        <i class="bi bi-box-arrow-right"></i> Esci
+                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
+                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
                                     </a>
                                 </div>
                             </div>
@@ -101,9 +101,9 @@
                                                                     <button class="btn btn-sm btn-outline-primary visualizza-btn" title="Visualizza" data-id="<%= squadra.id %>">
                                                                         <i class="bi bi-eye"></i>
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-outline-warning modifica-btn" title="Modifica" data-id="<%= squadra.id %>" data-nome="<%= squadra.nome %>" data-anno="<%= squadra.Anno %>">
+                                                                    <a class="btn btn-sm btn-outline-warning modifica-btn" title="Modifica" href="/squadre/gestione/<%= squadra.id %>">
                                                                         <i class="bi bi-pencil"></i>
-                                                                    </button>
+                                                                    </a>
                                                                     <button class="btn btn-sm btn-outline-danger elimina-btn" title="Elimina" data-id="<%= squadra.id %>" data-nome="<%= squadra.nome %>">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
@@ -160,33 +160,6 @@
         </div>
     </div>
 
-    <!-- Modal per modificare squadra -->
-    <div class="modal fade" id="editModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modifica Squadra</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editForm">
-                        <div class="mb-3">
-                            <label for="editNomeInput" class="form-label">Nome Squadra *</label>
-                            <input type="text" class="form-control" id="editNomeInput" name="nome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editAnnoInput" class="form-label">Anno Fondazione *</label>
-                            <input type="number" class="form-control" id="editAnnoInput" name="anno_fondazione" min="1900" max="<%= new Date().getFullYear() %>" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" id="saveEditBtn">Salva Modifiche</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal per visualizzare dettagli squadra -->
     <div class="modal fade" id="viewModal" tabindex="-1">

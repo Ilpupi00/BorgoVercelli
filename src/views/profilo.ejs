@@ -23,22 +23,22 @@
             <div class="row align-items-center">
                 <div class="col-md-4 text-center">
                     <div class="profile-avatar mb-3 animate__animated animate__zoomIn">
-                        <div class="position-relative d-inline-block">
+                        <div class="position-relative d-inline-block pt-2">
                             <% if (imageUrl) { %>
-                                <img src="<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;">
+                                <img src="/<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main" style="width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
                             <% } else { %>
-                                <i class="bi bi-person-circle profile-img-main" style="font-size: 120px; color: #007bff;"></i>
+                                <i class="bi bi-person-circle profile-img-main" style="font-size: 110px; color: #007bff;"></i>
                             <% } %>
-                            <button id="editPicBtn" type="button" class="btn btn-primary position-absolute bottom-0 end-0 rounded-circle p-2" style="width: 40px; height: 40px;" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
-                                <i class="bi bi-camera-fill text-white" style="font-size: 16px;"></i>
+                            <button id="editPicBtn" type="button" class="btn btn-primary position-absolute bottom-0 end-0 rounded-circle p-2 shadow" style="width: 40px; height: 40px; z-index: 10;" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
+                                <span class="bi bi-camera-fill" style="font-size: 20px; color: white;"></span>
                             </button>
                         </div>
                     </div>
                     <div class="user-badges mt-2">
                         <% if (user.tipo_utente_id === 1) { %>
                             <span class="badge bg-danger me-1"><i class="bi bi-shield-check"></i> Admin</span>
-                        <% } else if (dirigente) { %>
-                            <span class="badge bg-warning me-1"><i class="bi bi-briefcase"></i> Dirigente</span>
+                        <% } else if (user.tipo_utente_id === 2) { %>
+                            <span class="badge bg-warning me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
                         <% } else { %>
                             <span class="badge bg-success me-1"><i class="bi bi-person-check"></i> Utente</span>
                         <% } %>
@@ -266,7 +266,7 @@
                 <% } %>
 
                 <!-- Card Ruolo Dirigenziale -->
-                <% if (dirigente) { %>
+                <% if (user.tipo_utente_id === 2) { %>
                 <div class="card management-card animate__animated animate__fadeInRight animate__delay-3s mt-3">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="card-title mb-0">
@@ -278,13 +278,13 @@
                             <div class="col-md-6">
                                 <div class="management-info">
                                     <i class="bi bi-building text-warning me-2"></i>
-                                    <strong>Squadra:</strong> <%= dirigente.squadra_nome || 'Societario' %>
+                                    <strong>Squadra:</strong> <%= dirigente?.squadra_nome || 'Societario' %>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="management-info">
                                     <i class="bi bi-person-badge text-warning me-2"></i>
-                                    <strong>Ruolo:</strong> <%= dirigente.ruolo || 'Non specificato' %>
+                                    <strong>Ruolo:</strong> <%= dirigente?.ruolo || 'Non specificato' %>
                                 </div>
                             </div>
                         </div>
@@ -292,15 +292,24 @@
                             <div class="col-md-6">
                                 <div class="management-info">
                                     <i class="bi bi-calendar-check text-warning me-2"></i>
-                                    <strong>Nomina:</strong> <%= dirigente.data_nomina ? new Date(dirigente.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
+                                    <strong>Nomina:</strong> <%= dirigente?.data_nomina ? new Date(dirigente.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="management-info">
                                     <i class="bi bi-calendar-x text-warning me-2"></i>
-                                    <strong>Scadenza:</strong> <%= dirigente.data_scadenza ? new Date(dirigente.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
+                                    <strong>Scadenza:</strong> <%= dirigente?.data_scadenza ? new Date(dirigente.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
                                 </div>
                             </div>
+                        </div>
+                        <div class="row justify-content-center align-center">
+                          <div class="col-md-6 text-center text-white mt-3 gestione_bottone">
+                            <% if (dirigente && dirigente.squadra_id) { %>
+                              <a href="/squadra/gestione/<%= dirigente.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
+                            <% } else { %>
+                              <span class="text-muted">Nessuna squadra assegnata</span>
+                            <% } %>
+                          </div>
                         </div>
                     </div>
                 </div>

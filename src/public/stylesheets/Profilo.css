@@ -41,6 +41,50 @@ html {
     transform: scale(1.05);
 }
 
+.profile-avatar .position-relative {
+    position: relative !important;
+    display: inline-block;
+    width: 110px !important;
+    height: 110px !important;
+}
+
+.profile-avatar img,
+.profile-avatar i {
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    display: block !important;
+}
+
+.profile-avatar #editPicBtn {
+    position: absolute !important;
+    bottom: 5px !important;
+    right: 5px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: #007bff !important;
+    border: 2px solid white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+}
+
+.profile-avatar #editPicBtn:hover {
+    background: #0056b3 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.profile-avatar #editPicBtn i {
+    font-size: 18px !important;
+    color: white !important;
+    margin: 0 !important;
+}
+
 .profile-info h1 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -572,12 +616,10 @@ button::-webkit-scrollbar,
     box-shadow: none !important;
 }
 
-.profile-avatar i {
-    transition: transform 0.3s ease;
-}
-
-.profile-avatar:hover i {
-    transform: scale(1.1);
+.profile-avatar i.bi-person-circle {
+    font-size: 110px !important;
+    color: #007bff !important;
+    line-height: 1 !important;
 }
 
 .profile-card h2 {
@@ -757,6 +799,15 @@ button::-webkit-scrollbar,
         position: relative !important;
         left: 0 !important;
     }
+    .profile-avatar #editPicBtn {
+        width: 32px !important;
+        height: 32px !important;
+        bottom: 3px !important;
+        right: 3px !important;
+    }
+    .profile-avatar #editPicBtn i {
+        font-size: 16px !important;
+    }
     .profile-details dt {
         display: flex !important;
         align-items: center !important;
@@ -794,4 +845,11 @@ button::-webkit-scrollbar,
         overflow-wrap: break-word !important;
         text-align: center !important;
     }
+}
+
+.gestione_bottone{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
 }

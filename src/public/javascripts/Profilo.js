@@ -328,15 +328,40 @@ class Profilo {
             return;
         }
 
+        // Validazione lato client
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            document.getElementById('uploadPicMsg').innerHTML =
+                '<div class="alert alert-danger">File troppo grande. Massimo 5MB.</div>';
+            return;
+        }
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            document.getElementById('uploadPicMsg').innerHTML =
+                '<div class="alert alert-danger">Tipo file non supportato. Usa JPEG, PNG, GIF o WebP.</div>';
+            return;
+        }
+
+        // Mostra loading
+        document.getElementById('uploadPicMsg').innerHTML =
+            '<div class="alert alert-info">Caricamento in corso...</div>';
+
         try {
             const response = await fetch('/update-profile-pic', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                throw new Error('Risposta non valida dal server');
+            }
 
-            if (response.ok) {
+            if (response.ok && result.success) {
                 document.getElementById('uploadPicMsg').innerHTML =
                     '<div class="alert alert-success">Foto profilo aggiornata con successo!</div>';
                 
@@ -348,12 +373,14 @@ class Profilo {
                     location.reload();
                 }, 1500);
             } else {
+                const errorMsg = result.error || 'Errore sconosciuto';
                 document.getElementById('uploadPicMsg').innerHTML =
-                    '<div class="alert alert-danger">Errore: ' + result.error + '</div>';
+                    `<div class="alert alert-danger">Errore: ${errorMsg}</div>`;
             }
         } catch (error) {
+            console.error('Errore upload:', error);
             document.getElementById('uploadPicMsg').innerHTML =
-                '<div class="alert alert-danger">Errore di connessione</div>';
+                '<div class="alert alert-danger">Errore di connessione. Riprova più tardi.</div>';
         }
     }
 }

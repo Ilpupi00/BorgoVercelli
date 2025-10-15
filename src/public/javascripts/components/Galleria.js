@@ -23,11 +23,16 @@ class Galleria{
         try {
             const response = await fetch('/GetImmagini');
             if (!response.ok) {
-                console.error('Errore nel recupero delle immagini:', response.statusText);
-                return;
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
             this.allImages = data.immagini || [];
+
             // Update header image if available
             if (this.allImages.length > 0) {
                 const headerImg = this.page.querySelector('header .centered-image');
@@ -36,10 +41,22 @@ class Galleria{
                     headerImg.alt = this.allImages[0].descrizione || 'Immagine della galleria';
                 }
             }
-            // Clear and reload gallery if needed, but since EJS has initial, perhaps only add more
-            // For simplicity, assume EJS has first 8, and JS handles load more
+
+            console.log(`Caricate ${this.allImages.length} immagini dalla galleria`);
         } catch (error) {
             console.error('Errore nel recupero delle immagini:', error);
+            // Mostra un messaggio di errore all'utente
+            const galleryContainer = this.page.querySelector('.gallery-container');
+            if (galleryContainer) {
+                galleryContainer.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Impossibile caricare le immagini. Riprova più tardi.
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 
@@ -107,27 +124,59 @@ class Galleria{
 
     setupUploadButton() {
         const uploadInput = this.page.querySelector('#uploadPhoto');
-        if (!uploadInput) return;
+        const uploadBtn = this.page.querySelector('.upload-btn');
+        if (!uploadInput || !uploadBtn) return;
+
         uploadInput.addEventListener('change', async (event) => {
             const file = event.target.files[0];
             if (!file) return;
+
+            // Validazione lato client
+            if (!file.type.startsWith('image/')) {
+                alert('Seleziona un file immagine valido');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Il file è troppo grande. Dimensione massima: 5MB');
+                return;
+            }
+
+            // Mostra loading
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Caricamento...';
+            uploadBtn.disabled = true;
+
             const formData = new FormData();
             formData.append('image', file);
             const descrizione = prompt('Inserisci una descrizione per la foto (opzionale):');
-            if (descrizione) formData.append('descrizione', descrizione);
+            if (descrizione !== null) {
+                formData.append('descrizione', descrizione);
+            }
+
             try {
                 const response = await fetch('/UploadImmagine', {
                     method: 'POST',
                     body: formData
                 });
-                if (!response.ok) {
-                    alert('Errore durante il caricamento della foto');
-                    return;
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Foto caricata con successo!');
+                    location.reload(); // Ricarica per mostrare la nuova immagine
+                } else {
+                    alert('Errore: ' + (result.error || 'Errore durante il caricamento'));
                 }
-                // Reload page or update
-                location.reload(); // Simple way
             } catch (err) {
+                console.error('Errore upload:', err);
                 alert('Errore durante il caricamento della foto');
+            } finally {
+                // Ripristina pulsante
+                uploadBtn.innerHTML = originalText;
+                uploadBtn.disabled = false;
+                // Reset input file
+                uploadInput.value = '';
             }
         });
     }
@@ -136,21 +185,22 @@ class Galleria{
         // For existing images in EJS
         const buttons = this.page.querySelectorAll('.image-wrapper');
         buttons.forEach(button => {
-            const span = button.querySelector('.btn');
-            if (span) {
-                span.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const img = button.querySelector('img');
-                    if (img) {
-                        const headerImg = this.page.querySelector('header .centered-image');
-                        if (headerImg) {
-                            headerImg.src = img.src;
-                            headerImg.alt = img.alt;
-                        }
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                });
-            }
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const imageUrl = button.dataset.imageUrl;
+                const imageAlt = button.dataset.imageAlt;
+
+                // Apri modal con l'immagine
+                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                const modalImage = document.getElementById('modalImage');
+                const modalDescription = document.getElementById('modalDescription');
+
+                modalImage.src = imageUrl;
+                modalImage.alt = imageAlt;
+                modalDescription.textContent = imageAlt;
+
+                modal.show();
+            });
         });
     }
 }

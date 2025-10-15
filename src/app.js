@@ -18,9 +18,9 @@ const routesRecensioni = require('./routes/recensioni');
 const routesSendEmail = require('./routes/email');
 const routesSquadre = require('./routes/squadre');
 const routesGalleria = require('./routes/galleria');
+console.log('routesGalleria loaded:', typeof routesGalleria);
 const routesPrenotazione = require('./routes/prenotazione');
 const routesAdmin = require('./routes/admin');
-const routesSearch = require('./routes/search');
 
 // passport configuration
 passport.use(new LocalStrategy(
@@ -96,7 +96,7 @@ app.use(passport.session());
 app.use(function(req, res, next) {
   res.locals.isLogged = req.isAuthenticated();
   res.locals.currentPath = req.path;
-  if (req.isAuthenticated()) {
+  if (req.isAuthenticated() && req.user) {
     res.locals.imageUrl = req.user.immagine_profilo;
   } else {
     res.locals.imageUrl = null;
@@ -123,20 +123,19 @@ app.get('/eventi', async (req, res) => {
 });
 
 // Routing
-app.use('/', routesEventi);
 app.use('/', routes);
 app.use('/', routesNotizie);
+app.use('/', routesEventi);
 app.use('/', routesRegistrazione);
 app.use('/', routesSession);
 app.use('/', routesRecensioni);
 app.use('/', routesSendEmail);
 app.use('/', routesSquadre);
 app.use('/', routesGalleria);
-app.use('/prenotazione', routesPrenotazione);
+app.use('/', routesPrenotazione);
 app.use('/', routesAdmin);
-app.use('/', routesSearch);
 
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -152,18 +151,30 @@ app.use(function(req, res, next) {
   }
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // Imposta valori di default per le variabili locali
-  res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
-  res.locals.currentPath = req.path || '/';
-  res.locals.imageUrl = req.isAuthenticated && req.user ? req.user.immagine_profilo : null;
+// catch 404 and forward to error handler
+// app.use(function(req, res, next) {
+//   const err = new Error('Endpoint non trovato');
+//   err.status = 404;
+//   next(err);
+// });
 
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-  res.render('error');
+app.use((req, res) => {
+  res.statusCode = 404;
+  res.end('Not Found');
 });
+
+// error handler
+// app.use(function(err, req, res, next) {
+//   // Imposta valori di default per le variabili locali
+//   res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
+//   res.locals.currentPath = req.path || '/';
+//   res.locals.imageUrl = req.isAuthenticated && req.user ? req.user.immagine_profilo : null;
+
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
 
 
 module.exports = app;

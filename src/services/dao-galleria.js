@@ -29,10 +29,10 @@ exports.getImmagini = function() {
     });
 }
 
-exports.insertImmagine = function( url, created_at, updated_at) {
-    const sql = 'INSERT INTO IMMAGINI (url, tipo, created_at, updated_at) VALUES (?, ?, ?, ?);';
+exports.insertImmagine = function( url, created_at, updated_at, descrizione = '') {
+    const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
     return new Promise((resolve, reject) => {
-        db.run(sql, [url, 'upload della Galleria', created_at, updated_at], function(err) {
+        db.run(sql, [url, 'upload della Galleria', descrizione, created_at, updated_at], function(err) {
             if (err) {
                 console.error('Errore SQL insert:', err);
                 return reject({ error: 'Errore nell\'inserimento dell\'immagine: ' + err.message });

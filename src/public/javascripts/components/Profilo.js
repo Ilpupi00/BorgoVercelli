@@ -216,7 +216,7 @@ class Profilo{
                 msg.textContent = 'Caricamento...';
                 try {
                     const res = await fetch('/update-profile-pic', {
-                        method: 'PUT',
+                        method: 'POST',
                         credentials: 'same-origin',
                         body: formData
                     });
