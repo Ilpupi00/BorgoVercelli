@@ -15,13 +15,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // Create new Dropdown with boundary viewport to prevent clipping
     var dd = new bootstrap.Dropdown(toggle, { boundary: 'viewport' });
 
-    // If popper mounting causes issues, we can force append to body by moving menu
-    var menu = toggle.nextElementSibling;
-    if (menu && menu.classList.contains('dropdown-menu')) {
-      // ensure proper classes
-      menu.classList.add('dropdown-menu');
-      // no automatic move here; rely on Bootstrap's Popper positioning
-    }
+    // Move menu to body on show to prevent clipping by transformed parents
+    toggle.addEventListener('show.bs.dropdown', function () {
+      var menu = toggle.nextElementSibling;
+      if (menu && menu.classList.contains('dropdown-menu')) {
+        document.body.appendChild(menu);
+        menu.style.position = 'absolute';
+        menu.style.zIndex = '2050';
+      }
+    });
+
+    // Move back on hide
+    toggle.addEventListener('hide.bs.dropdown', function () {
+      var menu = document.querySelector('.dropdown-menu[aria-labelledby="' + toggle.id + '"]');
+      if (menu) {
+        toggle.parentNode.appendChild(menu);
+        menu.style.position = '';
+        menu.style.zIndex = '';
+      }
+    });
 
     // As an accessibility/fallback: toggle via keyboard Enter
     toggle.addEventListener('keydown', function (e) {
