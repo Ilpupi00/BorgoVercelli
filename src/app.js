@@ -64,6 +64,11 @@ app.use(methodOverride(function (req, res) {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Provide a favicon to avoid 404 in browser console. Serve the logo as PNG for favicon.
+app.get('/favicon.ico', function(req, res) {
+  res.sendFile(path.join(__dirname, 'public', 'images', 'Logo.png'));
+});
+
 // Route specifica per eventi/all - ora gestita in routes-eventi.js
 
 const isLoggedIn = (req, res, next) => {
