@@ -324,11 +324,14 @@ form {
   width: 50%;
   background-color: #0d6efd;
   color: white;
+  /* keep off-canvas transform for mobile, but allow overflow visible so dropdowns aren't clipped */
   transform: translateX(100%);
   transition: transform 0.3s ease-in-out;
   z-index: 1050;
   overflow-y: auto;
   overflow-x: hidden;
+  /* allow children overflow to be visible (prevents dropdown clipping) */
+  overflow: visible;
 }
 @media (max-width: 768px) {
   .navbar-collapse {
@@ -354,12 +357,14 @@ form {
 }
 
 .navbar {
-  overflow: hidden;
+  /* avoid clipping dropdowns */
+  overflow: visible;
 }
 
 .navbar-nav {
   padding: 20px;
-  overflow: hidden;
+  /* allow dropdowns to overflow the nav container */
+  overflow: visible;
   margin-right: auto;
   margin-left: 20px;
 }
@@ -514,5 +519,34 @@ header p {
   color: #0d6efd !important;
   background: #fff;
   font-weight: 600;
+}
+
+/* --- Dropdown fixes: ensure dropdowns are not clipped and appear like Bootstrap examples --- */
+/* Force overflow visible in case other rules reintroduce clipping */
+.navbar, .navbar-collapse, .navbar-nav {
+  overflow: visible !important;
+}
+
+/* Ensure dropdown container is positioned relative for proper menu placement */
+.navbar .dropdown {
+  position: relative !important;
+}
+
+.navbar .dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  margin-top: 0.125rem !important;
+  z-index: 2050 !important; /* above navbar and other elements */
+  /* Remove display: block to let Bootstrap JS manage visibility via 'show' class */
+  will-change: transform;
+}
+
+/* On larger screens keep dropdown inside nav visually aligned */
+@media (min-width: 992px) {
+  .navbar .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+  }
 }
 
