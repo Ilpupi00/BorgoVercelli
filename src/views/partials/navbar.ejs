@@ -42,10 +42,10 @@
             Dropdown
           </button>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownProfile" style="z-index: 1050;">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" href="/notizie/all">Notizie</a></li>
+            <li><a class="dropdown-item" href="/eventi">Eventi</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li><a class="dropdown-item" href="/contatti">Contatti</a></li>
           </ul>
         </li>
       </ul>
@@ -69,3 +69,22 @@
     </div>
   </div>
 </nav>
+
+<script>
+  // Ensure dropdown visual state resets when the menu is closed
+  (function () {
+    if (typeof bootstrap === 'undefined') return;
+    document.querySelectorAll('.navbar .dropdown').forEach(function (dd) {
+      dd.addEventListener('hidden.bs.dropdown', function (e) {
+        // Remove focus from toggle button
+        var toggle = dd.querySelector('[data-bs-toggle="dropdown"]');
+        if (toggle && typeof toggle.blur === 'function') toggle.blur();
+        // Remove focus/active classes from dropdown items
+        dd.querySelectorAll('.dropdown-item').forEach(function (it) {
+          it.classList.remove('active');
+          if (it.blur) it.blur();
+        });
+      });
+    });
+  })();
+</script>
