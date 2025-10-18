@@ -359,7 +359,7 @@ form {
 .navbar {
   /* avoid clipping dropdowns */
   overflow: visible;
-  z-index: 1020; /* ensure navbar is above other content */
+  z-index: 2000 !important; /* ensure navbar is above other content */
 }
 
 .navbar-nav {
