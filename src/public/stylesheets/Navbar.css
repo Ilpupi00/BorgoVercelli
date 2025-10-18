@@ -539,8 +539,12 @@ header p {
   left: 0 !important;
   margin-top: 0.125rem !important;
   z-index: 2050 !important; /* above navbar and other elements */
-  /* Remove display: block to let Bootstrap JS manage visibility via 'show' class */
+  display: none; /* hidden by default */
   will-change: transform;
+}
+
+.navbar .dropdown-menu.show {
+  display: block !important; /* show when has show class */
 }
 
 /* On larger screens keep dropdown inside nav visually aligned */

@@ -1,43 +1,79 @@
-// Small helper to initialize Bootstrap dropdowns and ensure they are appended to body
+// Robust dropdown fallback: toggles `.show`, syncs aria-expanded, supports ESC and outside click
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('dropdown-fix.js loaded');
-  if (typeof bootstrap === 'undefined') {
-    console.warn('Bootstrap not found - using manual toggle');
-  } else {
-    console.log('Bootstrap found, initializing dropdowns');
+  // If Bootstrap's dropdown is available, prefer it and exit
+  if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+    // Let Bootstrap manage dropdowns. No further action required.
+    console.log('Bootstrap Dropdown available - using native implementation');
+    return;
   }
 
-  // Manual toggle for dropdowns if Bootstrap fails
+  console.log('Bootstrap Dropdown not found - using fallback dropdown implementation');
+
+  var openDropdown = null;
+
+  function closeDropdown(dropdownToggle, dropdownMenu) {
+    if (!dropdownToggle || !dropdownMenu) return;
+    dropdownMenu.classList.remove('show');
+    dropdownToggle.classList.remove('show');
+    dropdownToggle.setAttribute('aria-expanded', 'false');
+    openDropdown = null;
+  }
+
+  function openDropdownMenu(dropdownToggle, dropdownMenu) {
+    if (!dropdownToggle || !dropdownMenu) return;
+    dropdownMenu.classList.add('show');
+    dropdownToggle.classList.add('show');
+    dropdownToggle.setAttribute('aria-expanded', 'true');
+    openDropdown = { toggle: dropdownToggle, menu: dropdownMenu };
+  }
+
+  // Initialize all dropdown toggles
   document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
-    console.log('Found dropdown toggle:', toggle);
     var menu = toggle.nextElementSibling;
-    if (menu && menu.classList.contains('dropdown-menu')) {
-      // Ensure menu is positioned
+    if (!menu || !menu.classList.contains('dropdown-menu')) return;
+
+    // Ensure menu has correct positioning only if not set by CSS
+    if (!menu.style.position) {
       menu.style.position = 'absolute';
       menu.style.top = '100%';
       menu.style.left = '0';
       menu.style.zIndex = '2050';
-      menu.style.display = 'none'; // start hidden
+    }
 
-      // Add click handler
-      toggle.addEventListener('click', function (e) {
-        e.preventDefault();
-        console.log('Toggle clicked');
-        if (menu.style.display === 'none') {
-          menu.style.display = 'block';
-          console.log('Menu shown');
-        } else {
-          menu.style.display = 'none';
-          console.log('Menu hidden');
-        }
-      });
+    // Make sure aria attributes exist
+    if (!toggle.hasAttribute('aria-expanded')) toggle.setAttribute('aria-expanded', 'false');
 
-      // Hide on click outside
-      document.addEventListener('click', function (e) {
-        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
-          menu.style.display = 'none';
-        }
-      });
+    // Click toggles dropdown
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (openDropdown && openDropdown.toggle === toggle) {
+        closeDropdown(toggle, menu);
+        return;
+      }
+
+      // Close any other open dropdown
+      if (openDropdown) closeDropdown(openDropdown.toggle, openDropdown.menu);
+
+      openDropdownMenu(toggle, menu);
+    });
+  });
+
+  // Close when clicking outside
+  document.addEventListener('click', function (e) {
+    if (!openDropdown) return;
+    var t = e.target;
+    if (!openDropdown.toggle.contains(t) && !openDropdown.menu.contains(t)) {
+      closeDropdown(openDropdown.toggle, openDropdown.menu);
+    }
+  });
+
+  // Close on ESC
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      if (openDropdown) {
+        closeDropdown(openDropdown.toggle, openDropdown.menu);
+      }
     }
   });
 });
