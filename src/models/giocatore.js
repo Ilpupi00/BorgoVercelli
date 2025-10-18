@@ -16,9 +16,9 @@ class Giocatore {
         attivo,
         created_at,
         updated_at,
-        nazionalita,
-        nome,
-        cognome
+        Nazionalita,
+        Nome,
+        Cognome
     }) {
         this.id = id;
         this.id_immagine = id_immagine;
@@ -32,9 +32,9 @@ class Giocatore {
         this.attivo = attivo;
         this.created_at = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.updated_at = updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
-        this.nazionalita = nazionalita;
-        this.nome = nome;
-        this.cognome = cognome;
+        this.nazionalita = Nazionalita;
+        this.nome = Nome;
+        this.cognome = Cognome;
     }
 
     static from(json) {

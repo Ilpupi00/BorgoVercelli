@@ -11,7 +11,7 @@ const { isLoggedIn, isAdmin } = require('../middlewares/auth');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'src/public/images/');
+    cb(null, 'src/public/uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueName = 'squadra_' + Date.now() + '_' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
@@ -74,14 +74,20 @@ router.post('/createsquadra', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.put('/updatesquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/updatesquadra/:id', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, annoFondazione } = req.body;
         if (!nome || !annoFondazione) {
             return res.status(400).json({ error: 'Nome e anno fondazione sono obbligatori' });
         }
-        await daoSquadre.updateSquadra(id, nome, parseInt(annoFondazione));
+
+        let id_immagine = null;
+        if (req.file) {
+            id_immagine = await daoGalleria.uploadImmagine(req.file, 'squadra');
+        }
+
+        await daoSquadre.updateSquadra(id, nome, parseInt(annoFondazione), id_immagine);
         res.json({ message: 'Squadra aggiornata con successo' });
     } catch (err) {
         console.error('Errore aggiornamento squadra:', err);
@@ -100,6 +106,107 @@ router.delete('/deletesquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+// API per ottenere una squadra specifica
+router.get('/getsquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const squadra = await daoSquadre.getSquadraById(id);
+        if (!squadra) {
+            return res.status(404).json({ error: 'Squadra non trovata' });
+        }
+        res.json(squadra);
+    } catch (err) {
+        console.error('Errore recupero squadra:', err);
+        res.status(500).json({ error: 'Errore nel recupero della squadra' });
+    }
+});
+
+// API per giocatori
+router.post('/creategiocatore', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
+    try {
+        const { nome, cognome, ruolo, numero_maglia, data_nascita, nazionalita, squadra_id } = req.body;
+        let immagineId = null;
+        if (req.file) {
+            immagineId = await daoGalleria.uploadImmagine(req.file, 'giocatore');
+        }
+        const giocatore = await daoSquadre.createGiocatore({
+            nome, cognome, ruolo, numero_maglia: parseInt(numero_maglia), data_nascita, nazionalita, squadra_id: parseInt(squadra_id), id_immagine: immagineId
+        });
+        res.status(201).json(giocatore);
+    } catch (err) {
+        console.error('Errore creazione giocatore:', err);
+        res.status(500).json({ error: 'Errore durante la creazione del giocatore' });
+    }
+});
+
+router.put('/updategiocatore/:id', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, cognome, ruolo, numero_maglia, data_nascita, nazionalita } = req.body;
+        let immagineId = null;
+        if (req.file) {
+            immagineId = await daoGalleria.uploadImmagine(req.file, 'giocatore');
+        }
+        await daoSquadre.updateGiocatore(id, {
+            nome, cognome, ruolo, numero_maglia: parseInt(numero_maglia), data_nascita, nazionalita, id_immagine: immagineId
+        });
+        res.json({ message: 'Giocatore aggiornato con successo' });
+    } catch (err) {
+        console.error('Errore aggiornamento giocatore:', err);
+        res.status(500).json({ error: 'Errore durante l\'aggiornamento del giocatore' });
+    }
+});
+
+router.delete('/deletegiocatore/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await daoSquadre.deleteGiocatore(id);
+        res.json({ message: 'Giocatore eliminato con successo' });
+    } catch (err) {
+        console.error('Errore eliminazione giocatore:', err);
+        res.status(500).json({ error: 'Errore durante l\'eliminazione del giocatore' });
+    }
+});
+
+// API per dirigenti
+router.post('/createdirigente', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { utente_id, ruolo, data_nomina, data_scadenza, squadra_id } = req.body;
+        const dirigente = await daoDirigenti.createDirigente({
+            utente_id: parseInt(utente_id), ruolo, data_nomina, data_scadenza, squadra_id: parseInt(squadra_id)
+        });
+        res.status(201).json(dirigente);
+    } catch (err) {
+        console.error('Errore creazione dirigente:', err);
+        res.status(500).json({ error: 'Errore durante la creazione del dirigente' });
+    }
+});
+
+router.put('/updatedirigente/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { utente_id, ruolo, data_nomina, data_scadenza } = req.body;
+        const updateData = { ruolo, data_nomina, data_scadenza };
+        if (utente_id) updateData.utente_id = parseInt(utente_id);
+        await daoDirigenti.updateDirigente(id, updateData);
+        res.json({ message: 'Dirigente aggiornato con successo' });
+    } catch (err) {
+        console.error('Errore aggiornamento dirigente:', err);
+        res.status(500).json({ error: 'Errore durante l\'aggiornamento del dirigente' });
+    }
+});
+
+router.delete('/deletedirigente/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await daoDirigenti.deleteDirigente(id);
+        res.json({ message: 'Dirigente eliminato con successo' });
+    } catch (err) {
+        console.error('Errore eliminazione dirigente:', err);
+        res.status(500).json({ error: 'Errore durante l\'eliminazione del dirigente' });
+    }
+});
+
 router.put('/squadre/:id', isLoggedIn, isAdmin, upload.single('logo'), async (req, res) => {
     try {
         const { id } = req.params;
@@ -109,7 +216,7 @@ router.put('/squadre/:id', isLoggedIn, isAdmin, upload.single('logo'), async (re
         }
         let id_immagine = null;
         if (req.file) {
-            id_immagine = req.file.filename;
+            id_immagine = await daoGalleria.uploadImmagine(req.file, 'squadra');
         }
         await daoSquadre.updateSquadra(id, nome, parseInt(anno), id_immagine);
         res.json({ success: true, message: 'Squadra aggiornata con successo' });
@@ -151,12 +258,10 @@ router.get('/squadra/gestione/:id', isLoggedIn,async (req,res)=>{
         });
     }catch(error){
         console.error('Errore nel caricamento della pagina modifica squadra:', error);
-        res.render('modifica_squadra',{
-            isLogged: true,
-            user: req.user,
-            error: 'Errore nel caricamento della pagina modifica squadra'
+        res.status(500).render('error', {
+            message: 'Errore nel caricamento della pagina modifica squadra',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
-        res.status(500).send('Internal Server Error, Server not responding');
     }
 });
 
@@ -170,33 +275,33 @@ router.get('/squadre/gestione/:id', isLoggedIn,async (req,res)=>{
         });
     }catch(error){
         console.error('Errore nel caricamento della pagina modifica squadra:', error);
-        res.render('modifica_squadra',{
-            isLogged: true,
-            user: req.user,
-            error: 'Errore nel caricamento della pagina modifica squadra'
+        res.status(500).render('error', {
+            message: 'Errore nel caricamento della pagina modifica squadra',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
-        res.status(500).send('Internal Server Error, Server not responding');
     }
 });
 
 router.post('/squadre/:id/dirigenti', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ error: 'Email è obbligatoria' });
+        const { userId, ruolo, data_nomina, data_scadenza } = req.body;
+        if (!userId) {
+            return res.status(400).json({ error: 'ID utente è obbligatorio' });
         }
-        // Trova l'utente per email
+        // Verifica che l'utente esista
         const daoUser = require('../services/dao-user');
-        const user = await daoUser.getUserByEmail(email);
+        const user = await daoUser.getUserById(userId);
         if (!user) {
             return res.status(404).json({ error: 'Utente non trovato' });
         }
         // Aggiungi come dirigente
         await daoDirigenti.addDirigente({
-            utente_id: user.id,
+            utente_id: userId,
             squadra_id: id,
-            ruolo: 'Dirigente'
+            ruolo: ruolo || 'Dirigente',
+            data_nomina: data_nomina,
+            data_scadenza: data_scadenza
         });
         res.json({ success: true, message: 'Dirigente aggiunto con successo' });
     } catch (err) {
@@ -227,7 +332,7 @@ router.post('/squadre/:id/giocatori', isLoggedIn, isAdmin, upload.single('foto')
 
         let immagini_id = null;
         if (req.file) {
-            immagini_id = req.file.filename;
+            immagini_id = await daoGalleria.uploadImmagine(req.file, 'giocatore');
         }
 
         const giocatoreData = {
@@ -261,7 +366,7 @@ router.put('/squadre/:id/giocatori/:playerId', isLoggedIn, isAdmin, upload.singl
 
         let immagini_id = null;
         if (req.file) {
-            immagini_id = req.file.filename;
+            immagini_id = await daoGalleria.uploadImmagine(req.file, 'giocatore');
         }
 
         const giocatoreData = {
@@ -307,6 +412,61 @@ router.get('/api/search-users', isLoggedIn, isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Errore ricerca utenti:', err);
         res.status(500).json({ error: 'Errore durante la ricerca degli utenti' });
+    }
+});
+
+// Pagina modifica squadra
+router.get('/modifica_squadra', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) {
+            return res.status(400).send('ID squadra richiesto');
+        }
+
+        const squadra = await daoSquadre.getSquadraById(id);
+        if (!squadra) {
+            return res.status(404).send('Squadra non trovata');
+        }
+
+        // Carica giocatori e dirigenti
+        try {
+            squadra.giocatori = await daoSquadre.getGiocatoriBySquadra(id);
+            console.log('Giocatori caricati per squadra', id, ':', squadra.giocatori ? squadra.giocatori.length : 'undefined');
+        } catch (err) {
+            console.error('Errore caricamento giocatori:', err);
+            squadra.giocatori = [];
+        }
+        
+        try {
+            squadra.dirigenti = await daoDirigenti.getDirigentiBySquadra(id);
+        } catch (err) {
+            console.error('Errore caricamento dirigenti:', err);
+            squadra.dirigenti = [];
+        }
+
+        // Carica immagini se presenti
+        if (squadra.id_immagine) {
+            squadra.immagine = await daoGalleria.getImmagineById(squadra.id_immagine);
+        }
+
+        // Carica immagini per giocatori e dirigenti
+        for (let giocatore of squadra.giocatori) {
+            if (giocatore.id_immagine) {
+                giocatore.immagine = await daoGalleria.getImmagineById(giocatore.id_immagine);
+            }
+        }
+
+        for (let dirigente of squadra.dirigenti) {
+            if (dirigente.immagine_id) {
+                dirigente.immagine = await daoGalleria.getImmagineById(dirigente.immagine_id);
+            }
+        }
+
+        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        res.render('modifica_squadra', { squadra, isLoggedIn });
+    } catch (err) {
+        console.error('Errore caricamento pagina modifica squadra:', err);
+        res.status(500).send('Errore interno del server');
     }
 });
 

@@ -8,14 +8,30 @@ const daoRecensioni = require('../services/dao-recensioni');
 const daoMembriSocieta = require('../services/dao-membri-societa');
 const daoSquadre = require('../services/dao-squadre');
 const daoCampi = require('../services/dao-campi');
+const { isLoggedIn,isDirigente } = require('../middlewares/auth');
 
-router.get('/homepage', (req, res) => {
-    res.render('homepage', {
-        notizie: [],
-        eventi: [],
-        recensioni: [],
-        isLoggedIn: false
-    });
+
+router.get('/homepage', async (req, res) => {
+    try {
+        const notizie = await daoNotizie.getNotiziePaginated(0, 3) || [];
+        const eventi = await daoEventi.getEventi() || [];
+        const recensioni = await daoRecensioni.getRecensioni() || [];
+        const isLoggedIn = req.isAuthenticated();
+        res.render('homepage', {
+            notizie: notizie,
+            eventi: eventi,
+            recensioni: recensioni,
+            isLoggedIn: isLoggedIn
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento della homepage:', error);
+        res.render('homepage', {
+            notizie: [],
+            eventi: [],
+            recensioni: [],
+            isLoggedIn: false
+        });
+    }
 });
 router.get('/campionato',(req,res)=>{
     try {
@@ -38,7 +54,7 @@ router.get('/campionato',(req,res)=>{
             { posizione: 15, nome: 'Squadra 15', punti: 16, classe: 'table-warning' },
             { posizione: 16, nome: 'Squadra 16', punti: 11, classe: 'table-danger' }
         ];
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         res.render('campionato', { classifica, isLoggedIn });
     } catch (error) {
         console.error('Errore nel caricamento del campionato:', error);
@@ -49,7 +65,7 @@ router.get('/campionato',(req,res)=>{
 router.get('/squadre', async (req, res) => {
     try {
         const squadre = await require('../services/dao-squadre').getSquadre() || [];
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         const errorMessage = req.session ? req.session.errorMessage : null;
         if (req.session) {
             req.session.errorMessage = null; // Cancella il messaggio dopo averlo mostrato
@@ -68,7 +84,7 @@ router.get('/squadre', async (req, res) => {
 router.get('/galleria', async (req, res) => {
     try {
         const immagini = await require('../services/dao-galleria').getImmagini() || [];
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         res.render('galleria', {
             immagini: immagini,
             isLoggedIn: isLoggedIn
@@ -81,7 +97,7 @@ router.get('/galleria', async (req, res) => {
 router.get('/societa', async (req, res) => {
     try {
         const membriSocieta = await daoMembriSocieta.getMembriSocieta() || [];
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         res.render('societa', {
             membriSocieta: membriSocieta,
             isLoggedIn: isLoggedIn
@@ -104,7 +120,7 @@ router.get('/prenotazione', async (req, res) => {
                 orariDisponibili[campo.id] = [];
             }
         }
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         res.render('prenotazione', {
             campi: campi,
             orariDisponibili: orariDisponibili,
@@ -126,32 +142,23 @@ router.get('/registrazione',(req,res)=>{
 });
 
 router.get('/scrivi/recensione',(req,res)=>{
-    if (!req.isAuthenticated || !req.isAuthenticated()) {
+    if (!req.isAuthenticated()) {
         return res.redirect('/login');
     }
     try {
         res.render('scrivi_recensione', {
-            isLogged: true,
+            isLogged: req.isAuthenticated(),
             user: req.user,
             error: null
         });
     } catch (error) {
         console.error('Errore nel caricamento della pagina scrivi recensione:', error);
         res.render('scrivi_recensione', {
-            isLogged: true,
+            isLogged: req.isAuthenticated(),
             user: req.user,
             error: 'Errore nel caricamento della pagina'
         });
     }
-});
-
-router.get('/eventi/all',(req,res)=>{
-    res.sendFile(path.join(__dirname, '../public', 'index.html'),(err)=>{
-        if(err){
-            console.log('Error sending file:', err);
-            res.status(500).send('Internal Server Error');
-        }
-    });
 });
 
 router.get('/recensioni/all', async (req, res) => {
@@ -163,7 +170,7 @@ router.get('/recensioni/all', async (req, res) => {
         for (let i = 1; i <= 5; i++) {
             ratingCounts[i] = recensioni.filter(r => r.valutazione === i).length;
         }
-        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated();
         res.render('recensioni', {
             reviews: recensioni,
             averageRating: averageRating,
@@ -177,36 +184,9 @@ router.get('/recensioni/all', async (req, res) => {
     }
 });
 
-router.get('/eventi/all', async (req, res) => {
-  try {
-    // const eventi = await daoEventi.getEventi();
-    res.json([]);
-  }
-  catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).json({
-      error: 'Errore nel caricamento degli eventi',
-      details: error.message
-    });
-  }
-});
+// NOTE: route '/eventi/all' already handled above by sending the SPA entrypoint. Duplicate JSON endpoint removed to avoid conflicts.
 
-router.get('/eventi', async (req, res) => {
-  try {
-    const eventi = await daoEventi.getEventi();
-    res.render('eventi', {
-      title: 'Eventi - Asd BorgoVercelli 2022',
-      eventi: eventi || []
-    });
-  }
-  catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).render('error', {
-      message: 'Errore nel caricamento degli eventi',
-      error: process.env.NODE_ENV === 'development' ? error : {}
-    });
-  }
-});
+// NOTE: route '/eventi' moved to app.js to filter published events
 
 // Route per mostrare la pagina di ricerca
 router.get('/search', async (req, res) => {
@@ -242,7 +222,7 @@ router.get('/search', async (req, res) => {
 
         res.render('search', {
             query: query,
-            isLogged: isLoggedIn,
+            isLogged: req.isAuthenticated(),
             currentPath: req.path,
             searchResults: searchResults
         });
@@ -250,7 +230,7 @@ router.get('/search', async (req, res) => {
         console.error('Errore nella ricerca:', error);
         res.render('search', {
             query: req.query.q || '',
-            isLogged: req.isAuthenticated && req.isAuthenticated(),
+            isLogged: req.isAuthenticated(),
             currentPath: req.path,
             searchResults: null,
             error: 'Errore nella ricerca'
@@ -258,4 +238,27 @@ router.get('/search', async (req, res) => {
     }
 });
 
+router.get('/evento/crea-evento',isLoggedIn,isDirigente,(req,res)=>{
+    try{
+        res.render('Eventi/evento_semplice.ejs',{
+        user:req.user,
+        evento: null
+        });
+
+    }catch(error){
+    console.error('Errore nel rendering della pagina di creazione evento:', error);
+    res.status(500).send('Internal Server Error');
+    }
+});
+router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
+    try{
+        res.render('Notizie/notizia_semplice.ejs',{
+            user:req.user,
+            notizia: null
+        })
+    }catch(error){
+        console.error('Errore nel rendering della pagina di creazione notizia:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 module.exports = router;

@@ -30,9 +30,9 @@ const makeGiocatore = (row) => {
         attivo: row.attivo,
         created_at: row.created_at,
         updated_at: row.updated_at,
-        nazionalita: row.nazionalita,
-        nome: row.nome,
-        cognome: row.cognome
+        Nazionalita: row.nazionalita,
+        Nome: row.nome,
+        Cognome: row.cognome
     });
 }
 
@@ -100,7 +100,7 @@ exports.createSquadra = function(nome, annoFondazione) {
 
 exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
     let sql = 'UPDATE SQUADRE SET nome = ?, Anno = ?';
-    let params = [nome, anno];
+    let params = [nome, anno,];
     if (id_immagine !== null) {
         sql += ', id_immagine = ?';
         params.push(id_immagine);
@@ -214,8 +214,8 @@ exports.getGiocatoriBySquadra = function(squadraId) {
 
 exports.createGiocatore = function(giocatoreData) {
     const sql = `INSERT INTO GIOCATORI
-        (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, attivo, data_inizio_tesseramento)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))`;
+        (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, immagini_id, attivo, data_inizio_tesseramento)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             giocatoreData.nome,
@@ -225,7 +225,8 @@ exports.createGiocatore = function(giocatoreData) {
             giocatoreData.data_nascita || null,
             giocatoreData.piede_preferito || null,
             giocatoreData.nazionalita || null,
-            giocatoreData.squadra_id
+            giocatoreData.squadra_id,
+            giocatoreData.immagini_id || null
         ], function(err) {
             if (err) {
                 console.error('Errore SQL insert giocatore:', err);
@@ -314,7 +315,7 @@ exports.getGiocatoreById = function(id) {
 
 exports.addGiocatore = function(squadraId, giocatoreData) {
     const sql = `INSERT INTO GIOCATORI (
-        squadra_id, numero_maglia, ruolo, piede_preferito, nazionalita, Nome, Cognome, id_immagine,
+        squadra_id, numero_maglia, ruolo, piede_preferito, Nazionalita, Nome, Cognome, id_immagine,
         data_inizio_tesseramento, attivo, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), 1, datetime('now'), datetime('now'))`;
 
@@ -414,6 +415,59 @@ exports.removeDirigente = function(squadraId, dirigenteId) {
                 return reject({ error: 'Dirigente non trovato in questa squadra' });
             }
             resolve({ message: 'Dirigente rimosso con successo' });
+        });
+    });
+}
+
+exports.getSquadraById = async (id) => {
+    const sql = 'SELECT * FROM SQUADRE WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, [id], (err, row) => {
+            if (err) {
+                return reject({ error: 'Errore recupero squadra: ' + err.message });
+            }
+            resolve(row ? makeSquadra(row) : null);
+        });
+    });
+}
+
+exports.updateGiocatore = async (id, giocatoreData) => {
+    const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = datetime('now')
+                 WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            giocatoreData.nome,
+            giocatoreData.cognome,
+            giocatoreData.ruolo,
+            giocatoreData.numero_maglia,
+            giocatoreData.data_nascita,
+            giocatoreData.piede_preferito,
+            giocatoreData.nazionalita,
+            giocatoreData.immagini_id,
+            id
+        ], function(err) {
+            if (err) {
+                return reject({ error: 'Errore aggiornamento giocatore: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            resolve({ message: 'Giocatore aggiornato' });
+        });
+    });
+}
+
+exports.deleteGiocatore = async (id) => {
+    const sql = 'DELETE FROM GIOCATORI WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                return reject({ error: 'Errore eliminazione giocatore: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Giocatore non trovato' });
+            }
+            resolve({ message: 'Giocatore eliminato' });
         });
     });
 }

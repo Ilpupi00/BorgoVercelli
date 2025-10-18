@@ -203,3 +203,21 @@ exports.searchNotizie = async function(searchTerm) {
         });
     });
 }
+
+exports.getNotiziePersonali = async function (utenteId){
+    const sql = `SELECT * FROM NOTIZIE WHERE autore_id = ? ORDER BY data_pubblicazione DESC`;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [utenteId], (err, e) => {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Error retrieving personal news: ' + err.message });
+            }
+            try {
+                const result = e.map(makeNotizie) || [];
+                resolve(result);
+            } catch (e) {
+                return reject({ error: 'Error mapping personal news: ' + e.message });
+            }
+        });
+    });
+}

@@ -1,7 +1,7 @@
 'use strict';
 
 class DirigenteSquadra {
-    constructor(id, utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at) {
+    constructor(id, utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at, nome, cognome, immagine_id) {
         this.id = id;
         this.utente_id = utente_id;
         this.squadra_id = squadra_id;
@@ -11,6 +11,9 @@ class DirigenteSquadra {
         this.attivo = attivo;
         this.created_at = created_at;
         this.updated_at = updated_at;
+        this.nome = nome;
+        this.cognome = cognome;
+        this.immagine_id = immagine_id;
     }
 
     static from(json) {

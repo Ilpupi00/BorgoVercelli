@@ -30,7 +30,8 @@ exports.getEventi = function(){
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Error retrieving events: ' + err.message });
             }
-            resolve(eventi || []);
+            const risultato = eventi.map(makeEvento) || [];
+            resolve(risultato);
         });
     });
 }
@@ -157,6 +158,19 @@ exports.searchEventi = async function(searchTerm) {
             if (err) {
                 console.error('Errore SQL search eventi:', err);
                 return reject({ error: 'Error searching events: ' + err.message });
+            }
+            resolve(eventi.map(makeEvento) || []);
+        });
+    });
+}
+
+exports.getEventiPersonali= async function(utenteId){
+    const sql = `SELECT * FROM EVENTI WHERE utente=?`;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [utenteId], (err, eventi) => {
+            if (err) {
+                console.error('Errore SQL get eventi personali:', err);
+                return reject({ error: 'Error getting personal events: ' + err.message });
             }
             resolve(eventi.map(makeEvento) || []);
         });

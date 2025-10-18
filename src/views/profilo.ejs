@@ -313,6 +313,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="card actions-card animate__animated animate__fadeInRight animate__delay-4s mt-3">
+                  <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="card-title mb-0">
+                      <i class="bi bi-info-circle me-2"></i>Crea Eventi e Notizie
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-grid gap-3">
+                      <a href="/evento/crea-evento" class="btn btn-gradient-event w-100">
+                        <i class="bi bi-calendar-plus-fill me-3 fs-5"></i>Crea Nuovo Evento
+                      </a>
+                      <a href="/notizie/crea_notizie" class="btn btn-gradient-news w-100">
+                        <i class="bi bi-newspaper me-3 fs-5"></i>Crea Nuova Notizia
+                      </a>
+                    </div>
+                  </div>
+                </div>
                 <% } %>
 
                 <!-- Card Le Mie Recensioni -->
@@ -333,6 +350,27 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Card Le Mie Notizie ed Eventi -->
+                <% if (user.tipo_utente_id === 2 || user.tipo_utente_id === 1) { %>
+                <div class="card news-events-card animate__animated animate__fadeInRight animate__delay-6s mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-newspaper me-2"></i>Le Mie Notizie ed Eventi
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="userNewsEventsContainer">
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Caricamento...</span>
+                                </div>
+                                <p class="text-muted mt-2">Caricamento notizie ed eventi...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
             </div>
         </div>
     </div>

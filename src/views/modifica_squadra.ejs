@@ -3,348 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifica Squadra - <%= squadra ? squadra.nome : 'Squadra' %> - Asd BorgoVercelli 2022</title>
+    <title>Modifica Squadra - <%= squadra.nome %></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/stylesheets/Navbar.css">
     <link rel="stylesheet" href="/stylesheets/Footer.css">
-    <link rel="stylesheet" href="/stylesheets/Modifica_squadra.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/javascripts/modifica_squadra.js" defer></script>
-</head>
+    <link rel="stylesheet" href="/stylesheets/modifica_squadra.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.min.js"></script>
 <body>
     <%- include('partials/navbar') %>
 
-    <div class="team-management-container">
-        <!-- Header Section -->
-        <section class="team-header-section">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-12 col-md-4 text-center text-md-start mb-3 mb-md-0">
-                        <div class="team-logo-container">
-                            <% if (squadra && squadra.id_immagine) { %>
-                                <img src="/images/<%= squadra.id_immagine %>?t=<%= Date.now() %>"
-                                     alt="Logo <%= squadra.nome %>"
-                                     class="team-logo">
-                            <% } else { %>
-                                <div class="team-logo-placeholder">
-                                    <i class="fas fa-users"></i>
+    <main class="container-fluid py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="display-4 text-center mb-5 animate__animated animate__fadeInDown">
+                        <i class="fas fa-users-cog gradient-text"></i> Gestione Squadra: <span class="gradient-text"><%= squadra.nome %></span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Dettagli Squadra -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card shadow-lg animate__animated animate__fadeInUp glass-effect">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Informazioni Squadra
+                                <div class="float-end">
+                                    <small class="text-white-50">ID: <%= squadra.id %></small>
                                 </div>
-                            <% } %>
+                            </h3>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <h1 class="team-title"><%= squadra ? squadra.nome : 'Nuova Squadra' %></h1>
-                        <div class="team-meta">
-                            <span class="team-year"><i class="fas fa-calendar-alt"></i> Anno: <%= squadra ? squadra.Anno : '' %></span>
+                        <div class="card-body">
+                            <form id="squadraForm" class="row g-4">
+                                <input type="hidden" id="teamId" value="<%= squadra.id %>">
+                                <div class="col-md-6">
+                                    <label for="nome" class="form-label">
+                                        <i class="fas fa-tag text-primary"></i> Nome Squadra
+                                    </label>
+                                    <input type="text" class="form-control" id="nome" name="nome" value="<%= squadra.nome %>" required placeholder="Inserisci il nome della squadra">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="annoFondazione" class="form-label">
+                                        <i class="fas fa-calendar-alt text-success"></i> Anno Fondazione
+                                    </label>
+                                    <input type="number" class="form-control" id="annoFondazione" name="anno" value="<%= squadra.Anno %>" required min="1900" max="<%= new Date().getFullYear() %>" placeholder="Anno di fondazione">
+                                </div>
+                                <div class="col-12">
+                                    <label for="fotoSquadra" class="form-label">
+                                        <i class="fas fa-camera text-warning"></i> Logo Squadra
+                                    </label>
+                                    <input type="file" class="form-control" id="fotoSquadra" name="logo" accept="image/*">
+                                    <% if (squadra.immagine) { %>
+                                        <div class="mt-3 text-center">
+                                            <img src="<%= squadra.immagine.url %>" alt="Logo Squadra" class="img-fluid rounded shadow-lg hover-lift" style="max-width: 200px; border: 3px solid rgba(255,255,255,0.8);">
+                                            <p class="text-muted mt-2 small">Logo attuale</p>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="mt-3 text-center text-muted">
+                                            <i class="fas fa-image fa-3x mb-2"></i>
+                                            <p>Nessun logo caricato</p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="col-12 text-center mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg px-5" id="salvaSquadra">
+                                        <i class="fas fa-save"></i> Salva Modifiche
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="container-fluid">
-                <!-- Team Details Card -->
-                <div class="card team-details-card mb-4">
-                    <div class="card-header">
-                        <h2 class="card-title"><i class="fas fa-info-circle"></i> Dettagli Squadra</h2>
-                    </div>
-                    <div class="card-body">
-                        <form id="teamForm" class="team-form">
-                            <input type="hidden" id="teamId" value="<%= squadra ? squadra.id : '' %>">
-
-                            <div class="row">
-                                <div class="col-12 col-md-6 mb-3">
-                                    <label for="nomeSquadra" class="form-label">Nome Squadra</label>
-                                    <input type="text" class="form-control" id="nomeSquadra"
-                                           value="<%= squadra ? squadra.nome : '' %>" required>
-                                </div>
-                                <div class="col-12 col-md-6 mb-3">
-                                    <label for="annoFondazione" class="form-label">Anno Fondazione</label>
-                                    <input type="number" class="form-control" id="annoFondazione"
-                                           value="<%= squadra ? squadra.Anno : '' %>"
-                                           min="1900" max="<%= new Date().getFullYear() %>" required>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="logoUpload" class="form-label">Logo Squadra</label>
-                                <input type="file" class="form-control" id="logoUpload" accept="image/*">
-                                <div class="form-text">Seleziona un'immagine (max 5MB)</div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn" id="saveTeamBtn" style="background-color: #4ade80; color: white; border: none;">
-                                    <i class="fas fa-save"></i> Salva Modifiche
-                                </button>
-                                <button type="button" class="btn" id="deleteTeamBtn" style="background-color: #f87171; color: white; border: none;">
-                                    <i class="fas fa-trash"></i> Elimina Squadra
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Players Section -->
-                <div class="card players-card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="card-title"><i class="fas fa-users"></i> Giocatori</h2>
-                        <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addPlayerModal" style="background-color: #4ade80; color: white; border: none;">
-                            <i class="fas fa-plus"></i> Aggiungi Giocatore
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="playersList" class="row">
-                            <% if (squadra && squadra.giocatori && squadra.giocatori.length > 0) { %>
-                                <% squadra.giocatori.forEach(giocatore => { %>
-                                <div class="col-12 col-sm-6 col-md-4 mb-3">
-                                    <div class="player-card" data-player-id="<%= giocatore.id %>">
-                                        <div class="player-avatar">
-                                            <% if (giocatore.foto) { %>
-                                                <img src="/images/<%= giocatore.foto %>?t=<%= Date.now() %>"
-                                                     alt="<%= giocatore.nome %> <%= giocatore.cognome %>">
-                                            <% } else { %>
-                                                <div class="avatar-placeholder">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                            <% } %>
-                                        </div>
-                                        <div class="player-info">
-                                            <h5><%= giocatore.nome %> <%= giocatore.cognome %></h5>
-                                            <p class="role"><%= giocatore.ruolo || 'Giocatore' %></p>
-                                        </div>
-                                        <div class="player-actions">
-                                            <button class="btn btn-outline-primary btn-sm edit-player-btn">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger btn-sm remove-player-btn">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="col-12 text-center">
-                                    <p class="text-muted">Nessun giocatore presente nella squadra.</p>
-                                </div>
-                            <% } %>
+            <!-- Giocatori -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card shadow-lg animate__animated animate__fadeInUp animate__delay-1s glass-effect">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-user-friends text-success"></i> Rosa Giocatori
+                                <span class="badge bg-success ms-2"><%= squadra.giocatori.length %></span>
+                            </h3>
+                            <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalGiocatore">
+                                <i class="fas fa-plus-circle"></i> Nuovo Giocatore
+                            </button>
                         </div>
-                    </div>
-                </div>
+                        <div class="card-body">
 
-                <!-- Managers Section -->
-                <div class="card managers-card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="card-title"><i class="fas fa-user-tie"></i> Dirigenti</h2>
-                        <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addManagerModal" style="background-color: #4ade80; color: white; border: none;">
-                            <i class="fas fa-plus"></i> Aggiungi Dirigente
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="managersList" class="row">
-                            <% if (squadra && squadra.dirigenti && squadra.dirigenti.length > 0) { %>
-                                <% squadra.dirigenti.forEach(dirigente => { %>
-                                <div class="col-12 col-sm-6 col-md-4 mb-3">
-                                    <div class="manager-card" data-manager-id="<%= dirigente.id %>">
-                                        <div class="manager-avatar">
-                                            <% if (dirigente.immagine) { %>
-                                                <img src="/images/<%= dirigente.immagine %>?t=<%= Date.now() %>"
-                                                     alt="<%= dirigente.nome %> <%= dirigente.cognome %>">
-                                            <% } else { %>
-                                                <div class="avatar-placeholder">
-                                                    <i class="fas fa-user-tie"></i>
-                                                </div>
-                                            <% } %>
-                                        </div>
-                                        <div class="manager-info">
-                                            <h5><%= dirigente.nome %> <%= dirigente.cognome %></h5>
-                                            <p class="role"><%= dirigente.ruolo || 'Dirigente' %></p>
-                                            <small class="email"><%= dirigente.email %></small>
-                                        </div>
-                                        <div class="manager-actions">
-                                            <button class="btn btn-outline-danger btn-sm remove-manager-btn">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                            <% if (!squadra.giocatori || squadra.giocatori.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                                    <h4 class="text-muted">Nessun giocatore registrato</h4>
+                                    <p class="text-muted">Aggiungi il primo giocatore alla tua squadra</p>
+                                    <button class="btn btn-success btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#modalGiocatore">
+                                        <i class="fas fa-plus"></i> Aggiungi Primo Giocatore
+                                    </button>
                                 </div>
-                                <% }); %>
                             <% } else { %>
-                                <div class="col-12 text-center">
-                                    <p class="text-muted">Nessun dirigente presente nella squadra.</p>
+                                <div id="playersList" class="row g-4">
+                                    <% (squadra.giocatori || []).forEach((giocatore, index) => { %>
+                                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                                            <div class="card h-100 hover-lift animate__animated animate__fadeInUp player-card" data-player-id="<%= giocatore.id %>">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="position-relative mb-3">
+                                                        <% if (giocatore.immagine) { %>
+                                                            <img src="<%= giocatore.immagine.url %>" alt="<%= giocatore.nome %> <%= giocatore.cognome %>" class="rounded-circle shadow-lg" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid rgba(255,255,255,0.9);">
+                                                        <% } else { %>
+                                                            <div class="bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                                <i class="fas fa-user text-white fa-2x"></i>
+                                                            </div>
+                                                        <% } %>
+                                                        <div class="position-absolute top-0 end-0">
+                                                            <span class="badge bg-primary rounded-pill px-2 py-1 small">#<%= giocatore.numero_maglia %></span>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="card-title mb-1 gradient-text"><%= giocatore.nome %> <%= giocatore.cognome %></h5>
+                                                    <p class="text-muted mb-2">
+                                                        <i class="fas fa-futbol text-success"></i> <%= giocatore.ruolo %>
+                                                    </p>
+                                                    <% if (giocatore.data_nascita) { %>
+                                                        <p class="text-muted small mb-3">
+                                                            <i class="fas fa-birthday-cake text-warning"></i>
+                                                            <%= new Date(giocatore.data_nascita).toLocaleDateString('it-IT') %>
+                                                            <% if (giocatore.nazionalita) { %>
+                                                                <span class="ms-2">• <%= giocatore.nazionalita %></span>
+                                                            <% } %>
+                                                        </p>
+                                                    <% } %>
+                                                    <div class="btn-group w-100" role="group">
+                                                        <button class="btn btn-outline-primary modifica-giocatore" data-id="<%= giocatore.id %>" title="Modifica">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-danger elimina-giocatore" data-id="<%= giocatore.id %>" title="Elimina">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
                                 </div>
                             <% } %>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Add Player Modal -->
-    <div class="modal fade" id="addPlayerModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
+            <!-- Dirigenti -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-lg animate__animated animate__fadeInUp animate__delay-2s glass-effect">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-user-tie text-warning"></i> Staff Dirigenziale
+                                <span class="badge bg-warning text-dark ms-2"><%= squadra.dirigenti.length %></span>
+                            </h3>
+                            <button class="btn btn-warning btn-lg text-dark" data-bs-toggle="modal" data-bs-target="#modalDirigente">
+                                <i class="fas fa-plus-circle"></i> Nuovo Dirigente
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <% if (squadra.dirigenti.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
+                                    <h4 class="text-muted">Nessun dirigente registrato</h4>
+                                    <p class="text-muted">Assegna i primi ruoli dirigenziali alla tua squadra</p>
+                                    <button class="btn btn-warning btn-lg text-dark mt-3" data-bs-toggle="modal" data-bs-target="#modalDirigente">
+                                        <i class="fas fa-plus"></i> Aggiungi Primo Dirigente
+                                    </button>
+                                </div>
+                            <% } else { %>
+                                <div id="dirigentiList" class="row g-4">
+                                    <% squadra.dirigenti.forEach((dirigente, index) => { %>
+                                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                                            <div class="card h-100 hover-lift animate__animated animate__fadeInUp">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="position-relative mb-3">
+                                                        <% if (dirigente.immagine) { %>
+                                                            <img src="<%= dirigente.immagine.url %>" alt="<%= dirigente.nome %> <%= dirigente.cognome %>" class="rounded-circle shadow-lg" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid rgba(255,255,255,0.9);">
+                                                        <% } else { %>
+                                                            <div class="bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg" style="width: 100px; height: 100px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                                                                <i class="fas fa-user-tie text-dark fa-2x"></i>
+                                                            </div>
+                                                        <% } %>
+                                                        <div class="position-absolute top-0 end-0">
+                                                            <span class="badge bg-warning text-dark rounded-pill px-2 py-1 small"><%= dirigente.ruolo %></span>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="card-title mb-1 gradient-text"><%= dirigente.nome %> <%= dirigente.cognome %></h5>
+                                                    <p class="text-muted mb-2">
+                                                        <i class="fas fa-id-badge text-warning"></i> <%= dirigente.ruolo %>
+                                                    </p>
+                                                    <% if (dirigente.data_nomina) { %>
+                                                        <p class="text-muted small mb-3">
+                                                            <i class="fas fa-calendar-check text-success"></i>
+                                                            Nominato: <%= new Date(dirigente.data_nomina).toLocaleDateString('it-IT') %>
+                                                        </p>
+                                                    <% } %>
+                                                    <% if (dirigente.data_scadenza) { %>
+                                                        <p class="text-muted small mb-3">
+                                                            <i class="fas fa-clock text-danger"></i>
+                                                            Scadenza: <%= new Date(dirigente.data_scadenza).toLocaleDateString('it-IT') %>
+                                                        </p>
+                                                    <% } %>
+                                                    <div class="btn-group w-100" role="group">
+                                                        <button class="btn btn-outline-primary modifica-dirigente" data-id="<%= dirigente.id %>" title="Modifica">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-danger elimina-dirigente" data-id="<%= dirigente.id %>" title="Elimina">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Giocatore -->
+    <div class="modal fade" id="modalGiocatore" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-effect">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> Aggiungi Giocatore</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus text-success"></i>
+                        <span id="modalGiocatoreTitle">Aggiungi Nuovo Giocatore</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addPlayerForm">
-                        <div class="mb-3">
-                            <label for="playerNome" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="playerNome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="playerCognome" class="form-label">Cognome</label>
-                            <input type="text" class="form-control" id="playerCognome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="playerRuolo" class="form-label">Ruolo</label>
-                            <select class="form-control" id="playerRuolo">
-                                <option value="Portiere">Portiere</option>
-                                <option value="Difensore">Difensore</option>
-                                <option value="Centrocampista">Centrocampista</option>
-                                <option value="Attaccante">Attaccante</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="playerFoto" class="form-label">Foto</label>
-                            <input type="file" class="form-control" id="playerFoto" accept="image/*">
+                    <form id="giocatoreForm" class="needs-validation" novalidate>
+                        <input type="hidden" id="giocatoreId">
+                        <input type="hidden" id="giocatoreId">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="giocatoreNome" class="form-label">
+                                    <i class="fas fa-user text-primary"></i> Nome
+                                </label>
+                                <input type="text" class="form-control" id="giocatoreNome" name="nome" required placeholder="Inserisci il nome">
+                                <div class="invalid-feedback">Il nome è obbligatorio</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giocatoreCognome" class="form-label">
+                                    <i class="fas fa-user text-primary"></i> Cognome
+                                </label>
+                                <input type="text" class="form-control" id="giocatoreCognome" name="cognome" required placeholder="Inserisci il cognome">
+                                <div class="invalid-feedback">Il cognome è obbligatorio</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giocatoreRuolo" class="form-label">
+                                    <i class="fas fa-futbol text-success"></i> Ruolo
+                                </label>
+                                <select class="form-select" id="giocatoreRuolo" name="ruolo" required>
+                                    <option value="">Seleziona ruolo</option>
+                                    <option value="Portiere">🧤 Portiere</option>
+                                    <option value="Difensore">🛡️ Difensore</option>
+                                    <option value="Centrocampista">⚽ Centrocampista</option>
+                                    <option value="Attaccante">🎯 Attaccante</option>
+                                </select>
+                                <div class="invalid-feedback">Seleziona un ruolo</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="numeroMaglia" class="form-label">
+                                    <i class="fas fa-hashtag text-warning"></i> Numero Maglia
+                                </label>
+                                <input type="number" class="form-control" id="numeroMaglia" name="numero_maglia" min="1" max="99" placeholder="1-99">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dataNascita" class="form-label">
+                                    <i class="fas fa-birthday-cake text-danger"></i> Data Nascita
+                                </label>
+                                <input type="date" class="form-control" id="dataNascita" name="data_nascita">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nazionalita" class="form-label">
+                                    <i class="fas fa-globe text-info"></i> Nazionalità
+                                </label>
+                                <input type="text" class="form-control" id="nazionalita" name="nazionalita" placeholder="es. Italiana">
+                            </div>
+                            <div class="col-12">
+                                <label for="fotoGiocatore" class="form-label">
+                                    <i class="fas fa-camera text-secondary"></i> Foto Profilo
+                                </label>
+                                <input type="file" class="form-control" id="fotoGiocatore" name="foto" accept="image/*">
+                                <div class="form-text">Formati supportati: JPG, PNG, GIF. Max 5MB</div>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none;">Annulla</button>
-                    <button type="button" class="btn" onclick="addPlayer()" style="background-color: #4ade80; color: white; border: none;">Aggiungi</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Annulla
+                    </button>
+                    <button type="button" class="btn btn-danger me-auto" id="eliminaGiocatore" style="display: none;">
+                        <i class="fas fa-trash"></i> Elimina Giocatore
+                    </button>
+                    <button type="submit" class="btn btn-success" id="salvaGiocatore">
+                        <i class="fas fa-save"></i> Salva Giocatore
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Edit Player Modal -->
-    <div class="modal fade" id="editPlayerModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
+    </div>    <!-- Modal Dirigente -->
+    <div class="modal fade" id="modalDirigente" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-effect">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-edit"></i> Modifica Giocatore</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-tie text-warning"></i>
+                        <span id="modalDirigenteTitle">Aggiungi Nuovo Dirigente</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editPlayerForm">
-                        <input type="hidden" id="editPlayerId">
-                        <div class="mb-3">
-                            <label for="editPlayerNome" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="editPlayerNome" required>
+                    <form id="dirigenteForm" class="needs-validation" novalidate>
+                        <input type="hidden" id="dirigenteId">
+                        <div class="col-12 mb-4">
+                            <label for="searchUtente" class="form-label">
+                                <i class="fas fa-search text-primary"></i> Cerca Utente Esistente
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="searchUtente" placeholder="Digita nome o cognome dell'utente..." autocomplete="off">
+                            <div id="utentiResults" class="list-group mt-3 shadow-sm" style="max-height: 200px; overflow-y: auto;"></div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info"></i>
+                                Seleziona un utente esistente dal database o lascia vuoto per creare un nuovo profilo
+                            </div>
+                            <input type="hidden" id="selectedUtenteId">
                         </div>
-                        <div class="mb-3">
-                            <label for="editPlayerCognome" class="form-label">Cognome</label>
-                            <input type="text" class="form-control" id="editPlayerCognome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPlayerRuolo" class="form-label">Ruolo</label>
-                            <select class="form-control" id="editPlayerRuolo">
-                                <option value="Portiere">Portiere</option>
-                                <option value="Difensore">Difensore</option>
-                                <option value="Centrocampista">Centrocampista</option>
-                                <option value="Attaccante">Attaccante</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPlayerFoto" class="form-label">Foto</label>
-                            <input type="file" class="form-control" id="editPlayerFoto" accept="image/*">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label for="dirigenteRuolo" class="form-label">
+                                    <i class="fas fa-id-badge text-warning"></i> Ruolo Dirigenziale
+                                </label>
+                                <select class="form-select form-select-lg" id="dirigenteRuolo" required>
+                                    <option value="">Seleziona ruolo</option>
+                                    <option value="Presidente">👑 Presidente</option>
+                                    <option value="Vice Presidente">🤝 Vice Presidente</option>
+                                    <option value="Allenatore">🏆 Allenatore</option>
+                                    <option value="Vice Allenatore">🎯 Vice Allenatore</option>
+                                    <option value="Dirigente">📋 Dirigente</option>
+                                    <option value="Segretario">📝 Segretario</option>
+                                    <option value="Tesoriere">💰 Tesoriere</option>
+                                </select>
+                                <div class="invalid-feedback">Seleziona un ruolo dirigenziale</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dataNomina" class="form-label">
+                                    <i class="fas fa-calendar-plus text-success"></i> Data Nomina
+                                </label>
+                                <input type="date" class="form-control" id="dataNomina">
+                                <div class="form-text">Quando è stato nominato in questo ruolo</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dataScadenza" class="form-label">
+                                    <i class="fas fa-calendar-times text-danger"></i> Data Scadenza
+                                </label>
+                                <input type="date" class="form-control" id="dataScadenza">
+                                <div class="form-text">Quando scade il mandato (opzionale)</div>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none;">Annulla</button>
-                    <button type="button" class="btn" onclick="updatePlayer()" style="background-color: #4ade80; color: white; border: none;">Salva</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Annulla
+                    </button>
+                    <button type="button" class="btn btn-danger me-auto" id="eliminaDirigente" style="display: none;">
+                        <i class="fas fa-trash"></i> Elimina Dirigente
+                    </button>
+                    <button type="button" class="btn btn-warning text-dark" id="salvaDirigente">
+                        <i class="fas fa-save"></i> Salva Dirigente
+                    </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Manager Modal -->
-    <div class="modal fade" id="addManagerModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-user-tie"></i> Aggiungi Dirigente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="managerSearch" class="form-label">Cerca Utente</label>
-                        <input type="text" class="form-control" id="managerSearch" placeholder="Digita nome, cognome o email...">
-                        <div id="managerSuggestions" class="suggestions-container"></div>
-                    </div>
-                    <div id="selectedManager" class="selected-user-card d-none">
-                        <div class="selected-user-header">
-                            <i class="fas fa-user-check"></i>
-                            <span>Utente Selezionato</span>
-                        </div>
-                        <div class="selected-user-info">
-                            <div id="selectedManagerName" class="selected-user-name"></div>
-                            <div id="selectedManagerEmail" class="selected-user-email"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none;">Annulla</button>
-                    <button type="button" class="btn" id="addManagerBtn" onclick="addManager()" disabled style="background-color: #4ade80; color: white; border: none;">Aggiungi</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: #ffe6e6; color: #333;">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Conferma Eliminazione</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Sei sicuro di voler eliminare questa squadra? Questa azione non può essere annullata.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none;">Annulla</button>
-                    <button type="button" class="btn" onclick="confirmDelete()" style="background-color: #f87171; color: white; border: none;">Elimina</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Caricamento...</span>
-        </div>
-    </div>
-
-    <!-- Toast Notifications -->
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center" style="color: #6b7280; background-color: #f8fafc; border: 1px solid #86efac;" role="alert">
-            <div class="d-flex">
-                <div class="toast-body" id="successToastBody"></div>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-        <div id="errorToast" class="toast align-items-center" style="color: #6b7280; background-color: #f8fafc; border: 1px solid #fca5a5;" role="alert">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastBody"></div>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
 
     <%- include('partials/footer') %>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="successToastBody">Operazione completata con successo!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="errorToastBody">Si è verificato un errore!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Caricamento...</span>
+            </div>
+        </div>
+    </div>
+
     <script src="/javascripts/modifica_squadra.js"></script>
 </body>
 </html>

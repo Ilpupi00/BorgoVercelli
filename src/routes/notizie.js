@@ -2,49 +2,25 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
-const { isLoggedIn,isAdmin} = require('../middlewares/auth');
+const { isLoggedIn, isAdminOrDirigente, isAdmin } = require('../middlewares/auth');
 
+// HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
   try {
     const rows = await dao.getNotizie();
-    const notizie = (rows || []);
-    console.log('Notizie recuperate:', notizie.length);
-    console.log('Rendering notizie.ejs');
-    res.render('notizie', {
-      user: req.user,
-      notizie: notizie
-    });
+    const notizie = rows || [];
+    res.render('notizie', { user: req.user, notizie });
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
-    res.status(500).send('Errore interno del server: ' + error.message);
+    res.status(500).render('error', { message: 'Errore interno del server', error: {} });
   }
 });
 
-// Route per visualizzare una singola notizia
-router.get('/notizia/:id', async (req, res) => {
-  try {
-    const notizia = await dao.getNotiziaById(req.params.id);
-    console.log('Notizia recuperata:', notizia);
-    if (!notizia) {
-      return res.status(404).render('error', {
-        message: 'Notizia non trovata',
-        error: { status: 404 }
-      });
-    }
-    res.render('Notizie/visualizza_notizia', { notizia });
-  } catch (error) {
-    console.error('Errore nel caricamento della notizia:', error);
-    res.status(500).render('error', {
-      message: 'Errore nel caricamento della notizia',
-      error: { status: 500 }
-    });
-  }
-});
+// API: paginated list
 router.get('/api/notizie', async (req, res) => {
   try {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 6;
-
     const rows = await dao.getNotiziePaginated(offset, limit);
     res.json({ notizie: rows || [] });
   } catch (error) {
@@ -53,173 +29,98 @@ router.get('/api/notizie', async (req, res) => {
   }
 });
 
+// API: all as JSON
 router.get('/notizie', async (req, res) => {
   try {
     const rows = await dao.getNotizie();
-    res.json(rows || []); // Restituisce un array vuoto se rows è null/undefined
+    res.json(rows || []);
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
     res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
   }
 });
 
-router.get('/notizie/all', async (req, res) => {
-  try {
-    const rows = await dao.getNotizie();
-    const notizie = (rows || []);
-    console.log('Notizie recuperate:', notizie.length);
-    console.log('Rendering notizie.ejs');
-    res.render('notizie', {
-      user: req.user,
-      notizie: notizie
-    });
-  } catch (error) {
-    console.error('Errore nel recupero delle notizie:', error);
-    res.status(500).send('Errore interno del server: ' + error.message);
-  }
-});
-
-// Gestione anche della route con N maiuscola per compatibilità frontend
+// HTML: view a single news
 router.get('/notizia/:id', async (req, res) => {
   try {
     const notizia = await dao.getNotiziaById(req.params.id);
+    if (!notizia) {
+      return res.status(404).render('error', { message: 'Notizia non trovata', error: { status: 404 } });
+    }
+    res.render('Notizie/visualizza_notizia', { notizia });
+  } catch (error) {
+    console.error('Errore nel caricamento della notizia:', error);
+    res.status(500).render('error', { message: 'Errore nel caricamento della notizia', error: { status: 500 } });
+  }
+});
+
+// API: get single news JSON
+router.get('/api/notizia/:id', async (req, res) => {
+  try {
+    const notizia = await dao.getNotiziaById(req.params.id);
+    if (!notizia) return res.status(404).json({ error: 'Notizia non trovata' });
     res.json(notizia);
   } catch (error) {
-    if (error && error.error === 'News not found') {
-      // Risposta HTML user-friendly, nessun errore nel console.log del browser
-      res.status(200).send(`
-        <html>
-          <head>
-            <title>Notizia non trovata</title>
-            <link rel="stylesheet" href="/stylesheets/reviews.css">
-          </head>
-          <body style="text-align:center; margin-top:100px;">
-            <h2>Notizia non trovata</h2>
-            <p>La notizia che cerchi non esiste o è stata rimossa.</p>
-            <a href="/notizie/all" class="btn btn-primary">Torna alle notizie</a>
-          </body>
-        </html>
-      `);
-    } else {
-      res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
-    }
+    console.error('Errore nel recupero della notizia:', error);
+    res.status(500).json({ error: 'Errore nel caricamento della notizia' });
   }
 });
 
-router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
+// Personal news for the authenticated user
+router.get('/notizie/mie', isLoggedIn, async (req, res) => {
   try {
-    const result = await dao.deleteNotiziaById(req.params.id);
-    res.json(result);
+    const notizie = await dao.getNotiziePersonali(req.user.id);
+    res.json({ success: true, notizie: notizie || [] });
   } catch (error) {
-    console.error('Errore nel recupero delle notizie:', error);
-    res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+    console.error('Errore nel recupero delle notizie personali:', error);
+    res.status(500).json({ success: false, error: 'Errore nel caricamento delle notizie' });
   }
 });
 
-// Route per mostrare il form di creazione/modifica notizia
-router.get('/crea-notizie', isLoggedIn, isAdmin, async (req, res) => {
+// Forms: create/edit
+router.get('/crea-notizie', isLoggedIn, isAdminOrDirigente, async (req, res) => {
   try {
-    let notizia = null;
     const id = req.query.id;
-
-    if (id) {
-      // Modifica notizia esistente
-      notizia = await dao.getNotiziaById(id);
-    }
-
-    res.render('Notizie/notizia', {
-      user: req.user,
-      notizia: notizia,
-      error: null
-    });
+    let notizia = null;
+    if (id) notizia = await dao.getNotiziaById(id);
+    res.render('Notizie/notizia', { user: req.user, notizia, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form notizia:', error);
-    res.render('Notizie/notizia', {
-      user: req.user,
-      notizia: null,
-      error: 'Errore nel caricamento della notizia'
-    });
+    res.render('Notizie/notizia', { user: req.user, notizia: null, error: 'Errore nel caricamento della notizia' });
   }
 });
 
-// Route per mostrare il form semplice di creazione/modifica notizia
-router.get('/crea-notizia-semplice', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/crea-notizia-semplice', isLoggedIn, isAdminOrDirigente, async (req, res) => {
   try {
-    let notizia = null;
     const id = req.query.id;
-
-    if (id) {
-      // Modifica notizia esistente
-      notizia = await dao.getNotiziaById(id);
-    }
-
-    res.render('Notizie/notizia_semplice', {
-      user: req.user,
-      notizia: notizia,
-      error: null
-    });
+    let notizia = null;
+    if (id) notizia = await dao.getNotiziaById(id);
+    res.render('Notizie/notizia_semplice', { user: req.user, notizia, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form notizia semplice:', error);
-    res.render('Notizie/notizia_semplice', {
-      user: req.user,
-      notizia: null,
-      error: 'Errore nel caricamento della notizia'
-    });
+    res.render('Notizie/notizia_semplice', { user: req.user, notizia: null, error: 'Errore nel caricamento della notizia' });
   }
 });
 
-// Route per creare una nuova notizia
-router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
+// Create new news
+router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) => {
   try {
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
 
-    // Validazione dimensione contenuto (max 5MB)
-    if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
-      return res.render(templateName, {
-        user: req.user,
-        notizia: null,
-        error: 'Il contenuto della notizia è troppo grande (max 5MB). Riduci il contenuto.'
-      });
-    }
-
     if (!titolo || !contenuto) {
-      return res.render(templateName, {
-        user: req.user,
-        notizia: null,
-        error: 'Titolo e contenuto sono obbligatori'
-      });
+      return res.render(templateName, { user: req.user, notizia: null, error: 'Titolo e contenuto sono obbligatori' });
     }
 
-    // Validazione contenuto più approfondita
-    if (!contenuto || !contenuto.trim()) {
-      return res.render(templateName, {
-        user: req.user,
-        notizia: null,
-        error: 'Il contenuto della notizia non può essere vuoto'
-      });
+    if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
+      return res.render(templateName, { user: req.user, notizia: null, error: 'Il contenuto della notizia è troppo grande (max 5MB).' });
     }
 
-    // Controlla che non sia solo tag HTML vuoti
-    const emptyPatterns = ['<p><br></p>', '<p></p>', '<p><br/></p>', '<div><br></div>', '<div></div>'];
-    if (emptyPatterns.includes(contenuto.trim())) {
-      return res.render(templateName, {
-        user: req.user,
-        notizia: null,
-        error: 'Il contenuto della notizia non può essere vuoto'
-      });
-    }
-
-    // Controlla che ci sia del testo effettivo (non solo tag HTML)
     const cheerio = require('cheerio');
-    const $ = cheerio.load(contenuto);
+    const $ = cheerio.load(contenuto || '');
     const textContent = $.text().trim();
     if (textContent.length < 1) {
-      return res.render(templateName, {
-        user: req.user,
-        notizia: null,
-        error: 'Il contenuto della notizia deve contenere del testo effettivo'
-      });
+      return res.render(templateName, { user: req.user, notizia: null, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
     }
 
     const notiziaData = {
@@ -233,65 +134,36 @@ router.post('/notizie/nuova', isLoggedIn, isAdmin, async (req, res) => {
     };
 
     await dao.createNotizia(notiziaData);
-
     res.redirect('/admin/notizie');
   } catch (error) {
     console.error('Errore nella creazione della notizia:', error);
-    res.render(templateName, {
-      user: req.user,
-      notizia: null,
-      error: 'Errore nella creazione della notizia'
-    });
+    res.status(500).render('error', { message: 'Errore nella creazione della notizia', error: {} });
   }
 });
 
-// Route per aggiornare una notizia esistente
+// Update existing news
 router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
   try {
-    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const id = req.params.id;
+    const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
-
-    // Validazione dimensione contenuto (max 5MB)
-    if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
-      const notizia = await dao.getNotiziaById(id);
-      return res.render(templateName, {
-        user: req.user,
-        notizia: notizia,
-        error: 'Il contenuto della notizia è troppo grande (max 5MB). Riduci il contenuto.'
-      });
-    }
 
     if (!titolo || !contenuto) {
       const notizia = await dao.getNotiziaById(id);
-      return res.render(templateName, {
-        user: req.user,
-        notizia: notizia,
-        error: 'Titolo e contenuto sono obbligatori'
-      });
+      return res.render(templateName, { user: req.user, notizia, error: 'Titolo e contenuto sono obbligatori' });
     }
 
-    // Validazione contenuto più approfondita
-    if (!contenuto.trim() || contenuto.trim() === '<p><br></p>' || contenuto.trim() === '<p></p>') {
+    if (contenuto && Buffer.byteLength(contenuto, 'utf8') > 5 * 1024 * 1024) {
       const notizia = await dao.getNotiziaById(id);
-      return res.render(templateName, {
-        user: req.user,
-        notizia: notizia,
-        error: 'Il contenuto della notizia non può essere vuoto'
-      });
+      return res.render(templateName, { user: req.user, notizia, error: 'Il contenuto della notizia è troppo grande (max 5MB).' });
     }
 
-    // Controlla che ci sia del testo effettivo (non solo tag HTML)
     const cheerio = require('cheerio');
-    const $ = cheerio.load(contenuto);
+    const $ = cheerio.load(contenuto || '');
     const textContent = $.text().trim();
     if (textContent.length < 1) {
       const notizia = await dao.getNotiziaById(id);
-      return res.render(templateName, {
-        user: req.user,
-        notizia: notizia,
-        error: 'Il contenuto della notizia deve contenere del testo effettivo'
-      });
+      return res.render(templateName, { user: req.user, notizia, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
     }
 
     const notiziaData = {
@@ -304,36 +176,38 @@ router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
     };
 
     await dao.updateNotizia(id, notiziaData);
-
     res.redirect('/admin/notizie');
   } catch (error) {
     console.error('Errore nell\'aggiornamento della notizia:', error);
-    const notizia = await dao.getNotiziaById(req.params.id);
-    res.render(templateName, {
-      user: req.user,
-      notizia: notizia,
-      error: 'Errore nell\'aggiornamento della notizia'
-    });
+    res.status(500).render('error', { message: 'Errore nell\'aggiornamento della notizia', error: {} });
   }
 });
 
-// Route per pubblicare/sospendere una notizia
+// Publish/unpublish
 router.put('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const { pubblicata } = req.body;
-
     const updateData = {
       pubblicata: pubblicata ? 1 : 0,
       data_pubblicazione: pubblicata ? new Date().toISOString() : null
     };
-
     await dao.updateNotizia(id, updateData);
-
     res.json({ success: true, message: pubblicata ? 'Notizia pubblicata' : 'Notizia sospesa' });
   } catch (error) {
     console.error('Errore nella pubblicazione/sospensione della notizia:', error);
     res.status(500).json({ success: false, error: 'Errore nell\'operazione' });
+  }
+});
+
+// Delete
+router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    await dao.deleteNotiziaById(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Errore nell\'eliminazione della notizia:', error);
+    res.status(500).json({ success: false, error: 'Errore interno del server' });
   }
 });
 

@@ -101,3 +101,33 @@ exports.deleteImmagine = function(id) {
         });
     });
 }
+
+exports.uploadImmagine = function(file, tipo) {
+    return new Promise((resolve, reject) => {
+        const fs = require('fs');
+        const path = require('path');
+        const url = '/uploads/' + file.filename;
+        const now = new Date().toISOString();
+        const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
+        db.run(sql, [url, tipo, '', now, now], function(err) {
+            if (err) {
+                console.error('Errore SQL insert immagine:', err);
+                return reject({ error: 'Errore nell\'inserimento dell\'immagine: ' + err.message });
+            }
+            resolve(this.lastID);
+        });
+    });
+}
+
+exports.getImmagineById = function(id) {
+    const sql = 'SELECT * FROM IMMAGINI WHERE id = ?;';
+    return new Promise((resolve, reject) => {
+        db.get(sql, [id], (err, row) => {
+            if (err) {
+                console.error('Errore SQL get immagine:', err);
+                return reject({ error: 'Errore nel recupero dell\'immagine: ' + err.message });
+            }
+            resolve(row ? makeImmagine(row) : null);
+        });
+    });
+}

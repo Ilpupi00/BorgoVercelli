@@ -7,6 +7,7 @@ class Profilo {
     init() {
         this.setupEventListeners();
         this.caricaRecensioniUtente();
+        this.caricaNotizieEventiUtente();
     }
 
     setupEventListeners() {
@@ -141,6 +142,112 @@ class Profilo {
                 </div>
             `;
         });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    async caricaNotizieEventiUtente() {
+        try {
+            const [notizieResponse, eventiResponse] = await Promise.all([
+                fetch('/notizie/mie'),
+                fetch('/eventi/miei')
+            ]);
+
+            const notizieData = await notizieResponse.json();
+            const eventiData = await eventiResponse.json();
+
+            const notizie = (notizieData.success ? notizieData.notizie : []) || [];
+            const eventi = eventiData.eventi || [];
+
+            this.mostraNotizieEventiUtente(notizie, eventi);
+        } catch (error) {
+            console.error('Errore caricamento notizie ed eventi:', error);
+            document.getElementById('userNewsEventsContainer').innerHTML =
+                '<div class="alert alert-danger">Errore di connessione</div>';
+        }
+    }
+
+    mostraNotizieEventiUtente(notizie, eventi) {
+        const container = document.getElementById('userNewsEventsContainer');
+
+        const totalItems = notizie.length + eventi.length;
+
+        if (totalItems === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="bi bi-newspaper text-muted display-4 mb-3"></i>
+                    <p class="text-muted">Non hai ancora creato nessuna notizia o evento.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="/notizie/crea_notizie" class="btn btn-outline-success">Crea Notizia</a>
+                        <a href="/evento/crea-evento" class="btn btn-outline-primary">Crea Evento</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '<div class="news-events-list">';
+
+        // Mostra prima gli eventi
+        eventi.forEach(evento => {
+            const data = new Date(evento.data_evento).toLocaleDateString('it-IT');
+            const ora = evento.ora_inizio ? `alle ${evento.ora_inizio}` : '';
+
+            html += `
+                <div class="news-event-item border rounded p-3 mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-container bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 text-primary">
+                                        <i class="bi bi-calendar-event me-2"></i>${evento.titolo}
+                                    </h6>
+                                    <p class="mb-2 text-muted small">${evento.descrizione}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>${data} ${ora}
+                                        ${evento.luogo ? `<i class="bi bi-geo-alt ms-2 me-1"></i>${evento.luogo}` : ''}
+                                    </small>
+                                </div>
+                                <span class="badge bg-primary">Evento</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Poi le notizie
+        notizie.forEach(notizia => {
+            const data = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT');
+
+            html += `
+                <div class="news-event-item border rounded p-3 mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-container bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-newspaper"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 text-success">
+                                        <i class="bi bi-newspaper me-2"></i>${notizia.titolo}
+                                    </h6>
+                                    <p class="mb-2 text-muted small">${notizia.contenuto.substring(0, 100)}${notizia.contenuto.length > 100 ? '...' : ''}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>Pubblicato il ${data}
+                                    </small>
+                                </div>
+                                <span class="badge bg-success">Notizia</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
         html += '</div>';
         container.innerHTML = html;
     }

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { isLoggedIn, isAdmin } = require('../middlewares/auth');
+const { isLoggedIn, isAdmin, isAdminOrDirigente } = require('../middlewares/auth');
 const userDao = require('../services/dao-user');
 const notizieDao = require('../services/dao-notizie');
 const eventiDao = require('../services/dao-eventi');
@@ -50,7 +50,7 @@ router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo evento
-router.post('/evento/nuovo', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) => {
     try {
         const eventoData = {
             titolo: req.body.titolo,
@@ -74,7 +74,7 @@ router.post('/evento/nuovo', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per aggiornare un evento
-router.put('/evento/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/evento/:id', isLoggedIn, isAdmin,async (req, res) => {
     try {
         const eventoData = {
             titolo: req.body.titolo,
@@ -152,7 +152,7 @@ router.get('/crea-evento/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 
-router.get('/crea-notizie', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/crea-notizie', isLoggedIn, isAdminOrDirigente, async (req, res) => {
     try {
         res.render('Notizie/notizia_semplice.ejs', {
             user: req.user,
@@ -164,7 +164,7 @@ router.get('/crea-notizie', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.get('/crea-notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/crea-notizie/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
     try {
         const notizia = await notizieDao.getNotiziaById(req.params.id);
         res.render('Notizie/notizia_semplice.ejs', {
@@ -178,7 +178,7 @@ router.get('/crea-notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare una nuova notizia
-router.post('/notizia/nuova', isLoggedIn, isAdmin, async (req, res) => {
+/*router.post('/notizia/nuova', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const pubblicata = req.body.pubblicato === 'true' || req.body.pubblicato === true;
         const notiziaData = {
@@ -197,7 +197,7 @@ router.post('/notizia/nuova', isLoggedIn, isAdmin, async (req, res) => {
         console.error('Errore nella creazione della notizia:', error);
         res.status(500).json({ success: false, error: 'Errore nella creazione della notizia' });
     }
-});
+});*/
 
 // Route per aggiornare una notizia
 router.put('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {

@@ -35,26 +35,37 @@ class TeamManager {
     constructor(notificationManager, loadingManager) {
         this.notificationManager = notificationManager;
         this.loadingManager = loadingManager;
-        this.teamId = document.getElementById('teamId').value;
-        this.teamForm = document.getElementById('teamForm');
-        this.saveBtn = document.getElementById('saveTeamBtn');
+        this.teamId = document.getElementById('teamId')?.value || this.extractTeamIdFromUrl();
+        this.teamForm = document.getElementById('squadraForm');
+        this.saveBtn = document.getElementById('salvaSquadra');
         this.deleteBtn = document.getElementById('deleteTeamBtn');
-        this.logoUpload = document.getElementById('logoUpload');
+        this.logoUpload = document.getElementById('fotoSquadra');
 
         this.init();
     }
 
+    extractTeamIdFromUrl() {
+        const pathParts = window.location.pathname.split('/');
+        return pathParts[pathParts.length - 1];
+    }
+
     init() {
-        this.teamForm.addEventListener('submit', (e) => this.handleSubmit(e));
-        this.deleteBtn.addEventListener('click', () => this.showDeleteConfirmation());
-        this.logoUpload.addEventListener('change', (e) => this.validateLogo(e));
+        if (this.teamForm) {
+            this.teamForm.addEventListener('submit', (e) => this.handleSubmit(e));
+        }
+        if (this.deleteBtn) {
+            this.deleteBtn.addEventListener('click', () => this.showDeleteConfirmation());
+        }
+        if (this.logoUpload) {
+            this.logoUpload.addEventListener('change', (e) => this.validateLogo(e));
+        }
     }
 
     async handleSubmit(e) {
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append('nome', document.getElementById('nomeSquadra').value);
+        formData.append('nome', document.getElementById('nome').value);
         formData.append('anno', document.getElementById('annoFondazione').value);
 
         if (this.logoUpload.files[0]) {
@@ -138,20 +149,38 @@ class PlayerManager {
     constructor(notificationManager, loadingManager) {
         this.notificationManager = notificationManager;
         this.loadingManager = loadingManager;
-        this.teamId = document.getElementById('teamId').value;
+        this.teamId = document.getElementById('teamId')?.value || this.extractTeamIdFromUrl();
         this.playersList = document.getElementById('playersList');
-        this.addPlayerModal = new bootstrap.Modal(document.getElementById('addPlayerModal'));
-        this.editPlayerModal = new bootstrap.Modal(document.getElementById('editPlayerModal'));
-        this.addPlayerForm = document.getElementById('addPlayerForm');
-        this.editPlayerForm = document.getElementById('editPlayerForm');
+        const modalGiocatoreEl = document.getElementById('modalGiocatore');
+        this.addPlayerModal = modalGiocatoreEl ? new bootstrap.Modal(modalGiocatoreEl) : null;
+        this.editPlayerModal = modalGiocatoreEl ? new bootstrap.Modal(modalGiocatoreEl) : null;
+        this.addPlayerForm = document.getElementById('giocatoreForm');
+        this.editPlayerForm = document.getElementById('giocatoreForm');
 
         this.init();
     }
 
+    extractTeamIdFromUrl() {
+        const pathParts = window.location.pathname.split('/');
+        return pathParts[pathParts.length - 1];
+    }
+
     init() {
-        this.playersList.addEventListener('click', (e) => this.handlePlayerAction(e));
-        document.getElementById('addPlayerForm').addEventListener('submit', (e) => this.handleAddPlayer(e));
-        document.getElementById('editPlayerForm').addEventListener('submit', (e) => this.handleEditPlayer(e));
+        if (this.playersList) {
+            this.playersList.addEventListener('click', (e) => this.handlePlayerAction(e));
+        }
+        // Rimosso event listener sul form, usiamo solo quello sul pulsante
+        const salvaGiocatoreBtn = document.getElementById('salvaGiocatore');
+        if (salvaGiocatoreBtn) {
+            salvaGiocatoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleAddPlayer(new Event('submit'));
+            });
+        }
+        if (this.editPlayerForm) {
+            this.editPlayerForm.addEventListener('submit', (e) => this.handleEditPlayer(e));
+        }
+
     }
 
     handlePlayerAction(e) {
@@ -159,11 +188,11 @@ class PlayerManager {
         if (!target) return;
 
         const playerCard = target.closest('.player-card');
-        const playerId = playerCard.dataset.playerId;
+        const playerId = target.dataset.id;
 
-        if (target.classList.contains('edit-player-btn')) {
+        if (target.classList.contains('modifica-giocatore')) {
             this.openEditModal(playerId);
-        } else if (target.classList.contains('remove-player-btn')) {
+        } else if (target.classList.contains('elimina-giocatore')) {
             this.removePlayer(playerId);
         }
     }
@@ -183,7 +212,7 @@ class PlayerManager {
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Giocatore aggiunto con successo!');
-                this.addPlayerModal.hide();
+                if (this.addPlayerModal) this.addPlayerModal.hide();
                 this.addPlayerForm.reset();
                 setTimeout(() => location.reload(), 1500);
             } else {
@@ -212,7 +241,7 @@ class PlayerManager {
         document.getElementById('editPlayerCognome').value = playerInfo.querySelector('h5').textContent.split(' ')[1];
         document.getElementById('editPlayerRuolo').value = playerInfo.querySelector('.role').textContent;
 
-        this.editPlayerModal.show();
+        if (this.editPlayerModal) this.editPlayerModal.show();
     }
 
     async handleEditPlayer(e) {
@@ -233,7 +262,7 @@ class PlayerManager {
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Giocatore aggiornato con successo!');
-                this.editPlayerModal.hide();
+                if (this.editPlayerModal) this.editPlayerModal.hide();
                 setTimeout(() => location.reload(), 1500);
             } else {
                 throw new Error(result.error || 'Errore durante l\'aggiornamento del giocatore');
@@ -280,14 +309,11 @@ class ManagerManager {
         this.notificationManager = notificationManager;
         this.loadingManager = loadingManager;
         this.teamId = document.getElementById('teamId').value;
-        this.managersList = document.getElementById('managersList');
-        this.addManagerModal = new bootstrap.Modal(document.getElementById('addManagerModal'));
-        this.managerSearch = document.getElementById('managerSearch');
-        this.managerSuggestions = document.getElementById('managerSuggestions');
-        this.selectedManager = document.getElementById('selectedManager');
-        this.selectedManagerName = document.getElementById('selectedManagerName');
-        this.selectedManagerEmail = document.getElementById('selectedManagerEmail');
-        this.addManagerBtn = document.getElementById('addManagerBtn');
+        this.managersList = document.getElementById('dirigentiList');
+        const modalDirigenteEl = document.getElementById('modalDirigente');
+        this.addManagerModal = modalDirigenteEl ? new bootstrap.Modal(modalDirigenteEl) : null;
+        this.managerSearch = document.getElementById('searchUtente');
+        this.managerSuggestions = document.getElementById('utentiResults');
 
         this.selectedUserId = null;
         this.searchTimeout = null;
@@ -296,9 +322,17 @@ class ManagerManager {
     }
 
     init() {
-        this.managersList.addEventListener('click', (e) => this.handleManagerAction(e));
-        this.managerSearch.addEventListener('input', (e) => this.handleSearchInput(e));
-        this.managerSearch.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+        if (this.managersList) {
+            this.managersList.addEventListener('click', (e) => this.handleManagerAction(e));
+        }
+        if (this.managerSearch) {
+            this.managerSearch.addEventListener('input', (e) => this.handleSearchInput(e));
+            this.managerSearch.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+        }
+        const salvaDirigenteBtn = document.getElementById('salvaDirigente');
+        if (salvaDirigenteBtn) {
+            salvaDirigenteBtn.addEventListener('click', () => this.addManager());
+        }
     }
 
     handleManagerAction(e) {
@@ -323,7 +357,7 @@ class ManagerManager {
 
         if (query.length < 2) {
             this.managerSuggestions.innerHTML = '';
-            this.hideSelectedUser();
+            this.resetManagerForm();
             return;
         }
 
@@ -336,8 +370,7 @@ class ManagerManager {
     handleSearchKeydown(e) {
         if (e.key === 'Escape') {
             this.managerSuggestions.innerHTML = '';
-            this.managerSearch.value = '';
-            this.hideSelectedUser();
+            this.resetManagerForm();
         }
     }
 
@@ -383,25 +416,14 @@ class ManagerManager {
 
     selectUser(user) {
         this.selectedUserId = user.id;
-        this.selectedManagerName.textContent = `${user.nome} ${user.cognome}`;
-        this.selectedManagerEmail.textContent = user.email;
-
-        this.showSelectedUser();
+        // Popola i campi del form con i dati dell'utente selezionato
+        document.getElementById('dirigenteRuolo').focus();
         this.managerSuggestions.innerHTML = '';
-        this.managerSearch.value = '';
-
-        // Enable add button
-        this.addManagerBtn.disabled = false;
-    }
-
-    showSelectedUser() {
-        this.selectedManager.classList.remove('d-none');
-    }
-
-    hideSelectedUser() {
-        this.selectedManager.classList.add('d-none');
-        this.selectedUserId = null;
-        this.addManagerBtn.disabled = true;
+        this.managerSearch.value = `${user.nome} ${user.cognome}`;
+        this.managerSearch.disabled = true;
+        
+        // Abilita il pulsante salva
+        document.getElementById('salvaDirigente').disabled = false;
     }
 
     async addManager() {
@@ -410,8 +432,13 @@ class ManagerManager {
             return;
         }
 
+        const ruolo = document.getElementById('dirigenteRuolo').value;
+        if (!ruolo) {
+            this.notificationManager.showError('Seleziona un ruolo dirigenziale');
+            return;
+        }
+
         this.loadingManager.show();
-        this.addManagerBtn.classList.add('loading');
 
         try {
             const response = await fetch(`/squadre/${this.teamId}/dirigenti`, {
@@ -419,15 +446,20 @@ class ManagerManager {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ userId: this.selectedUserId })
+                body: JSON.stringify({ 
+                    userId: this.selectedUserId,
+                    ruolo: ruolo,
+                    data_nomina: document.getElementById('dataNomina').value,
+                    data_scadenza: document.getElementById('dataScadenza').value
+                })
             });
 
             const result = await response.json();
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Dirigente aggiunto con successo!');
-                this.addManagerModal.hide();
-                this.hideSelectedUser();
+                if (this.addManagerModal) this.addManagerModal.hide();
+                this.resetManagerForm();
                 setTimeout(() => location.reload(), 1500);
             } else {
                 throw new Error(result.error || 'Errore durante l\'aggiunta del dirigente');
@@ -437,8 +469,17 @@ class ManagerManager {
             this.notificationManager.showError(error.message || 'Errore durante l\'aggiunta del dirigente');
         } finally {
             this.loadingManager.hide();
-            this.addManagerBtn.classList.remove('loading');
         }
+    }
+
+    resetManagerForm() {
+        this.selectedUserId = null;
+        this.managerSearch.value = '';
+        this.managerSearch.disabled = false;
+        document.getElementById('dirigenteRuolo').value = '';
+        document.getElementById('dataNomina').value = '';
+        document.getElementById('dataScadenza').value = '';
+        document.getElementById('salvaDirigente').disabled = true;
     }
 
     async removeManager(managerId) {

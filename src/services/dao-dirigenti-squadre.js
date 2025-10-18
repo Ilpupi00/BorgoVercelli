@@ -112,3 +112,59 @@ exports.getDirigenteByUserId = function (userId) {
         });
     });
 };
+
+exports.createDirigente = async (dirigenteData) => {
+    const sql = `INSERT INTO DIRIGENTI_SQUADRE (utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [
+            dirigenteData.utente_id,
+            dirigenteData.squadra_id,
+            dirigenteData.ruolo,
+            dirigenteData.data_nomina,
+            dirigenteData.data_scadenza
+        ], function(err) {
+            if (err) {
+                return reject({ error: 'Errore creazione dirigente: ' + err.message });
+            }
+            resolve({ id: this.lastID, ...dirigenteData });
+        });
+    });
+}
+
+exports.updateDirigente = async (id, dirigenteData) => {
+    let sql = `UPDATE DIRIGENTI_SQUADRE SET ruolo = ?, data_nomina = ?, data_scadenza = ?, updated_at = datetime('now')`;
+    const params = [dirigenteData.ruolo, dirigenteData.data_nomina, dirigenteData.data_scadenza];
+    if (dirigenteData.utente_id) {
+        sql += `, utente_id = ?`;
+        params.push(dirigenteData.utente_id);
+    }
+    sql += ` WHERE id = ?`;
+    params.push(id);
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, params, function(err) {
+            if (err) {
+                return reject({ error: 'Errore aggiornamento dirigente: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Dirigente non trovato' });
+            }
+            resolve({ message: 'Dirigente aggiornato' });
+        });
+    });
+}
+
+exports.deleteDirigente = async (id) => {
+    const sql = 'UPDATE DIRIGENTI_SQUADRE SET attivo = 0 WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err) {
+            if (err) {
+                return reject({ error: 'Errore eliminazione dirigente: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Dirigente non trovato' });
+            }
+            resolve({ message: 'Dirigente eliminato' });
+        });
+    });
+}

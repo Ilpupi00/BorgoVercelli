@@ -64,17 +64,7 @@ app.use(methodOverride(function (req, res) {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route specifica per eventi/all - messa dopo i middleware di base
-app.get('/all', async (req, res) => {
-  try {
-    const dao = require('./services/dao-eventi');
-    const eventi = await dao.getEventi();
-    res.json({ eventi: eventi || [] });
-  } catch (error) {
-    console.error('Errore nel recupero degli eventi:', error);
-    res.status(500).json({ error: 'Errore interno del server' });
-  }
-});
+// Route specifica per eventi/all - ora gestita in routes-eventi.js
 
 const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -93,11 +83,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Middleware to set global locals for templates
-app.use(function(req, res, next) {
+app.use(async function(req, res, next) {
   res.locals.isLogged = req.isAuthenticated();
   res.locals.currentPath = req.path;
   if (req.isAuthenticated() && req.user) {
-    res.locals.imageUrl = req.user.immagine_profilo;
+    try {
+      const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+      res.locals.imageUrl = imageUrl;
+    } catch (error) {
+      console.error('Errore nel recupero immagine profilo:', error);
+      res.locals.imageUrl = null;
+    }
   } else {
     res.locals.imageUrl = null;
   }

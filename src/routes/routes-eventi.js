@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-eventi');
+const { isLoggedIn, isAdminOrDirigente } = require('../middlewares/auth');
 
 // Route per eventi/all gestita dal router
 router.get('/all', async (req, res) => {
@@ -36,7 +37,40 @@ router.get('/evento/:id', async (req, res) => {
   }
 });
 
-// Route per /eventi gestita direttamente in app.js
-// Route per /api/eventi gestita direttamente in app.js
+router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+    try {
+        const eventoData = {
+            titolo: req.body.titolo,
+            descrizione: req.body.descrizione,
+            data_inizio: req.body.data_inizio,
+            data_fine: req.body.data_fine,
+            luogo: req.body.luogo,
+            tipo_evento: req.body.tipo_evento,
+            squadra_id: req.body.squadra_id || null,
+            campo_id: req.body.campo_id || null,
+            max_partecipanti: req.body.max_partecipanti || null,
+            pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
+        };
+
+        const result = await eventiDao.createEvento(eventoData);
+        res.json({ success: true, message: 'Evento creato con successo', id: result.id });
+    } catch (error) {
+        console.error('Errore nella creazione dell\'evento:', error);
+        res.status(500).json({ success: false, error: 'Errore nella creazione dell\'evento' });
+    }
+});
+
+router.get('/eventi/miei', isLoggedIn, async (req,res)=>
+{
+    try{
+        const eventi= await dao.getEventiPersonali(req.user.id);
+        res.json({eventi:eventi || []});
+    }catch(error){
+        console.error('Errore nel recupero degli eventi personali:', error);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+
 
 module.exports = router;
