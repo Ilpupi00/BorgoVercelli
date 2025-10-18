@@ -359,6 +359,7 @@ form {
 .navbar {
   /* avoid clipping dropdowns */
   overflow: visible;
+  z-index: 2000 !important; /* ensure navbar is above other content */
 }
 
 .navbar-nav {
@@ -380,6 +381,13 @@ form {
   margin: 10px 0;
   opacity: 0;
   animation: fadeInUp 0.5s ease-in-out forwards;
+}
+
+/* Ensure nav items don't clip absolutely positioned dropdown menus
+   (some keyframes set overflow during animation; override it) */
+.navbar-nav .nav-item,
+.navbar .dropdown {
+  overflow: visible !important;
 }
 
 @media (min-width: 992px) {
@@ -538,8 +546,77 @@ header p {
   left: 0 !important;
   margin-top: 0.125rem !important;
   z-index: 2050 !important; /* above navbar and other elements */
-  /* Remove display: block to let Bootstrap JS manage visibility via 'show' class */
-  will-change: transform;
+  /* avoid forcing display so Bootstrap can manage visibility; use opacity/visibility instead */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform-origin: top center;
+  will-change: transform, opacity;
+  transition: opacity 180ms cubic-bezier(.2,.9,.2,1), transform 180ms cubic-bezier(.2,.9,.2,1);
+
+  /* modern look: slightly larger, rounded, solid background (not transparent) */
+  min-width: 260px; /* default mobile/tablet fallback */
+  padding: 8px; /* space around items */
+  border-radius: 12px;
+  /* Use a solid, brand-coherent background instead of transparent glass */
+  background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.35), 0 2px 6px rgba(13,110,253,0.08);
+  overflow: visible;
+}
+
+.navbar .dropdown-menu.show {
+  /* when Bootstrap adds .show make it visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(6px) !important;
+  display: block !important; /* keep for compatibility */
+}
+
+/* Dropdown items styling */
+.navbar .dropdown-item {
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background 120ms ease, transform 90ms ease, color 120ms ease;
+  background: transparent;
+}
+/* Apply hover/focus/active styles only while the dropdown is open (.show)
+   so they don't persist after the menu is closed (focus remains) */
+.navbar .dropdown.show .dropdown-item:hover,
+.navbar .dropdown.show .dropdown-item:focus {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+.navbar .dropdown.show .dropdown-item:active {
+  background: rgba(255,255,255,0.12);
+}
+/* Remove default focus outline for a cleaner look but keep accessibility via :focus-visible if desired */
+.navbar .dropdown-item:focus {
+  outline: none;
+}
+
+.navbar .dropdown-divider {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: 6px 0;
+}
+
+/* Larger dropdown on desktop for more space */
+@media (min-width: 992px) {
+  .navbar .dropdown-menu {
+    min-width: 320px !important;
+    padding: 10px !important;
+    right: 0 !important;
+    left: auto !important;
+  }
+  .navbar .dropdown-menu.show {
+    transform: translateY(8px) !important;
+  }
 }
 
 /* On larger screens keep dropdown inside nav visually aligned */
