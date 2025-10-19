@@ -72,17 +72,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Route specifica per eventi/all - ora gestita in routes-eventi.js
 
-const isLoggedIn = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.status(401).send({ error: 'Unauthorized' });
-}
 
-app.use(session({
-  secret: "your-secret-key",
-  resave: false,
-  saveUninitialized: true
+ app.use(session({
+   secret: "your-secret-key",
+   resave: false,
+    saveUninitialized: true
 }));
 
 app.use(passport.initialize());
@@ -90,41 +84,21 @@ app.use(passport.session());
 
 // Middleware to set global locals for templates
 app.use(async function(req, res, next) {
-  res.locals.isLogged = req.isAuthenticated();
+  res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
   res.locals.currentPath = req.path;
-  if (req.isAuthenticated() && req.user) {
-    try {
+   if (req.isAuthenticated() && req.user) {
+     try {
       const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
       res.locals.imageUrl = imageUrl;
-    } catch (error) {
+     }catch (error) {
       console.error('Errore nel recupero immagine profilo:', error);
       res.locals.imageUrl = null;
-    }
-  } else {
-    res.locals.imageUrl = null;
+     }
   }
   next();
 });
-app.get('/eventi', async (req, res) => {
-  try {
-    const dao = require('./services/dao-eventi');
-    const eventi = await dao.getEventi();
-    // Filtra solo gli eventi pubblicati
-    const eventiPubblicati = eventi.filter(evento => evento.pubblicato === 1 || evento.pubblicato === true);
-    res.render('eventi', {
-      title: 'Eventi - Asd BorgoVercelli 2022',
-      eventi: eventiPubblicati || []
-    });
-  } catch (error) {
-    console.error('Errore nel caricamento degli eventi:', error);
-    res.render('eventi', {
-      title: 'Eventi - Asd BorgoVercelli 2022',
-      eventi: []
-    });
-  }
-});
 
-// Routing
+
 app.use('/', routes);
 app.use('/', routesNotizie);
 app.use('/', routesEventi);
@@ -134,7 +108,7 @@ app.use('/', routesRecensioni);
 app.use('/', routesSendEmail);
 app.use('/', routesSquadre);
 app.use('/', routesGalleria);
-app.use('/', routesPrenotazione);
+app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
 
 app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
