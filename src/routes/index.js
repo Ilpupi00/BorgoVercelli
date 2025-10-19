@@ -9,14 +9,16 @@ const daoMembriSocieta = require('../services/dao-membri-societa');
 const daoSquadre = require('../services/dao-squadre');
 const daoCampi = require('../services/dao-campi');
 const { isLoggedIn,isDirigente } = require('../middlewares/auth');
+const emailService = require('../services/email-service');
 
 
 router.get('/homepage', async (req, res) => {
     try {
-        const notizie = await daoNotizie.getNotiziePaginated(0, 3) || [];
+        // Temporaneamente senza dao per evitare errori
+        const notizie = await daoNotizie.getNotiziePaginated(0,3) || [];
         const eventi = await daoEventi.getEventi() || [];
         const recensioni = await daoRecensioni.getRecensioni() || [];
-        const isLoggedIn = req.isAuthenticated();
+        const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
         res.render('homepage', {
             notizie: notizie,
             eventi: eventi,
@@ -238,18 +240,18 @@ router.get('/search', async (req, res) => {
     }
 });
 
-router.get('/evento/crea-evento',isLoggedIn,isDirigente,(req,res)=>{
-    try{
-        res.render('Eventi/evento_semplice.ejs',{
-        user:req.user,
-        evento: null
-        });
+// router.get('/evento/crea-evento',isLoggedIn,isDirigente,(req,res)=>{
+//     try{
+//         res.render('Eventi/evento_semplice.ejs',{
+//         user:req.user,
+//         evento: null
+//         });
 
-    }catch(error){
-    console.error('Errore nel rendering della pagina di creazione evento:', error);
-    res.status(500).send('Internal Server Error');
-    }
-});
+//    }catch(error){
+//     console.error('Errore nel rendering della pagina di creazione evento:', error);
+//     res.status(500).send('Internal Server Error');
+//     }
+// });
 router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
     try{
         res.render('Notizie/notizia_semplice.ejs',{
@@ -259,6 +261,42 @@ router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
     }catch(error){
         console.error('Errore nel rendering della pagina di creazione notizia:', error);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+// Pagina contatti (GET) - mostra il form di contatto
+router.get('/contatti', (req, res) => {
+    try {
+        const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
+        res.render('contatti', { isLoggedIn: isLoggedIn });
+    } catch (error) {
+        console.error('Errore nel rendering della pagina contatti:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Endpoint POST per invio contatti (API)
+router.post('/contatti', async (req, res) => {
+    try {
+        const { name, email, message, subject } = req.body;
+
+        // semplice validazione server-side
+        if (!name || !email || !message || !subject) {
+            return res.status(400).json({ error: 'Tutti i campi sono obbligatori.' });
+        }
+
+        // Invia la mail tramite il service
+        await emailService.sendEmail({
+            fromName: name,
+            fromEmail: email,
+            subject: subject,
+            message: message
+        });
+
+        return res.json({ success: true, message: 'Messaggio inviato con successo.' });
+    } catch (err) {
+        console.error('Errore invio contatti:', err);
+        return res.status(500).json({ error: 'Errore durante l\'invio del messaggio.' });
     }
 });
 module.exports = router;

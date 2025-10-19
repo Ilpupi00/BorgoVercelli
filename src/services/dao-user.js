@@ -66,6 +66,7 @@ exports.getUser = function(email, password) {
             WHERE u.email = ?
         `;
         sqlite.get(sql, [email], (err, user) => {
+            console.log('Trovato utente:', user);
             if (err) {
                 return reject({ error: 'Error retrieving user: ' + err.message });
             }
@@ -74,6 +75,9 @@ exports.getUser = function(email, password) {
             }
             bcrypt.compare(password, user.password_hash)
                 .then((isMatch) => {
+                    console.log('Password inserita:', password);
+                    console.log('Hash salvato:', user.password_hash);
+                    console.log('Password match:', isMatch);
                     if (isMatch) {
                         resolve(user);
                     } else {
