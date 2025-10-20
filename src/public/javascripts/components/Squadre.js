@@ -89,7 +89,7 @@ class Squadre {
         if (squadreAnno.length > 0) {
             const squadra = squadreAnno[0];
             title.textContent = squadra.nome;
-            img.src = squadra.id_immagine ? '/uploads/' + squadra.id_immagine : '/images/Logo.png';
+            img.src = squadra.id_immagine ? '/src/public/uploads/' + squadra.id_immagine : '/images/Logo.png';
             img.alt = squadra.nome;
             if (rosterTitle) rosterTitle.textContent = `Roster ${squadra.nome}`;
         } else {

@@ -57,22 +57,23 @@ exports.getSquadre = async () => {
 
 exports.getGiocatori =async ()=>{
     const sql = `SELECT 
-        id,
-        immagini_id AS id_immagine,
-        squadra_id,
-        numero_maglia,
-        ruolo,
-        data_nascita,
-        piede_preferito,
-        data_inizio_tesseramento,
-        data_fine_tesseramento,
-        attivo,
-        created_at,
-        updated_at,
-        Nazionalità AS nazionalita,
-        Nome AS nome,
-        Cognome AS cognome
-    FROM GIOCATORI`;
+        g.id,
+        i.url AS id_immagine,
+        g.squadra_id,
+        g.numero_maglia,
+        g.ruolo,
+        g.data_nascita,
+        g.piede_preferito,
+        g.data_inizio_tesseramento,
+        g.data_fine_tesseramento,
+        g.attivo,
+        g.created_at,
+        g.updated_at,
+        g.Nazionalità AS nazionalita,
+        g.Nome AS nome,
+        g.Cognome AS cognome
+    FROM GIOCATORI g
+    LEFT JOIN IMMAGINI i ON g.immagini_id = i.id`;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, rows) => {
             if (err) {
