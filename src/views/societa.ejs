@@ -102,36 +102,86 @@
     <section class="team-section py-5">
         <div class="container-fluid px-4">
             <div class="text-center mb-5">
-                <h2 class="display-5 fw-bold text-primary mb-4">Il Nostro Team</h2>
-                <p class="lead fs-5 text-muted mb-4">
-                    Conosci le persone che rendono possibile questa bellissima avventura
+                <h2 class="display-5 fw-bold text-primary mb-4">La Nostra Organizzazione</h2>
+                <p class="lead fs-5 text-muted">
+                    Scopri la struttura e i professionisti che rendono possibile questa bellissima avventura
                 </p>
 
-                <!-- Legenda Ruoli -->
-                <div class="role-legend d-flex flex-wrap justify-content-center gap-2 mb-4">
-                    <small class="text-muted me-3">
-                        <span class="badge role-presidente me-1">●</span>Presidente
-                    </small>
-                    <small class="text-muted me-3">
-                        <span class="badge role-vice-presidente me-1">●</span>Vice Presidente
-                    </small>
-                    <small class="text-muted me-3">
-                        <span class="badge role-dirigente me-1">●</span>Dirigente
-                    </small>
-                    <small class="text-muted me-3">
-                        <span class="badge role-segretario me-1">●</span>Segretario
-                    </small>
-                    <small class="text-muted me-3">
-                        <span class="badge role-allenatore me-1">●</span>Allenatore
-                    </small>
-                    <small class="text-muted">
-                        <span class="badge role-dirigente-accompagnatore me-1">●</span>Dirigente Accompagnatore
-                    </small>
+                <!-- Legenda Gruppi -->
+                <div class="groups-legend d-flex flex-wrap justify-content-center gap-3 mb-4">
+                    <div class="legend-item text-center">
+                        <div class="legend-icon mb-2">
+                            <i class="fas fa-building fa-2x text-primary"></i>
+                        </div>
+                        <small class="text-muted fw-bold">Organi Direttivi</small>
+                        <div class="legend-badges mt-1">
+                            <span class="badge role-presidente badge-sm me-1">●</span>
+                            <span class="badge role-vice-presidente badge-sm me-1">●</span>
+                            <span class="badge role-segretario badge-sm">●</span>
+                        </div>
+                    </div>
+                    <div class="legend-item text-center">
+                        <div class="legend-icon mb-2">
+                            <i class="fas fa-futbol fa-2x text-success"></i>
+                        </div>
+                        <small class="text-muted fw-bold">Staff Tecnico</small>
+                        <div class="legend-badges mt-1">
+                            <span class="badge role-allenatore badge-sm">●</span>
+                        </div>
+                    </div>
+                    <div class="legend-item text-center">
+                        <div class="legend-icon mb-2">
+                            <i class="fas fa-users-cog fa-2x text-info"></i>
+                        </div>
+                        <small class="text-muted fw-bold">Dirigenti</small>
+                        <div class="legend-badges mt-1">
+                            <span class="badge role-dirigente badge-sm me-1">●</span>
+                            <span class="badge role-dirigente-accompagnatore badge-sm">●</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="row g-4">
-                <% membriSocieta.forEach((membro, index) => { %>
+                <%
+                // Raggruppa membri per categoria
+                const gruppi = {
+                    'organi-direttivi': {
+                        titolo: 'Organi Direttivi',
+                        descrizione: 'La guida e direzione della nostra società',
+                        icona: 'fas fa-building',
+                        membri: membriSocieta.filter(m => ['presidente', 'vice-presidente', 'segretario'].includes(m.ruolo.toLowerCase()))
+                    },
+                    'staff-tecnico': {
+                        titolo: 'Staff Tecnico',
+                        descrizione: 'I professionisti che guidano le nostre squadre',
+                        icona: 'fas fa-futbol',
+                        membri: membriSocieta.filter(m => m.ruolo.toLowerCase().includes('allenatore'))
+                    },
+                    'dirigenti': {
+                        titolo: 'Dirigenti',
+                        descrizione: 'Il supporto organizzativo e gestionale',
+                        icona: 'fas fa-users-cog',
+                        membri: membriSocieta.filter(m => m.ruolo.toLowerCase().includes('dirigente') || m.ruolo.toLowerCase().includes('accompagnatore'))
+                    }
+                };
+
+                Object.keys(gruppi).forEach(gruppoKey => {
+                    const gruppo = gruppi[gruppoKey];
+                    if (gruppo.membri.length > 0) {
+                %>
+                <!-- Gruppo <%= gruppo.titolo %> -->
+                <div class="col-12 mb-5">
+                    <div class="group-header text-center mb-4">
+                        <div class="group-icon mb-3">
+                            <i class="<%= gruppo.icona %> fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="group-title h2 fw-bold text-primary mb-2"><%= gruppo.titolo %></h3>
+                        <p class="group-description lead text-muted"><%= gruppo.descrizione %></p>
+                    </div>
+
+                    <div class="row g-4">
+                        <% gruppo.membri.forEach((membro, index) => { %>
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="member-card bg-white rounded-3 shadow-sm h-100 overflow-hidden animate__animated animate__fadeInUp"
                          style="--animation-delay: <%= index * 0.1 %>s"
@@ -185,7 +235,11 @@
                         </div>
                     </div>
                 </div>
-                <% }); %>
+                        <% }); %>
+                    </div>
+                </div>
+                <%   }
+                }); %>
             </div>
         </div>
     </section>
