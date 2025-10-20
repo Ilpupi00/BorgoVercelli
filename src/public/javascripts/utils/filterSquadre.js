@@ -53,7 +53,7 @@ class FilterSquadre {
         if (giocatori.length === 0) {
             const tr = document.createElement('tr');
             const td = document.createElement('td');
-            td.colSpan = 8;
+            td.colSpan = 9;
             td.textContent = 'Nessun giocatore trovato per questa squadra.';
             tr.appendChild(td);
             rosterTable.appendChild(tr);

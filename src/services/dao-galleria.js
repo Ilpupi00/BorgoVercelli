@@ -106,7 +106,7 @@ exports.uploadImmagine = function(file, tipo) {
     return new Promise((resolve, reject) => {
         const fs = require('fs');
         const path = require('path');
-        const url = '/uploads/' + file.filename;
+        const url = '/src/public/uploads/' + file.filename;
         const now = new Date().toISOString();
         const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
         db.run(sql, [url, tipo, '', now, now], function(err) {
