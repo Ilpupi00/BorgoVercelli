@@ -9,7 +9,7 @@ const makeSquadra = (row) => {
     return new Squadra(
         row.id,
         row.nome,
-        row.id_immagine,
+        row.immagine_url,
         row.Anno,
         row.dirigenti || [],  // Aggiunto per dirigenti
         row.giocatori || []   // Aggiunto per giocatori
@@ -39,7 +39,7 @@ const makeGiocatore = (row) => {
 
 
 exports.getSquadre = async () => {
-    const sql = 'SELECT * FROM SQUADRE';
+    const sql = `SELECT s.*, i.url AS immagine_url FROM SQUADRE s LEFT JOIN IMMAGINI i ON s.id_immagine = i.id`;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, async (err, squadre) => {
             if (err) {

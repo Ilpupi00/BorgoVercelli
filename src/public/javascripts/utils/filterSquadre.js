@@ -47,6 +47,7 @@ class FilterSquadre {
         }
         // Filtra i giocatori della squadra (corretto)
         const giocatori = this.giocatori.filter(g => Number(g.squadra_id) === Number(squadraId));
+        console.log('Giocatori filtrati per squadra', squadraId, ':', giocatori);
         const rosterTable = this.Section.querySelector('#rosterTable');
         rosterTable.innerHTML = '';
         if (giocatori.length === 0) {
