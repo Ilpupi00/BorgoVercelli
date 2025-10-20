@@ -85,13 +85,13 @@ class FilterSquadre {
             tr.innerHTML = `
                 <td>${idx + 1}</td>
                 <td>${fotoCell}</td>
-                <td>${giocatore.Nome || ''}</td>
-                <td>${giocatore.Cognome || ''}</td>
+                <td>${giocatore.nome || ''}</td>
+                <td>${giocatore.cognome || ''}</td>
                 <td>${giocatore.numero_maglia || ''}</td>
                 <td><span class="position-badge position-${ruoloClass}">${giocatore.ruolo || ''}</span></td>
                 <td>${eta}</td>
                 <td>${giocatore.piede_preferito=== 'Sinistro' ? 'SX':'DX' || '' }</td>
-                <td>${giocatore.Nazionalita || ''}</td>
+                <td>${giocatore.nazionalita || ''}</td>
             `;
             rosterTable.appendChild(tr);
         });

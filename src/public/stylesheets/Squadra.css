@@ -272,6 +272,16 @@
         width: 32px;
         height: 32px;
     }
+
+    /* Nascondi colonne meno importanti su mobile */
+    .table-soccer th:nth-child(2), /* Foto */
+    .table-soccer td:nth-child(2),
+    .table-soccer th:nth-child(7), /* Età */
+    .table-soccer td:nth-child(7),
+    .table-soccer th:nth-child(8), /* Piede */
+    .table-soccer td:nth-child(8) {
+        display: none;
+    }
 }
 
 /* Animazioni di entrata per elementi */
