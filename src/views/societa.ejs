@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Società</title>
+    <title>Società - ASD BorgoVercelli</title>
     <link href="/stylesheets/Navbar.css" rel="stylesheet">
     <link href="/stylesheets/Footer.css" rel="stylesheet">
     <link href="/stylesheets/Società.css" rel="stylesheet">
@@ -15,51 +15,187 @@
 <body>
     <%- include('partials/navbar') %>
 
-    <header>
-        <div class="container-fluid text-black text-center py-5 px-4">
-            <h1 class="display-4 overflow-hidden py-4 px-4">ASD BorgoVercelli</h1>
-            <p class="lead mt-3 text-black">La tua squadra di calcio locale</p>
-        </div>
-    </header>
-
-    <% membriSocieta.forEach(membro => { %>
-    <section class="my-5 py-4">
-        <div class="container">
-            <div class="card border-0 shadow-lg rounded-lg hover-card mb-5">
-                <div class="row g-0 align-items-center p-5">
-                    <div class="col-md-3 col-lg-2 text-center mb-3 mb-md-0">
-                        <div class="profile-img-container">
-                            <% if (membro.immagine_profilo) { %>
-                                <img class="img-fluid rounded-circle border border-4 border-primary shadow"
-                                     src="<%= membro.immagine_profilo %>"
-                                     alt="Foto di <%= membro.nome %> <%= membro.cognome %>" width="150">
-                            <% } else { %>
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow"
-                                     style="width: 150px; height: 150px; border: 4px solid #007bff;">
-                                    <i class="bi bi-person-fill" style="font-size: 4rem;"></i>
-                                </div>
-                            <% } %>
+    <!-- Hero Section -->
+    <section class="hero-section bg-gradient-primary text-white py-5">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-12 col-md-8 col-lg-6 text-center">
+                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">
+                        <i class="fas fa-users me-3"></i>ASD BorgoVercelli
+                    </h1>
+                    <p class="lead fs-5 mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        La tua squadra di calcio locale dal 2022
+                    </p>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-auto">
+                            <div class="stat-card bg-white bg-opacity-10 rounded-pill px-4 py-2">
+                                <div class="stat-number fw-bold"><%- new Date().getFullYear() - 2022 %></div>
+                                <div class="stat-label small">Anni di storia</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-9 col-lg-10">
-                        <div class="card-body ps-md-5">
-                            <h2 class="card-title display-4 fw-bold text-primary mb-2 overflow-hidden"><%= membro.nome %> <%= membro.cognome %></h2>
-                            <h5 class="card-subtitle fs-3 text-muted mb-4 fst-italic overflow-hidden">
-                                <i class="fas fa-star me-2"></i><%= membro.ruolo %>
-                            </h5>
-                            <p class="card-text fs-4 mb-4">Membro attivo della nostra società sportiva, impegnato nel <%= membro.ruolo.toLowerCase() %> dell'ASD BorgoVercelli.</p>
+                        <div class="col-auto">
+                            <div class="stat-card bg-white bg-opacity-10 rounded-pill px-4 py-2">
+                                <div class="stat-number fw-bold"><%= membriSocieta.length %></div>
+                                <div class="stat-label small">Membri attivi</div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stat-card bg-white bg-opacity-10 rounded-pill px-4 py-2">
+                                <div class="stat-number fw-bold">3</div>
+                                <div class="stat-label small">Squadre</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <% }); %>
+
+    <!-- About Section -->
+    <section class="about-section py-5 bg-light">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="text-center mb-5">
+                        <h2 class="display-5 fw-bold text-primary mb-4">Chi Siamo</h2>
+                        <p class="lead fs-5 text-muted">
+                            L'Associazione Sportiva Dilettantistica BorgoVercelli è una realtà consolidata nel panorama calcistico locale,
+                            impegnata nella promozione dello sport e dei valori che esso rappresenta.
+                        </p>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4 bg-white rounded-3 shadow-sm h-100">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-heart text-danger fa-3x"></i>
+                                </div>
+                                <h5 class="fw-bold mb-3">Passione</h5>
+                                <p class="text-muted">La passione per il calcio ci unisce e ci motiva ogni giorno</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4 bg-white rounded-3 shadow-sm h-100">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-users text-primary fa-3x"></i>
+                                </div>
+                                <h5 class="fw-bold mb-3">Comunità</h5>
+                                <p class="text-muted">Costruiamo una comunità forte e unita attraverso lo sport</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4 bg-white rounded-3 shadow-sm h-100">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-trophy text-warning fa-3x"></i>
+                                </div>
+                                <h5 class="fw-bold mb-3">Eccellenza</h5>
+                                <p class="text-muted">Miriamo all'eccellenza in campo e nella vita quotidiana</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section py-5">
+        <div class="container-fluid px-4">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-primary mb-4">Il Nostro Team</h2>
+                <p class="lead fs-5 text-muted">
+                    Conosci le persone che rendono possibile questa bellissima avventura
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <% membriSocieta.forEach((membro, index) => { %>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="member-card bg-white rounded-3 shadow-sm h-100 overflow-hidden animate__animated animate__fadeInUp"
+                         style="--animation-delay: <%= index * 0.1 %>s">
+                        <div class="member-header bg-gradient-primary text-white p-4 text-center">
+                            <% if (membro.immagine_profilo) { %>
+                                <img class="member-avatar rounded-circle border border-4 border-white shadow"
+                                     src="<%= membro.immagine_profilo %>"
+                                     alt="Foto di <%= membro.nome %> <%= membro.cognome %>">
+                            <% } else { %>
+                                <div class="member-avatar bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center border border-4 border-white shadow">
+                                    <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
+                                </div>
+                            <% } %>
+                            <h5 class="member-name fw-bold mb-1 mt-3"><%= membro.nome %> <%= membro.cognome %></h5>
+                            <p class="member-role mb-0 opacity-75">
+                                <i class="fas fa-star me-1"></i><%= membro.ruolo %>
+                            </p>
+                        </div>
+
+                        <div class="member-body p-4">
+                            <p class="member-description text-muted mb-4">
+                                Membro attivo della nostra società sportiva, impegnato nel <%= membro.ruolo.toLowerCase() %>
+                                dell'ASD BorgoVercelli con passione e dedizione.
+                            </p>
+
+                            <div class="member-actions d-flex gap-2">
+                                <% if (membro.email) { %>
+                                <button class="btn btn-outline-primary flex-fill contact-btn"
+                                        onclick="contattaMembro('<%= membro.email %>')">
+                                    <i class="fas fa-envelope me-1"></i>Contatta
+                                </button>
+                                <% } %>
+                                <button class="btn btn-primary flex-fill details-btn"
+                                        onclick="vediDettagli(<%= membro.id %>)">
+                                    <i class="fas fa-info-circle me-1"></i>Dettagli
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section py-5 bg-light">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6 text-center">
+                    <h2 class="display-5 fw-bold text-primary mb-4">Contattaci</h2>
+                    <p class="lead fs-5 text-muted mb-4">
+                        Hai domande o vuoi unirti alla nostra squadra? Siamo qui per te!
+                    </p>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-auto">
+                            <a href="/contatti" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-envelope me-2"></i>Scrivici
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="tel:+390161123456" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="fas fa-phone me-2"></i>Chiama
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <%- include('partials/footer') %>
 
     <script type="module">
         import Societa from '/javascripts/components/Società.js';
+
+        // Inizializza funzioni globali per onclick
+        window.contattaMembro = function(email) {
+            const societa = new Societa(document.body);
+            societa.contattaMembro(email);
+        };
+
+        window.vediDettagli = function(id) {
+            const societa = new Societa(document.body);
+            societa.vediDettagli(id);
+        };
 
         new Societa(document.body);
     </script>

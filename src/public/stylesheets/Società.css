@@ -1,48 +1,204 @@
-  /* CSS aggiuntivo per migliorare l'aspetto */
-  .hover-card {
+/* Società Page Styles */
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* About Section */
+.about-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.feature-card {
     transition: all 0.3s ease;
-    border-radius: 20px !important;
-    background: linear-gradient(to right, #ffffff, #f8f9fa);
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  .hover-card:hover {
-    transform: translateY(-8px);
+    border: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+.feature-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Team Section */
+.team-section {
+    background: #ffffff;
+}
+
+.member-card {
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+    animation-delay: var(--animation-delay, 0s);
+}
+
+.member-card:hover {
+    transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
-  }
-  
-  .profile-img-container {
+}
+
+.member-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+}
+
+.member-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-width: 4px !important;
+}
+
+.member-name {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+}
+
+.member-role {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.member-body {
+    background: #ffffff;
+}
+
+.member-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.member-actions {
+    margin-top: auto;
+}
+
+.contact-btn, .details-btn {
     transition: all 0.3s ease;
-  }
-  
-  .hover-card:hover .profile-img-container {
+    border-radius: 25px;
+    font-weight: 500;
+}
+
+.contact-btn:hover {
+    background-color: #007bff;
+    border-color: #007bff;
     transform: scale(1.05);
-  }
-  
-  .card-title {
-    color: #2c3e50 !important;
-    font-size: 2.8rem;
-  }
-  
-  .card-subtitle {
-    color: #7f8c8d !important;
-  }
-  
-  /* Aggiungere Font Awesome per le icone */
-  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-  
-  /* Per schermi più piccoli */
-  @media (max-width: 768px) {
-    .card-title {
-      font-size: 2.2rem;
+}
+
+.details-btn:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transform: scale(1.05);
+}
+
+/* Contact Section */
+.contact-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 50vh;
+        padding: 3rem 0;
     }
-    
-    .card-subtitle {
-      font-size: 1.4rem;
+
+    .display-4 {
+        font-size: 2.5rem;
     }
-    
-    .card-text {
-      font-size: 1.2rem;
+
+    .display-5 {
+        font-size: 2rem;
     }
-  }
+
+    .member-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .member-name {
+        font-size: 1.1rem;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .member-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .member-actions .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
