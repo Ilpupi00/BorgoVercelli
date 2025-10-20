@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
 const { isLoggedIn, isAdminOrDirigente, isAdmin } = require('../middlewares/auth');
+const { DomPlatform } = require('chart.js');
 
 // HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
@@ -18,18 +19,9 @@ router.get('/notizie/all', async (req, res) => {
 
 // API: paginated list with filters
 router.get('/api/notizie', async (req, res) => {
+
   try {
-    const offset = parseInt(req.query.offset) || 0;
-    const limit = parseInt(req.query.limit) || 12;
-    
-    const filters = {
-      search: req.query.search,
-      author: req.query.author,
-      dateFrom: req.query.dateFrom,
-      dateTo: req.query.dateTo
-    };
-    
-    const rows = await dao.getNotizieFiltered(filters, offset, limit);
+    const rows = await dao.getNotizie();
     res.json({ notizie: rows || [] });
   } catch (error) {
     console.error('Errore nel recupero delle notizie filtrate:', error);

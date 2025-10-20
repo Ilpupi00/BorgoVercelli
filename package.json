@@ -6,7 +6,6 @@
     "start": "node ./src/bin/www"
   },
   "dependencies": {
-    "all": "^0.0.0",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.0",

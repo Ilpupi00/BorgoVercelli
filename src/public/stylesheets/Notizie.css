@@ -1,31 +1,26 @@
 /* Mobile-first design - Notizie.css */
-
-:root{
-    --primary-color: #0d6efd;
-    --secondary-color: #22b14c;
-    --card-bg: #fff;
-    --card-border: rgba(255,255,255,0.8);
-    --text-color: #333;
-    --muted-text: #666;
-    --btn-bg: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%);
-    --btn-hover-bg: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
-    --shadow-light: 0 4px 20px rgba(13, 110, 253, 0.1);
-    --shadow-dark: rgba(0,0,0,0.15);
-}
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f8f9fa;
-    min-height: 100vh;
-    margin: 0;
-    color: #333;
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --white: #ffffff;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --transition: all 0.3s ease;
 }
 
+/* Hero Section */
 .hero-section {
-    background: #ffffff;
-    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid #e9ecef;
 }
 
 .hero-section::before {
@@ -35,9 +30,37 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+}
+
+.hero-section-notizia{
+    background: #ffffff;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #e9ecef;
+}
+    
+.hero-section-notizia::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
     opacity: 0.1;
 }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+
 
 .main-content {
     background: #ffffff;
