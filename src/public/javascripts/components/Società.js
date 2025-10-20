@@ -194,7 +194,7 @@ Cordiali saluti`);
                                 <div class="col-md-8">
                                     <div class="mb-3">
                                         <strong class="text-primary">Ruolo:</strong>
-                                        <span class="badge bg-primary ms-2">${membro.ruolo}</span>
+                                        <span class="badge role-badge role-${membro.ruolo.toLowerCase().replace(/\s+/g, '-')} ms-2">${membro.ruolo}</span>
                                     </div>
                                     <div class="mb-3">
                                         <strong class="text-primary"><i class="fas fa-envelope me-1"></i>Email:</strong>

@@ -103,16 +103,39 @@
         <div class="container-fluid px-4">
             <div class="text-center mb-5">
                 <h2 class="display-5 fw-bold text-primary mb-4">Il Nostro Team</h2>
-                <p class="lead fs-5 text-muted">
+                <p class="lead fs-5 text-muted mb-4">
                     Conosci le persone che rendono possibile questa bellissima avventura
                 </p>
+
+                <!-- Legenda Ruoli -->
+                <div class="role-legend d-flex flex-wrap justify-content-center gap-2 mb-4">
+                    <small class="text-muted me-3">
+                        <span class="badge role-presidente me-1">●</span>Presidente
+                    </small>
+                    <small class="text-muted me-3">
+                        <span class="badge role-vice-presidente me-1">●</span>Vice Presidente
+                    </small>
+                    <small class="text-muted me-3">
+                        <span class="badge role-dirigente me-1">●</span>Dirigente
+                    </small>
+                    <small class="text-muted me-3">
+                        <span class="badge role-segretario me-1">●</span>Segretario
+                    </small>
+                    <small class="text-muted me-3">
+                        <span class="badge role-allenatore me-1">●</span>Allenatore
+                    </small>
+                    <small class="text-muted">
+                        <span class="badge role-dirigente-accompagnatore me-1">●</span>Dirigente Accompagnatore
+                    </small>
+                </div>
             </div>
 
             <div class="row g-4">
                 <% membriSocieta.forEach((membro, index) => { %>
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="member-card bg-white rounded-3 shadow-sm h-100 overflow-hidden animate__animated animate__fadeInUp"
-                         style="--animation-delay: <%= index * 0.1 %>s">
+                         style="--animation-delay: <%= index * 0.1 %>s"
+                         data-role="<%= membro.ruolo.toLowerCase().replace(/\s+/g, '-') %>">
                         <div class="member-header bg-gradient-primary text-white p-4 text-center">
                             <% if (membro.immagine_profilo) { %>
                                 <img class="member-avatar rounded-circle border border-4 border-white shadow"
@@ -125,7 +148,32 @@
                             <% } %>
                             <h5 class="member-name fw-bold mb-1 mt-3"><%= membro.nome %> <%= membro.cognome %></h5>
                             <p class="member-role mb-0 opacity-75">
-                                <i class="fas fa-star me-1"></i><%= membro.ruolo %>
+                                <span class="badge role-badge role-<%= membro.ruolo.toLowerCase().replace(/\s+/g, '-') %>">
+                                    <% 
+                                    let iconClass = 'fas fa-star';
+                                    switch(membro.ruolo.toLowerCase()) {
+                                        case 'presidente':
+                                            iconClass = 'fas fa-crown';
+                                            break;
+                                        case 'vice-presidente':
+                                            iconClass = 'fas fa-user-tie';
+                                            break;
+                                        case 'segretario':
+                                            iconClass = 'fas fa-clipboard';
+                                            break;
+                                        case 'dirigente':
+                                            iconClass = 'fas fa-briefcase';
+                                            break;
+                                        case 'allenatore':
+                                            iconClass = 'fas fa-futbol';
+                                            break;
+                                        case 'dirigente accompagnatore':
+                                            iconClass = 'fas fa-users-cog';
+                                            break;
+                                    }
+                                    %>
+                                    <i class="<%= iconClass %> me-1"></i><%= membro.ruolo %>
+                                </span>
                             </p>
                         </div>
 
@@ -134,19 +182,6 @@
                                 Membro attivo della nostra società sportiva, impegnato nel <%= membro.ruolo.toLowerCase() %>
                                 dell'ASD BorgoVercelli con passione e dedizione.
                             </p>
-
-                            <div class="member-actions d-flex gap-2">
-                                <% if (membro.email) { %>
-                                <button class="btn btn-outline-primary flex-fill contact-btn"
-                                        onclick="contattaMembro('<%= membro.email %>')">
-                                    <i class="fas fa-envelope me-1"></i>Contatta
-                                </button>
-                                <% } %>
-                                <button class="btn btn-primary flex-fill details-btn"
-                                        onclick="vediDettagli(<%= membro.id %>)">
-                                    <i class="fas fa-info-circle me-1"></i>Dettagli
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
