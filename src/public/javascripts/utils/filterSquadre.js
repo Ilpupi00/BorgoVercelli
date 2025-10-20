@@ -61,6 +61,7 @@ class FilterSquadre {
         }
         giocatori.forEach((giocatore, idx) => {
             const tr = document.createElement('tr');
+            console.log('Giocatore:', giocatore);
             let fotoCell = '';
             if (giocatore.id_immagine && giocatore.id_immagine.trim() !== '') {
                 fotoCell = `<img src="${giocatore.id_immagine}" class="player-photo rounded-circle" style="width:32px;height:32px;object-fit:cover;" alt="Foto Giocatore">`;

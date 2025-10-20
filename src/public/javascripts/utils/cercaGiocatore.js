@@ -55,6 +55,7 @@ class CercaGiocatore {
         }
         rosterTable.innerHTML = '';
         filtered.forEach((g, idx) => {
+            console.log('Giocatore filtered:', g);
             const tr = document.createElement('tr');
             let fotoCell = '';
             if (g.id_immagine) {
