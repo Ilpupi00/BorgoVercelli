@@ -1,15 +1,56 @@
 /* Società Page Styles */
 
+/* Variabili CSS per i colori del sito */
+:root {
+    /* Colori principali del sito */
+    --primary-blue: #0d6efd;
+    --primary-blue-dark: #2563eb;
+    --primary-blue-light: #4dabf7;
+
+    /* Colori per ruoli */
+    --role-presidente: #FFD700;
+    --role-presidente-dark: #FFA500;
+    --role-presidente-text: #8B4513;
+
+    --role-vice-presidente: #C0C0C0;
+    --role-vice-presidente-dark: #A8A8A8;
+    --role-vice-presidente-text: #2F4F4F;
+
+    --role-dirigente: #0d6efd;
+    --role-dirigente-dark: #2563eb;
+    --role-dirigente-text: #ffffff;
+
+    --role-segretario: #28a745;
+    --role-segretario-dark: #20c997;
+    --role-segretario-text: #ffffff;
+
+    --role-allenatore: #dc3545;
+    --role-allenatore-dark: #fd7e14;
+    --role-allenatore-text: #ffffff;
+
+    --role-dirigente-accompagnatore: #17a2b8;
+    --role-dirigente-accompagnatore-dark: #138496;
+    --role-dirigente-accompagnatore-text: #ffffff;
+
+    /* Colori neutri */
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --border-color: rgba(0,0,0,0.1);
+    --shadow-color: rgba(0,0,0,0.15);
+}
+
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
     min-height: 60vh;
     display: flex;
     align-items: center;
 }
 
 .bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
 }
 
 .stat-card {
@@ -29,7 +70,7 @@
 
 /* About Section */
 .about-section {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, var(--bg-light) 0%, #c3cfe2 100%);
 }
 
 .feature-card {
@@ -51,7 +92,7 @@
 
 /* Team Section */
 .team-section {
-    background: #ffffff;
+    background: var(--bg-white);
 }
 
 .member-card {
@@ -63,11 +104,11 @@
 
 .member-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 20px 40px var(--shadow-color) !important;
 }
 
 .member-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
     position: relative;
 }
 
@@ -90,7 +131,7 @@
 }
 
 .member-body {
-    background: #ffffff;
+    background: var(--bg-white);
 }
 
 .member-description {
@@ -109,20 +150,20 @@
 }
 
 .contact-btn:hover {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
     transform: scale(1.05);
 }
 
 .details-btn:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
     transform: scale(1.05);
 }
 
 /* Contact Section */
 .contact-section {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, var(--bg-light) 0%, #c3cfe2 100%);
 }
 
 /* Responsive Design */
@@ -209,7 +250,7 @@
     backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 1rem;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
 }
 
 .role-legend .badge {
@@ -223,91 +264,95 @@
 
 /* Colori specifici per ogni ruolo */
 .role-presidente {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    color: #8B4513;
-    border-color: #FFD700;
+    background: linear-gradient(135deg, var(--role-presidente) 0%, var(--role-presidente-dark) 100%);
+    color: var(--role-presidente-text);
+    border-color: var(--role-presidente);
     box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
 }
 
 .role-vice-presidente {
-    background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
-    color: #2F4F4F;
-    border-color: #C0C0C0;
+    background: linear-gradient(135deg, var(--role-vice-presidente) 0%, var(--role-vice-presidente-dark) 100%);
+    color: var(--role-vice-presidente-text);
+    border-color: var(--role-vice-presidente);
     box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
 }
 
 .role-dirigente {
-    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
-    color: white;
-    border-color: #0d6efd;
+    background: linear-gradient(135deg, var(--role-dirigente) 0%, var(--role-dirigente-dark) 100%);
+    color: var(--role-dirigente-text);
+    border-color: var(--role-dirigente);
     box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
 }
 
 .role-segretario {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    border-color: #28a745;
+    background: linear-gradient(135deg, var(--role-segretario) 0%, var(--role-segretario-dark) 100%);
+    color: var(--role-segretario-text);
+    border-color: var(--role-segretario);
     box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .role-allenatore {
-    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-    color: white;
-    border-color: #dc3545;
+    background: linear-gradient(135deg, var(--role-allenatore) 0%, var(--role-allenatore-dark) 100%);
+    color: var(--role-allenatore-text);
+    border-color: var(--role-allenatore);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .role-dirigente-accompagnatore {
-    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
-    color: white;
-    border-color: #6f42c1;
-    box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+    background: linear-gradient(135deg, var(--role-dirigente-accompagnatore) 0%, var(--role-dirigente-accompagnatore-dark) 100%);
+    color: var(--role-dirigente-accompagnatore-text);
+    border-color: var(--role-dirigente-accompagnatore);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
 }
 
 /* Card styling basato sui ruoli */
 .member-card[data-role="presidente"] .member-header {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    background: linear-gradient(135deg, var(--role-presidente) 0%, var(--role-presidente-dark) 100%);
 }
 
 .member-card[data-role="vice-presidente"] .member-header {
-    background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+    background: linear-gradient(135deg, var(--role-vice-presidente) 0%, var(--role-vice-presidente-dark) 100%);
 }
 
 .member-card[data-role="dirigente"] .member-header {
-    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--role-dirigente) 0%, var(--role-dirigente-dark) 100%);
 }
 
 .member-card[data-role="segretario"] .member-header {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, var(--role-segretario) 0%, var(--role-segretario-dark) 100%);
 }
 
 .member-card[data-role="allenatore"] .member-header {
-    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    background: linear-gradient(135deg, var(--role-allenatore) 0%, var(--role-allenatore-dark) 100%);
 }
 
 .member-card[data-role="dirigente-accompagnatore"] .member-header {
-    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+    background: linear-gradient(135deg, var(--role-dirigente-accompagnatore) 0%, var(--role-dirigente-accompagnatore-dark) 100%);
 }
 
 /* Bordi colorati per le card */
 .member-card[data-role="presidente"] {
-    border-left: 4px solid #FFD700;
+    border-left: 4px solid var(--role-presidente);
 }
 
 .member-card[data-role="vice-presidente"] {
-    border-left: 4px solid #C0C0C0;
+    border-left: 4px solid var(--role-vice-presidente);
 }
 
 .member-card[data-role="dirigente"] {
-    border-left: 4px solid #0d6efd;
+    border-left: 4px solid var(--role-dirigente);
 }
 
 .member-card[data-role="segretario"] {
-    border-left: 4px solid #28a745;
+    border-left: 4px solid var(--role-segretario);
 }
 
 .member-card[data-role="allenatore"] {
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid var(--role-allenatore);
+}
+
+.member-card[data-role="dirigente-accompagnatore"] {
+    border-left: 4px solid var(--role-dirigente-accompagnatore);
 }
 
 /* Hover effects specifici per ruolo */
@@ -337,6 +382,6 @@
 }
 
 .member-card[data-role="dirigente-accompagnatore"]:hover {
-    box-shadow: 0 20px 40px rgba(111, 66, 193, 0.2);
+    box-shadow: 0 20px 40px rgba(23, 162, 184, 0.2);
     transform: translateY(-12px) scale(1.02);
 }
