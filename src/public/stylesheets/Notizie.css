@@ -276,6 +276,51 @@ body {
     color: white;
 }
 
+/* Search Button Styles */
+.search-button {
+    border-radius: 25px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    background: var(--btn-bg);
+    color: white;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.search-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
+    background: var(--btn-hover-bg);
+}
+
+.search-button:hover::before {
+    left: 100%;
+}
+
+.search-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(13, 110, 253, 0.2);
+}
+
+.search-button .search-text {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
 .filter-select {
     border-radius: 12px;
     border: 2px solid transparent;
@@ -580,11 +625,47 @@ body {
         margin-bottom: 1rem;
     }
 
+    .search-button {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 6px 25px rgba(13, 110, 253, 0.3);
+    }
+
+    .search-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(13, 110, 253, 0.4);
+    }
+
+    .search-button .search-text {
+        display: inline;
+    }
+
     .filter-select {
         font-size: 0.9rem;
     }
 
     .active-filters {
         justify-content: center;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .search-button {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .search-button .search-text {
+        display: none; /* Nasconde il testo su schermi molto piccoli */
+    }
+
+    .search-button .bi-search {
+        font-size: 1.2rem;
+    }
+
+    .search-filters-card {
+        padding: 1rem;
     }
 }

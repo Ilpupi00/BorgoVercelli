@@ -16,16 +16,35 @@ router.get('/notizie/all', async (req, res) => {
   }
 });
 
-// API: paginated list
+// API: paginated list with filters
 router.get('/api/notizie', async (req, res) => {
   try {
     const offset = parseInt(req.query.offset) || 0;
-    const limit = parseInt(req.query.limit) || 6;
-    const rows = await dao.getNotiziePaginated(offset, limit);
+    const limit = parseInt(req.query.limit) || 12;
+    
+    const filters = {
+      search: req.query.search,
+      author: req.query.author,
+      dateFrom: req.query.dateFrom,
+      dateTo: req.query.dateTo
+    };
+    
+    const rows = await dao.getNotizieFiltered(filters, offset, limit);
     res.json({ notizie: rows || [] });
   } catch (error) {
-    console.error('Errore nel recupero delle notizie:', error);
+    console.error('Errore nel recupero delle notizie filtrate:', error);
     res.status(500).json({ error: 'Errore nel caricamento delle notizie' });
+  }
+});
+
+// API: get authors list
+router.get('/api/notizie/authors', async (req, res) => {
+  try {
+    const authors = await dao.getNotizieAuthors();
+    res.json({ authors: authors || [] });
+  } catch (error) {
+    console.error('Errore nel recupero degli autori:', error);
+    res.status(500).json({ error: 'Errore nel caricamento degli autori' });
   }
 });
 

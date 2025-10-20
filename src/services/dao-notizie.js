@@ -60,6 +60,7 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
+        WHERE N.pubblicata = 1
         ORDER BY N.data_pubblicazione DESC
         LIMIT ? OFFSET ?
     `;
@@ -204,20 +205,78 @@ exports.searchNotizie = async function(searchTerm) {
     });
 }
 
-exports.getNotiziePersonali = async function (utenteId){
-    const sql = `SELECT * FROM NOTIZIE WHERE autore_id = ? ORDER BY data_pubblicazione DESC`;
+exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12) {
+    let sql = `
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        FROM NOTIZIE N
+        LEFT JOIN UTENTI U ON N.autore_id = U.id
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
+        WHERE N.pubblicata = 1
+    `;
+    
+    const params = [];
+    
+    // Filtro per ricerca testuale
+    if (filters.search && filters.search.trim()) {
+        const searchTerm = `%${filters.search.trim()}%`;
+        sql += ` AND (N.titolo LIKE ? OR N.sottotitolo LIKE ? OR N.contenuto LIKE ?)`;
+        params.push(searchTerm, searchTerm, searchTerm);
+    }
+    
+    // Filtro per autore
+    if (filters.author && filters.author.trim()) {
+        sql += ` AND (U.nome || ' ' || U.cognome) LIKE ?`;
+        params.push(`%${filters.author.trim()}%`);
+    }
+    
+    // Filtro per data da
+    if (filters.dateFrom) {
+        sql += ` AND N.data_pubblicazione >= ?`;
+        params.push(filters.dateFrom);
+    }
+    
+    // Filtro per data a
+    if (filters.dateTo) {
+        sql += ` AND N.data_pubblicazione <= ?`;
+        params.push(filters.dateTo);
+    }
+    
+    sql += ` ORDER BY N.data_pubblicazione DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, [utenteId], (err, e) => {
+        sqlite.all(sql, params, (err, notizie) => {
             if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Error retrieving personal news: ' + err.message });
+                console.error('Errore SQL filtered notizie:', err);
+                return reject({ error: 'Error retrieving filtered news: ' + err.message });
             }
+
             try {
-                const result = e.map(makeNotizie) || [];
+                const result = notizie.map(makeNotizie) || [];
                 resolve(result);
             } catch (e) {
-                return reject({ error: 'Error mapping personal news: ' + e.message });
+                return reject({ error: 'Error mapping filtered news: ' + e.message });
             }
+        });
+    });
+}
+
+exports.getNotizieAuthors = async function() {
+    const sql = `
+        SELECT DISTINCT (U.nome || ' ' || U.cognome) as nome_completo
+        FROM NOTIZIE N
+        LEFT JOIN UTENTI U ON N.autore_id = U.id
+        WHERE N.pubblicata = 1 AND U.nome IS NOT NULL AND U.cognome IS NOT NULL
+        ORDER BY nome_completo
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, (err, rows) => {
+            if (err) {
+                console.error('Errore SQL authors:', err);
+                return reject({ error: 'Error retrieving authors: ' + err.message });
+            }
+            const authors = rows.map(row => row.nome_completo).filter(name => name && name.trim());
+            resolve(authors);
         });
     });
 }
