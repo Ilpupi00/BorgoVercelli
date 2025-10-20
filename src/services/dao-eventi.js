@@ -36,6 +36,20 @@ exports.getEventi = function(){
     });
 }
 
+exports.getEventiPubblicati = function(){
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI WHERE pubblicato = 1;';
+        sqlite.all(sql, (err, eventi) => {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Error retrieving published events: ' + err.message });
+            }
+            const risultato = eventi.map(makeEvento) || [];
+            resolve(risultato);
+        });
+    });
+}
+
 exports.getEventoById = function(id) {
     const sql = 'SELECT * FROM EVENTI WHERE id = ?';
     return new Promise((resolve, reject) => {

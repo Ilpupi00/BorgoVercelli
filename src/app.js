@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('dotenv').config();
@@ -23,6 +22,7 @@ const routesGalleria = require('./routes/galleria');
 console.log('routesGalleria loaded:', typeof routesGalleria);
 const routesPrenotazione = require('./routes/prenotazione');
 const routesAdmin = require('./routes/admin');
+const routesCampionati = require('./routes/campionati');
 
 // passport configuration
 passport.use(new LocalStrategy(
@@ -112,6 +112,7 @@ app.use('/', routesSquadre);
 app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
+app.use('/campionato', routesCampionati);
 
 app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 

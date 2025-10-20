@@ -3,7 +3,7 @@
 const moment=require('moment');
 
 class Campionato{
-    constructor(id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at){
+    constructor(id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at, promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta){
         this.id = id;
         this.nome = nome;
         this.stagione = stagione;
@@ -13,6 +13,12 @@ class Campionato{
         this.attivo = attivo;
         this.created_at = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.updated_at = updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
+        this.promozione_diretta = promozione_diretta || 2;
+        this.playoff_start = playoff_start || 3;
+        this.playoff_end = playoff_end || 6;
+        this.playout_start = playout_start || 11;
+        this.playout_end = playout_end || 14;
+        this.retrocessione_diretta = retrocessione_diretta || 2;
     }
 
     static from(json){

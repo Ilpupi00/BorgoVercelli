@@ -10,6 +10,7 @@ const daoSquadre = require('../services/dao-squadre');
 const daoCampi = require('../services/dao-campi');
 const { isLoggedIn,isDirigente } = require('../middlewares/auth');
 const emailService = require('../services/email-service');
+const daoCampionati = require('../services/dao-campionati');
 
 
 router.get('/homepage', async (req, res) => {
@@ -35,29 +36,29 @@ router.get('/homepage', async (req, res) => {
         });
     }
 });
-router.get('/campionato',(req,res)=>{
+router.get('/campionato', async (req, res) => {
     try {
-        // Dati fittizi per la classifica, da sostituire con dati reali dal DB
-        const classifica = [
-            { posizione: 1, nome: 'Squadra 1', punti: 80, classe: 'table-success' },
-            { posizione: 2, nome: 'Squadra 2', punti: 72, classe: 'table-secondary' },
-            { posizione: 3, nome: 'Squadra 3', punti: 69, classe: 'table-secondary' },
-            { posizione: 4, nome: 'Squadra 4', punti: 68, classe: 'table-secondary' },
-            { posizione: 5, nome: 'Squadra 5', punti: 65, classe: 'table-secondary' },
-            { posizione: 6, nome: 'Squadra 6', punti: 60, classe: '' },
-            { posizione: 7, nome: 'Squadra 7', punti: 58, classe: '' },
-            { posizione: 8, nome: 'Squadra 8', punti: 55, classe: '' },
-            { posizione: 9, nome: 'Squadra 9', punti: 50, classe: '' },
-            { posizione: 10, nome: 'Squadra 10', punti: 42, classe: '' },
-            { posizione: 11, nome: 'Squadra 11', punti: 37, classe: '' },
-            { posizione: 12, nome: 'Squadra 12', punti: 36, classe: 'table-warning' },
-            { posizione: 13, nome: 'Squadra 13', punti: 29, classe: 'table-warning' },
-            { posizione: 14, nome: 'Squadra 14', punti: 20, classe: 'table-warning' },
-            { posizione: 15, nome: 'Squadra 15', punti: 16, classe: 'table-warning' },
-            { posizione: 16, nome: 'Squadra 16', punti: 11, classe: 'table-danger' }
-        ];
-        const isLoggedIn = req.isAuthenticated();
-        res.render('campionato', { classifica, isLoggedIn });
+        const daoCampionati = require('../services/dao-campionati');
+        const campionati = await daoCampionati.getCampionati() || [];
+        let classifica = [];
+        let selectedCampionato = null;
+        let regole = {};
+
+        if (campionati.length > 0) {
+            selectedCampionato = campionati[0];
+            classifica = await daoCampionati.getClassificaByCampionatoId(selectedCampionato.id) || [];
+            regole = {
+                promozione_diretta: selectedCampionato.promozione_diretta,
+                playoff_start: selectedCampionato.playoff_start,
+                playoff_end: selectedCampionato.playoff_end,
+                playout_start: selectedCampionato.playout_start,
+                playout_end: selectedCampionato.playout_end,
+                retrocessione_diretta: selectedCampionato.retrocessione_diretta
+            };
+        }
+
+        const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
+        res.render('campionato', { campionati, classifica, isLoggedIn, selectedCampionato: selectedCampionato ? selectedCampionato.id : null, regole });
     } catch (error) {
         console.error('Errore nel caricamento del campionato:', error);
         res.status(500).send('Internal Server Error');

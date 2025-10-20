@@ -20,10 +20,9 @@
             <!-- Menu a tendina con margine sotto -->
             <div class="select-container">
                 <select class="form-select form-select-sm custom-select" id="campionatoSelect" aria-label="Select menu">
-                    <option selected>Open this select menu</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    <% campionati.forEach(campionato => { %>
+                        <option value="<%= campionato.id %>" <%= selectedCampionato === campionato.id ? 'selected' : '' %>><%= campionato.nome %> - <%= campionato.stagione %></option>
+                    <% }); %>
                 </select>
             </div>
             <div class="table-responsive w-75">
@@ -50,23 +49,23 @@
 
         <section class="pt-4 justify-content-center align-items-center container-fluid d-flex">
             <div class="legend-box-container p-4 shadow-sm rounded-4 mb-4 w-100" style="max-width: 500px;">
-                <h5 class="mb-3 fw-semibold overflow-hidden">Legenda Classifica</h5>
+                                <h5 class="mb-3 fw-semibold overflow-hidden">Legenda Classifica</h5>
                 <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
                     <li class="d-flex align-items-center gap-2">
                         <span class="legend-color bg-success"></span>
-                        <span>Promozione</span>
+                        <span>Promozione diretta (1°-<%= regole.promozione_diretta || 2 %>°)</span>
                     </li>
                     <li class="d-flex align-items-center gap-2">
                         <span class="legend-color bg-secondary"></span>
-                        <span>Play-off</span>
+                        <span>Playoff (<%= regole.playoff_start || 3 %>°-<%= regole.playoff_end || 6 %>°)</span>
                     </li>
                     <li class="d-flex align-items-center gap-2">
                         <span class="legend-color bg-warning"></span>
-                        <span>Play-out</span>
+                        <span>Play-out (<%= regole.playout_start || 11 %>°-<%= regole.playout_end || 14 %>°)</span>
                     </li>
                     <li class="d-flex align-items-center gap-2">
                         <span class="legend-color bg-danger"></span>
-                        <span>Retrocessione</span>
+                        <span>Retrocessione diretta (ultime <%= regole.retrocessione_diretta || 2 %>)</span>
                     </li>
                 </ul>
             </div>

@@ -4,6 +4,7 @@ const dao = require('../services/dao-eventi');
 const { isLoggedIn, isAdminOrDirigente } = require('../middlewares/auth');
 
 // Route per eventi/all gestita dal router
+
 router.get('/all', async (req, res) => {
   try {
     const eventi = await dao.getEventi();
@@ -13,7 +14,15 @@ router.get('/all', async (req, res) => {
     res.status(500).json({ error: 'Errore interno del server' });
   }
 });
-
+router.get('/eventi', async (req, res) => {
+  try {
+    const eventi = await dao.getEventiPubblicati();
+    res.render('eventi', { eventi: eventi || [] });
+  } catch (error) {
+    console.error('Errore nel recupero degli eventi pubblicati:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
 // Route per visualizzare un singolo evento
 router.get('/evento/:id', async (req, res) => {
   try {
