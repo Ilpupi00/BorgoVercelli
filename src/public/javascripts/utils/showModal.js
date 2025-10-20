@@ -8,12 +8,13 @@ class ShowModal{
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header bg-warning">
-            <h5 class="modal-title">Accesso richiesto</h5>
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Accesso richiesto</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body text-center">
-            <p>${string}<br>Effettua il login per continuare.</p>
+            <i class="bi bi-shield-lock-fill text-warning" style="font-size: 3rem;"></i>
+            <p class="mt-3">${string}<br>Effettua il login per continuare.</p>
             <a href="/login" class="btn btn-primary">Vai al login</a>
           </div>
         </div>
@@ -36,15 +37,17 @@ class ShowModal{
       modal.innerHTML = `
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header bg-success">
-              <h5 class="modal-title">${string}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>${string}</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-              <p>La tua prenotazione è stata confermata!</p>
+              <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+              <p class="mt-3">La tua prenotazione è stata confermata!</p>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-              <a href="/homepage" class="btn btn-primary btn-sm me-2 ms-2">Vai alla homepage</a>
+              <a href="/homepage" class="btn btn-success btn-sm me-2 ms-2">Vai alla homepage</a>
+              <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Chiudi</button>
             </div>
           </div>
         </div>
@@ -64,12 +67,16 @@ class ShowModal{
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header bg-danger">
-            <h5 class="modal-title">${string}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>${string}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body text-center">
-            <p>${msg}</p>
+            <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+            <p class="mt-3">${msg}</p>
+          </div>
+          <div class="modal-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Chiudi</button>
           </div>
         </div>
       </div>

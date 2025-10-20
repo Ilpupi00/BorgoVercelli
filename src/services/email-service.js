@@ -153,3 +153,51 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
         throw err;
     }
 };
+
+exports.sendResetEmail = async function(toEmail, resetLink) {
+    try {
+        const mailOptions = {
+            from: `"Borgo Vercelli" <noreply@borgovercelli.it>`,
+            to: toEmail,
+            subject: 'Reset della tua password - Borgo Vercelli',
+            html: `
+            <!DOCTYPE html>
+            <html lang="it">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                    .header { text-align: center; padding: 20px 0; }
+                    .button { display: inline-block; padding: 10px 20px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; }
+                    .footer { text-align: center; padding: 20px 0; font-size: 12px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2>Reset della Password</h2>
+                        <p>Hai richiesto il reset della tua password per il sito Borgo Vercelli.</p>
+                    </div>
+                    <p>Clicca sul pulsante qui sotto per reimpostare la tua password. Questo link è valido per 1 ora e può essere utilizzato una sola volta.</p>
+                    <p style="text-align: center;">
+                        <a href="${resetLink}" class="button">Reset Password</a>
+                    </p>
+                    <p>Se non hai richiesto questo reset, ignora questa email.</p>
+                    <div class="footer">
+                        <p>Borgo Vercelli - Società Sportiva Dilettantistica</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email di reset inviata:', info.messageId);
+        return { messageId: info.messageId };
+    } catch (err) {
+        console.error('Errore invio email reset:', err);
+        throw err;
+    }
+};

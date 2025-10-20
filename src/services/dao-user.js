@@ -25,7 +25,11 @@ exports.createUser = function(user) {
                 now
             ], function(err) {
                 if (err) {
-                    reject({ error: 'Error creating user: ' + err.message });
+                    if (err.message.includes('UNIQUE constraint failed: UTENTI.email')) {
+                        reject({ error: 'Email già registrata' });
+                    } else {
+                        reject({ error: 'Error creating user: ' + err.message });
+                    }
                 } else {
                     resolve({ message: 'User created successfully' });
                 }
@@ -540,6 +544,62 @@ exports.searchUsers = function(query) {
                 return reject({ error: 'Error searching users: ' + err.message });
             }
             resolve(users || []);
+        });
+    });
+}
+
+exports.saveResetToken = function(userId, token, expiresAt) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE UTENTI SET reset_token = ?, reset_expires = ? WHERE id = ?`;
+        sqlite.run(sql, [token, expiresAt.toISOString(), userId], function(err) {
+            if (err) {
+                reject({ error: 'Error saving reset token: ' + err.message });
+            } else {
+                resolve({ message: 'Reset token saved successfully' });
+            }
+        });
+    });
+}
+
+exports.getUserByResetToken = function(token) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT u.*, t.nome AS tipo_utente_nome
+            FROM UTENTI u
+            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+            WHERE u.reset_token = ? AND u.reset_expires > ?
+        `;
+        sqlite.get(sql, [token, new Date().toISOString()], (err, user) => {
+            if (err) {
+                return reject({ error: 'Error retrieving user by reset token: ' + err.message });
+            }
+            resolve(user);
+        });
+    });
+}
+
+exports.invalidateResetToken = function(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE UTENTI SET reset_token = NULL, reset_expires = NULL WHERE id = ?`;
+        sqlite.run(sql, [userId], function(err) {
+            if (err) {
+                reject({ error: 'Error invalidating reset token: ' + err.message });
+            } else {
+                resolve({ message: 'Reset token invalidated successfully' });
+            }
+        });
+    });
+}
+
+exports.updatePassword = function(userId, newPasswordHash) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE UTENTI SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?`;
+        sqlite.run(sql, [newPasswordHash, userId], function(err) {
+            if (err) {
+                reject({ error: 'Error updating password: ' + err.message });
+            } else {
+                resolve({ message: 'Password updated successfully' });
+            }
         });
     });
 }

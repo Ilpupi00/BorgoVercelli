@@ -12,6 +12,7 @@ class LoginPage {
     setupEventListeners() {
         const form = document.getElementById('authForm');
         const closeBtn = document.getElementById('closeLogin');
+        const togglePasswordBtn = document.getElementById('togglePassword');
 
         if (form) {
             form.addEventListener('submit', (event) => {
@@ -22,6 +23,12 @@ class LoginPage {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 this.handleClose();
+            });
+        }
+
+        if (togglePasswordBtn) {
+            togglePasswordBtn.addEventListener('click', () => {
+                this.togglePasswordVisibility();
             });
         }
     }
@@ -39,10 +46,39 @@ class LoginPage {
             if (res.ok) {
                 window.location.href = '/homepage';
             } else {
-                alert('Credenziali non valide');
+                this.showError('Email o password errate. Riprova.');
             }
         } catch (error) {
-            alert('Errore di login');
+            this.showError('Errore di connessione. Riprova più tardi.');
+        }
+    }
+
+    showError(message) {
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const passwordField = document.getElementById('exampleInputPassword1');
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('d-none');
+        // Resetta il campo password
+        passwordField.value = '';
+        // Nasconde l'alert dopo 5 secondi
+        setTimeout(() => {
+            errorAlert.classList.add('d-none');
+        }, 5000);
+    }
+
+    togglePasswordVisibility() {
+        const passwordField = document.getElementById('exampleInputPassword1');
+        const toggleBtn = document.getElementById('togglePassword');
+        const icon = toggleBtn.querySelector('i');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
         }
     }
 

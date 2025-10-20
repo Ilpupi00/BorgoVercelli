@@ -1,7 +1,19 @@
-.login-page {
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body{
+  /* Gradient background covering entire viewport */
   background-image: linear-gradient(to bottom right, #0d6efd, #6c757d);
   background-size: cover;
   background-position: center;
+  background-attachment: fixed; /* keep gradient fixed while scrolling */
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.login-page {
   height: 100vh;
   display: flex;
   justify-content: center;

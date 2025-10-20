@@ -17,18 +17,26 @@
             <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeLogin" aria-label="Chiudi"></button>
             <h1 class="text-center mb-4 title">Accedi</h1>
             <form id="authForm">
+                <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                    <strong>Errore:</strong> <span id="errorMessage"></span>
+                </div>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Indirizzo Email</label>
                     <input type="email" class="form-control" id="exampleInputEmail1" name="email" aria-describedby="emailHelp" placeholder="Inserisci la tua email" required autocomplete="email">
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1" name="password" placeholder="Inserisci la tua password" required autocomplete="current-password">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="exampleInputPassword1" name="password" placeholder="Inserisci la tua password" required autocomplete="current-password">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Accedi</button>
             </form>
             <div class="text-center mt-3">
-                <a href="#" class="text-decoration-none">Hai dimenticato la password?</a>
+                <a href="/forgot-password" class="text-decoration-none">Hai dimenticato la password?</a>
             </div>
             <div class="text-center mt-3">
                 <a href="/registrazione">Registrati</a>

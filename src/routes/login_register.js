@@ -269,4 +269,85 @@ router.use((err, req, res, next) => {
     res.status(500).json({ success: false, error: 'Errore interno del server' });
 });
 
+router.get('/forgot-password', (req, res) => {
+    res.render('forgot-password');
+});
+
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ error: 'Email richiesta' });
+    }
+    try {
+        // Verifica se l'utente esiste
+        const user = await userDao.getUserByEmail(email);
+        if (!user) {
+            // Messaggio generico per sicurezza
+            return res.status(200).json({ message: 'Se l\'email è registrata, riceverai un link di reset.' });
+        }
+        // Genera token di reset
+        const resetToken = require('crypto').randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 ora
+        // Salva token nel DB (aggiungeremo colonna reset_token e reset_expires)
+        await userDao.saveResetToken(user.id, resetToken, expiresAt);
+        // Invia email
+        const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const resetLink = `${baseUrl}/reset-password/${resetToken}`;
+        await require('../services/email-service').sendResetEmail(user.email, resetLink);
+        res.status(200).json({ message: 'Se l\'email è registrata, riceverai un link di reset.' });
+    } catch (err) {
+        console.error('Errore forgot password:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+router.get('/reset-success', (req, res) => {
+    res.render('reset-success');
+});
+
+router.get('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    console.log('Accessing reset-password with token:', token);
+    try {
+        const user = await userDao.getUserByResetToken(token);
+        if (!user) {
+            console.log('Token invalid or expired');
+            return res.render('reset-password', { tokenExpired: true });
+        }
+        console.log('Token valid, rendering form');
+        res.render('reset-password', { tokenExpired: false });
+    } catch (err) {
+        console.error('Errore verifica token:', err);
+        res.render('reset-password', { tokenExpired: true });
+    }
+});
+
+router.post('/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+    console.log('Reset password request:', { token: token ? 'present' : 'missing', password: password ? 'present' : 'missing' });
+    if (!token || !password) {
+        console.log('Missing token or password');
+        return res.status(400).json({ error: 'Token e password richiesti' });
+    }
+    try {
+        const user = await userDao.getUserByResetToken(token);
+        if (!user) {
+            console.log('Invalid or expired token');
+            return res.status(400).json({ error: 'Token non valido o scaduto' });
+        }
+        // Hash della nuova password
+        const bcrypt = require('bcrypt');
+        const hash = await bcrypt.hash(password, 10);
+        await userDao.updatePassword(user.id, hash);
+        // Invalida il token dopo l'uso
+        await userDao.invalidateResetToken(user.id);
+        console.log('Password reset successful for user:', user.id);
+        // Redirect alla pagina di successo invece di JSON
+        res.redirect('/reset-success');
+    } catch (err) {
+        console.error('Errore reset password:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
 module.exports = router;
