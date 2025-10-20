@@ -28,9 +28,15 @@ class CercaGiocatore {
         }
         const data = await response.json();
         const giocatori = data.giocatori || [];
-        let results = giocatori;
+        const squadreSelect = document.getElementById('squadreSelect');
+        const squadraId = squadreSelect ? squadreSelect.value : null;
+        let giocatoriFiltrati = giocatori;
+        if (squadraId) {
+            giocatoriFiltrati = giocatori.filter(g => Number(g.squadra_id) === Number(squadraId));
+        }
+        let results = giocatoriFiltrati;
         if (query) {
-            results = giocatori.filter(g =>
+            results = giocatoriFiltrati.filter(g =>
                 (g.nome && g.nome.toLowerCase().includes(query.toLowerCase())) ||
                 (g.cognome && g.cognome.toLowerCase().includes(query.toLowerCase()))
             );
@@ -79,6 +85,7 @@ class CercaGiocatore {
                 <td><span class="position-badge position-${ruoloClass}">${g.ruolo || ''}</span></td>
                 <td>${eta}</td>
                 <td>${g.piede_preferito === 'Sinistro' ? 'SX' : 'DX' || ''}</td>
+                <td>${g.nazionalita || ''}</td>
             `;
             rosterTable.appendChild(tr);
         });
@@ -120,6 +127,7 @@ class CercaGiocatore {
                 <td><span class="position-badge position-${ruoloClass}">${g.ruolo || ''}</span></td>
                 <td>${eta}</td>
                 <td>${g.piede_preferito === 'Sinistro' ? 'SX' : 'DX' || ''}</td>
+                <td>${g.nazionalita || ''}</td>
             `;
             rosterTable.appendChild(tr);
         });

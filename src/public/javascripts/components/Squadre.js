@@ -36,6 +36,7 @@ class Squadre {
         const annoSelect = this.page.querySelector('#annoSelect');
         const title = this.page.querySelector('#SquadraTitle');
         const img = this.page.querySelector('.img-container img');
+        const rosterTitle = this.page.querySelector('#rosterTitle');
 
         let squadreAnno = [];
         if (squadre.length === 0) {
@@ -48,10 +49,10 @@ class Squadre {
         this.updateHeader(squadreAnno, title, img);
         const filterGiocatori = new FilterGiocatori(squadre, this.page);
         squadreSelect.addEventListener('change', (event) => {
-            this.handleSquadraChange(event, squadre, title, img, filterGiocatori);
+            this.handleSquadraChange(event, squadre, title, img, filterGiocatori, rosterTitle);
         });
         annoSelect.addEventListener('change', (event) => {
-            this.handleAnnoChange(event, squadre, squadreSelect, title, img, filterGiocatori);
+            this.handleAnnoChange(event, squadre, squadreSelect, title, img, filterGiocatori, rosterTitle);
         });
     }
 
@@ -84,43 +85,38 @@ class Squadre {
         }
     }
 
-    updateHeader(squadreAnno, title, img) {
+    updateHeader(squadreAnno, title, img, rosterTitle) {
         if (squadreAnno.length > 0) {
             const squadra = squadreAnno[0];
             title.textContent = squadra.nome;
             img.src = squadra.id_immagine || '/images/Logo.png';
             img.alt = squadra.nome;
+            rosterTitle.textContent = `Roster ${squadra.nome}`;
         } else {
             title.textContent = 'Nessuna squadra selezionata';
             img.src = '/images/Logo.png';
             img.alt = 'Logo';
+            rosterTitle.textContent = 'Roster';
         }
     }
 
-    handleSquadraChange(event, squadre, title, img, filterGiocatori) {
+    handleSquadraChange(event, squadre, title, img, filterGiocatori, rosterTitle) {
         const selectedSquadra = squadre.find(s => s.id === parseInt(event.target.value));
-        title.textContent = selectedSquadra ? selectedSquadra.nome : 'Nessuna squadra selezionata';
-        if (selectedSquadra && selectedSquadra.id_immagine) {
-            img.src = selectedSquadra.id_immagine;
-            img.alt = selectedSquadra.nome;
-        } else {
-            img.src = '/images/Logo.png';
-            img.alt = 'Logo';
-        }
+        this.updateHeader(selectedSquadra ? [selectedSquadra] : [], title, img, rosterTitle);
         filterGiocatori.addRoster(parseInt(event.target.value));
     }
 
-    handleAnnoChange(event, squadre, squadreSelect, title, img, filterGiocatori) {
+    handleAnnoChange(event, squadre, squadreSelect, title, img, filterGiocatori, rosterTitle) {
         const selectedAnno = event.target.value;
         const filteredSquadre = squadre.filter(s => s.Anno === selectedAnno);
         this.updateSelects(filteredSquadre, squadreSelect);
         if (filteredSquadre.length > 0) {
             const firstSquadra = filteredSquadre[0];
-            this.updateHeader(filteredSquadre, title, img);
+            this.updateHeader(filteredSquadre, title, img, rosterTitle);
             squadreSelect.value = firstSquadra.id;
             filterGiocatori.addRoster(firstSquadra.id);
         } else {
-            this.updateHeader([], title, img);
+            this.updateHeader([], title, img, rosterTitle);
             filterGiocatori.addRoster(null);
         }
     }
