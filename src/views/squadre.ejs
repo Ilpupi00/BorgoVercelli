@@ -26,11 +26,13 @@
         <header class="m-5">
             <div class="mb-5 select-container mx-auto">
                 <select class="form-select form-select-sm custom-select" aria-label="Select menu" id="squadreSelect">
+                    <option value="" disabled selected>Seleziona la squadra...</option>
                     <% squadre.forEach(squadra => { %>
                         <option value="<%= squadra.id %>"><%= squadra.nome %></option>
                     <% }); %>
                 </select>
                 <select class="form-select form-select-sm custom-select mt-4" aria-label="Select menu" id="annoSelect">
+                    <option value="" disabled selected>Seleziona l'anno...</option>
                     <% const anni = [...new Set(squadre.map(s => s.Anno))]; %>
                     <% anni.forEach(anno => { %>
                         <option value="<%= anno %>"><%= anno %></option>

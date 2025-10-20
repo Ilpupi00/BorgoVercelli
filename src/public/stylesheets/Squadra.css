@@ -32,60 +32,106 @@
   transform: translateY(-2px);
 }
 
-@media (max-width: 576px) {
-  #squadreSelect,
-  #annoSelect,
-  select.form-select,
-  select.custom-select {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    font-size: 1.1rem;
-    padding: 0.75rem 1rem;
-    display: block;
-    background: var(--gradient-secondary);
-    border: 2px solid var(--primary-color);
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-    color: white;
-    font-weight: 600;
-    box-shadow: var(--shadow-light);
-    backdrop-filter: blur(5px);
-  }
+/* Stili moderni per select squadra */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
 
-  select.form-select:focus,
-  select.custom-select:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 0.2rem rgba(34, 177, 76, 0.25), var(--shadow-light);
-    outline: none;
-    background: var(--light-bg);
-    transform: scale(1.02);
-  }
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 1.2rem;
+  pointer-events: none;
+  transition: var(--transition);
+}
 
-  select.form-select option,
-  select.custom-select option {
-    background: var(--light-bg);
-    color: var(--dark-bg);
-    padding: 0.75rem 1rem;
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
+.select-wrapper:hover::after {
+  color: var(--accent-color);
+  transform: translateY(-50%) rotate(180deg);
+}
 
-  select.form-select option:hover,
-  select.custom-select option:hover {
-    background: var(--gradient-primary);
-    color: white;
-    transform: scale(1.02);
-  }
+.custom-select {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1rem; /* Spazio per icona destra */
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--gradient-secondary);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  backdrop-filter: blur(5px);
+  transition: var(--transition);
+  cursor: pointer;
+  appearance: none; /* Rimuovi freccia default */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
 
-  select.form-select option:checked,
-  select.custom-select option:checked {
-    background: var(--gradient-secondary);
-    color: white;
-    font-weight: 600;
-  }
+.custom-select:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.3rem rgba(34, 177, 76, 0.25), var(--shadow-light);
+  outline: none;
+  transform: scale(1.02);
+  background: var(--light-bg);
+  color: var(--dark-bg);
+}
+
+.custom-select:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-dark);
+}
+
+.custom-select option {
+  background: var(--light-bg);
+  color: var(--dark-bg);
+  padding: 1rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.custom-select option:hover {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.custom-select option:checked {
+  background: var(--gradient-secondary);
+  color: white;
+  font-weight: 600;
+}
+
+/* Placeholder styling */
+.custom-select::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Stato selezionato */
+.custom-select:not(:placeholder-shown) {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+/* Icona team accanto al nome (se aggiunta via JS) */
+.team-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-logo-small {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .img-container {
