@@ -255,32 +255,65 @@
 /* Responsive design migliorato */
 @media (max-width: 768px) {
     .table-soccer {
-        font-size: 0.9em;
+        font-size: 0.8em;
     }
 
     .table-soccer thead th,
     .table-soccer tbody td {
-        padding: 0.5rem;
+        padding: 0.3rem;
     }
 
     .position-badge {
-        font-size: 10px;
-        padding: 3px 8px;
+        font-size: 9px;
+        padding: 2px 6px;
     }
 
     .player-photo {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
     }
 
-    /* Nascondi colonne meno importanti su mobile */
+    /* Riduci larghezza colonne su mobile invece di nasconderle */
+    .table-soccer th:nth-child(1), /* # */
+    .table-soccer td:nth-child(1) {
+        width: 5%;
+    }
+
     .table-soccer th:nth-child(2), /* Foto */
-    .table-soccer td:nth-child(2),
+    .table-soccer td:nth-child(2) {
+        width: 10%;
+    }
+
+    .table-soccer th:nth-child(3), /* Nome */
+    .table-soccer td:nth-child(3),
+    .table-soccer th:nth-child(4), /* Cognome */
+    .table-soccer td:nth-child(4) {
+        width: 15%;
+    }
+
+    .table-soccer th:nth-child(5), /* Numero */
+    .table-soccer td:nth-child(5) {
+        width: 8%;
+    }
+
+    .table-soccer th:nth-child(6), /* Ruolo */
+    .table-soccer td:nth-child(6) {
+        width: 12%;
+    }
+
     .table-soccer th:nth-child(7), /* Età */
-    .table-soccer td:nth-child(7),
+    .table-soccer td:nth-child(7) {
+        width: 8%;
+    }
+
     .table-soccer th:nth-child(8), /* Piede */
     .table-soccer td:nth-child(8) {
-        display: none;
+        width: 8%;
+    }
+
+    .table-soccer th:nth-child(9), /* Nazionalità */
+    .table-soccer td:nth-child(9) {
+        width: 14%;
     }
 }
 
