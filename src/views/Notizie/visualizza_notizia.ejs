@@ -38,7 +38,7 @@
                             <i class="bi bi-person-circle me-2 text-primary"></i>
                             <span class="me-3"><%= notizia.autore %></span>
                             <i class="bi bi-calendar-event me-2 text-primary"></i>
-                            <span class="me-3"><%= new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                            <span class="me-3"><%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Non pubblicato' %></span>
                             <i class="bi bi-eye me-2 text-primary"></i>
                             <span><%= notizia.visualizzazioni %> visualizzazioni</span>
                         </div>

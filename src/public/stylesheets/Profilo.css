@@ -881,7 +881,7 @@ button::-webkit-scrollbar,
 }
 
 .btn-gradient-event {
-    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    background: linear-gradient(135deg, #007bff 0%, #28a745 100%);
     border: none;
     color: white;
     padding: 12px 20px;
@@ -892,22 +892,22 @@ button::-webkit-scrollbar,
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 }
 
 .btn-gradient-event:hover {
-    background: linear-gradient(135deg, #fecfef 0%, #ff9a9e 100%);
+    background: linear-gradient(135deg, #28a745 0%, #007bff 100%);
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
     color: white;
     text-decoration: none;
     animation: pulse 1s infinite;
 }
 
 .btn-gradient-news {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    background: linear-gradient(135deg, #007bff 0%, #17a2b8 100%);
     border: none;
-    color: #333;
+    color: white;
     padding: 12px 20px;
     border-radius: 10px;
     font-weight: 600;
@@ -916,14 +916,14 @@ button::-webkit-scrollbar,
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(168, 237, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 }
 
 .btn-gradient-news:hover {
-    background: linear-gradient(135deg, #fed6e3 0%, #a8edea 100%);
+    background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(168, 237, 234, 0.6);
-    color: #333;
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+    color: white;
     text-decoration: none;
     animation: pulse 1s infinite;
 }
@@ -932,4 +932,112 @@ button::-webkit-scrollbar,
     0% { transform: translateY(-2px) scale(1.02); }
     50% { transform: translateY(-2px) scale(1.05); }
     100% { transform: translateY(-2px) scale(1.02); }
+}
+
+/* Hover effects for news/events items */
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Enhanced button styles */
+.btn-group .btn {
+    border-radius: 6px !important;
+    margin: 0 1px;
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+    transform: scale(1.1);
+}
+
+/* Empty state styling */
+.empty-state-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Content counter badge */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Improved responsive design for content cards */
+@media (max-width: 768px) {
+    .news-event-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+    
+    .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .news-event-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .news-event-icon i {
+        font-size: 1rem !important;
+    }
+}
+
+/* Loading animation for content */
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.content-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced card shadows and transitions */
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Better focus states for accessibility */
+.btn:focus,
+.btn-group .btn:focus {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* Improved text truncation */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Enhanced responsive grid for action buttons */
+@media (max-width: 576px) {
+    .d-flex.justify-content-center.gap-2 {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .d-flex.justify-content-center.gap-2 .btn {
+        margin-bottom: 0.5rem;
+    }
 }

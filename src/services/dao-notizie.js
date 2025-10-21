@@ -23,7 +23,7 @@ const makeNotizie = (row) => {
         row.N_contenuto || row.contenuto,
         autore, // Usa il nome completo invece dell'ID
         row.N_pubblicata || row.pubblicata,
-        row.N_data_pubblicazione || row.data_pubblicazione || null,
+        (row.N_data_pubblicazione || row.data_pubblicazione) ? new Date(row.N_data_pubblicazione || row.data_pubblicazione) : null,
         row.N_visualizzazioni || row.visualizzazioni,
         row.N_created_at || row.created_at || null,
         row.N_updated_at || row.updated_at || null
@@ -277,6 +277,32 @@ exports.getNotizieAuthors = async function() {
             }
             const authors = rows.map(row => row.nome_completo).filter(name => name && name.trim());
             resolve(authors);
+        });
+    });
+}
+
+exports.getNotiziePersonali = async function(userId) {
+    const sql = `
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        FROM NOTIZIE N
+        LEFT JOIN UTENTI U ON N.autore_id = U.id
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
+        WHERE N.autore_id = ?
+        ORDER BY N.created_at DESC
+    `;
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [userId], (err, notizie) => {
+            if (err) {
+                console.error('Errore SQL get notizie personali:', err);
+                return reject({ error: 'Error retrieving personal news: ' + err.message });
+            }
+
+            try {
+                const result = notizie.map(makeNotizie) || [];
+                resolve(result);
+            } catch (e) {
+                return reject({ error: 'Error mapping personal news: ' + e.message });
+            }
         });
     });
 }

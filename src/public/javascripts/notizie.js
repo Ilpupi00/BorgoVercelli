@@ -79,7 +79,12 @@ class NotizieManager {
 
                 // Estrai la data dal testo
                 const dateText = dateElement.textContent.replace(/📅|📅/g, '').trim();
-                const newsDate = this.parseItalianDate(dateText);
+                let newsDate;
+                if (dateText === 'Non pubblicato') {
+                    newsDate = null;
+                } else {
+                    newsDate = this.parseItalianDate(dateText);
+                }
 
                 // Estrai l'autore dal contenuto o usa un valore di default
                 // Nota: l'autore non è mostrato nel DOM, dovremo caricarlo dopo se necessario
@@ -89,7 +94,7 @@ class NotizieManager {
                     id: id,
                     titolo: title.textContent.trim(),
                     contenuto: excerpt.textContent.trim(),
-                    data_pubblicazione: newsDate.toISOString(),
+                    data_pubblicazione: newsDate ? newsDate.toISOString() : null,
                     autore: autore,
                     immagine: {
                         url: img ? img.src : '/images/default-news.jpg'
@@ -473,12 +478,17 @@ class NotizieManager {
 
         // Date
         const dateElement = card.querySelector('.date');
-        const newsDate = new Date(news.data_pubblicazione);
-        const dateString = newsDate.toLocaleDateString('it-IT', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        let dateString;
+        if (news.data_pubblicazione) {
+            const newsDate = new Date(news.data_pubblicazione);
+            dateString = newsDate.toLocaleDateString('it-IT', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } else {
+            dateString = 'Non pubblicato';
+        }
         dateElement.innerHTML = `<i class="bi bi-calendar-event"></i> ${dateString}`;
 
         // Title

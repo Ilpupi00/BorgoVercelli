@@ -316,17 +316,42 @@
                 <div class="card actions-card animate__animated animate__fadeInRight animate__delay-4s mt-3">
                   <div class="card-header bg-gradient-primary text-white">
                     <h5 class="card-title mb-0">
-                      <i class="bi bi-info-circle me-2"></i>Crea Eventi e Notizie
+                      <i class="bi bi-plus-circle-fill me-2"></i>Gestione Contenuti
                     </h5>
                   </div>
                   <div class="card-body">
-                    <div class="d-grid gap-3">
-                      <a href="/evento/crea-evento" class="btn btn-gradient-event w-100">
-                        <i class="bi bi-calendar-plus-fill me-3 fs-5"></i>Crea Nuovo Evento
-                      </a>
-                      <a href="/notizie/crea_notizie" class="btn btn-gradient-news w-100">
-                        <i class="bi bi-newspaper me-3 fs-5"></i>Crea Nuova Notizia
-                      </a>
+                    <p class="text-muted mb-4">Come dirigente, puoi creare e gestire eventi e notizie per la comunità.</p>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <a href="/evento/crea-evento" class="btn btn-gradient-event w-100 py-3 position-relative overflow-hidden">
+                          <div class="d-flex flex-column align-items-center">
+                            <i class="bi bi-calendar-plus-fill fs-2 mb-2"></i>
+                            <span class="fw-bold">Crea Nuovo Evento</span>
+                            <small class="opacity-75">Organizza attività per la squadra</small>
+                          </div>
+                          <div class="position-absolute top-0 end-0 bg-primary bg-opacity-90 rounded-start-pill px-2 py-1">
+                            <i class="bi bi-chevron-right text-white"></i>
+                          </div>
+                        </a>
+                      </div>
+                      <div class="col-md-6">
+                        <a href="/notizie/crea_notizie" class="btn btn-gradient-news w-100 py-3 position-relative overflow-hidden">
+                          <div class="d-flex flex-column align-items-center">
+                            <i class="bi bi-newspaper fs-2 mb-2"></i>
+                            <span class="fw-bold">Crea Nuova Notizia</span>
+                            <small class="opacity-75">Condividi aggiornamenti importanti</small>
+                          </div>
+                          <div class="position-absolute top-0 end-0 bg-primary bg-opacity-90 rounded-start-pill px-2 py-1">
+                            <i class="bi bi-chevron-right text-white"></i>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="text-center mt-3">
+                      <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Tutti i contenuti verranno pubblicati dopo la revisione
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -354,19 +379,98 @@
                 <!-- Card Le Mie Notizie ed Eventi -->
                 <% if (user.tipo_utente_id === 2 || user.tipo_utente_id === 1) { %>
                 <div class="card news-events-card animate__animated animate__fadeInRight animate__delay-6s mt-3">
-                    <div class="card-header bg-success text-white">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
-                            <i class="bi bi-newspaper me-2"></i>Le Mie Notizie ed Eventi
+                            <i class="bi bi-newspaper me-2"></i>I Miei Contenuti
                         </h5>
+                        <span class="badge bg-light text-dark" id="contentCount">0 elementi</span>
                     </div>
                     <div class="card-body">
                         <div id="userNewsEventsContainer">
-                            <div class="text-center py-3">
-                                <div class="spinner-border text-success" role="status">
-                                    <span class="visually-hidden">Caricamento...</span>
+                            <% if ((notiziePersonali && notiziePersonali.length > 0) || (eventiPersonali && eventiPersonali.length > 0)) { %>
+                                <div class="news-events-list">
+                                    <% (notiziePersonali || []).forEach(notizia => { %>
+                                        <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
+                                            <div class="d-flex align-items-center flex-grow-1">
+                                                <div class="news-event-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                    <i class="bi bi-newspaper fs-5"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 text-truncate"><%= notizia.titolo %></h6>
+                                                    <p class="mb-1 text-muted small text-truncate"><%= notizia.sottotitolo || notizia.contenuto.substring(0, 80) + (notizia.contenuto.length > 80 ? '...' : '') %></p>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-calendar me-1"></i>
+                                                        <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') : 'Data non disponibile' %>
+                                                        <% if (notizia.pubblicata === 1) { %>
+                                                            <span class="badge bg-success ms-2">Pubblicato</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-warning ms-2">Bozza</span>
+                                                        <% } %>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group" role="group">
+                                                <a href="/notizie/edit/<%= notizia.id %>" class="btn btn-sm btn-outline-primary" title="Modifica notizia">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/notizia/<%= notizia.id %>', '_blank')">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+
+                                    <% (eventiPersonali || []).forEach(evento => { %>
+                                        <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
+                                            <div class="d-flex align-items-center flex-grow-1">
+                                                <div class="news-event-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                    <i class="bi bi-calendar-event fs-5"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 text-truncate"><%= evento.titolo %></h6>
+                                                    <p class="mb-1 text-muted small text-truncate"><%= evento.descrizione ? evento.descrizione.substring(0, 80) + (evento.descrizione.length > 80 ? '...' : '') : 'Nessuna descrizione' %></p>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-calendar me-1"></i>
+                                                        <%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'Data non disponibile' %>
+                                                        <% if (evento.ora_inizio) { %>
+                                                            <i class="bi bi-clock me-1 ms-2"></i><%= evento.ora_inizio %>
+                                                        <% } %>
+                                                        <% if (evento.pubblicato === 1 || evento.pubblicato === true) { %>
+                                                            <span class="badge bg-success ms-2">Pubblicato</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-warning ms-2">Bozza</span>
+                                                        <% } %>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group" role="group">
+                                                <a href="/evento/edit/<%= evento.id %>" class="btn btn-sm btn-outline-success" title="Modifica evento">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/<%= evento.id %>', '_blank')">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% }); %>
                                 </div>
-                                <p class="text-muted mt-2">Caricamento notizie ed eventi...</p>
-                            </div>
+                            <% } else { %>
+                                <div class="text-center py-5">
+                                    <div class="empty-state-icon mb-3">
+                                        <i class="bi bi-plus-circle text-muted" style="font-size: 4rem;"></i>
+                                    </div>
+                                    <h6 class="text-muted mb-3">Nessun contenuto creato</h6>
+                                    <p class="text-muted small mb-4">Inizia creando il tuo primo evento o notizia per la comunità.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="/evento/crea-evento" class="btn btn-outline-success">
+                                            <i class="bi bi-calendar-plus me-2"></i>Crea Evento
+                                        </a>
+                                        <a href="/notizie/crea_notizie" class="btn btn-outline-primary">
+                                            <i class="bi bi-newspaper me-2"></i>Crea Notizia
+                                        </a>
+                                    </div>
+                                </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>

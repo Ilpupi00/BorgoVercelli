@@ -5,11 +5,16 @@
  * @param {*} next 
  * @returns 
  */
+const dao = require('../services/dao-notizie');
 const isLoggedIn = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
         return next();
     }
-    res.status(401).send({ error: 'Unauthorized' });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(401).json({ error: 'Unauthorized' });
+    } else {
+        res.status(401).render('error', { message: 'Accesso negato: devi essere loggato', error: { status: 401 } });
+    }
 };
 /**
  * Middleware per controllare se l'utente è un admin
@@ -22,14 +27,22 @@ const isAdmin = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && req.user.tipo_utente_id === 1) {
         return next();
     }
-    res.status(403).json({ error: 'Forbidden' });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: devi essere amministratore', error: { status: 403 } });
+    }
 };
 
 const isDirigente = function(req,res,next){
     if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2)) {
         return next();
     }
-    res.status(403).send({ error: 'Forbidden' });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente', error: { status: 403 } });
+    }
 }
 
 // Middleware che autorizza sia Admin che Dirigente
@@ -37,14 +50,55 @@ const isAdminOrDirigente = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2)) {
         return next();
     }
-    res.status(403).json({ error: 'Forbidden' });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: devi essere amministratore o dirigente', error: { status: 403 } });
+    }
 }
 
 const isSquadraDirigente =function(req,res,next){
     if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2 && (req.user.squadra_id === req.params.id))) {
         return next();
     }
-    res.status(403).send({ error: 'Forbidden' });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente della squadra', error: { status: 403 } });
+    }
 }
 
-module.exports = { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente };
+const canEditNotizia = async function(req, res, next) {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        } else {
+            return res.status(401).render('error', { message: 'Accesso negato: devi essere loggato', error: { status: 401 } });
+        }
+    }
+
+    const user = req.user;
+    if (user.tipo_utente_id === 1) { // admin
+        return next();
+    }
+
+    if (user.tipo_utente_id === 2) { // dirigente
+        try {
+            const notizia = await dao.getNotiziaById(req.params.id);
+            if (notizia && notizia.autore_id === user.id) {
+                return next();
+            }
+        } catch (error) {
+            console.error('Errore nel recupero notizia per permessi:', error);
+        }
+    }
+
+    // forbidden
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: non hai permessi per modificare questa notizia', error: { status: 403 } });
+    }
+};
+
+module.exports = { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente, canEditNotizia };

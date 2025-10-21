@@ -49,29 +49,7 @@ router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-// Route per creare un nuovo evento
-router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) => {
-    try {
-        const eventoData = {
-            titolo: req.body.titolo,
-            descrizione: req.body.descrizione,
-            data_inizio: req.body.data_inizio,
-            data_fine: req.body.data_fine,
-            luogo: req.body.luogo,
-            tipo_evento: req.body.tipo_evento,
-            squadra_id: req.body.squadra_id || null,
-            campo_id: req.body.campo_id || null,
-            max_partecipanti: req.body.max_partecipanti || null,
-            pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
-        };
 
-        const result = await eventiDao.createEvento(eventoData);
-        res.json({ success: true, message: 'Evento creato con successo', id: result.id });
-    } catch (error) {
-        console.error('Errore nella creazione dell\'evento:', error);
-        res.status(500).json({ success: false, error: 'Errore nella creazione dell\'evento' });
-    }
-});
 
 // Route per aggiornare un evento
 router.put('/evento/:id', isLoggedIn, isAdmin,async (req, res) => {
@@ -135,7 +113,7 @@ router.get('/crea-evento', isLoggedIn, isAdmin, async (req, res) => {
         console.error('Errore nel caricamento della pagina crea evento:', error);
         res.status(500).send('Errore interno del server');
     }
-});// Route per modifica evento (commentata temporaneamente)
+});
 router.get('/crea-evento/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const evento = await eventiDao.getEventoById(req.params.id);
@@ -152,27 +130,30 @@ router.get('/crea-evento/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 
-router.get('/crea-notizie', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.get('/crea-evento', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        res.render('Notizie/notizia_semplice.ejs', {
+        res.render('Eventi/evento_semplice.ejs', {
             user: req.user,
-            notizia: null
+            evento: null,
+            squadre: [],
+            campi: []
         });
     } catch (error) {
-        console.error('Errore nel caricamento della pagina crea notizia:', error);
+        console.error('Errore nel caricamento della pagina crea evento:', error);
         res.status(500).send('Errore interno del server');
     }
 });
-
-router.get('/crea-notizie/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.get('/crea-evento/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        const notizia = await notizieDao.getNotiziaById(req.params.id);
-        res.render('Notizie/notizia_semplice.ejs', {
+        const evento = await eventiDao.getEventoById(req.params.id);
+        res.render('Eventi/evento_semplice.ejs', {
             user: req.user,
-            notizia: notizia
+            evento: evento,
+            squadre: [],
+            campi: []
         });
     } catch (error) {
-        console.error('Errore nel caricamento della pagina modifica notizia:', error);
+        console.error('Errore nel caricamento della pagina modifica evento:', error);
         res.status(500).send('Errore interno del server');
     }
 });

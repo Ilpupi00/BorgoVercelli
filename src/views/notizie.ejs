@@ -105,7 +105,7 @@
                                     <div class="card-meta">
                                         <span class="date">
                                             <i class="bi bi-calendar-event"></i>
-                                            <%= new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                            <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Non pubblicato' %>
                                         </span>
                                     </div>
                                     <h3 class="card-title"><%= notizia.titolo %></h3>

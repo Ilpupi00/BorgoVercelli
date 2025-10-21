@@ -146,7 +146,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="/admin/eventi" class="btn btn-secondary">
+                                <a href="<%= user.tipo_utente_id === 1 ? '/admin/notizie' : '/profilo' %>" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left me-2"></i>Annulla
                                 </a>
                                 <button type="submit" class="btn btn-primary">

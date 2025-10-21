@@ -179,7 +179,9 @@ exports.searchEventi = async function(searchTerm) {
 }
 
 exports.getEventiPersonali= async function(utenteId){
-    const sql = `SELECT * FROM EVENTI WHERE utente=?`;
+    const sql = `SELECT E.* FROM EVENTI E
+                 INNER JOIN PARTECIPAZIONI_EVENTI P ON E.id = P.evento_id
+                 WHERE P.utente_id = ?`;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, [utenteId], (err, eventi) => {
             if (err) {

@@ -4,6 +4,8 @@ const express = require('express');
 const router = express.Router();
 const userDao = require('../services/dao-user');
 const dirigenteDao = require('../services/dao-dirigenti-squadre');
+const daoNotizie = require('../services/dao-notizie');
+const daoEventi = require('../services/dao-eventi');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -118,6 +120,22 @@ router.get('/profilo', async (req, res) => {
             console.error('Errore recupero attività:', activityErr);
         }
 
+        // Recupera notizie ed eventi personali per dirigenti e admin
+        let notiziePersonali = [];
+        let eventiPersonali = [];
+        if (dirigente || user.isAdmin) {
+            try {
+                notiziePersonali = await daoNotizie.getNotiziePersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero notizie personali:', err);
+            }
+            try {
+                eventiPersonali = await daoEventi.getEventiPersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero eventi personali:', err);
+            }
+        }
+
         res.render('profilo', {
             user,
             imageUrl,
@@ -125,6 +143,8 @@ router.get('/profilo', async (req, res) => {
             dirigente,
             stats,
             activity,
+            notiziePersonali,
+            eventiPersonali,
             isLogged: true
         });
     } catch (err) {

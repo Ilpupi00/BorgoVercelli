@@ -147,6 +147,24 @@ class Profilo {
     }
 
     async caricaNotizieEventiUtente() {
+        const container = document.getElementById('userNewsEventsContainer');
+        const countBadge = document.getElementById('contentCount');
+
+        // Show loading state
+        if (countBadge) {
+            countBadge.textContent = 'Caricamento...';
+            countBadge.className = 'badge bg-secondary text-light';
+        }
+
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Caricamento contenuti...</span>
+                </div>
+                <p class="text-muted mt-2">Caricamento dei tuoi contenuti...</p>
+            </div>
+        `;
+
         try {
             const [notizieResponse, eventiResponse] = await Promise.all([
                 fetch('/notizie/mie'),
@@ -162,24 +180,50 @@ class Profilo {
             this.mostraNotizieEventiUtente(notizie, eventi);
         } catch (error) {
             console.error('Errore caricamento notizie ed eventi:', error);
-            document.getElementById('userNewsEventsContainer').innerHTML =
-                '<div class="alert alert-danger">Errore di connessione</div>';
+            container.innerHTML = `
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>
+                        <strong>Errore di connessione</strong>
+                        <br>
+                        <small>Impossibile caricare i contenuti. <button class="btn btn-link p-0 ms-1" onclick="profilo.caricaNotizieEventiUtente()">Riprova</button></small>
+                    </div>
+                </div>
+            `;
+            if (countBadge) {
+                countBadge.textContent = 'Errore';
+                countBadge.className = 'badge bg-danger text-white';
+            }
         }
     }
 
     mostraNotizieEventiUtente(notizie, eventi) {
         const container = document.getElementById('userNewsEventsContainer');
+        const countBadge = document.getElementById('contentCount');
 
         const totalItems = notizie.length + eventi.length;
 
+        // Update counter
+        if (countBadge) {
+            countBadge.textContent = `${totalItems} elemento${totalItems !== 1 ? 'i' : ''}`;
+            countBadge.className = totalItems > 0 ? 'badge bg-light text-dark' : 'badge bg-warning text-dark';
+        }
+
         if (totalItems === 0) {
             container.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="bi bi-newspaper text-muted display-4 mb-3"></i>
-                    <p class="text-muted">Non hai ancora creato nessuna notizia o evento.</p>
+                <div class="text-center py-5">
+                    <div class="empty-state-icon mb-3">
+                        <i class="bi bi-plus-circle text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h6 class="text-muted mb-3">Nessun contenuto creato</h6>
+                    <p class="text-muted small mb-4">Inizia creando il tuo primo evento o notizia per la comunità.</p>
                     <div class="d-flex justify-content-center gap-2">
-                        <a href="/notizie/crea_notizie" class="btn btn-outline-success">Crea Notizia</a>
-                        <a href="/evento/crea-evento" class="btn btn-outline-primary">Crea Evento</a>
+                        <a href="/evento/crea-evento" class="btn btn-outline-success">
+                            <i class="bi bi-calendar-plus me-2"></i>Crea Evento
+                        </a>
+                        <a href="/notizie/crea_notizie" class="btn btn-outline-primary">
+                            <i class="bi bi-newspaper me-2"></i>Crea Notizia
+                        </a>
                     </div>
                 </div>
             `;
@@ -190,30 +234,33 @@ class Profilo {
 
         // Mostra prima gli eventi
         eventi.forEach(evento => {
-            const data = new Date(evento.data_evento).toLocaleDateString('it-IT');
+            const data = new Date(evento.data_inizio || evento.data_evento).toLocaleDateString('it-IT');
             const ora = evento.ora_inizio ? `alle ${evento.ora_inizio}` : '';
+            const pubblicato = evento.pubblicato === 1 || evento.pubblicato === true;
 
             html += `
-                <div class="news-event-item border rounded p-3 mb-3">
-                    <div class="d-flex align-items-start">
-                        <div class="icon-container bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-calendar-event"></i>
+                <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="news-event-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-calendar-event fs-5"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1 text-primary">
-                                        <i class="bi bi-calendar-event me-2"></i>${evento.titolo}
-                                    </h6>
-                                    <p class="mb-2 text-muted small">${evento.descrizione}</p>
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar me-1"></i>${data} ${ora}
-                                        ${evento.luogo ? `<i class="bi bi-geo-alt ms-2 me-1"></i>${evento.luogo}` : ''}
-                                    </small>
-                                </div>
-                                <span class="badge bg-primary">Evento</span>
-                            </div>
+                            <h6 class="mb-1 text-truncate">${evento.titolo}</h6>
+                            <p class="mb-1 text-muted small text-truncate">${evento.descrizione ? evento.descrizione.substring(0, 80) + (evento.descrizione.length > 80 ? '...' : '') : 'Nessuna descrizione'}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>${data} ${ora}
+                                ${evento.luogo ? `<i class="bi bi-geo-alt ms-2 me-1"></i>${evento.luogo}` : ''}
+                                ${pubblicato ? '<span class="badge bg-success ms-2">Pubblicato</span>' : '<span class="badge bg-warning ms-2">Bozza</span>'}
+                            </small>
                         </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a href="/evento/edit/${evento.id}" class="btn btn-sm btn-outline-success" title="Modifica evento">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/${evento.id}', '_blank')">
+                            <i class="bi bi-eye"></i>
+                        </button>
                     </div>
                 </div>
             `;
@@ -222,27 +269,30 @@ class Profilo {
         // Poi le notizie
         notizie.forEach(notizia => {
             const data = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT');
+            const pubblicato = notizia.pubblicata === 1;
 
             html += `
-                <div class="news-event-item border rounded p-3 mb-3">
-                    <div class="d-flex align-items-start">
-                        <div class="icon-container bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-newspaper"></i>
+                <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="news-event-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-newspaper fs-5"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1 text-success">
-                                        <i class="bi bi-newspaper me-2"></i>${notizia.titolo}
-                                    </h6>
-                                    <p class="mb-2 text-muted small">${notizia.contenuto.substring(0, 100)}${notizia.contenuto.length > 100 ? '...' : ''}</p>
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar me-1"></i>Pubblicato il ${data}
-                                    </small>
-                                </div>
-                                <span class="badge bg-success">Notizia</span>
-                            </div>
+                            <h6 class="mb-1 text-truncate">${notizia.titolo}</h6>
+                            <p class="mb-1 text-muted small text-truncate">${notizia.sottotitolo || notizia.contenuto.substring(0, 80) + (notizia.contenuto.length > 80 ? '...' : '')}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>${data}
+                                ${pubblicato ? '<span class="badge bg-success ms-2">Pubblicato</span>' : '<span class="badge bg-warning ms-2">Bozza</span>'}
+                            </small>
                         </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a href="/notizie/edit/${notizia.id}" class="btn btn-sm btn-outline-primary" title="Modifica notizia">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/notizia/${notizia.id}', '_blank')">
+                            <i class="bi bi-eye"></i>
+                        </button>
                     </div>
                 </div>
             `;

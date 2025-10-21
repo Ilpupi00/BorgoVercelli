@@ -1,8 +1,7 @@
-
 const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
-const { isLoggedIn, isAdminOrDirigente, isAdmin } = require('../middlewares/auth');
+const { isLoggedIn, isAdminOrDirigente, isAdmin, canEditNotizia } = require('../middlewares/auth');
 
 // HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
@@ -88,7 +87,7 @@ router.get('/notizie/mie', isLoggedIn, async (req, res) => {
 });
 
 // Forms: create/edit
-router.get('/crea-notizie', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.get('/crea-notizie', isAdminOrDirigente, async (req, res) => {
   try {
     const id = req.query.id;
     let notizia = null;
@@ -113,7 +112,7 @@ router.get('/crea-notizia-semplice', isLoggedIn, isAdminOrDirigente, async (req,
 });
 
 // Create new news
-router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, async (req, res) => {
   try {
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
@@ -136,13 +135,13 @@ router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) =
       contenuto,
       sottotitolo: sottotitolo || '',
       immagine_principale_id: immagine_principale_id || null,
-      autore_id: req.user.id,
-      pubblicata: pubblicata === 'on' ? 1 : 0,
-      data_pubblicazione: pubblicata === 'on' ? new Date().toISOString() : null
+      autore_id: req.user ? req.user.id : 1, // default to user 1 if not logged in
+      pubblicata: pubblicata ? 1 : 0,
+      data_pubblicazione: pubblicata ? new Date().toISOString() : null
     };
 
     await dao.createNotizia(notiziaData);
-    if(isAdmin){
+    if(req.user.tipo_utente_id === 1){
       res.redirect('/admin/notizie');
     }
     else{
@@ -156,7 +155,7 @@ router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) =
 });
 
 // Update existing news
-router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/notizie/:id', canEditNotizia, async (req, res) => {
   try {
     const id = req.params.id;
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
@@ -183,12 +182,17 @@ router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
       contenuto,
       sottotitolo: sottotitolo || '',
       immagine_principale_id: immagine_principale_id || null,
-      pubblicata: pubblicata === 'on' ? 1 : 0,
-      data_pubblicazione: pubblicata === 'on' ? new Date().toISOString() : null
+      pubblicata: pubblicata ? 1 : 0,
+      data_pubblicazione: pubblicata ? new Date().toISOString() : null
     };
 
     await dao.updateNotizia(id, notiziaData);
-    res.redirect('/admin/notizie');
+    if(req.user.tipo_utente_id === 1){
+      res.redirect('/admin/notizie');
+    }
+    else{
+      res.redirect('/profilo');
+    }
   } catch (error) {
     console.error('Errore nell\'aggiornamento della notizia:', error);
     res.status(500).render('error', { message: 'Errore nell\'aggiornamento della notizia', error: {} });
@@ -221,6 +225,11 @@ router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
     console.error('Errore nell\'eliminazione della notizia:', error);
     res.status(500).json({ success: false, error: 'Errore interno del server' });
   }
+});
+
+// Edit news - redirect to create form with id
+router.get('/notizie/edit/:id', canEditNotizia, async (req, res) => {
+  res.redirect(`/crea-notizie?id=${req.params.id}`);
 });
 
 module.exports = router;
