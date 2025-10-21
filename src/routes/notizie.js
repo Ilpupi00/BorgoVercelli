@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
 const { isLoggedIn, isAdminOrDirigente, isAdmin } = require('../middlewares/auth');
-const { DomPlatform } = require('chart.js');
 
 // HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
@@ -127,9 +126,7 @@ router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) =
       return res.render(templateName, { user: req.user, notizia: null, error: 'Il contenuto della notizia è troppo grande (max 5MB).' });
     }
 
-    const cheerio = require('cheerio');
-    const $ = cheerio.load(contenuto || '');
-    const textContent = $.text().trim();
+    const textContent = contenuto.replace(/<[^>]*>/g, '').trim();
     if (textContent.length < 1) {
       return res.render(templateName, { user: req.user, notizia: null, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
     }
@@ -145,7 +142,13 @@ router.post('/notizie/nuova', isLoggedIn, isAdminOrDirigente, async (req, res) =
     };
 
     await dao.createNotizia(notiziaData);
-    res.redirect('/admin/notizie');
+    if(isAdmin){
+      res.redirect('/admin/notizie');
+    }
+    else{
+      res.redirect('/profilo');
+    }
+
   } catch (error) {
     console.error('Errore nella creazione della notizia:', error);
     res.status(500).render('error', { message: 'Errore nella creazione della notizia', error: {} });
@@ -169,9 +172,7 @@ router.post('/notizie/:id', isLoggedIn, isAdmin, async (req, res) => {
       return res.render(templateName, { user: req.user, notizia, error: 'Il contenuto della notizia è troppo grande (max 5MB).' });
     }
 
-    const cheerio = require('cheerio');
-    const $ = cheerio.load(contenuto || '');
-    const textContent = $.text().trim();
+    const textContent = contenuto.replace(/<[^>]*>/g, '').trim();
     if (textContent.length < 1) {
       const notizia = await dao.getNotiziaById(id);
       return res.render(templateName, { user: req.user, notizia, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
