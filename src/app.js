@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 
+// Importa i moduli necessari
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
@@ -10,6 +11,8 @@ const userDao = require('./services/dao-user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+
+// Importa le route
 const routes = require('./routes/index');
 const routesNotizie = require('./routes/notizie');
 const routesEventi = require('./routes/routes-eventi');
@@ -19,12 +22,12 @@ const routesRecensioni = require('./routes/recensioni');
 const routesSendEmail = require('./routes/email');
 const routesSquadre = require('./routes/squadre');
 const routesGalleria = require('./routes/galleria');
-console.log('routesGalleria loaded:', typeof routesGalleria);
 const routesPrenotazione = require('./routes/prenotazione');
 const routesAdmin = require('./routes/admin');
 const routesCampionati = require('./routes/campionati');
+const routesUsers = require('./routes/users');
 
-// passport configuration
+//configura passport
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
   function(email, password, done) {
@@ -47,6 +50,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+// Crea l'app Express
 const app = express();
 
 // Redirect dalla root alla Homepage
@@ -54,6 +58,7 @@ app.get('/', (req, res) => {
   res.redirect('/homepage');
 });
 
+// Configura i middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -64,18 +69,21 @@ app.use(methodOverride(function (req, res) {
     return method;
   }
 }));
+
 // Provide a favicon to avoid 404 in browser console. Serve the logo as PNG for favicon.
 app.get('/favicon.ico', function(req, res) {
   console.log('Serving /favicon.ico -> Logo.png');
   res.sendFile(path.join(__dirname, 'public', 'images', 'Logo.png'));
 });
 
+// Serve i file statici dalla cartella "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Route specifica per eventi/all - ora gestita in routes-eventi.js
 
 
- app.use(session({
+//// Configura sessione e passport
+app.use(session({
    secret: "your-secret-key",
    resave: false,
     saveUninitialized: true
@@ -113,6 +121,7 @@ app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
 app.use('/campionato', routesCampionati);
+app.use('/', routesUsers);
 
 app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 

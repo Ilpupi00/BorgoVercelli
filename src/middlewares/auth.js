@@ -6,6 +6,7 @@
  * @returns 
  */
 const dao = require('../services/dao-notizie');
+
 const isLoggedIn = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
         return next();
@@ -85,8 +86,11 @@ const canEditNotizia = async function(req, res, next) {
     if (user.tipo_utente_id === 2) { // dirigente
         try {
             const notizia = await dao.getNotiziaById(req.params.id);
-            if (notizia && notizia.autore_id === user.id) {
+            if (notizia && notizia.autore_id == user.id) {
                 return next();
+            }
+            else{
+                console.log('Utente dirigente non è autore della notizia');
             }
         } catch (error) {
             console.error('Errore nel recupero notizia per permessi:', error);

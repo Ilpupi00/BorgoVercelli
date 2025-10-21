@@ -22,6 +22,7 @@ const makeNotizie = (row) => {
         },
         row.N_contenuto || row.contenuto,
         autore, // Usa il nome completo invece dell'ID
+        row.N_autore_id || row.autore_id,
         row.N_pubblicata || row.pubblicata,
         (row.N_data_pubblicazione || row.data_pubblicazione) ? new Date(row.N_data_pubblicazione || row.data_pubblicazione) : null,
         row.N_visualizzazioni || row.visualizzazioni,

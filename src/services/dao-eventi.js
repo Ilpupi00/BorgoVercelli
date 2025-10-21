@@ -12,6 +12,7 @@ const makeEvento=(row)=>{
         row.data_fine,
         row.luogo,
         row.tipo_evento,
+        row.autore_id,
         row.squadra_id,
         row.campo_id,
         row.max_partecipanti,
@@ -24,7 +25,7 @@ const makeEvento=(row)=>{
 
 exports.getEventi = function(){
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI;';
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -38,7 +39,7 @@ exports.getEventi = function(){
 
 exports.getEventiPubblicati = function(){
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI WHERE pubblicato = 1;';
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI WHERE pubblicato = 1;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -69,8 +70,8 @@ exports.getEventoById = function(id) {
 exports.createEvento = function(eventoData) {
     const sql = `INSERT INTO EVENTI (
         titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento,
-        squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`;
+        autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -80,6 +81,7 @@ exports.createEvento = function(eventoData) {
             eventoData.data_fine,
             eventoData.luogo,
             eventoData.tipo_evento,
+            eventoData.autore_id,
             eventoData.squadra_id,
             eventoData.campo_id,
             eventoData.max_partecipanti,
@@ -97,7 +99,7 @@ exports.createEvento = function(eventoData) {
 exports.updateEvento = function(id, eventoData) {
     const sql = `UPDATE EVENTI SET
         titolo = ?, descrizione = ?, data_inizio = ?, data_fine = ?,
-        luogo = ?, tipo_evento = ?, squadra_id = ?, campo_id = ?,
+        luogo = ?, tipo_evento = ?, autore_id = ?, squadra_id = ?, campo_id = ?,
         max_partecipanti = ?, pubblicato = ?, updated_at = datetime('now')
         WHERE id = ?`;
 
@@ -109,6 +111,7 @@ exports.updateEvento = function(id, eventoData) {
             eventoData.data_fine,
             eventoData.luogo,
             eventoData.tipo_evento,
+            eventoData.autore_id,
             eventoData.squadra_id,
             eventoData.campo_id,
             eventoData.max_partecipanti,
@@ -161,7 +164,7 @@ exports.togglePubblicazioneEvento = function(id) {
 
 exports.searchEventi = async function(searchTerm) {
     const sql = `
-        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id
+        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id
         FROM EVENTI
         WHERE pubblicato = 1 AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
         ORDER BY data_inizio DESC
@@ -179,9 +182,7 @@ exports.searchEventi = async function(searchTerm) {
 }
 
 exports.getEventiPersonali= async function(utenteId){
-    const sql = `SELECT E.* FROM EVENTI E
-                 INNER JOIN PARTECIPAZIONI_EVENTI P ON E.id = P.evento_id
-                 WHERE P.utente_id = ?`;
+    const sql = `SELECT * FROM EVENTI WHERE autore_id = ?`;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, [utenteId], (err, eventi) => {
             if (err) {

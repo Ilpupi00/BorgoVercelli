@@ -19,7 +19,7 @@
 
     <div class="profile-container">
         <!-- Header principale con avatar e info base -->
-        <div class="profile-header-card animate__animated animate__fadeIn">
+        <div class="profile-header-card animate__animated animate__fadeIn animate__faster">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center">
                     <div class="profile-avatar mb-3 animate__animated animate__zoomIn">
@@ -69,7 +69,7 @@
             <!-- Colonna sinistra: Statistiche e Link Rapidi -->
             <div class="col-lg-4">
                 <!-- Card Statistiche -->
-                <div class="card stats-card animate__animated animate__fadeInLeft animate__delay-1s">
+                <div class="card stats-card animate__animated animate__fadeInLeft animate__faster">
                     <div class="card-header bg-primary text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-bar-chart-line me-2"></i>Le tue Statistiche
@@ -107,7 +107,7 @@
                 </div>
 
                 <!-- Card Link Rapidi -->
-                <div class="card quick-links-card animate__animated animate__fadeInLeft animate__delay-2s mt-3">
+                <div class="card quick-links-card animate__animated animate__fadeInLeft animate__faster mt-3">
                     <div class="card-header bg-success text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-lightning-charge me-2"></i>Azioni Rapide
@@ -120,7 +120,7 @@
                         <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
                             <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
                         </a>
-                        <a href="/eventi/all" class="btn btn-outline-primary w-100 mb-2">
+                        <a href="/eventi" class="btn btn-outline-primary w-100 mb-2">
                             <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
                         </a>
                         <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
@@ -136,7 +136,7 @@
                 </div>
 
                 <!-- Card Preferenze Sportive -->
-                <div class="card preferences-card animate__animated animate__fadeInLeft animate__delay-3s mt-3">
+                <div class="card preferences-card animate__animated animate__fadeInLeft animate__faster mt-3">
                     <div class="card-header bg-info text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-gear me-2"></i>Preferenze e Sicurezza
@@ -144,12 +144,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
-                                <button class="btn btn-outline-info w-100 mb-2" onclick="modificaPreferenze()">
-                                    <i class="bi bi-sliders me-2"></i>Modifica Profilo
-                                </button>
-                            </div>
-                            <div class="col-6">
+                            <div class="col-12 mb-3">
                                 <button class="btn btn-outline-secondary w-100 mb-2" onclick="cambiaPassword()">
                                     <i class="bi bi-key me-2"></i>Cambia Password
                                 </button>
@@ -165,12 +160,15 @@
                         </div>
                     </div>
                 </div>
+
+        
+
             </div>
 
             <!-- Colonna destra: Attività e Dettagli -->
             <div class="col-lg-8">
                 <!-- Card Attività Recente -->
-                <div class="card activity-card animate__animated animate__fadeInRight animate__delay-1s">
+                <div class="card activity-card animate__animated animate__fadeInRight animate__faster">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-activity me-2"></i>Attività Recente
@@ -226,7 +224,7 @@
 
                 <!-- Card Informazioni Sportive -->
                 <% if (giocatore) { %>
-                <div class="card sports-card animate__animated animate__fadeInRight animate__delay-2s mt-3">
+                <div class="card sports-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-success text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-trophy me-2"></i>Informazioni Sportive
@@ -267,7 +265,7 @@
 
                 <!-- Card Ruolo Dirigenziale -->
                 <% if (user.tipo_utente_id === 2) { %>
-                <div class="card management-card animate__animated animate__fadeInRight animate__delay-3s mt-3">
+                <div class="card management-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-briefcase me-2"></i>Ruolo Dirigenziale
@@ -313,7 +311,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card actions-card animate__animated animate__fadeInRight animate__delay-4s mt-3">
+                <div class="card actions-card animate__animated animate__fadeInRight animate__faster mt-3">
                   <div class="card-header bg-gradient-primary text-white">
                     <h5 class="card-title mb-0">
                       <i class="bi bi-plus-circle-fill me-2"></i>Gestione Contenuti
@@ -358,7 +356,7 @@
                 <% } %>
 
                 <!-- Card Le Mie Recensioni -->
-                <div class="card reviews-card animate__animated animate__fadeInRight animate__delay-5s mt-3">
+                <div class="card reviews-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-info text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-star me-2"></i>Le Mie Recensioni
@@ -378,7 +376,7 @@
 
                 <!-- Card Le Mie Notizie ed Eventi -->
                 <% if (user.tipo_utente_id === 2 || user.tipo_utente_id === 1) { %>
-                <div class="card news-events-card animate__animated animate__fadeInRight animate__delay-6s mt-3">
+                <div class="card news-events-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-newspaper me-2"></i>I Miei Contenuti
@@ -444,7 +442,7 @@
                                                 </div>
                                             </div>
                                             <div class="btn-group" role="group">
-                                                <a href="/evento/edit/<%= evento.id %>" class="btn btn-sm btn-outline-success" title="Modifica evento">
+                                                <a href="/evento/crea-evento/<%= evento.id %>" class="btn btn-sm btn-outline-success" title="Modifica evento">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/<%= evento.id %>', '_blank')">

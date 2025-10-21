@@ -36,7 +36,7 @@
                             </div>
                         <% } %>
 
-                        <form id="eventoForm" onsubmit="return handleFormSubmit(event)">
+                        <form id="eventoForm" data-evento-id="<%= evento ? evento.id : '' %>">
                             <input type="hidden" name="_method" id="_method" value="<%= evento ? 'PUT' : 'POST' %>">
                             <div class="row">
                                 <div class="col-md-8">
@@ -129,12 +129,10 @@
 
                             <div class="mb-3">
                                 <label for="descrizione" class="form-label">Descrizione</label>
-                                <div id="editor-container" style="height: 200px;" data-initial-content="<%= evento ? evento.descrizione.replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '' %>">
-                                    <%= evento ? evento.descrizione : '<p>Descrivi l\'evento...</p>' %>
+                                <div id="editor-container" style="height: 200px;" data-initial-content="<%= evento ? evento.descrizione.replace(/\"/g, '&quot;').replace(/\'/g, '&#39;') : '' %>">
                                 </div>
                                 <textarea name="descrizione" id="descrizione" style="display: none;"></textarea>
                             </div>
-
                             <div class="mb-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="pubblicato" name="pubblicato" value="true"
@@ -163,6 +161,5 @@
 
     <%- include('../partials/footer') %>
 
-    <script src="/javascripts/crea_evento.js" defer></script>
 </body>
 </html>

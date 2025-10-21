@@ -255,7 +255,7 @@ class Profilo {
                         </div>
                     </div>
                     <div class="btn-group" role="group">
-                        <a href="/evento/edit/${evento.id}" class="btn btn-sm btn-outline-success" title="Modifica evento">
+                        <a href="/evento/crea-evento/${evento.id}" class="btn btn-sm btn-outline-success" title="Modifica evento">
                             <i class="bi bi-pencil"></i>
                         </a>
                         <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/${evento.id}', '_blank')">

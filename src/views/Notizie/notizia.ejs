@@ -36,6 +36,9 @@
                         <% } %>
 
                         <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>">
+                            <% if (notizia) { %>
+                            <input type="hidden" name="_method" value="PUT">
+                            <% } %>
                             <input type="hidden" id="template" name="template" value="avanzato">
                             <div class="mb-3">
                                 <label for="titolo" class="form-label">Titolo <span class="text-danger">*</span></label>

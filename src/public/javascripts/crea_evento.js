@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializeDateValidation();
+    initializeQuill();
 });
 
 function initializeFormValidation() {
@@ -36,26 +37,51 @@ async function handleFormSubmit(event) {
         url = `/evento/${eventoId}`;
     }
 
+    // Converti FormData in oggetto
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+
     try {
         const response = await fetch(url, {
             method: method,
-            body: formData,
             headers: {
+                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            body: JSON.stringify(data)
         });
 
-        const result = await response.json();
+        // Try to parse JSON, but be defensive in case server returned HTML
+        let result = null;
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            // If not JSON, try to read text for debugging
+            const text = await response.text();
+            console.warn('Server returned non-JSON response:', text);
+        }
 
-        if (result.success) {
+        if (result && result.success) {
             // Mostra messaggio di successo
-            showSuccessMessage(result.message);
+            showSuccessMessage(result.message || 'Salvataggio avvenuto con successo');
             // Reindirizza dopo un breve delay
             setTimeout(() => {
-                window.location.href = '/admin/eventi';
+                window.location.href = result.redirectUrl || '/admin/eventi';
             }, 1500);
-        } else {
+        } else if (result && !result.success) {
             showErrors([result.error || 'Errore durante il salvataggio']);
+        } else if (response.redirected) {
+            // In some environments redirect may be followed; ensure navigation
+            window.location.href = response.url;
+        } else {
+            // No JSON and no redirect — show a generic success and suggest reload
+            showSuccessMessage('Salvataggio completato.');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     } catch (error) {
         console.error('Errore:', error);
@@ -194,12 +220,68 @@ function showSuccessMessage(message) {
     }, 3000);
 }
 
+function initializeQuill() {
+    // Primary editor
+    const editorContainer = document.getElementById('editor-container');
+    if (editorContainer && typeof Quill !== 'undefined') {
+        window.quill1 = new Quill('#editor-container', {
+            theme: 'snow',
+            placeholder: 'Descrivi l\'evento...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set initial content
+        const initialContent = editorContainer.getAttribute('data-initial-content');
+        if (initialContent) {
+            window.quill1.root.innerHTML = initialContent;
+        }
+    }
+
+    // Secondary (brief) editor
+    const editorContainer2 = document.getElementById('editor-container-2');
+    if (editorContainer2 && typeof Quill !== 'undefined') {
+        window.quill2 = new Quill('#editor-container-2', {
+            theme: 'snow',
+            placeholder: 'Breve descrizione...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        const initialContent2 = editorContainer2.getAttribute('data-initial-content');
+        if (initialContent2) {
+            window.quill2.root.innerHTML = initialContent2;
+        }
+    }
+}
+
 // Funzione globale per submit del form (chiamata dall'HTML)
 function submitQuillContent() {
+    let submitted = false;
+
     const descrizioneTextarea = document.getElementById('descrizione');
-    if (descrizioneTextarea && typeof quill !== 'undefined') {
-        descrizioneTextarea.value = quill.root.innerHTML;
-        return true;
+    if (descrizioneTextarea && typeof window.quill1 !== 'undefined') {
+        descrizioneTextarea.value = window.quill1.root.innerHTML;
+        submitted = true;
     }
-    return false;
+
+    const descrizioneBreveTextarea = document.getElementById('descrizione_breve');
+    if (descrizioneBreveTextarea && typeof window.quill2 !== 'undefined') {
+        descrizioneBreveTextarea.value = window.quill2.root.innerHTML;
+        submitted = true;
+    }
+
+    return submitted;
 }

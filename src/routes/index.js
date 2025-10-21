@@ -241,18 +241,6 @@ router.get('/search', async (req, res) => {
     }
 });
 
-router.get('/evento/crea-evento',isLoggedIn,isDirigente,(req,res)=>{
-     try{
-         res.render('Eventi/evento_semplice.ejs',{
-         user:req.user,
-         evento: null
-         });
-
-   }catch(error){
-    console.error('Errore nel rendering della pagina di creazione evento:', error);
-    res.status(500).send('Internal Server Error');
-   }
-});
 router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
     try{
         res.render('Notizie/notizia.ejs',{

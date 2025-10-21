@@ -6,13 +6,14 @@ const moment = require('moment');
 'use strict';
 
 class Notizia{
-    constructor(id,titolo,sottotitolo,immagine,contenuto,autore,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
+        constructor(id,titolo,sottotitolo,immagine,contenuto,autore,autore_id,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
         this.id = id;
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
         this.immagine = immagine;
         this.contenuto = contenuto
         this.autore = autore;
+        this.autore_id = autore_id;
         this.pubblicata = pubblicata;
         this.data_pubblicazione = data_pubblicazione ? Notizia.parseDate(data_pubblicazione) : null;
         this.visualizzazioni=visualizzazioni;

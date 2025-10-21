@@ -182,8 +182,8 @@ router.get('/api/user/profile-pic', async (req, res) => {
         res.status(500).json({ error: 'Errore nel recupero della foto profilo' });
     }
 });
-// Route per aggiornare il profilo utente
-router.put('/update', async (req, res) => {
+// Route per aggiornare il profilo utente (alias per /update)
+router.put('/profilo', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ success: false, error: 'Non autenticato' });
     }

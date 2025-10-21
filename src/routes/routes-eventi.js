@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-eventi');
+const daoSquadre = require('../services/dao-squadre');
+const daoCampi = require('../services/dao-campi');
 const { isLoggedIn, isAdminOrDirigente } = require('../middlewares/auth');
 
 // Route per eventi/all gestita dal router
@@ -23,6 +25,68 @@ router.get('/eventi', async (req, res) => {
     res.status(500).json({ error: 'Errore interno del server' });
   }
 });
+// Route per creare/modificare un evento
+router.get('/evento/crea-evento', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+  try {
+    const squadre = await daoSquadre.getSquadre();
+    const campi = await daoCampi.getCampi();
+    
+    res.render('Eventi/evento', { user: req.user, evento: null, squadre, campi, error: null });
+  } catch (error) {
+    console.error('Errore nel caricamento del form evento:', error);
+    res.render('Eventi/evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
+  }
+});
+
+// Edit event - redirect to create form with id
+router.get('/evento/crea-evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+    try {
+        const evento = await dao.getEventoById(req.params.id);
+        const squadre = await daoSquadre.getSquadre();
+        const campi = await daoCampi.getCampi();
+        
+        res.render('Eventi/evento', {
+            user: req.user,
+            evento: evento,
+            squadre,
+            campi
+        });
+    } catch (error) {
+        console.error('Errore nel caricamento della pagina modifica evento:', error);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+  try{
+    const eventoData = {
+      titolo: req.body.titolo,
+      descrizione: req.body.descrizione,
+      data_inizio: req.body.data_inizio,
+      data_fine: req.body.data_fine,
+      luogo: req.body.luogo,
+      tipo_evento: req.body.tipo_evento,
+      autore_id: req.user.id,
+      squadra_id: req.body.squadra_id || null,
+      campo_id: req.body.campo_id || null,
+      max_partecipanti: req.body.max_partecipanti || null,
+      pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
+    };
+
+    await dao.createEvento(eventoData);
+    const user = req.user;
+    const redirectUrl = user.tipo_utente_id === 1 ? '/admin/eventi' : '/profilo';
+    // If request comes from AJAX/fetch (expects JSON), return JSON so client can handle redirect
+    if (req.xhr || (req.headers && req.headers['x-requested-with'] === 'XMLHttpRequest') || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({ success: true, redirectUrl });
+    }
+    return res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Errore nella creazione dell\'evento:', error);
+    res.status(500).json({ error: 'Errore interno del server' }); 
+  }
+});
+
 // Route per visualizzare un singolo evento
 router.get('/evento/:id', async (req, res) => {
   try {
@@ -47,52 +111,16 @@ router.get('/evento/:id', async (req, res) => {
 });
 
 // Route per creare/modificare un evento
-router.get('/crea-evento', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.get('/evento/crea-evento', isLoggedIn, isAdminOrDirigente, async (req, res) => {
   try {
-    const id = req.query.id;
-    let evento = null;
-    if (id) evento = await dao.getEventoById(id);
-    res.render('Eventi/evento', { user: req.user, evento, error: null });
+    const squadre = await daoSquadre.getSquadre();
+    const campi = await daoCampi.getCampi();
+    
+    res.render('Eventi/evento', { user: req.user, evento: null, squadre, campi, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form evento:', error);
-    res.render('Eventi/evento', { user: req.user, evento: null, error: 'Errore nel caricamento dell\'evento' });
+    res.render('Eventi/evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
   }
-});
-
-// Route per creare un nuovo evento
-router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) => {
-    try {
-        const eventoData = {
-            titolo: req.body.titolo,
-            descrizione: req.body.descrizione,
-            data_inizio: req.body.data_inizio,
-            data_fine: req.body.data_fine,
-            luogo: req.body.luogo,
-            tipo_evento: req.body.tipo_evento,
-            squadra_id: req.body.squadra_id || null,
-            campo_id: req.body.campo_id || null,
-            max_partecipanti: req.body.max_partecipanti || null,
-            pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
-        };
-
-        const result = await dao.createEvento(eventoData);
-        res.json({ success: true, message: 'Evento creato con successo', id: result.id });
-        if(req.user.tipo_utente_id === 1){
-            //redirect alla admin page
-            res.redirect('/admin/eventi');
-        }
-        else{
-            res.redirect('/profilo');
-        }
-    } catch (error) {
-        console.error('Errore nella creazione dell\'evento:', error);
-        res.status(500).json({ success: false, error: 'Errore nella creazione dell\'evento' });
-    }
-});
-
-// Edit event - redirect to create form with id
-router.get('/evento/edit/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
-  res.redirect(`/crea-evento?id=${req.params.id}`);
 });
 
 // Update existing event
@@ -106,6 +134,7 @@ router.put('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
       data_fine: req.body.data_fine,
       luogo: req.body.luogo,
       tipo_evento: req.body.tipo_evento,
+      autore_id: req.user.id,
       squadra_id: req.body.squadra_id || null,
       campo_id: req.body.campo_id || null,
       max_partecipanti: req.body.max_partecipanti || null,
@@ -113,11 +142,12 @@ router.put('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
     };
 
     await dao.updateEvento(id, eventoData);
-    if(req.user.tipo_utente_id === 1){
-      res.redirect('/admin/eventi');
-    } else {
-      res.redirect('/profilo');
+    const user = req.user;
+    const redirectUrl = user.tipo_utente_id === 1 ? '/admin/eventi' : '/profilo';
+    if (req.xhr || (req.headers && req.headers['x-requested-with'] === 'XMLHttpRequest') || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({ success: true, redirectUrl });
     }
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Errore nell\'aggiornamento dell\'evento:', error);
     res.status(500).render('error', { message: 'Errore nell\'aggiornamento dell\'evento', error: {} });
@@ -128,6 +158,10 @@ router.get('/eventi/miei', isLoggedIn, async (req,res)=>
 {
     try{
         const eventi= await dao.getEventiPersonali(req.user.id);
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        console.log('Eventi personali recuperati:', eventi);
         res.json({eventi:eventi || []});
     }catch(error){
         console.error('Errore nel recupero degli eventi personali:', error);

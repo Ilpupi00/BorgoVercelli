@@ -119,12 +119,14 @@ CREATE TABLE EVENTI (
     data_fine TEXT,
     luogo TEXT,
     tipo_evento TEXT,
+    autore_id INTEGER,
     squadra_id INTEGER,
     campo_id INTEGER,
     max_partecipanti INTEGER,
     pubblicato INTEGER,
     created_at TEXT,
     updated_at TEXT,
+    FOREIGN KEY (autore_id) REFERENCES UTENTI(id),
     FOREIGN KEY (squadra_id) REFERENCES SQUADRE(id),
     FOREIGN KEY (campo_id) REFERENCES CAMPI(id)
 );

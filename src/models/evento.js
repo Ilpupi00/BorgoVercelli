@@ -3,7 +3,7 @@
 const moment = require('moment');
 
 class Evento {
-    constructor(id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, squadra_id, campo_id, max_partecipanti, pubblicato,created_at,updated_at, immagini_id) {
+    constructor(id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato,created_at,updated_at, immagini_id) {
         this.id = id;
         this.titolo = titolo;
         this.descrizione = descrizione;
@@ -21,6 +21,7 @@ class Evento {
         }
         this.luogo = luogo;
         this.tipo_evento = tipo_evento;
+        this.autore_id = autore_id;
         this.squadra_id = squadra_id;
         this.campo_id = campo_id;
         this.max_partecipanti = max_partecipanti;
