@@ -146,6 +146,45 @@ class ShowModal{
         modal.remove();
     });
   }
+
+  static async showUploadModal(callback) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'uploadModal';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-cloud-upload me-2"></i>Carica Foto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="descriptionTextarea" class="form-label">Descrizione (opzionale)</label>
+              <textarea class="form-control" id="descriptionTextarea" rows="3" placeholder="Inserisci una descrizione per la foto"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-success" id="uploadConfirmBtn">Conferma</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    const uploadBtn = modal.querySelector('#uploadConfirmBtn');
+    uploadBtn.addEventListener('click', () => {
+      const descrizione = modal.querySelector('#descriptionTextarea').value;
+      bsModal.hide();
+      callback(descrizione);
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+      modal.remove();
+    });
+  }
 }
 
 

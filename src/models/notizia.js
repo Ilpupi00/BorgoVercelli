@@ -25,8 +25,8 @@ class Notizia{
         if (!dateStr || typeof dateStr !== 'string') return null;
         
         try {
-            // Prova prima con moment.js che è più robusto
-            const parsed = moment(dateStr);
+            // Prova prima con moment.js specificando formati comuni
+            const parsed = moment(dateStr, ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY', moment.ISO_8601], true);
             if (parsed.isValid()) {
                 return parsed.format('YYYY-MM-DD HH:mm:ss');
             }
