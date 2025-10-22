@@ -154,6 +154,18 @@ router.put('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
   }
 });
 
+// Route per eliminare un evento
+router.delete('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+    try {
+        await eventiDao.deleteEventoById(req.params.id);
+        res.json({ success: true, message: 'Evento eliminato con successo' });
+    } catch (error) {
+        console.error('Errore nell\'eliminazione dell\'evento:', error);
+        res.status(500).json({ success: false, error: 'Errore nell\'eliminazione dell\'evento' });
+    }
+});
+
+
 router.get('/eventi/miei', isLoggedIn, async (req,res)=>
 {
     try{
@@ -161,7 +173,6 @@ router.get('/eventi/miei', isLoggedIn, async (req,res)=>
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
-        console.log('Eventi personali recuperati:', eventi);
         res.json({eventi:eventi || []});
     }catch(error){
         console.error('Errore nel recupero degli eventi personali:', error);

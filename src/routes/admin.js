@@ -1,7 +1,22 @@
 'use strict';
+// importa i moduli necessari
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const multer = require('multer');
+const db = require('../config/database');
+
+// Configurazione multer per upload immagini
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../public/uploads'));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 const { isLoggedIn, isAdmin, isAdminOrDirigente } = require('../middlewares/auth');
 const userDao = require('../services/dao-user');
 const notizieDao = require('../services/dao-notizie');
@@ -14,6 +29,9 @@ const prenotazioniDao = require('../services/dao-prenotazione');
 const dirigenteDao = require('../services/dao-dirigenti-squadre');
 const campionatiDao = require('../services/dao-campionati');
 
+/**
+ * Admin Routes per la gestione del sito
+ */
 router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
     try {
         if (!req.user) {
@@ -29,6 +47,9 @@ router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+/**
+ * Routes per aprire la pagina di gestione notizie
+ */
 router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const notizie = await notizieDao.getNotizie();
@@ -39,6 +60,9 @@ router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+/**
+ * Routes per aprire la pagina di gestione eventi
+ */
 router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const eventi = await eventiDao.getEventi();
@@ -46,43 +70,6 @@ router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Errore nel caricamento degli eventi:', err);
         res.status(500).send('Errore interno del server');
-    }
-});
-
-
-
-// Route per aggiornare un evento
-router.put('/evento/:id', isLoggedIn, isAdmin,async (req, res) => {
-    try {
-        const eventoData = {
-            titolo: req.body.titolo,
-            descrizione: req.body.descrizione,
-            data_inizio: req.body.data_inizio,
-            data_fine: req.body.data_fine,
-            luogo: req.body.luogo,
-            tipo_evento: req.body.tipo_evento,
-            squadra_id: req.body.squadra_id || null,
-            campo_id: req.body.campo_id || null,
-            max_partecipanti: req.body.max_partecipanti || null,
-            pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
-        };
-
-        await eventiDao.updateEvento(req.params.id, eventoData);
-        res.json({ success: true, message: 'Evento aggiornato con successo' });
-    } catch (error) {
-        console.error('Errore nell\'aggiornamento dell\'evento:', error);
-        res.status(500).json({ success: false, error: 'Errore nell\'aggiornamento dell\'evento' });
-    }
-});
-
-// Route per eliminare un evento
-router.delete('/evento/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        await eventiDao.deleteEventoById(req.params.id);
-        res.json({ success: true, message: 'Evento eliminato con successo' });
-    } catch (error) {
-        console.error('Errore nell\'eliminazione dell\'evento:', error);
-        res.status(500).json({ success: false, error: 'Errore nell\'eliminazione dell\'evento' });
     }
 });
 
@@ -385,10 +372,24 @@ router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo campo
-router.post('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/admin/campi', isLoggedIn, isAdmin, upload.single('immagine'), async (req, res) => {
     try {
         const campoData = req.body;
         const result = await campiDao.createCampo(campoData);
+        
+        // Se c'è un'immagine, salvala nella tabella IMMAGINI
+        if (req.file) {
+            const imageUrl = '/uploads/' + req.file.filename;
+            const now = new Date().toISOString();
+            const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            await new Promise((resolve, reject) => {
+                db.run(sql, [imageUrl, 'Campo', 'Campo', result.id, 1, now, now], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        }
+        
         // Dopo aver creato il campo, aggiungi orari di default
         const orariDefault = [
             { ora_inizio: '16:00', ora_fine: '17:00' },
@@ -403,6 +404,105 @@ router.post('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Errore nella creazione del campo:', err);
         res.status(500).send('Errore interno del server');
+    }
+});
+
+//router per cancellare il campo
+router.delete('/admin/campi/elimina/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try{
+        const campoId=req.params.id;
+        await campiDao.deleteCampo(campoId);
+        res.json({ success: true, message: 'Campo eliminato con successo' });
+    }catch(err){
+        console.error('Errore nell\'eliminazione del campo:', err);
+        res.status(500).json({ error: 'Errore nell\'eliminazione del campo' });
+    }
+});
+
+// Route per ottenere i dettagli di un singolo campo (JSON)
+router.get('/admin/campi/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const campoId = req.params.id;
+        const campo = await campiDao.getCampoById(campoId);
+        res.json({ success: true, campo });
+    } catch (err) {
+        console.error('Errore nel recupero del campo:', err);
+        res.status(500).json({ success: false, error: 'Errore nel recupero del campo' });
+    }
+});
+
+/**
+ * Route per modificare un campo
+ */
+router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('immagine'), async (req, res) => {
+    try{
+        const campoId=req.params.id;
+        const campoData=req.body;
+        console.log('Dati ricevuti per la modifica del campo:', campoData);
+        
+        // Sanitize input data
+        campoData.nome = typeof campoData.nome === 'string' ? campoData.nome.trim() : '';
+        campoData.indirizzo = typeof campoData.indirizzo === 'string' ? campoData.indirizzo.trim() : '';
+        campoData.tipo_superficie = typeof campoData.tipo_superficie === 'string' ? campoData.tipo_superficie.trim() : '';
+        campoData.dimensioni = typeof campoData.dimensioni === 'string' ? campoData.dimensioni.trim() : '';
+        campoData.descrizione = typeof campoData.descrizione === 'string' ? campoData.descrizione.trim() : '';
+        campoData.capienza_pubblico = parseInt(campoData.capienza_pubblico) || 0;
+        campoData.illuminazione = campoData.illuminazione == '1' ? 1 : 0;
+        campoData.coperto = campoData.coperto == '1' ? 1 : 0;
+        campoData.spogliatoi = campoData.spogliatoi == '1' ? 1 : 0;
+        campoData.Docce = campoData.Docce == '1' ? 1 : 0;
+        campoData.attivo = campoData.attivo == '1' ? 1 : 0;
+        
+        // Get current campo to compare
+        const currentCampo = await campiDao.getCampoById(campoId);
+        
+        // Build update data only for changed fields
+        const updateData = {};
+        if (campoData.nome !== currentCampo.nome) updateData.nome = campoData.nome;
+        if (campoData.indirizzo !== currentCampo.indirizzo) updateData.indirizzo = campoData.indirizzo;
+        if (campoData.tipo_superficie !== currentCampo.tipo_superficie) updateData.tipo_superficie = campoData.tipo_superficie;
+        if (campoData.dimensioni !== currentCampo.dimensioni) updateData.dimensioni = campoData.dimensioni;
+        if (campoData.capienza_pubblico !== currentCampo.capienza_pubblico) updateData.capienza_pubblico = campoData.capienza_pubblico;
+        if (campoData.descrizione !== currentCampo.descrizione) updateData.descrizione = campoData.descrizione;
+        if (campoData.illuminazione !== currentCampo.illuminazione) updateData.illuminazione = campoData.illuminazione;
+        if (campoData.coperto !== currentCampo.coperto) updateData.coperto = campoData.coperto;
+        if (campoData.spogliatoi !== currentCampo.spogliatoi) updateData.spogliatoi = campoData.spogliatoi;
+        if (campoData.Docce !== currentCampo.Docce) updateData.Docce = campoData.Docce;
+        if (campoData.attivo !== currentCampo.attivo) updateData.attivo = campoData.attivo;
+        
+        // Only update if there are changes
+        const updated = Object.keys(updateData).length > 0;
+        if (updated) {
+            await campiDao.updateCampo(campoId, updateData);
+        }
+        
+        // Se c'è un'immagine, aggiorna o inserisci nella tabella IMMAGINI
+        if (req.file) {
+            const imageUrl = '/uploads/' + req.file.filename;
+            const now = new Date().toISOString();
+            
+            // Prima, elimina eventuali immagini esistenti per questo campo
+            await new Promise((resolve, reject) => {
+                db.run('DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?', ['Campo', campoId], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+            
+            // Poi inserisci la nuova immagine
+            await new Promise((resolve, reject) => {
+                db.run('INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+                    [imageUrl, 'Campo', 'Campo', campoId, 1, now, now], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        }
+        
+        res.json({ success: true, updated });
+    }catch(err){
+        console.error('Errore nella modifica del campo:', err);
+        res.status(500).json({ error: 'Errore nella modifica del campo' });
     }
 });
 

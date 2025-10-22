@@ -52,6 +52,11 @@
                                     <h6 class="card-subtitle mb-3 text-muted"><%= notizia.sottotitolo %></h6>
                                 <% } %>
                                 <p class="card-text flex-grow-1"><%= notizia.contenuto.substring(0, 150) %>...</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i><%= new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') %>
+                                    </small>
+                                </p>
                                 <a href="/notizia/<%= notizia.id || notizia.N_id %>" class="card-button mt-auto">
                                     <i class="fas fa-arrow-right me-2"></i>Leggi di più
                                 </a>

@@ -187,51 +187,86 @@ class NewsEditor {
      */
     setupImagePreview() {
         const imageIdInput = document.getElementById('immagine_principale_id');
+        const imageFileInput = document.getElementById('immagine_principale');
         const imagePreview = document.querySelector('.image-preview');
 
-        if (!imageIdInput || !imagePreview) return;
+        if (!imagePreview) return;
 
         // Funzione per aggiornare l'anteprima
-        const updatePreview = (imageId) => {
-            if (!imageId || imageId.trim() === '' || isNaN(imageId)) {
-                // Mostra immagine di default se non c'è ID valido
+        const updatePreview = (url) => {
+            if (url) {
+                imagePreview.src = url;
+            } else {
                 imagePreview.src = '/images/default-news.jpg';
-                return;
             }
-
-            // Per ora, assumiamo che l'immagine sia in /uploads/ con il nome basato sull'ID
-            // In futuro, puoi sostituire con una chiamata API reale
-            const possibleUrl = `/uploads/image_${imageId}.jpg`;
-
-            // Test se l'immagine esiste creando un'immagine temporanea
-            const testImg = new Image();
-            testImg.onload = () => {
-                // Immagine esiste, usa questa
-                imagePreview.src = possibleUrl;
-            };
-            testImg.onerror = () => {
-                // Immagine non esiste, usa quella di default
-                imagePreview.src = '/images/default-news.jpg';
-            };
-            testImg.src = possibleUrl;
         };
 
-        // Gestisci l'evento input con debounce
-        let timeoutId;
-        imageIdInput.addEventListener('input', (e) => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                updatePreview(e.target.value);
-            }, 500); // Aspetta 500ms dopo che l'utente smette di digitare
-        });
+        // Gestisci l'evento change per il file input
+        if (imageFileInput) {
+            imageFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // Crea un URL per l'anteprima
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        updatePreview(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    updatePreview(null);
+                }
+            });
+        }
 
-        // Gestisci l'evento blur (quando l'utente esce dal campo)
-        imageIdInput.addEventListener('blur', (e) => {
-            updatePreview(e.target.value);
-        });
+        // Gestisci l'evento input per l'ID immagine (solo se non c'è file selezionato)
+        if (imageIdInput) {
+            const updateFromId = () => {
+                if (imageFileInput && imageFileInput.files.length > 0) return; // Priorità al file upload
+
+                const imageId = imageIdInput.value.trim();
+                if (!imageId || isNaN(imageId)) {
+                    updatePreview(null);
+                    return;
+                }
+
+                // Per ora, assumiamo che l'immagine sia in /uploads/ con il nome basato sull'ID
+                // In futuro, puoi sostituire con una chiamata API reale
+                const possibleUrl = `/uploads/image_${imageId}.jpg`;
+
+                // Test se l'immagine esiste creando un'immagine temporanea
+                const testImg = new Image();
+                testImg.onload = () => {
+                    // Immagine esiste, usa questa
+                    updatePreview(possibleUrl);
+                };
+                testImg.onerror = () => {
+                    // Immagine non esiste, usa quella di default
+                    updatePreview(null);
+                };
+                testImg.src = possibleUrl;
+            };
+
+            // Gestisci l'evento input con debounce
+            let timeoutId;
+            imageIdInput.addEventListener('input', () => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(updateFromId, 500);
+            });
+
+            // Gestisci l'evento blur
+            imageIdInput.addEventListener('blur', updateFromId);
+        }
 
         // Carica l'anteprima iniziale
-        updatePreview(imageIdInput.value);
+        if (imageFileInput && imageFileInput.files.length > 0) {
+            const file = imageFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => updatePreview(e.target.result);
+            reader.readAsDataURL(file);
+        } else if (imageIdInput && imageIdInput.value) {
+            // Simula l'evento per caricare dall'ID
+            imageIdInput.dispatchEvent(new Event('blur'));
+        }
     }
 
     /**

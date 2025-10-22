@@ -46,7 +46,8 @@ const makeImmagini=(row)=>{
 		row.descrizione,
 		row.url,
 		row.tipo,
-		row.entita_riferimento_entita_id,
+		row.entita_riferimento,
+		row.entita_id,
 		row.ordine,
 		row.created_at,
 		row.updated_at

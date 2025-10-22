@@ -214,7 +214,7 @@ class GestioneEventi {
 
     modificaEvento(id) {
         // Reindirizza alla pagina di modifica evento
-        window.location.href = '/crea-evento/' + id;
+        window.location.href = '/evento/crea-evento/' + id;
     }
 
     async eliminaEvento(id) {

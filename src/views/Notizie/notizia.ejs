@@ -35,7 +35,7 @@
                             </div>
                         <% } %>
 
-                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>">
+                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>" enctype="multipart/form-data">
                             <% if (notizia) { %>
                             <input type="hidden" name="_method" value="PUT">
                             <% } %>
@@ -60,11 +60,23 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="immagine_principale_id" class="form-label">ID Immagine Principale</label>
-                                <input type="number" class="form-control" id="immagine_principale_id" name="immagine_principale_id"
-                                       placeholder="ID dell'immagine dalla galleria (opzionale)"
-                                       value="<%= notizia && notizia.immagine ? notizia.immagine : '' %>">
-                                <div class="form-text">Inserisci l'ID di un'immagine dalla galleria per usarla come immagine principale.</div>
+                                <label class="form-label">Immagine Principale</label>
+                                
+                                <!-- Upload nuova immagine -->
+                                <div class="mb-3">
+                                    <label for="immagine_principale" class="form-label">Carica una nuova immagine</label>
+                                    <input type="file" class="form-control" id="immagine_principale" name="immagine_principale" accept="image/*">
+                                    <div class="form-text">Seleziona un'immagine dal tuo dispositivo (max 5MB).</div>
+                                </div>
+
+                                <!-- O seleziona da galleria -->
+                                <div class="mb-3">
+                                    <label for="immagine_principale_id" class="form-label">Oppure seleziona ID da galleria</label>
+                                    <input type="number" class="form-control" id="immagine_principale_id" name="immagine_principale_id"
+                                           placeholder="ID dell'immagine dalla galleria (opzionale)"
+                                           value="<%= notizia && notizia.immagine && notizia.immagine.id ? notizia.immagine.id : '' %>">
+                                    <div class="form-text">Inserisci l'ID di un'immagine dalla galleria per usarla come immagine principale. Se carichi una nuova immagine, questo campo verrà ignorato.</div>
+                                </div>
 
                                 <!-- Anteprima Immagine -->
                                 <div class="mt-3">

@@ -24,24 +24,35 @@ class Notizia{
     static parseDate(dateStr) {
         if (!dateStr || typeof dateStr !== 'string') return null;
         
-        // Se già ISO, usa direttamente, altrimenti prova a normalizzare
-        if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-            return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
+        try {
+            // Prova prima con moment.js che è più robusto
+            const parsed = moment(dateStr);
+            if (parsed.isValid()) {
+                return parsed.format('YYYY-MM-DD HH:mm:ss');
+            }
+            
+            // Se moment.js fallisce, prova con logica custom per formati italiani
+            let d = dateStr.replace(/\//g, '-');
+            // Se formato DD-MM-YYYY (italiano)
+            if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(d)) {
+                const parts = d.split('-');
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // moment.js usa 0-based months
+                const year = parseInt(parts[2]);
+                
+                const date = moment({ year, month, day });
+                if (date.isValid()) {
+                    return date.format('YYYY-MM-DD HH:mm:ss');
+                }
+            }
+            
+            // Fallback: restituisci null se non riusciamo a parsare
+            console.warn('Impossibile parsare la data:', dateStr);
+            return null;
+        } catch (error) {
+            console.error('Errore nel parsing della data:', dateStr, error);
+            return null;
         }
-        // Se formato tipo MM/DD/YYYY o DD/MM/YYYY, prova a convertire
-        let d = dateStr.replace(/\//g, '-');
-        // Se formato MM-DD-YYYY
-        if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(d)) {
-            const [mm, dd, yyyy] = d.split('-');
-            return moment(`${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`).format('YYYY-MM-DD HH:mm:ss');
-        }
-        // Se formato DD-MM-YYYY
-        if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(d)) {
-            const [dd, mm, yyyy] = d.split('-');
-            return moment(`${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`).format('YYYY-MM-DD HH:mm:ss');
-        }
-        // Fallback: usa moment direttamente
-        return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
     }
 
     static from(json){

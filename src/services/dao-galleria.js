@@ -9,7 +9,8 @@ const makeImmagine=(row)=>{
         row.descrizione,
         row.url,
         row.tipo,
-        row.entita_riferimento_entita_id,
+        row.entita_riferimento,
+        row.entita_id,
         row.ordine,
         row.created_at,
         row.updated_at
@@ -119,15 +120,29 @@ exports.uploadImmagine = function(file, tipo) {
     });
 }
 
-exports.getImmagineById = function(id) {
-    const sql = 'SELECT * FROM IMMAGINI WHERE id = ?;';
+exports.updateImmagineEntitaId = function(id, entita_id) {
+    const sql = 'UPDATE IMMAGINI SET entita_id = ? WHERE id = ?;';
     return new Promise((resolve, reject) => {
-        db.get(sql, [id], (err, row) => {
+        db.run(sql, [entita_id, id], function(err) {
             if (err) {
-                console.error('Errore SQL get immagine:', err);
-                return reject({ error: 'Errore nel recupero dell\'immagine: ' + err.message });
+                console.error('Errore SQL update entita_id:', err);
+                return reject({ error: 'Errore nell\'aggiornamento dell\'immagine: ' + err.message });
             }
-            resolve(row ? makeImmagine(row) : null);
+            resolve({ success: true });
+        });
+    });
+}
+
+exports.insertImmagineNotizia = function(url, entita_id, ordine) {
+    const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);';
+    return new Promise((resolve, reject) => {
+        const now = new Date().toISOString();
+        db.run(sql, [url, 'notizia', 'notizia', entita_id, ordine, now, now], function(err) {
+            if (err) {
+                console.error('Errore SQL insert immagine notizia:', err);
+                return reject({ error: 'Errore nell\'inserimento dell\'immagine notizia: ' + err.message });
+            }
+            resolve({ id: this.lastID });
         });
     });
 }

@@ -10,6 +10,8 @@
     <script src="/javascripts/components/Admin.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
+    <script src="/javascripts/utils/showModal.js" defer></script>
+    <script src="/javascripts/GestioneCampi.js" defer></script>
 </head>
 <body>
 
@@ -74,8 +76,8 @@
                                             </thead>
                                             <tbody>
                                                 <% if (campi && campi.length > 0) { %>
-                                                    <% campi.forEach(campo => { %>
-                                                        <tr>
+                                                <% campi.forEach(function(campo) { %>
+                                                        <tr data-campo-id="<%= campo.id %>">
                                                             <td><%= campo.id %></td>
                                                             <td><%= campo.nome %></td>
                                                             <td><%= campo.indirizzo %></td>
@@ -92,6 +94,12 @@
                                                                     <a href="/admin/campi/<%= campo.id %>/orari" class="btn btn-sm btn-outline-primary">
                                                                         <i class="bi bi-clock"></i> Gestisci Orari
                                                                     </a>
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-edit-campo" data-id="<%= campo.id %>">
+                                                                        <i class="bi bi-pencil"></i> Modifica
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-campo" data-id="<%= campo.id %>">
+                                                                        <i class="bi bi-trash"></i> Elimina
+                                                                    </button>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -125,7 +133,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addCampoForm" method="POST" action="/admin/campi">
+                    <form id="addCampoForm" method="POST" action="/admin/campi" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="nome" class="form-label">Nome Campo *</label>
@@ -161,6 +169,11 @@
                                 <textarea class="form-control" id="descrizione" name="descrizione" rows="2"></textarea>
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label for="immagine" class="form-label">Immagine Campo</label>
+                            <input type="file" class="form-control" id="immagine" name="immagine" accept="image/*">
+                            <small class="form-text text-muted">Seleziona un'immagine per il campo (opzionale)</small>
+                        </div>
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <div class="form-check">
@@ -195,6 +208,10 @@
                                 </div>
                             </div>
                         </div>
+
+                                </div>
+
+                        <div class="mb-3">
                         <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="attivo" name="attivo" value="1" checked>
@@ -209,6 +226,99 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                     <button type="submit" form="addCampoForm" class="btn btn-primary">Crea Campo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per modificare campo -->
+    <div class="modal fade" id="editCampoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCampoForm" enctype="multipart/form-data">
+                        <input type="hidden" id="edit_campo_id" name="id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_nome" class="form-label">Nome Campo *</label>
+                                <input type="text" class="form-control" id="edit_nome" name="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_indirizzo" class="form-label">Indirizzo *</label>
+                                <input type="text" class="form-control" id="edit_indirizzo" name="indirizzo" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_tipo_superficie" class="form-label">Tipo Superficie</label>
+                                <select class="form-control" id="edit_tipo_superficie" name="tipo_superficie">
+                                    <option value="Erba">Erba</option>
+                                    <option value="Sintetico">Sintetico</option>
+                                    <option value="Cemento">Cemento</option>
+                                    <option value="Parquet">Parquet</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_dimensioni" class="form-label">Dimensioni</label>
+                                <input type="text" class="form-control" id="edit_dimensioni" name="dimensioni" placeholder="es. 100x60">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_capienza_pubblico" class="form-label">Capienza Pubblico</label>
+                                <input type="number" class="form-control" id="edit_capienza_pubblico" name="capienza_pubblico">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_descrizione" class="form-label">Descrizione</label>
+                                <textarea class="form-control" id="edit_descrizione" name="descrizione" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_immagine" class="form-label">Immagine Campo</label>
+                            <input type="file" class="form-control" id="edit_immagine" name="immagine" accept="image/*">
+                            <small class="form-text text-muted">Seleziona una nuova immagine per il campo (opzionale)</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="edit_illuminazione" name="illuminazione" value="1">
+                                    <label class="form-check-label" for="edit_illuminazione">Illuminazione</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="edit_coperto" name="coperto" value="1">
+                                    <label class="form-check-label" for="edit_coperto">Coperto</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="edit_spogliatoi" name="spogliatoi" value="1">
+                                    <label class="form-check-label" for="edit_spogliatoi">Spogliatoi</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="edit_Docce" name="Docce" value="1">
+                                    <label class="form-check-label" for="edit_Docce">Docce</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="edit_attivo" name="attivo" value="1">
+                                <label class="form-check-label" for="edit_attivo">Campo Prenotabile</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" id="saveEditCampoBtn" class="btn btn-primary">Salva Modifiche</button>
                 </div>
             </div>
         </div>

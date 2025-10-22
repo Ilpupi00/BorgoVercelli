@@ -26,10 +26,6 @@
                     } else {
                         imgSrc = '/uploads/' + campo.immagini[0].url.replace(/^\/+/, '');
                     }
-                } else if (campo.tipo === 'Calcio a 5') {
-                    imgSrc = '/Sito/Immagini/Campo_a_5.jpg';
-                } else if (campo.tipo === 'Calcio a 7') {
-                    imgSrc = '/Sito/Immagini/Campo_a_7.jpg';
                 }
                 let immaginiHtml = '';
                 let numImmagini = (campo.immagini && Array.isArray(campo.immagini)) ? campo.immagini.length : 0;
@@ -43,10 +39,6 @@
                         }
                         return `<img src="${src}" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
                     }).join('');
-                } else if (campo.tipo === 'Calcio a 5') {
-                    immaginiHtml = `<img src="/Sito/Immagini/Campo_a_5.jpg" alt="Campo di Calcio a 5" class="img-fluid w-100 mb-2 rounded">`;
-                } else if (campo.tipo === 'Calcio a 7') {
-                    immaginiHtml = `<img src="/Sito/Immagini/Campo_a_7.jpg" alt="Campo di Calcio a 7" class="img-fluid w-100 mb-2 rounded">`;
                 } else {
                     immaginiHtml = `<img src="/images/default-news.jpg" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
                 }

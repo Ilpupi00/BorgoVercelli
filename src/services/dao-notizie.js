@@ -24,7 +24,7 @@ const makeNotizie = (row) => {
         autore, // Usa il nome completo invece dell'ID
         row.N_autore_id || row.autore_id,
         row.N_pubblicata || row.pubblicata,
-        (row.N_data_pubblicazione || row.data_pubblicazione) ? new Date(row.N_data_pubblicazione || row.data_pubblicazione) : null,
+        row.N_data_pubblicazione || row.data_pubblicazione,
         row.N_visualizzazioni || row.visualizzazioni,
         row.N_created_at || row.created_at || null,
         row.N_updated_at || row.updated_at || null
@@ -117,7 +117,7 @@ exports.deleteNotiziaById = async function(id) {
 
 exports.createNotizia = async function(notiziaData) {
     const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, datetime('now'), datetime('now'))`;
+                 VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END, 0, datetime('now'), datetime('now'))`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -127,7 +127,7 @@ exports.createNotizia = async function(notiziaData) {
             notiziaData.immagine_principale_id,
             notiziaData.autore_id,
             notiziaData.pubblicata,
-            notiziaData.data_pubblicazione
+            notiziaData.pubblicata
         ], function(err) {
             if (err) {
                 return reject({ error: 'Error creating news: ' + err.message });
@@ -140,7 +140,7 @@ exports.createNotizia = async function(notiziaData) {
 exports.updateNotizia = async function(id, notiziaData) {
     const sql = `UPDATE NOTIZIE SET
                  titolo = ?, sottotitolo = ?, contenuto = ?, immagine_principale_id = ?,
-                 pubblicata = ?, data_pubblicazione = ?, updated_at = datetime('now')
+                 pubblicata = ?, data_pubblicazione = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END, updated_at = datetime('now')
                  WHERE id = ?`;
 
     return new Promise((resolve, reject) => {
@@ -150,7 +150,7 @@ exports.updateNotizia = async function(id, notiziaData) {
             notiziaData.contenuto,
             notiziaData.immagine_principale_id,
             notiziaData.pubblicata ? 1 : 0,
-            notiziaData.data_pubblicazione,
+            notiziaData.pubblicata ? 1 : 0,
             id
         ], function(err) {
             if (err) {
@@ -164,7 +164,7 @@ exports.updateNotizia = async function(id, notiziaData) {
 exports.togglePubblicazioneNotizia = async function(id) {
     const sql = `UPDATE NOTIZIE SET
                  pubblicata = CASE WHEN pubblicata = 1 THEN 0 ELSE 1 END,
-                 data_pubblicazione = CASE WHEN pubblicata = 0 THEN datetime('now') ELSE data_pubblicazione END,
+                 data_pubblicazione = CASE WHEN pubblicata = 0 THEN datetime('now') WHEN pubblicata = 1 THEN NULL ELSE data_pubblicazione END,
                  updated_at = datetime('now')
                  WHERE id = ?`;
 

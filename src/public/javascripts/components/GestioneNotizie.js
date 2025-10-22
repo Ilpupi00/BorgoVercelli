@@ -165,45 +165,99 @@ class GestioneNotizie {
 
     modificaNotizia(id) {
         // Reindirizza alla pagina di modifica notizia
-        window.location.href = '/crea-notizie/' + id;
+        window.location.href = `/notizie/edit/${id}`;
     }
 
     async eliminaNotizia(id) {
-        if (!confirm('Sei sicuro di voler eliminare questa notizia? Questa azione non può essere annullata.')) {
-            return;
-        }
+        if (window.ShowModal) {
+            window.ShowModal.modalDelete('Sei sicuro di voler eliminare questa notizia? Questa azione non può essere annullata.', 'Conferma eliminazione');
 
-        try {
-            const response = await fetch('/notizia/' + id, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmBtn) {
+                const handleDelete = async () => {
+                    confirmBtn.removeEventListener('click', handleDelete); // Evita click multipli
 
-            const result = await response.json();
+                    try {
+                        const response = await fetch('/notizia/' + id, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
 
-            if (response.ok && result.success) {
-                // Rimuovi la notizia dall'array originale
-                this.originalNotizie = this.originalNotizie.filter(n => n.id !== id);
+                        const result = await response.json();
 
-                // Rimuovi la riga dalla tabella
-                const row = document.querySelector(`tr[data-notizia-id="${id}"]`);
-                if (row) {
-                    row.remove();
-                }
+                        if (response.ok && result.success) {
+                            // Rimuovi la notizia dall'array originale
+                            this.originalNotizie = this.originalNotizie.filter(n => n.id !== id);
 
-                // Aggiorna i contatori
-                this.updateCounters(this.originalNotizie.filter(n => n.element.style.display !== 'none').length);
+                            // Rimuovi la riga dalla tabella
+                            const row = document.querySelector(`tr[data-notizia-id="${id}"]`);
+                            if (row) {
+                                row.remove();
+                            }
 
-                // Mostra messaggio di successo
-                this.showAlert('Notizia eliminata con successo!', 'success');
-            } else {
-                this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                            // Aggiorna i contatori
+                            this.updateCounters(this.originalNotizie.filter(n => n.element.style.display !== 'none').length);
+
+                            // Mostra messaggio di successo
+                            this.showAlert('Notizia eliminata con successo!', 'success');
+
+                            // Chiudi il modal
+                            const modal = document.getElementById('modalDelete');
+                            if (modal) {
+                                const bsModal = bootstrap.Modal.getInstance(modal);
+                                if (bsModal) bsModal.hide();
+                            }
+                        } else {
+                            this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Errore:', error);
+                        this.showAlert('Errore di connessione', 'danger');
+                    }
+                };
+
+                confirmBtn.addEventListener('click', handleDelete);
             }
-        } catch (error) {
-            console.error('Errore:', error);
-            this.showAlert('Errore di connessione', 'danger');
+        } else {
+            // Fallback al confirm se ShowModal non è disponibile
+            if (!confirm('Sei sicuro di voler eliminare questa notizia? Questa azione non può essere annullata.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/notizia/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Rimuovi la notizia dall'array originale
+                    this.originalNotizie = this.originalNotizie.filter(n => n.id !== id);
+
+                    // Rimuovi la riga dalla tabella
+                    const row = document.querySelector(`tr[data-notizia-id="${id}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+
+                    // Aggiorna i contatori
+                    this.updateCounters(this.originalNotizie.filter(n => n.element.style.display !== 'none').length);
+
+                    // Mostra messaggio di successo
+                    this.showAlert('Notizia eliminata con successo!', 'success');
+                } else {
+                    this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                this.showAlert('Errore di connessione', 'danger');
+            }
         }
     }
 
@@ -249,28 +303,45 @@ class GestioneNotizie {
     }
 
     showAlert(message, type = 'info') {
-        // Rimuovi alert esistenti
-        const existingAlerts = document.querySelectorAll('.alert');
-        existingAlerts.forEach(alert => alert.remove());
-
-        // Crea nuovo alert
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        alert.innerHTML = `
-            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        document.body.appendChild(alert);
-
-        // Auto-rimuovi dopo 5 secondi
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
+        if (window.ShowModal) {
+            switch (type) {
+                case 'success':
+                    window.ShowModal.showModalSuccess('Operazione completata', message);
+                    break;
+                case 'danger':
+                    window.ShowModal.showModalError(message, 'Errore');
+                    break;
+                case 'warning':
+                    window.ShowModal.showModalInfo(message, 'Attenzione');
+                    break;
+                default:
+                    window.ShowModal.showModalInfo(message, 'Informazione');
             }
-        }, 5000);
+        } else {
+            // Fallback all'alert originale se ShowModal non è disponibile
+            // Rimuovi alert esistenti
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            // Crea nuovo alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alert);
+
+            // Auto-rimuovi dopo 5 secondi
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
     }
 }
 

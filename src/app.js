@@ -89,6 +89,7 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// Inizializza Passport e la gestione della sessione
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -108,7 +109,7 @@ app.use(async function(req, res, next) {
   next();
 });
 
-
+// Usa le route importate
 app.use('/', routes);
 app.use('/', routesNotizie);
 app.use('/', routesEventi);
@@ -125,6 +126,7 @@ app.use('/', routesUsers);
 
 app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
+// Configura il motore di template EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -139,30 +141,14 @@ app.use(function(req, res, next) {
   }
 });
 
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   const err = new Error('Endpoint non trovato');
-//   err.status = 404;
-//   next(err);
-// });
 
+
+// gestisci tutte le altre route non trovate
 app.use((req, res) => {
   res.statusCode = 404;
   res.end('Not Found');
 });
 
-// error handler
-// app.use(function(err, req, res, next) {
-//   // Imposta valori di default per le variabili locali
-//   res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
-//   res.locals.currentPath = req.path || '/';
-//   res.locals.imageUrl = req.isAuthenticated && req.user ? req.user.immagine_profilo : null;
-
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
 
 
 module.exports = app;

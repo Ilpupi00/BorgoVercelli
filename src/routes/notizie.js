@@ -1,12 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
+const daoGalleria = require('../services/dao-galleria');
 const { isLoggedIn, isAdminOrDirigente, isAdmin, canEditNotizia } = require('../middlewares/auth');
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'src/public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
+    cb(null, uniqueName);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo file immagine sono permessi'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max
+  }
+});
 
 // HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
   try {
-    const rows = await dao.getNotizie();
+    const rows = await dao.getNotiziePaginated(0, 6);
     const notizie = rows || [];
     res.render('notizie', { user: req.user, notizie });
   } catch (error) {
@@ -19,7 +47,7 @@ router.get('/notizie/all', async (req, res) => {
 router.get('/api/notizie', async (req, res) => {
 
   try {
-    const rows = await dao.getNotizie();
+    const rows = await dao.getNotizieFiltered({}, 0, 1000);
     res.json({ notizie: rows || [] });
   } catch (error) {
     console.error('Errore nel recupero delle notizie filtrate:', error);
@@ -41,7 +69,7 @@ router.get('/api/notizie/authors', async (req, res) => {
 // API: all as JSON
 router.get('/notizie', async (req, res) => {
   try {
-    const rows = await dao.getNotizie();
+    const rows = await dao.getNotizieFiltered({}, 0, 1000);
     res.json(rows || []);
   } catch (error) {
     console.error('Errore nel recupero delle notizie:', error);
@@ -99,20 +127,8 @@ router.get('/crea-notizie', isAdminOrDirigente, async (req, res) => {
   }
 });
 
-router.get('/crea-notizia-semplice', isLoggedIn, isAdminOrDirigente, async (req, res) => {
-  try {
-    const id = req.query.id;
-    let notizia = null;
-    if (id) notizia = await dao.getNotiziaById(id);
-    res.render('Notizie/notizia_semplice', { user: req.user, notizia, error: null });
-  } catch (error) {
-    console.error('Errore nel caricamento del form notizia semplice:', error);
-    res.render('Notizie/notizia_semplice', { user: req.user, notizia: null, error: 'Errore nel caricamento della notizia' });
-  }
-});
-
 // Create new news
-router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, async (req, res) => {
+router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, upload.single('immagine_principale'), async (req, res) => {
   try {
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
@@ -130,17 +146,29 @@ router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, async (req, res) =
       return res.render(templateName, { user: req.user, notizia: null, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
     }
 
+    let immagineId = immagine_principale_id || null;
+    if (req.file) {
+      const url = '/uploads/' + req.file.filename;
+      const result = await daoGalleria.insertImmagineNotizia(url, null, 1); // entita_id sarà null per ora
+      immagineId = result.id;
+    }
+
     const notiziaData = {
       titolo,
       contenuto,
       sottotitolo: sottotitolo || '',
-      immagine_principale_id: immagine_principale_id || null,
+      immagine_principale_id: immagineId,
       autore_id: req.user ? req.user.id : 1, // default to user 1 if not logged in
-      pubblicata: pubblicata ? 1 : 0,
-      data_pubblicazione: pubblicata ? new Date().toISOString() : null
+      pubblicata: pubblicata ? 1 : 0
     };
 
-    await dao.createNotizia(notiziaData);
+    const result = await dao.createNotizia(notiziaData);
+
+    // Se abbiamo caricato un'immagine, aggiorniamo entita_id
+    if (req.file && immagineId) {
+      await daoGalleria.updateImmagineEntitaId(immagineId, result.id);
+    }
+
     if(req.user.tipo_utente_id === 1){
       res.redirect('/admin/notizie');
     }
@@ -155,8 +183,13 @@ router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, async (req, res) =
 });
 
 // Update existing news
-router.put('/notizie/:id', canEditNotizia, async (req, res) => {
+router.post('/notizie/:id', canEditNotizia, upload.single('immagine_principale'), async (req, res) => {
   try {
+    // Check if this is actually a PUT request (method override)
+    if (req.body._method !== 'PUT') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     const id = req.params.id;
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
@@ -177,13 +210,19 @@ router.put('/notizie/:id', canEditNotizia, async (req, res) => {
       return res.render(templateName, { user: req.user, notizia, error: 'Il contenuto della notizia deve contenere del testo effettivo' });
     }
 
+    let immagineId = immagine_principale_id || null;
+    if (req.file) {
+      const url = '/uploads/' + req.file.filename;
+      const result = await daoGalleria.insertImmagineNotizia(url, id, 1);
+      immagineId = result.id;
+    }
+
     const notiziaData = {
       titolo,
       contenuto,
       sottotitolo: sottotitolo || '',
-      immagine_principale_id: immagine_principale_id || null,
-      pubblicata: pubblicata ? 1 : 0,
-      data_pubblicazione: pubblicata ? new Date().toISOString() : null
+      immagine_principale_id: immagineId,
+      pubblicata: pubblicata ? 1 : 0
     };
 
     await dao.updateNotizia(id, notiziaData);
@@ -200,13 +239,17 @@ router.put('/notizie/:id', canEditNotizia, async (req, res) => {
 });
 
 // Publish/unpublish
-router.put('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
   try {
+    // Check if this is actually a PUT request (method override)
+    if (req.body._method !== 'PUT') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     const id = req.params.id;
     const { pubblicata } = req.body;
     const updateData = {
-      pubblicata: pubblicata ? 1 : 0,
-      data_pubblicazione: pubblicata ? new Date().toISOString() : null
+      pubblicata: pubblicata ? 1 : 0
     };
     await dao.updateNotizia(id, updateData);
     res.json({ success: true, message: pubblicata ? 'Notizia pubblicata' : 'Notizia sospesa' });
