@@ -218,6 +218,68 @@ class GestioneEventi {
     }
 
     async eliminaEvento(id) {
+        // Se è disponibile ShowModal, apri il modal di conferma personalizzato
+        if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
+            await ShowModal.modalDelete('Sei sicuro di voler eliminare questo evento? Questa azione non può essere annullata.', 'Conferma eliminazione');
+
+            const modal = document.getElementById('modalDelete');
+            if (!modal) return;
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+            if (!confirmBtn) return;
+
+            const onConfirm = async () => {
+                // nascondi il modal
+                if (bsModal) bsModal.hide();
+
+                try {
+                    const response = await fetch('/evento/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // Rimuovi l'evento dall'array originale
+                        this.originalEventi = this.originalEventi.filter(e => e.id !== id);
+
+                        // Rimuovi la riga dalla tabella
+                        const row = document.querySelector(`tr[data-evento-id="${id}"]`);
+                        if (row) row.remove();
+
+                        // Aggiorna i contatori
+                        this.updateCounters(this.originalEventi.filter(e => e.element.style.display !== 'none').length);
+
+                        if (typeof ShowModal !== 'undefined') {
+                            await ShowModal.showModalSuccess('Eliminazione completata', 'Evento eliminato con successo!');
+                        } else {
+                            this.showAlert('Evento eliminato con successo!', 'success');
+                        }
+                    } else {
+                        if (typeof ShowModal !== 'undefined') {
+                            await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore durante l\'eliminazione');
+                        } else {
+                            this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Errore:', error);
+                    if (typeof ShowModal !== 'undefined') {
+                        await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
+                    } else {
+                        this.showAlert('Errore di connessione', 'danger');
+                    }
+                }
+            };
+
+            confirmBtn.addEventListener('click', onConfirm, { once: true });
+            return;
+        }
+
+        // Fallback: comportamento precedente con confirm e alert
         if (!confirm('Sei sicuro di voler eliminare questo evento? Questa azione non può essere annullata.')) {
             return;
         }
@@ -258,6 +320,70 @@ class GestioneEventi {
 
     async togglePubblicazione(id, currentStatus) {
         const action = currentStatus ? 'sospendere' : 'pubblicare';
+
+        if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
+            await ShowModal.modalDelete(`Sei sicuro di voler ${action} questo evento?`, 'Conferma');
+
+            const modal = document.getElementById('modalDelete');
+            if (!modal) return;
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+            if (!confirmBtn) return;
+
+            const onConfirm = async () => {
+                if (bsModal) bsModal.hide();
+                try {
+                    const response = await fetch('/evento/' + id + '/publish', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ pubblicato: !currentStatus })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        if (typeof ShowModal !== 'undefined') {
+                            await ShowModal.showModalSuccess(result.message || 'Operazione completata', 'Successo');
+                        } else {
+                            this.showAlert(result.message || 'Operazione completata', 'success');
+                        }
+
+                        // Aggiorna il badge nella tabella
+                        const badge = document.querySelector(`tr[data-evento-id="${id}"] .badge`);
+                        if (badge) {
+                            badge.className = currentStatus ? 'badge bg-warning' : 'badge bg-success';
+                            badge.textContent = currentStatus ? 'Bozza' : 'Pubblicato';
+
+                            // Aggiorna anche i dati per il filtraggio
+                            const evento = this.originalEventi.find(e => e.id === id);
+                            if (evento) {
+                                evento.stato = currentStatus ? 'draft' : 'published';
+                            }
+                        }
+                    } else {
+                        if (typeof ShowModal !== 'undefined') {
+                            await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore');
+                        } else {
+                            this.showAlert('Errore nell\'operazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Errore:', error);
+                    if (typeof ShowModal !== 'undefined') {
+                        await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
+                    } else {
+                        this.showAlert('Errore di connessione', 'danger');
+                    }
+                }
+            };
+
+            confirmBtn.addEventListener('click', onConfirm, { once: true });
+            return;
+        }
+
+        // Fallback sincronizzato con confirm
         if (!confirm(`Sei sicuro di voler ${action} questo evento?`)) {
             return;
         }

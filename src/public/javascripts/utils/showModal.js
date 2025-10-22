@@ -45,7 +45,6 @@ class ShowModal{
               <p class="mt-3">${msg}</p>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-              <a href="/homepage" class="btn btn-success btn-sm me-2 ms-2">Vai alla homepage</a>
               <button type="button" class="btn btn-outline-success btn-sm" data-bs-dismiss="modal">Chiudi</button>
             </div>
           </div>
