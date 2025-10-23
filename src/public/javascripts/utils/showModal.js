@@ -115,6 +115,7 @@ class ShowModal{
         modal.remove();
     });           
   }
+  
   static async modalDelete(msg,string) {
     const modal = document.createElement('div');
     modal.className = 'modal fade';
@@ -142,6 +143,38 @@ class ShowModal{
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
     modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+    });
+  }
+
+  // Generic confirmation modal for non-delete actions (publish/suspend, etc.)
+  static async modalConfirm(msg, string, confirmLabel = 'Conferma', confirmClass = 'btn-primary', iconClass = 'bi-question-circle', iconColor = 'text-primary') {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'modalConfirmAction';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-secondary text-white">
+            <h5 class="modal-title"><i class="bi ${iconClass} me-2"></i>${string}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <i class="bi ${iconClass} ${iconColor}" style="font-size: 3rem;"></i>
+            <p class="mt-3">${msg}</p>
+          </div>
+          <div class="modal-footer d-flex justify-content-center">
+            <button type="button" class="btn ${confirmClass}" id="confirmActionBtn">${confirmLabel}</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', () => { 
         modal.remove();
     });
   }

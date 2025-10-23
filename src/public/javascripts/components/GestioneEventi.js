@@ -322,12 +322,13 @@ class GestioneEventi {
         const action = currentStatus ? 'sospendere' : 'pubblicare';
 
         if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
-            await ShowModal.modalDelete(`Sei sicuro di voler ${action} questo evento?`, 'Conferma');
+            // Use a dedicated confirmation modal (non-delete)
+            await ShowModal.modalConfirm(`Sei sicuro di voler ${action} questo evento?`, 'Conferma', currentStatus ? 'Sospendi' : 'Pubblica', currentStatus ? 'btn-warning' : 'btn-success', currentStatus ? 'bi-eye-slash' : 'bi-eye');
 
-            const modal = document.getElementById('modalDelete');
+            const modal = document.getElementById('modalConfirmAction');
             if (!modal) return;
             const bsModal = bootstrap.Modal.getInstance(modal);
-            const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+            const confirmBtn = modal.querySelector('#confirmActionBtn');
             if (!confirmBtn) return;
 
             const onConfirm = async () => {
@@ -353,15 +354,29 @@ class GestioneEventi {
                         // Aggiorna il badge nella tabella
                         const badge = document.querySelector(`tr[data-evento-id="${id}"] .badge`);
                         if (badge) {
-                            badge.className = currentStatus ? 'badge bg-warning' : 'badge bg-success';
-                            badge.textContent = currentStatus ? 'Bozza' : 'Pubblicato';
+                            badge.className = !currentStatus ? 'badge bg-success' : 'badge bg-warning';
+                            badge.textContent = !currentStatus ? 'Pubblicato' : 'Bozza';
 
                             // Aggiorna anche i dati per il filtraggio
                             const evento = this.originalEventi.find(e => e.id === id);
                             if (evento) {
-                                evento.stato = currentStatus ? 'draft' : 'published';
+                                evento.stato = !currentStatus ? 'published' : 'draft';
                             }
                         }
+
+                        // Aggiorna l'icona e l'attributo data-current-status del bottone
+                        const toggleBtn = document.querySelector(`tr[data-evento-id="${id}"] .toggle-pubblicazione`);
+                        if (toggleBtn) {
+                            // Aggiorna l'icona: eye <-> eye-slash
+                            const icon = toggleBtn.querySelector('i');
+                            if (icon) {
+                                icon.className = `bi bi-${!currentStatus ? 'eye-slash' : 'eye'}`;
+                            }
+                            // Aggiorna il titolo e il data-current-status
+                            toggleBtn.setAttribute('data-current-status', !currentStatus ? '1' : '0');
+                            toggleBtn.title = !currentStatus ? 'Sospendi' : 'Pubblica';
+                        }
+
                     } else {
                         if (typeof ShowModal !== 'undefined') {
                             await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore');

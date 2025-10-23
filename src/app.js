@@ -124,6 +124,11 @@ app.use('/', routesAdmin);
 app.use('/campionato', routesCampionati);
 app.use('/', routesUsers);
 
+// Serve uploaded files at the canonical public path '/uploads'
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// Legacy route (some DB records or older clients might reference '/src/public/uploads/...')
+// Keep this as a compatibility shim so images already stored with that URL remain accessible.
 app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Configura il motore di template EJS

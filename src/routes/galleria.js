@@ -57,11 +57,18 @@ router.post('/UploadImmagine', (req, res, next) => {
         if (!req.file) {
             return res.status(400).json({ error: 'Nessun file caricato' });
         }
-        const filePath = 'src/public/uploads/' + req.file.filename;
-        const descrizione = req.body.descrizione || '';
-        const now = new Date().toISOString();
-        await daoGalleria.insertImmagine(filePath, now, now, descrizione);
-        res.json({ message: 'Immagine caricata con successo', url: filePath });
+  // filesystem path used by multer is 'src/public/uploads/', but the public URL
+  // should be '/uploads/<filename>' so store that in the DB and return it to client
+  const filePath = '/uploads/' + req.file.filename;
+    const descrizione = req.body.descrizione || '';
+    const now = new Date().toISOString();
+    const insertResult = await daoGalleria.insertImmagine(filePath, now, now, descrizione);
+    // recupera l'immagine appena inserita e ritorna i dati al client
+    let newImage = null;
+    if (insertResult && insertResult.id) {
+      newImage = await daoGalleria.getImmagineById(insertResult.id);
+    }
+    return res.json({ message: 'Immagine caricata con successo', image: newImage || { url: filePath } });
 
     } catch (err) {
         console.error('Errore upload immagine:', err);
