@@ -49,6 +49,16 @@ class GestioneNotizie {
         if (dateFilter) {
             dateFilter.addEventListener('change', () => this.filterNotizie());
         }
+
+        // Event listener for delete buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-notizia-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.delete-notizia-btn');
+                const id = button.dataset.notiziaId;
+                this.eliminaNotizia(id);
+            }
+        });
     }
 
     filterNotizie() {

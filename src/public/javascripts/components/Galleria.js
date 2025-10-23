@@ -1,4 +1,5 @@
 
+import ShowModal from '../utils/showModal.js';
 import { setupEmailFormListener } from './send_email.js';
 
 class Galleria{
@@ -133,51 +134,49 @@ class Galleria{
 
             // Validazione lato client
             if (!file.type.startsWith('image/')) {
-                alert('Seleziona un file immagine valido');
+                ShowModal.showModalError('File non valido', 'Seleziona un file immagine valido.');
                 return;
             }
 
             if (file.size > 5 * 1024 * 1024) {
-                alert('Il file è troppo grande. Dimensione massima: 5MB');
+                ShowModal.showModalError('File troppo grande', 'Il file è troppo grande. Dimensione massima: 5MB.');
                 return;
             }
 
-            // Mostra loading
-            const originalText = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Caricamento...';
-            uploadBtn.disabled = true;
+            ShowModal.showUploadModal(async (descrizione) => {
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Caricamento...';
+                uploadBtn.style.display = 'none';
 
-            const formData = new FormData();
-            formData.append('image', file);
-            const descrizione = prompt('Inserisci una descrizione per la foto (opzionale):');
-            if (descrizione !== null) {
+                const formData = new FormData();
+                formData.append('image', file);
                 formData.append('descrizione', descrizione);
-            }
 
-            try {
-                const response = await fetch('/UploadImmagine', {
-                    method: 'POST',
-                    body: formData
-                });
+                try {
+                    const response = await fetch('/UploadImmagine', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (response.ok) {
-                    alert('Foto caricata con successo!');
-                    location.reload(); // Ricarica per mostrare la nuova immagine
-                } else {
-                    alert('Errore: ' + (result.error || 'Errore durante il caricamento'));
+                    if (response.ok) {
+                        ShowModal.showModalSuccess('Foto caricata', 'La foto è stata caricata con successo!');
+                        location.reload(); // Ricarica per mostrare la nuova immagine
+                    } else {
+                        ShowModal.showModalError('Errore durante il caricamento', result.error || 'Errore durante il caricamento');
+                    }
+                } catch (err) {
+                    console.error('Errore upload:', err);
+                    ShowModal.showModalError('Errore di rete', 'Errore durante il caricamento della foto. Riprova.');
+                } finally {
+                    // Ripristina pulsante
+                    uploadBtn.innerHTML = originalText;
+                    uploadBtn.style.display = '';
+                    // Reset input file
+                    uploadInput.value = '';
                 }
-            } catch (err) {
-                console.error('Errore upload:', err);
-                alert('Errore durante il caricamento della foto');
-            } finally {
-                // Ripristina pulsante
-                uploadBtn.innerHTML = originalText;
-                uploadBtn.disabled = false;
-                // Reset input file
-                uploadInput.value = '';
-            }
+            });
         });
     }
 

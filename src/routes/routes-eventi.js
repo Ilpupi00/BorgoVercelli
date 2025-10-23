@@ -157,7 +157,7 @@ router.put('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
 // Route per eliminare un evento
 router.delete('/evento/:id', isLoggedIn, isAdminOrDirigente, async (req, res) => {
     try {
-        await eventiDao.deleteEventoById(req.params.id);
+    await dao.deleteEventoById(req.params.id);
         res.json({ success: true, message: 'Evento eliminato con successo' });
     } catch (error) {
         console.error('Errore nell\'eliminazione dell\'evento:', error);
