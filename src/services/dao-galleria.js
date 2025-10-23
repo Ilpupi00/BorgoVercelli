@@ -4,10 +4,22 @@ const db= require('../config/database');
 const Immagine = require('../models/immagine.js');
 
 const makeImmagine=(row)=>{
+    // Normalize URL: ensure it is an absolute public path that starts with '/'
+    let url = row.url || '';
+    // Trim whitespace
+    url = url.trim();
+    // If url stored like 'src/public/uploads/...' or 'uploads/...' make it absolute '/uploads/...'
+    if (url.startsWith('src/public/uploads/')) {
+        url = '/' + url.slice('src/public/'.length);
+    } else if (!url.startsWith('/') && url.length > 0) {
+        // If it's e.g. 'uploads/..' or other relative path, prefix '/'
+        url = '/' + url;
+    }
+
     return new Immagine(
         row.id,
         row.descrizione,
-        row.url,
+        url,
         row.tipo,
         row.entita_riferimento,
         row.entita_id,
@@ -26,6 +38,20 @@ exports.getImmagini = function() {
                 return reject({ error: 'Errore nel recupero delle immagini: ' + err.message });
             }
             resolve(immagini.map(makeImmagine) || []);
+        });
+    });
+}
+
+exports.getImmagineById = function(id) {
+    const sql = 'SELECT * FROM IMMAGINI WHERE id = ? LIMIT 1;';
+    return new Promise((resolve, reject) => {
+        db.get(sql, [parseInt(id)], (err, row) => {
+            if (err) {
+                console.error('Errore SQL getImmagineById:', err);
+                return reject({ error: 'Errore nel recupero dell\'immagine: ' + err.message });
+            }
+            if (!row) return resolve(null);
+            resolve(makeImmagine(row));
         });
     });
 }
@@ -76,7 +102,9 @@ exports.deleteImmagine = function(id) {
             // Elimino il file fisico se esiste
             const fs = require('fs');
             const path = require('path');
-            const filePath = path.join(__dirname, '../public', row.url);
+            // row.url may be stored with or without a leading slash. Normalize to a relative path
+            const relativeUrl = row.url && row.url.startsWith('/') ? row.url.slice(1) : row.url;
+            const filePath = path.join(__dirname, '../public', relativeUrl);
             if (fs.existsSync(filePath)) {
                 try {
                     fs.unlinkSync(filePath);
@@ -107,7 +135,10 @@ exports.uploadImmagine = function(file, tipo) {
     return new Promise((resolve, reject) => {
         const fs = require('fs');
         const path = require('path');
-        const url = '/src/public/uploads/' + file.filename;
+    // Use the public-facing uploads path. Store URLs as '/uploads/<filename>' so views
+    // can reference them with an absolute path and the filesystem path can be derived
+    // by stripping the leading '/'.
+    const url = '/uploads/' + file.filename;
         const now = new Date().toISOString();
         const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
         db.run(sql, [url, tipo, '', now, now], function(err) {

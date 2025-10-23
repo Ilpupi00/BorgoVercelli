@@ -178,7 +178,7 @@
                                                                         <i class="bi bi-pencil"></i>
                                                                     </button>
                                                                     <button class="btn btn-sm btn-outline-success toggle-pubblicazione" title="<%= evento.pubblicato ? 'Sospendi' : 'Pubblica' %>" data-evento-id="<%= evento.id %>" data-current-status="<%= evento.pubblicato ? 1 : 0 %>">
-                                                                        <i class="bi bi-<%= evento.pubblicato ? 'eye-slash' : 'eye' %>"></i>
+                                                                        <i class="bi <%= evento.pubblicato ? 'bi-eye-slash' : 'bi-eye' %>"></i>
                                                                     </button>
                                                                     <button class="btn btn-sm btn-outline-danger btn-elimina-evento" title="Elimina" data-evento-id="<%= evento.id %>">
                                                                         <i class="bi bi-trash"></i>
