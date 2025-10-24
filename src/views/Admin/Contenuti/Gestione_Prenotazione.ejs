@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/utils/showModal.js" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
     <script src="/javascripts/components/GestionePrenotazione.js" defer></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
@@ -52,19 +54,19 @@
                                     Tutte le Prenotazioni
                                 </h2>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-success btn-modern" onclick="mostraPrenotazioniConfermate()">
+                                    <button class="btn btn-success btn-modern">
                                         <i class="bi bi-check-circle me-2"></i>
                                         Confermate
                                     </button>
-                                    <button class="btn btn-warning btn-modern" onclick="mostraPrenotazioniInAttesa()">
+                                    <button class="btn btn-warning btn-modern">
                                         <i class="bi bi-clock me-2"></i>
                                         In Attesa
                                     </button>
-                                    <button class="btn btn-danger btn-modern" onclick="mostraPrenotazioniAnnullate()">
+                                    <button class="btn btn-danger btn-modern">
                                         <i class="bi bi-x-circle me-2"></i>
                                         Annullate
                                     </button>
-                                    <button class="btn btn-secondary btn-modern" onclick="mostraPrenotazioniScadute()">
+                                    <button class="btn btn-secondary btn-modern">
                                         <i class="bi bi-calendar-x me-2"></i>
                                         Scadute
                                     </button>
@@ -129,22 +131,22 @@
                                                             </td>
                                                             <td>
                                                                 <div class="btn-group" role="group">
-                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza" onclick="visualizzaPrenotazione('<%= prenotazione.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza">
                                                                         <i class="bi bi-eye"></i>
                                                                     </button>
                                                                     <% if (prenotazione.stato === 'in_attesa') { %>
-                                                                        <button class="btn btn-sm btn-outline-success" title="Conferma" onclick="confermaPrenotazione('<%= prenotazione.id %>')">
+                                                                        <button class="btn btn-sm btn-outline-success" title="Conferma">
                                                                             <i class="bi bi-check"></i>
                                                                         </button>
-                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla" onclick="annullaPrenotazione('<%= prenotazione.id %>')">
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla">
                                                                             <i class="bi bi-x"></i>
                                                                         </button>
                                                                     <% } else if (prenotazione.stato === 'confermata') { %>
-                                                                        <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaPrenotazione('<%= prenotazione.id %>')">
+                                                                        <button class="btn btn-sm btn-outline-warning" title="Modifica">
                                                                             <i class="bi bi-pencil"></i>
                                                                         </button>
                                                                     <% } %>
-                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" onclick="eliminaPrenotazione('<%= prenotazione.id %>')">
+                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </div>

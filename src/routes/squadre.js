@@ -7,14 +7,14 @@ const daoUser = require('../services/dao-user');
 const daoDirigenti = require('../services/dao-dirigenti-squadre');
 const daoGalleria = require('../services/dao-galleria');
 const multer = require('multer');
-const { isLoggedIn, isAdmin } = require('../middlewares/auth');
+const { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente } = require('../middlewares/auth');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'src/public/uploads/');
+        cb(null, 'src/public/uploads/');
   },
   filename: (req, file, cb) => {
-    const uniqueName = 'squadra_' + Date.now() + '_' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
+        const uniqueName = 'squadra_' + Date.now() + '_' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
     cb(null, uniqueName);
   }
 });
@@ -106,20 +106,7 @@ router.delete('/deletesquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-// API per ottenere una squadra specifica
-router.get('/getsquadra/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const squadra = await daoSquadre.getSquadraById(id);
-        if (!squadra) {
-            return res.status(404).json({ error: 'Squadra non trovata' });
-        }
-        res.json(squadra);
-    } catch (err) {
-        console.error('Errore recupero squadra:', err);
-        res.status(500).json({ error: 'Errore nel recupero della squadra' });
-    }
-});
+// NOTE: endpoint GET /getsquadra/:id is defined later without auth to allow public access
 
 // API per giocatori
 router.post('/creategiocatore', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
@@ -248,15 +235,24 @@ router.get('/getsquadra/:id', async (req, res) => {
     }
 });
 
-router.get('/squadra/gestione/:id', isLoggedIn,async (req,res)=>{
-    try{
-        const squadra=await daoSquadre.getSquadraById(req.params.id);
-        res.render('modifica_squadra',{
+// Route per apertura pagina di gestione squadra
+router.get('/squadre/gestione/:id', isAdminOrDirigente, async (req, res) => {
+    try {
+        const squadra = await daoSquadre.getSquadraById(req.params.id);
+        // Verifica che l'utente sia admin o dirigente della squadra
+        if (req.user.tipo_utente_id === 2) { // dirigente
+            const daoDirigenti = require('../services/dao-dirigenti-squadre');
+            const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
+            if (!dirigente || dirigente.squadra_id != req.params.id) {
+                return res.status(403).render('error', { message: 'Accesso negato: non sei dirigente di questa squadra', error: { status: 403 } });
+            }
+        }
+        res.render('modifica_squadra', {
             isLogged: true,
             user: req.user,
-            squadra:squadra
+            squadra: squadra
         });
-    }catch(error){
+    } catch (error) {
         console.error('Errore nel caricamento della pagina modifica squadra:', error);
         res.status(500).render('error', {
             message: 'Errore nel caricamento della pagina modifica squadra',
@@ -265,24 +261,7 @@ router.get('/squadra/gestione/:id', isLoggedIn,async (req,res)=>{
     }
 });
 
-router.get('/squadre/gestione/:id', isLoggedIn,async (req,res)=>{
-    try{
-        const squadra=await daoSquadre.getSquadraById(req.params.id);
-        res.render('modifica_squadra',{
-            isLogged: true,
-            user: req.user,
-            squadra:squadra
-        });
-    }catch(error){
-        console.error('Errore nel caricamento della pagina modifica squadra:', error);
-        res.status(500).render('error', {
-            message: 'Errore nel caricamento della pagina modifica squadra',
-            error: process.env.NODE_ENV === 'development' ? error : {}
-        });
-    }
-});
-
-router.post('/squadre/:id/dirigenti', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/squadre/:id/dirigenti', isSquadraDirigente, async (req, res) => {
     try {
         const { id } = req.params;
         const { userId, ruolo, data_nomina, data_scadenza } = req.body;
@@ -310,7 +289,7 @@ router.post('/squadre/:id/dirigenti', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.delete('/squadre/:id/dirigenti/:managerId', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/squadre/:id/dirigenti/:managerId', isSquadraDirigente, async (req, res) => {
     try {
         const { managerId } = req.params;
         await daoDirigenti.removeDirigente(managerId);
@@ -321,7 +300,7 @@ router.delete('/squadre/:id/dirigenti/:managerId', isLoggedIn, isAdmin, async (r
     }
 });
 
-router.post('/squadre/:id/giocatori', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
+router.post('/squadre/:id/giocatori', isSquadraDirigente, upload.single('foto'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, cognome, ruolo, numero_maglia, data_nascita, piede_preferito, nazionalita } = req.body;
@@ -355,7 +334,7 @@ router.post('/squadre/:id/giocatori', isLoggedIn, isAdmin, upload.single('foto')
     }
 });
 
-router.put('/squadre/:id/giocatori/:playerId', isLoggedIn, isAdmin, upload.single('foto'), async (req, res) => {
+router.put('/squadre/:id/giocatori/:playerId', isSquadraDirigente, upload.single('foto'), async (req, res) => {
     try {
         const { playerId } = req.params;
         const { nome, cognome, ruolo, numero_maglia, data_nascita, piede_preferito, nazionalita } = req.body;
@@ -388,7 +367,7 @@ router.put('/squadre/:id/giocatori/:playerId', isLoggedIn, isAdmin, upload.singl
     }
 });
 
-router.delete('/squadre/:id/giocatori/:playerId', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/squadre/:id/giocatori/:playerId', isSquadraDirigente, async (req, res) => {
     try {
         const { playerId } = req.params;
         await daoSquadre.deleteGiocatore(playerId);
@@ -400,14 +379,16 @@ router.delete('/squadre/:id/giocatori/:playerId', isLoggedIn, isAdmin, async (re
 });
 
 // API per ricerca utenti (per autocomplete dirigenti)
-router.get('/api/search-users', isLoggedIn, isAdmin, async (req, res) => {
+// Nota: permettiamo agli utenti autenticati la ricerca; il client può richiedere solo 'dirigenti' con il param role=dirigente
+router.get('/api/search-users', isLoggedIn, async (req, res) => {
     try {
-        const { q } = req.query;
+        const { q, role } = req.query;
         if (!q || q.length < 2) {
             return res.json({ users: [] });
         }
 
-        const users = await daoUser.searchUsers(q);
+        const onlyDirigenti = role === 'dirigente';
+        const users = await daoUser.searchUsers(q, onlyDirigenti);
         res.json({ users: users || [] });
     } catch (err) {
         console.error('Errore ricerca utenti:', err);
@@ -470,4 +451,24 @@ router.get('/modifica_squadra', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-module.exports=router;
+// Route per mostrare le squadre gestibili dal dirigente
+router.get('/mie-squadre', isLoggedIn, isDirigente, async (req, res) => {
+    try {
+        const daoDirigenti = require('../services/dao-dirigenti-squadre');
+        const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
+        if (!dirigente) {
+            return res.render('error', { message: 'Non sei un dirigente di nessuna squadra', error: { status: 403 } });
+        }
+        const squadra = await daoSquadre.getSquadraById(dirigente.squadra_id);
+        res.redirect(`/squadre/gestione/${squadra.id}`);
+    } catch (error) {
+        console.error('Errore nel recupero delle squadre del dirigente:', error);
+        res.status(500).render('error', {
+            message: 'Errore nel caricamento delle tue squadre',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Esporta il router per essere usato dall'app principale
+module.exports = router;

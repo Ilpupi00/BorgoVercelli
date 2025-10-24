@@ -523,28 +523,43 @@ exports.getStatistiche = async () => {
     }
 }
 
-exports.searchUsers = function(query) {
+exports.searchUsers = function(query, onlyDirigenti = false) {
     return new Promise((resolve, reject) => {
-        const sql = `
-            SELECT u.id, u.nome, u.cognome, u.email, COALESCE(t.nome, 'Utente') AS tipo_utente_nome
-            FROM UTENTI u
-            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
-            WHERE (u.nome LIKE ? OR u.cognome LIKE ? OR u.email LIKE ?)
-            AND u.id NOT IN (
-                SELECT DISTINCT utente_id 
-                FROM DIRIGENTI_SQUADRE 
-                WHERE utente_id IS NOT NULL
-            )
-            ORDER BY u.nome, u.cognome
-            LIMIT 10
-        `;
         const searchTerm = `%${query}%`;
-        sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
-            if (err) {
-                return reject({ error: 'Error searching users: ' + err.message });
-            }
-            resolve(users || []);
-        });
+
+        if (onlyDirigenti) {
+            const sql = `
+                SELECT u.id, u.nome, u.cognome, u.email, COALESCE(t.nome, 'Utente') AS tipo_utente_nome
+                FROM UTENTI u
+                LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+                WHERE (u.nome LIKE ? OR u.cognome LIKE ? OR u.email LIKE ?)
+                AND t.nome = 'Dirigente'
+                ORDER BY u.nome, u.cognome
+                LIMIT 10
+            `;
+            sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
+                if (err) return reject({ error: 'Error searching users: ' + err.message });
+                resolve(users || []);
+            });
+        } else {
+            const sql = `
+                SELECT u.id, u.nome, u.cognome, u.email, COALESCE(t.nome, 'Utente') AS tipo_utente_nome
+                FROM UTENTI u
+                LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
+                WHERE (u.nome LIKE ? OR u.cognome LIKE ? OR u.email LIKE ?)
+                AND u.id NOT IN (
+                    SELECT DISTINCT utente_id 
+                    FROM DIRIGENTI_SQUADRE 
+                    WHERE utente_id IS NOT NULL
+                )
+                ORDER BY u.nome, u.cognome
+                LIMIT 10
+            `;
+            sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
+                if (err) return reject({ error: 'Error searching users: ' + err.message });
+                resolve(users || []);
+            });
+        }
     });
 }
 

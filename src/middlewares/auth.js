@@ -58,14 +58,44 @@ const isAdminOrDirigente = function(req, res, next) {
     }
 }
 
-const isSquadraDirigente =function(req,res,next){
-    if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2 && (req.user.squadra_id === req.params.id))) {
-        return next();
+const isSquadraDirigente = async function(req,res,next){
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            res.status(401).json({ error: 'Unauthorized' });
+        } else {
+            res.status(401).render('error', { message: 'Accesso negato: devi essere loggato', error: { status: 401 } });
+        }
+        return;
     }
-    if (req.headers.accept && req.headers.accept.includes('application/json')) {
-        res.status(403).json({ error: 'Forbidden' });
-    } else {
-        res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente della squadra', error: { status: 403 } });
+
+    if (req.user.tipo_utente_id !== 2) {
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            res.status(403).json({ error: 'Forbidden' });
+        } else {
+            res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente', error: { status: 403 } });
+        }
+        return;
+    }
+
+    try {
+        const daoDirigenti = require('../services/dao-dirigenti-squadre');
+        const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
+        if (dirigente && dirigente.squadra_id == req.params.id) {
+            return next();
+        } else {
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                res.status(403).json({ error: 'Forbidden' });
+            } else {
+                res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente della squadra', error: { status: 403 } });
+            }
+        }
+    } catch (error) {
+        console.error('Errore verifica dirigente:', error);
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            res.status(500).json({ error: 'Internal server error' });
+        } else {
+            res.status(500).render('error', { message: 'Errore interno del server', error: {} });
+        }
     }
 }
 

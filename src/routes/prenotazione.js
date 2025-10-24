@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const daoPrenotazione = require('../services/dao-prenotazione');
+const db = require('../config/database');
 const { isLoggedIn } = require('../middlewares/auth');
 
 // 1. Lista campi attivi
@@ -103,11 +104,44 @@ router.post('/prenotazioni/check-scadute', async (req, res) => {
 // 9. Elimina tutte le scadute
 router.delete('/prenotazioni/scadute', async (req, res) => {
     try {
-        const result = await daoPrenotazione.deleteScadute();
-        res.json(result);
+        console.log('[route prenotazioni] DELETE /prenotazioni/scadute invoked');
+        // Prima di cancellare, assicurati di marcare come 'scaduta' tutte le prenotazioni già passate
+        try {
+            await daoPrenotazione.checkAndUpdateScadute();
+        } catch (e) {
+            // Se fallisce il controllo, logga ma procedi con la cancellazione comunque
+            console.error('Errore durante il check delle scadute prima della cancellazione:', e);
+        }
+        // Diagnostic: count rows before delete
+        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], async (err, rowBefore) => {
+            if (err) {
+                console.error('Errore nel conteggio scadute prima della delete:', err);
+            }
+            try {
+                const result = await daoPrenotazione.deleteScadute();
+                console.log('[route prenotazioni] deleteScadute dao result:', result);
+                // Count after
+                db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err2, rowAfter) => {
+                    if (err2) console.error('Errore nel conteggio scadute dopo la delete:', err2);
+                    console.log('[route prenotazioni] count before:', rowBefore ? rowBefore.cnt : null, 'after:', rowAfter ? rowAfter.cnt : null);
+                    res.json({ ...result, countBefore: rowBefore ? rowBefore.cnt : null, countAfter: rowAfter ? rowAfter.cnt : null });
+                });
+            } catch (e) {
+                console.error('Errore durante deleteScadute:', e);
+                res.status(500).json({ error: e.message });
+            }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
 module.exports = router;
+
+// DEBUG route (temporary) - list all prenotazioni
+router.get('/prenotazioni/debug-list', async (req, res) => {
+    db.all(`SELECT id, campo_id, data_prenotazione, ora_inizio, ora_fine, stato FROM PRENOTAZIONI ORDER BY id DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});

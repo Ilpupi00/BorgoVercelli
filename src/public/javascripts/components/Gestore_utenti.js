@@ -217,20 +217,74 @@ class GestoreUtente {
     }
 
     static async eliminaUtente(id) {
-        if (!confirm('Sei sicuro di voler eliminare questo utente? Questa azione non può essere annullata.')) {
-            return;
-        }
         try {
+            // Show the existing modal (do NOT modify showModal.js as requested)
+            ShowModal.modalDelete('Sei sicuro di voler eliminare questo utente? Questa azione non può essere annullata.', 'Conferma eliminazione');
+
+            // Wait for confirmation by listening to the modal's buttons/events
+            const modal = document.getElementById('modalDelete');
+            let confirmed = false;
+
+            if (!modal) {
+                // Fallback if modal not found for some reason
+                if (!confirm('Sei sicuro di voler eliminare questo utente? Questa azione non può essere annullata.')) return;
+                confirmed = true;
+            } else {
+                confirmed = await new Promise(resolve => {
+                    const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+
+                    const onConfirm = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const onHidden = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+
+                    function cleanup() {
+                        if (confirmBtn) confirmBtn.removeEventListener('click', onConfirm);
+                        modal.removeEventListener('hidden.bs.modal', onHidden);
+                    }
+
+                    if (confirmBtn) confirmBtn.addEventListener('click', onConfirm, { once: true });
+                    modal.addEventListener('hidden.bs.modal', onHidden, { once: true });
+                });
+            }
+
+            if (!confirmed) return;
+
             const response = await fetch(`/admin/utenti/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.error || 'Errore nell\'eliminazione dell\'utente');
             }
-            GestoreUtente.showNotification('Utente eliminato con successo', 'success');
-            location.reload();
+            // Show success using the shared ShowModal API and wait for user to close it before reloading
+            if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                await ShowModal.showModalSuccess('Operazione completata', 'Utente eliminato con successo.');
+                const successModal = document.getElementById('modalSuccess');
+                if (successModal && typeof bootstrap !== 'undefined') {
+                    successModal.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                } else {
+                    // fallback: small delay then reload
+                    setTimeout(() => location.reload(), 800);
+                }
+            } else {
+                // If ShowModal not available, fallback to static modal or immediate reload
+                const staticSuccessModalEl = document.getElementById('successModal');
+                if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
+                    document.getElementById('successMessage').textContent = 'Utente eliminato con successo';
+                    const bs = new bootstrap.Modal(staticSuccessModalEl);
+                    bs.show();
+                    staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                } else {
+                    setTimeout(() => location.reload(), 800);
+                }
+            }
         } catch (error) {
             console.error('Errore:', error);
-            GestoreUtente.showNotification(error.message, 'error');
+            await ShowModal.showModalError(error.message || 'Errore nell\'eliminazione dell\'utente', 'Errore');
         }
     }
 
