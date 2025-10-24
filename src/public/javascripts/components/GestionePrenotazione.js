@@ -21,7 +21,7 @@ class GestionePrenotazione {
         // Filter buttons
         this.filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const action = e.target.textContent.trim().toLowerCase();
+                const action = btn.textContent.trim().toLowerCase();
                 if (action.includes('confermate')) this.filterByStatus('confermata');
                 else if (action.includes('attesa')) this.filterByStatus('in_attesa');
                 else if (action.includes('annullate')) this.filterByStatus('annullata');
@@ -30,24 +30,34 @@ class GestionePrenotazione {
             });
         });
 
-        // Action buttons (delegated)
+        // Action buttons (delegated) - use closest button element and its title
+        console.log('[GestionePrenotazione] setupEventListeners: registering document click handler');
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-outline-primary')) {
-                const id = e.target.closest('tr').querySelector('td').textContent;
-                this.visualizzaPrenotazione(id);
-            } else if (e.target.closest('.btn-outline-success')) {
-                const id = e.target.closest('tr').querySelector('td').textContent;
-                this.confermaPrenotazione(id);
-            } else if (e.target.closest('.btn-outline-danger') && e.target.title === 'Annulla') {
-                const id = e.target.closest('tr').querySelector('td').textContent;
-                this.annullaPrenotazione(id);
-            } else if (e.target.closest('.btn-outline-warning')) {
-                const id = e.target.closest('tr').querySelector('td').textContent;
-                this.modificaPrenotazione(id);
-            } else if (e.target.closest('.btn-outline-danger') && e.target.title === 'Elimina') {
-                const id = e.target.closest('tr').querySelector('td').textContent;
-                this.eliminaPrenotazione(id);
-            } else if (e.target.id === 'deleteScaduteBtn') {
+            const btn = e.target.closest('button');
+            if (!btn) {
+                if (e.target.id === 'deleteScaduteBtn') {
+                    console.log('[GestionePrenotazione] click on non-button element with id deleteScaduteBtn');
+                    this.deleteScadute();
+                }
+                return;
+            }
+            // Debug info
+            // eslint-disable-next-line no-console
+            console.log('[GestionePrenotazione] button clicked:', { id: btn.id, classes: btn.className, title: btn.title });
+            const tr = btn.closest('tr');
+            const id = tr ? tr.querySelector('td')?.textContent : null;
+            if (btn.classList.contains('btn-outline-primary')) {
+                if (id) this.visualizzaPrenotazione(id);
+            } else if (btn.classList.contains('btn-outline-success')) {
+                if (id) this.confermaPrenotazione(id);
+            } else if (btn.classList.contains('btn-outline-danger') && btn.title === 'Annulla') {
+                if (id) this.annullaPrenotazione(id);
+            } else if (btn.classList.contains('btn-outline-warning')) {
+                if (id) this.modificaPrenotazione(id);
+            } else if (btn.classList.contains('btn-outline-danger') && btn.title === 'Elimina') {
+                if (id) this.eliminaPrenotazione(id);
+            } else if (btn.id === 'deleteScaduteBtn') {
+                console.log('[GestionePrenotazione] detected deleteScaduteBtn click');
                 this.deleteScadute();
             }
         });
@@ -55,7 +65,7 @@ class GestionePrenotazione {
 
     async checkScadute() {
         try {
-            const response = await fetch('/prenotazioni/check-scadute', {
+            const response = await fetch('/prenotazione/prenotazioni/check-scadute', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -112,63 +122,123 @@ class GestionePrenotazione {
 
     async visualizzaPrenotazione(id) {
         try {
-            const response = await fetch(`/prenotazioni/${id}`);
+            const response = await fetch(`/prenotazione/prenotazioni/${id}`);
             const prenotazione = await response.json();
-            this.showModal('Dettagli Prenotazione', this.createDetailsHTML(prenotazione));
+            if (window.ShowModal && typeof window.ShowModal.showModalInfo === 'function') {
+                // showModalInfo expects (msg, string) where string is title
+                await window.ShowModal.showModalInfo(this.createDetailsHTML(prenotazione), 'Dettagli Prenotazione');
+            } else {
+                this.showModal('Dettagli Prenotazione', this.createDetailsHTML(prenotazione));
+            }
         } catch (error) {
-            alert('Errore nel caricamento dei dettagli');
+            if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                window.ShowModal.showModalError('Errore nel caricamento dei dettagli', 'Errore');
+            } else {
+                alert('Errore nel caricamento dei dettagli');
+            }
         }
     }
 
     async confermaPrenotazione(id) {
-        if (confirm('Confermare questa prenotazione?')) {
-            try {
-                const response = await fetch(`/prenotazioni/${id}/stato`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ stato: 'confermata' })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    this.refreshTable();
-                } else {
+        if (window.ShowModal && typeof window.ShowModal.modalConfirm === 'function') {
+            await window.ShowModal.modalConfirm('Vuoi confermare questa prenotazione?', 'Conferma prenotazione', 'Conferma', 'btn-success', 'bi-check-circle-fill', 'text-success');
+            const btn = document.getElementById('confirmActionBtn');
+            if (btn) {
+                const handler = async () => {
+                    try {
+                        const response = await fetch(`/prenotazione/prenotazioni/${id}/stato`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ stato: 'confermata' })
+                        });
+                        const result = await response.json();
+                        if (result.success) this.refreshTable();
+                        else if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nella conferma', 'Errore');
+                    } catch (error) {
+                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nella conferma', 'Errore');
+                    } finally {
+                        btn.removeEventListener('click', handler);
+                    }
+                };
+                btn.addEventListener('click', handler);
+            }
+            else {
+                console.warn('[GestionePrenotazione] confirmDeleteBtn not found after calling ShowModal.modalDelete, falling back to window.confirm');
+                if (confirm('Eliminare tutte le prenotazioni scadute?')) {
+                    try { await fetch('/prenotazione/prenotazioni/check-scadute', { method: 'POST' }); } catch(e) { console.warn('check-scadute fallito', e); }
+                    try {
+                        const response = await fetch('/prenotazione/prenotazioni/scadute', { method: 'DELETE' });
+                        const result = await response.json();
+                        if (result.success) { alert(`Eliminate ${result.deleted} prenotazioni scadute`); this.refreshTable(); }
+                    } catch (error) { alert('Errore nell\'eliminazione'); }
+                }
+            }
+        } else {
+            if (confirm('Confermare questa prenotazione?')) {
+                try {
+                    const response = await fetch(`/prenotazione/prenotazioni/${id}/stato`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ stato: 'confermata' })
+                    });
+                    const result = await response.json();
+                    if (result.success) this.refreshTable();
+                } catch (error) {
                     alert('Errore nella conferma');
                 }
-            } catch (error) {
-                alert('Errore nella conferma');
             }
         }
     }
 
     async annullaPrenotazione(id) {
-        if (confirm('Annullare questa prenotazione?')) {
-            try {
-                const response = await fetch(`/prenotazioni/${id}/stato`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ stato: 'annullata' })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    this.refreshTable();
-                } else {
+        if (window.ShowModal && typeof window.ShowModal.modalConfirm === 'function') {
+            await window.ShowModal.modalConfirm('Vuoi annullare questa prenotazione?', 'Annulla prenotazione', 'Annulla', 'btn-danger', 'bi-x-circle-fill', 'text-danger');
+            const btn = document.getElementById('confirmActionBtn');
+            if (btn) {
+                const handler = async () => {
+                    try {
+                        const response = await fetch(`/prenotazione/prenotazioni/${id}/stato`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ stato: 'annullata' })
+                        });
+                        const result = await response.json();
+                        if (result.success) this.refreshTable();
+                        else if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nell\'annullamento', 'Errore');
+                    } catch (error) {
+                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nell\'annullamento', 'Errore');
+                    } finally {
+                        btn.removeEventListener('click', handler);
+                    }
+                };
+                btn.addEventListener('click', handler);
+            }
+        } else {
+            if (confirm('Annullare questa prenotazione?')) {
+                try {
+                    const response = await fetch(`/prenotazione/prenotazioni/${id}/stato`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ stato: 'annullata' })
+                    });
+                    const result = await response.json();
+                    if (result.success) this.refreshTable();
+                } catch (error) {
                     alert('Errore nell\'annullamento');
                 }
-            } catch (error) {
-                alert('Errore nell\'annullamento');
             }
         }
     }
 
     async modificaPrenotazione(id) {
         try {
-            const response = await fetch(`/prenotazioni/${id}`);
+            const response = await fetch(`/prenotazione/prenotazioni/${id}`);
             const prenotazione = await response.json();
             this.showModal('Modifica Prenotazione', this.createEditHTML(prenotazione), true, async () => {
                 const formData = new FormData(document.getElementById('editForm'));
                 const data = Object.fromEntries(formData);
                 try {
-                    const updateResponse = await fetch(`/prenotazioni/${id}`, {
+                    const updateResponse = await fetch(`/prenotazione/prenotazioni/${id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data)
@@ -190,38 +260,102 @@ class GestionePrenotazione {
     }
 
     async eliminaPrenotazione(id) {
-        if (confirm('Eliminare definitivamente questa prenotazione?')) {
-            try {
-                const response = await fetch(`/prenotazioni/${id}`, {
-                    method: 'DELETE'
-                });
-                const result = await response.json();
-                if (result.success) {
-                    this.refreshTable();
-                } else {
+        if (window.ShowModal && typeof window.ShowModal.modalDelete === 'function') {
+            await window.ShowModal.modalDelete('Sei sicuro di voler eliminare questa prenotazione?','Elimina prenotazione');
+            const btn = document.getElementById('confirmDeleteBtn');
+            if (btn) {
+                const handler = async () => {
+                    try {
+                        const response = await fetch(`/prenotazione/prenotazioni/${id}`, {
+                            method: 'DELETE'
+                        });
+                        const result = await response.json();
+                        if (result.success) this.refreshTable();
+                        else if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nell\'eliminazione', 'Errore');
+                    } catch (error) {
+                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') window.ShowModal.showModalError('Errore nell\'eliminazione', 'Errore');
+                    } finally {
+                        btn.removeEventListener('click', handler);
+                    }
+                };
+                btn.addEventListener('click', handler);
+            }
+        } else {
+            if (confirm('Eliminare definitivamente questa prenotazione?')) {
+                try {
+                    const response = await fetch(`/prenotazione/prenotazioni/${id}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (result.success) this.refreshTable();
+                } catch (error) {
                     alert('Errore nell\'eliminazione');
                 }
-            } catch (error) {
-                alert('Errore nell\'eliminazione');
             }
         }
     }
 
     async deleteScadute() {
-        if (confirm('Eliminare tutte le prenotazioni scadute?')) {
-            try {
-                const response = await fetch('/prenotazioni/scadute', {
-                    method: 'DELETE'
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert(`Eliminate ${result.deleted} prenotazioni scadute`);
-                    this.refreshTable();
-                } else {
+        if (window.ShowModal && typeof window.ShowModal.modalDelete === 'function') {
+            await window.ShowModal.modalDelete('Eliminare tutte le prenotazioni scadute?','Elimina prenotazioni scadute');
+            const btn = document.getElementById('confirmDeleteBtn');
+            if (btn) {
+                    const handler = async () => {
+                        try {
+                            console.log('[GestionePrenotazione] deleteScadute: calling check-scadute');
+                            let checkResp, checkJson;
+                            try {
+                                checkResp = await fetch('/prenotazione/prenotazioni/check-scadute', { method: 'POST' });
+                                console.log('[GestionePrenotazione] check-scadute status:', checkResp.status);
+                                checkJson = await checkResp.json().catch(e => { console.warn('check-scadute json parse failed', e); return null; });
+                                console.log('[GestionePrenotazione] check-scadute response json:', checkJson);
+                            } catch (e) {
+                                console.warn('[GestionePrenotazione] check-scadute fetch failed', e);
+                            }
+                            console.log('[GestionePrenotazione] deleteScadute: calling DELETE /prenotazione/prenotazioni/scadute');
+                            const response = await fetch('/prenotazione/prenotazioni/scadute', { method: 'DELETE' });
+                            console.log('[GestionePrenotazione] DELETE scadute status:', response.status);
+                            const result = await response.json().catch(e => { console.warn('delete scadute json parse failed', e); return null; });
+                            console.log('[GestionePrenotazione] DELETE scadute result:', result);
+                            if (result && result.success) {
+                                if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
+                                    window.ShowModal.showModalSuccess('Eliminazione completata', `Eliminate ${result.deleted} prenotazioni scadute`);
+                                } else {
+                                    alert(`Eliminate ${result.deleted} prenotazioni scadute`);
+                                }
+                                this.refreshTable();
+                            } else {
+                                console.warn('[GestionePrenotazione] deleteScadute did not return success:', result);
+                                if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                                    window.ShowModal.showModalError('Errore nell\'eliminazione', 'Errore');
+                                } else {
+                                    alert('Errore nell\'eliminazione');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('[GestionePrenotazione] deleteScadute handler error', error);
+                            if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                                window.ShowModal.showModalError('Errore nell\'eliminazione', 'Errore');
+                            }
+                    } finally {
+                        btn.removeEventListener('click', handler);
+                    }
+                };
+                btn.addEventListener('click', handler);
+            }
+        } else {
+            if (confirm('Eliminare tutte le prenotazioni scadute?')) {
+                try {
+                    try { await fetch('/prenotazione/prenotazioni/check-scadute', { method: 'POST' }); } catch(e) { console.warn('check-scadute fallito', e); }
+                    const response = await fetch('/prenotazione/prenotazioni/scadute', { method: 'DELETE' });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`Eliminate ${result.deleted} prenotazioni scadute`);
+                        this.refreshTable();
+                    }
+                } catch (error) {
                     alert('Errore nell\'eliminazione');
                 }
-            } catch (error) {
-                alert('Errore nell\'eliminazione');
             }
         }
     }

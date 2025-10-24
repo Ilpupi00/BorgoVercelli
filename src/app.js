@@ -96,6 +96,7 @@ app.use(passport.session());
 // Middleware to set global locals for templates
 app.use(async function(req, res, next) {
   res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
+  res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
    if (req.isAuthenticated() && req.user) {
      try {

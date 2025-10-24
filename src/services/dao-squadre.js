@@ -238,33 +238,7 @@ exports.createGiocatore = function(giocatoreData) {
     });
 }
 
-exports.updateGiocatore = function(id, giocatoreData) {
-    const sql = `UPDATE GIOCATORI SET
-        Nome = ?, Cognome = ?, numero_maglia = ?, ruolo = ?, data_nascita = ?,
-        piede_preferito = ?, Nazionalità = ?, updated_at = datetime('now')
-        WHERE id = ?`;
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
-            giocatoreData.nome,
-            giocatoreData.cognome,
-            giocatoreData.numero_maglia || null,
-            giocatoreData.ruolo || null,
-            giocatoreData.data_nascita || null,
-            giocatoreData.piede_preferito || null,
-            giocatoreData.nazionalita || null,
-            parseInt(id)
-        ], function(err) {
-            if (err) {
-                console.error('Errore SQL update giocatore:', err);
-                return reject({ error: 'Errore nell\'aggiornamento del giocatore: ' + err.message });
-            }
-            if (this.changes === 0) {
-                return reject({ error: 'Giocatore non trovato' });
-            }
-            resolve({ message: 'Giocatore aggiornato con successo' });
-        });
-    });
-}
+// NOTE: updateGiocatore implemented later using COALESCE to preserve existing immagini_id when not provided
 
 exports.deleteGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = 0, data_fine_tesseramento = datetime(\'now\') WHERE id = ?';
@@ -420,17 +394,8 @@ exports.removeDirigente = function(squadraId, dirigenteId) {
     });
 }
 
-exports.getSquadraById = async (id) => {
-    const sql = 'SELECT * FROM SQUADRE WHERE id = ?';
-    return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id], (err, row) => {
-            if (err) {
-                return reject({ error: 'Errore recupero squadra: ' + err.message });
-            }
-            resolve(row ? makeSquadra(row) : null);
-        });
-    });
-}
+// Nota: la funzione `exports.getSquadraById` è definita più sopra e restituisce squadra con dirigenti e giocatori.
+// Qui non sovrascriviamo quella implementazione.
 
 exports.updateGiocatore = async (id, giocatoreData) => {
     const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = datetime('now')
@@ -458,17 +423,4 @@ exports.updateGiocatore = async (id, giocatoreData) => {
     });
 }
 
-exports.deleteGiocatore = async (id) => {
-    const sql = 'DELETE FROM GIOCATORI WHERE id = ?';
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
-            if (err) {
-                return reject({ error: 'Errore eliminazione giocatore: ' + err.message });
-            }
-            if (this.changes === 0) {
-                return reject({ error: 'Giocatore non trovato' });
-            }
-            resolve({ message: 'Giocatore eliminato' });
-        });
-    });
-}
+// NOTE: removal of giocatore handled above via soft-delete (set attivo = 0) to preserve history

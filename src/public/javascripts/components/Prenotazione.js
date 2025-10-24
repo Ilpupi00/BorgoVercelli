@@ -48,7 +48,7 @@ class Prenotazione {
             const orari = await res.json();
             const now = new Date();
             const resultDiv = this.page.querySelector(`#orariDisponibili-${campoId}`);
-            const filteredOrari = orari.filter(o => {
+            let filteredOrari = Array.isArray(orari) ? orari.filter(o => {
                 if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
                 const [h, m] = o.inizio.split(":");
                 const orarioDate = new Date(data + 'T' + o.inizio);
@@ -56,7 +56,29 @@ class Prenotazione {
                     return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
                 }
                 return true;
-            });
+            }) : [];
+
+            // If none available for the requested date, try tomorrow and show a note
+            if (filteredOrari.length === 0) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tStr = tomorrow.toISOString().slice(0,10);
+                try {
+                    const res2 = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${tStr}`);
+                    const orari2 = await res2.json();
+                    filteredOrari = Array.isArray(orari2) ? orari2.filter(o => {
+                        if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
+                        return true;
+                    }) : [];
+                    if (filteredOrari.length > 0) {
+                        resultDiv.innerHTML = `<div class="text-muted small mb-2">Nessun orario disponibile per ${data}. Mostrati gli orari per ${tStr}:</div>` + filteredOrari.map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('');
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Fallback tomorrow fetch failed', e);
+                }
+            }
+
             resultDiv.innerHTML = filteredOrari.map(o => `<span class="badge bg-success text-light border p-2">${o.inizio}-${o.fine}</span>`).join('');
         } catch (e) {
             console.error('Errore nel recupero orari:', e);

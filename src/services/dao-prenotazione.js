@@ -270,9 +270,21 @@ exports.checkAndUpdateScadute = async () => {
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
-            if (err) return reject(err);
-            resolve({ success: true, deleted: this.changes });
+        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err, before) => {
+            if (err) {
+                console.error('deleteScadute: count before error', err);
+                return reject(err);
+            }
+            const toDelete = before && before.cnt ? before.cnt : 0;
+            if (toDelete === 0) return resolve({ success: true, deleted: 0 });
+            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
+                if (err) {
+                    console.error('deleteScadute: delete error', err);
+                    return reject(err);
+                }
+                // Return the count we measured before the delete as the number deleted
+                resolve({ success: true, deleted: toDelete });
+            });
         });
     });
 }

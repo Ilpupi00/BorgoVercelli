@@ -151,15 +151,16 @@ class GalleriaAdmin {
           await ShowModal.showModalSuccess('Caricamento completato', data.message || 'Immagine caricata con successo!');
           const successModal = document.getElementById('modalSuccess');
           if (successModal && typeof bootstrap !== 'undefined') {
-            if (imageObj) {
-              successModal.addEventListener('hidden.bs.modal', () => { this.addImageToGallery(imageObj); }, { once: true });
-            }
+            // quando il modal viene chiuso, ricarica la pagina per mostrare la nuova immagine
+            successModal.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
           } else {
-            if (imageObj) setTimeout(() => this.addImageToGallery(imageObj), 300);
+            // fallback: ricarica la pagina dopo un breve delay
+            setTimeout(() => location.reload(), 300);
           }
         } else {
           alert(data.message || 'Immagine caricata con successo!');
-          if (imageObj) this.addImageToGallery(imageObj);
+          // ricarica la pagina per mostrare la nuova immagine
+          location.reload();
         }
       } else {
         const errMsg = data.error || data.message || 'Errore durante il caricamento';

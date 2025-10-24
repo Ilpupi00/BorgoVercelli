@@ -95,6 +95,33 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
       console.error('Errore fetch orari:', e);
       orari = [];
     }
+    // Se per la data selezionata (in genere oggi) non ci sono orari, prova a mostrare quelli di domani
+    if ((!Array.isArray(orari) || orari.length === 0) && data === new Date().toISOString().slice(0,10)) {
+      try {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tStr = tomorrow.toISOString().slice(0,10);
+        const res2 = await fetch(`/prenotazione/campi/${campo.id}/disponibilita?data=${tStr}&_=${Date.now()}`);
+        const orariDomani = await res2.json().catch(() => []);
+        if (Array.isArray(orariDomani) && orariDomani.length > 0) {
+          // presentiamo gli orari di domani ma segnaliamo la differenza
+          const select = modal.querySelector('#orarioPrenotazione');
+          select.innerHTML = orariDomani.map(o => `<option value='${o.inizio}|${o.fine}'>${o.inizio} - ${o.fine} (${campo.nome} - ${tStr})</option>`).join('');
+          // Aggiungi una piccola nota informativa
+          let noteEl = modal.querySelector('.note-fallback');
+          if (!noteEl) {
+            noteEl = document.createElement('div');
+            noteEl.className = 'form-text text-muted note-fallback';
+            modal.querySelector('#orarioPrenotazione').parentNode.appendChild(noteEl);
+          }
+          noteEl.textContent = 'Nessun orario disponibile per la data scelta. Mostrati gli orari disponibili per ' + tStr + '.';
+          console.log('Fallback: mostro orari di domani', tStr, orariDomani);
+          return;
+        }
+      } catch (e) {
+        console.warn('Fallback fetch per domani fallito', e);
+      }
+    }
     // Filtro solo orari validi (inizio < fine, formato HH:MM, non prenotati, non entro 2 ore)
     const now = new Date();
     orari = Array.isArray(orari) ? orari.filter(o => {

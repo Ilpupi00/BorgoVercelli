@@ -1,0 +1,12 @@
+nohup: ignoring input
+
+> sito-borgovercelli@0.0.0 start
+> node ./src/bin/www
+
+[dotenv@17.2.3] injecting env (4) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[database] opening sqlite db at /home/luca/Sito_BorgoVercelli/database/database.db
+Server is running on http://localhost:3000
+Connected to the SQLite database at /home/luca/Sito_BorgoVercelli/database/database.db
+DELETE /prenotazione/prenotazioni/scadute 200 28 - 10.234 ms
+DELETE /prenotazione/prenotazioni/scadute 200 28 - 4.073 ms
+Terminated

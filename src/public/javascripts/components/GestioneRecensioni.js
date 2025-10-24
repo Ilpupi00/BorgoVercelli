@@ -5,8 +5,10 @@ class GestioneRecensioni {
 
     init() {
         // Inizializzazioni se necessarie
+        this.statusFilter = 'all'; // 'all' | 'visibile' | 'nascosta'
         this.setupSearch();
-        this.updateFilteredCount(document.querySelectorAll('#recensioniTableBody tr:not(#noResultsRow)').length);
+        // Applica il filtro iniziale (considera ricerca vuota e stato 'all')
+        this.filtraRecensioni();
     }
 
     setupSearch() {
@@ -58,7 +60,59 @@ class GestioneRecensioni {
     async toggleVisibile(id, currentStatus) {
         const newStatus = !currentStatus;
         const action = newStatus ? 'mostrare' : 'nascondere';
+        // Use ShowModal modalConfirm when available to get confirmation
+        if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
+            // Determine label and style for confirm button depending on action
+            const confirmLabel = newStatus ? 'Mostra' : 'Sospendi';
+            const confirmClass = newStatus ? 'btn-success' : 'btn-warning';
+            const iconClass = newStatus ? 'bi-eye' : 'bi-eye-slash';
 
+            // open confirm modal
+            ShowModal.modalConfirm(`Sei sicuro di voler ${action} questa recensione?`, 'Conferma', confirmLabel, confirmClass, iconClass, newStatus ? 'text-success' : 'text-warning');
+            const modal = document.getElementById('modalConfirmAction');
+            if (!modal) return;
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            const confirmBtn = modal.querySelector('#confirmActionBtn');
+            if (!confirmBtn) return;
+
+            const onConfirm = async () => {
+                if (bsModal) bsModal.hide();
+                try {
+                    const response = await fetch(`/admin/recensioni/${id}/toggle`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ visibile: newStatus })
+                    });
+                    if (!response.ok) throw new Error('Errore nell\'aggiornamento');
+                    // show static success modal if present
+                    // Preferisci ShowModal se disponibile, altrimenti usa il modal statico 'successModal'
+                    const staticSuccessModalEl = document.getElementById('successModal');
+                    if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                        await ShowModal.showModalSuccess('Operazione completata', `Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`);
+                        if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
+                            staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                        } else {
+                            setTimeout(() => location.reload(), 900);
+                        }
+                    } else if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
+                        document.getElementById('successMessage').textContent = `Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`;
+                        const bs = new bootstrap.Modal(staticSuccessModalEl);
+                        bs.show();
+                        staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                    } else {
+                        this.mostraSuccesso(`Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`);
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                } catch (error) {
+                    this.mostraErrore('Errore nell\'aggiornamento: ' + error.message);
+                }
+            };
+
+            confirmBtn.addEventListener('click', onConfirm, { once: true });
+            return;
+        }
+
+        // Fallback to native confirm
         if (!confirm(`Sei sicuro di voler ${action} questa recensione?`)) return;
 
         try {
@@ -79,6 +133,50 @@ class GestioneRecensioni {
     }
 
     async eliminaRecensione(id) {
+        // Use ShowModal modalDelete when available
+        if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
+            ShowModal.modalDelete('Sei sicuro di voler eliminare definitivamente questa recensione? Questa azione non può essere annullata.', 'Conferma eliminazione');
+            const modal = document.getElementById('modalDelete');
+            if (!modal) return;
+            const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+            if (!confirmBtn) return;
+
+            const onConfirm = async () => {
+                try {
+                    // close the confirm modal first
+                    const bsConfirm = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+                    if (bsConfirm) bsConfirm.hide();
+
+                    const response = await fetch(`/admin/recensioni/${id}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Errore nell\'eliminazione');
+
+                    const staticSuccessModalEl = document.getElementById('successModal');
+                    if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                        await ShowModal.showModalSuccess('Operazione completata', 'Recensione eliminata con successo');
+                        if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
+                            staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                        } else {
+                            setTimeout(() => location.reload(), 900);
+                        }
+                    } else if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
+                        document.getElementById('successMessage').textContent = 'Recensione eliminata con successo';
+                        const bs = new bootstrap.Modal(staticSuccessModalEl);
+                        bs.show();
+                        staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+                    } else {
+                        this.mostraSuccesso('Recensione eliminata con successo');
+                        setTimeout(() => location.reload(), 1200);
+                    }
+                } catch (error) {
+                    this.mostraErrore('Errore nell\'eliminazione: ' + error.message);
+                }
+            };
+
+            confirmBtn.addEventListener('click', onConfirm, { once: true });
+            return;
+        }
+
+        // Fallback
         if (!confirm('Sei sicuro di voler eliminare definitivamente questa recensione? Questa azione non può essere annullata.')) return;
 
         try {
@@ -109,34 +207,20 @@ class GestioneRecensioni {
     }
 
     mostraRecensioniVisibili() {
-        // Filtra righe visibili
-        const rows = document.querySelectorAll('#recensioniTableBody tr');
-        rows.forEach(row => {
-            if (row.id === 'noResultsRow') return;
-            const status = row.dataset.stato;
-            row.style.display = status === 'visibile' ? '' : 'none';
-        });
-        this.filtraRecensioni(); // Applica anche il filtro di ricerca
+        // Imposta lo stato del filtro su 'visibile' e riapplica il filtro
+        this.statusFilter = 'visibile';
+        this.filtraRecensioni();
     }
 
     mostraRecensioniNascoste() {
-        // Filtra righe nascoste
-        const rows = document.querySelectorAll('#recensioniTableBody tr');
-        rows.forEach(row => {
-            if (row.id === 'noResultsRow') return;
-            const status = row.dataset.stato;
-            row.style.display = status === 'nascosta' ? '' : 'none';
-        });
-        this.filtraRecensioni(); // Applica anche il filtro di ricerca
+        // Imposta lo stato del filtro su 'nascosta' e riapplica il filtro
+        this.statusFilter = 'nascosta';
+        this.filtraRecensioni();
     }
 
     mostraTutte() {
-        const rows = document.querySelectorAll('#recensioniTableBody tr');
-        rows.forEach(row => {
-            if (row.id === 'noResultsRow') return;
-            row.style.display = '';
-        });
-        this.filtraRecensioni(); // Applica anche il filtro di ricerca
+        this.statusFilter = 'all';
+        this.filtraRecensioni();
     }
 
     filtraRecensioni() {
@@ -160,7 +244,11 @@ class GestioneRecensioni {
                 utente.includes(searchTerm) ||
                 valutazione.includes(searchTerm);
 
-            if (matchesSearch) {
+            // Applica anche il filtro di stato
+            const status = row.dataset.stato || 'visibile';
+            const matchesStatus = this.statusFilter === 'all' || this.statusFilter === status;
+
+            if (matchesSearch && matchesStatus) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -168,13 +256,30 @@ class GestioneRecensioni {
             }
         });
 
+        // Se non ci sono risultati, mostra una riga informativa
+        this.toggleNoResultsRow(visibleCount === 0);
         this.updateFilteredCount(visibleCount);
     }
 
     updateFilteredCount(count) {
-        const totalCount = document.querySelectorAll('#recensioniTableBody tr:not(#noResultsRow)').length;
+        const totalCount = document.querySelectorAll('#recensioniTableBody tr[data-recensione-id]').length;
         document.getElementById('totalCount').textContent = totalCount;
         document.getElementById('filteredCount').textContent = `(${count} filtrate)`;
+    }
+
+    toggleNoResultsRow(show) {
+        const tbody = document.getElementById('recensioniTableBody');
+        let noRow = document.getElementById('noResultsRow');
+        if (show) {
+            if (!noRow) {
+                noRow = document.createElement('tr');
+                noRow.id = 'noResultsRow';
+                noRow.innerHTML = `<td colspan="8" class="text-center text-muted py-4"><i class="bi bi-info-circle display-4 mb-3"></i><p>Nessuna recensione corrisponde ai criteri di ricerca.</p></td>`;
+                tbody.appendChild(noRow);
+            }
+        } else {
+            if (noRow) noRow.remove();
+        }
     }
 }
 

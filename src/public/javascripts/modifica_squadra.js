@@ -77,10 +77,12 @@ class TeamManager {
         try {
             const response = await fetch(`/squadre/${this.teamId}`, {
                 method: 'PUT',
-                body: formData
+                body: formData,
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Squadra aggiornata con successo!');
@@ -106,10 +108,12 @@ class TeamManager {
 
         try {
             const response = await fetch(`/squadre/${this.teamId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Squadra eliminata con successo!');
@@ -141,7 +145,34 @@ class TeamManager {
                 return;
             }
             this.notificationManager.showSuccess('Logo selezionato con successo');
+            // mostra anteprima
+            try {
+                const preview = document.getElementById('logoPreview');
+                const container = document.getElementById('logoPreviewContainer');
+                const current = document.getElementById('currentLogo');
+                const placeholder = document.getElementById('noLogoPlaceholder');
+                if (preview && container) {
+                    preview.src = URL.createObjectURL(file);
+                    container.style.display = 'block';
+                    if (current) current.style.display = 'none';
+                    if (placeholder) placeholder.style.display = 'none';
+                }
+            } catch (err) {
+                console.warn('Impossibile creare anteprima logo:', err);
+            }
         }
+    }
+
+    // opzionale: pulisce anteprima logo
+    clearLogoPreview() {
+        const preview = document.getElementById('logoPreview');
+        const container = document.getElementById('logoPreviewContainer');
+        const current = document.getElementById('currentLogo');
+        const placeholder = document.getElementById('noLogoPlaceholder');
+        if (preview) preview.src = '';
+        if (container) container.style.display = 'none';
+        if (current) current.style.display = '';
+        if (placeholder) placeholder.style.display = '';
     }
 }
 
@@ -152,10 +183,12 @@ class PlayerManager {
         this.teamId = document.getElementById('teamId')?.value || this.extractTeamIdFromUrl();
         this.playersList = document.getElementById('playersList');
         const modalGiocatoreEl = document.getElementById('modalGiocatore');
-        this.addPlayerModal = modalGiocatoreEl ? new bootstrap.Modal(modalGiocatoreEl) : null;
-        this.editPlayerModal = modalGiocatoreEl ? new bootstrap.Modal(modalGiocatoreEl) : null;
-        this.addPlayerForm = document.getElementById('giocatoreForm');
-        this.editPlayerForm = document.getElementById('giocatoreForm');
+        this.playerModal = modalGiocatoreEl ? new bootstrap.Modal(modalGiocatoreEl) : null;
+        this.playerModalEl = modalGiocatoreEl;
+        this.playerForm = document.getElementById('giocatoreForm');
+        this.playerIdInput = document.getElementById('giocatoreId');
+        this.saveButton = document.getElementById('salvaGiocatore');
+        this.deleteButton = document.getElementById('eliminaGiocatore');
 
         this.init();
     }
@@ -169,16 +202,72 @@ class PlayerManager {
         if (this.playersList) {
             this.playersList.addEventListener('click', (e) => this.handlePlayerAction(e));
         }
-        // Rimosso event listener sul form, usiamo solo quello sul pulsante
-        const salvaGiocatoreBtn = document.getElementById('salvaGiocatore');
-        if (salvaGiocatoreBtn) {
-            salvaGiocatoreBtn.addEventListener('click', (e) => {
+
+        // Salvataggio (usiamo lo stesso modal per add/edit)
+        if (this.saveButton && this.playerForm) {
+            this.saveButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.handleAddPlayer(new Event('submit'));
+                this.savePlayer();
             });
         }
-        if (this.editPlayerForm) {
-            this.editPlayerForm.addEventListener('submit', (e) => this.handleEditPlayer(e));
+
+        // Eliminazione dal modal
+        if (this.deleteButton) {
+            this.deleteButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.deletePlayerFromModal();
+            });
+        }
+
+        // Quando il modal si apre, se non abbiamo un id lo consideriamo ADD e puliamo il form
+        if (this.playerModalEl) {
+            this.playerModalEl.addEventListener('show.bs.modal', () => {
+                if (!this.playerIdInput || !this.playerIdInput.value) {
+                    this.playerForm.reset();
+                    if (this.deleteButton) this.deleteButton.style.display = 'none';
+                }
+            });
+        }
+
+        // Se l'utente clicca il pulsante 'Nuovo Giocatore' (markup con data-bs-target), pulisci il form
+        const newPlayerTrigger = document.querySelector('[data-bs-target="#modalGiocatore"]');
+        if (newPlayerTrigger) {
+            newPlayerTrigger.addEventListener('click', () => {
+                if (this.playerIdInput) this.playerIdInput.value = '';
+                if (this.playerForm) this.playerForm.reset();
+                if (this.deleteButton) this.deleteButton.style.display = 'none';
+            });
+        }
+
+        // Anteprima foto giocatore nel modal
+        const fotoInput = document.getElementById('fotoGiocatore');
+        const playerPreview = document.getElementById('playerPhotoPreview');
+        const playerPreviewContainer = document.getElementById('playerPhotoPreviewContainer');
+        if (fotoInput) {
+            fotoInput.addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) {
+                    if (playerPreview) playerPreview.src = '';
+                    if (playerPreviewContainer) playerPreviewContainer.style.display = 'none';
+                    return;
+                }
+                if (!f.type.startsWith('image/')) {
+                    this.notificationManager.showError('Seleziona un file immagine valido');
+                    ev.target.value = '';
+                    return;
+                }
+                if (f.size > 5 * 1024 * 1024) {
+                    this.notificationManager.showError('Il file è troppo grande. Massimo 5MB');
+                    ev.target.value = '';
+                    return;
+                }
+                try {
+                    if (playerPreview) playerPreview.src = URL.createObjectURL(f);
+                    if (playerPreviewContainer) playerPreviewContainer.style.display = 'block';
+                } catch (err) {
+                    console.warn('Impossibile creare anteprima foto giocatore', err);
+                }
+            });
         }
 
     }
@@ -188,7 +277,7 @@ class PlayerManager {
         if (!target) return;
 
         const playerCard = target.closest('.player-card');
-        const playerId = target.dataset.id;
+        const playerId = target.dataset.id || (playerCard ? playerCard.dataset.playerId : null);
 
         if (target.classList.contains('modifica-giocatore')) {
             this.openEditModal(playerId);
@@ -198,81 +287,60 @@ class PlayerManager {
     }
 
     async addPlayer() {
-        const formData = new FormData(this.addPlayerForm);
-
-        this.loadingManager.show();
-
-        try {
-            const response = await fetch(`/squadre/${this.teamId}/giocatori`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                this.notificationManager.showSuccess('Giocatore aggiunto con successo!');
-                if (this.addPlayerModal) this.addPlayerModal.hide();
-                this.addPlayerForm.reset();
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                throw new Error(result.error || 'Errore durante l\'aggiunta del giocatore');
-            }
-        } catch (error) {
-            console.error('Errore:', error);
-            this.notificationManager.showError(error.message || 'Errore durante l\'aggiunta del giocatore');
-        } finally {
-            this.loadingManager.hide();
-        }
+        // Manteniamo per compatibilità ma preferiamo savePlayer()
+        return this.savePlayer();
     }
 
     async handleAddPlayer(e) {
+        // kept for backward compat with old markup; forwards to addPlayer
         e.preventDefault();
         await this.addPlayer();
     }
 
     openEditModal(playerId) {
-        // Populate edit form with player data
+        // Populate edit form with player data from data-attributes
         const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
-        const playerInfo = playerCard.querySelector('.player-info');
+        if (!playerCard) return;
 
-        document.getElementById('editPlayerId').value = playerId;
-        document.getElementById('editPlayerNome').value = playerInfo.querySelector('h5').textContent.split(' ')[0];
-        document.getElementById('editPlayerCognome').value = playerInfo.querySelector('h5').textContent.split(' ')[1];
-        document.getElementById('editPlayerRuolo').value = playerInfo.querySelector('.role').textContent;
+        const nome = playerCard.dataset.nome || '';
+        const cognome = playerCard.dataset.cognome || '';
+        const ruolo = playerCard.dataset.ruolo || '';
+        const numero = playerCard.dataset.numero || '';
+        const dataNascita = playerCard.dataset.data_nascita || '';
+        const nazionalita = playerCard.dataset.nazionalita || '';
 
-        if (this.editPlayerModal) this.editPlayerModal.show();
+        if (this.playerIdInput) this.playerIdInput.value = playerId;
+        if (document.getElementById('giocatoreNome')) document.getElementById('giocatoreNome').value = nome;
+        if (document.getElementById('giocatoreCognome')) document.getElementById('giocatoreCognome').value = cognome;
+        if (document.getElementById('giocatoreRuolo')) document.getElementById('giocatoreRuolo').value = ruolo;
+        if (document.getElementById('numeroMaglia')) document.getElementById('numeroMaglia').value = numero;
+        if (document.getElementById('dataNascita')) document.getElementById('dataNascita').value = dataNascita;
+        if (document.getElementById('nazionalita')) document.getElementById('nazionalita').value = nazionalita;
+
+        if (this.deleteButton) this.deleteButton.style.display = 'inline-block';
+        // mostra anteprima se disponibile
+        try {
+            const imgUrl = playerCard.dataset.img || '';
+            const playerPreview = document.getElementById('playerPhotoPreview');
+            const playerPreviewContainer = document.getElementById('playerPhotoPreviewContainer');
+            if (imgUrl && playerPreview && playerPreviewContainer) {
+                playerPreview.src = imgUrl;
+                playerPreviewContainer.style.display = 'block';
+            } else if (playerPreview && playerPreviewContainer) {
+                playerPreview.src = '';
+                playerPreviewContainer.style.display = 'none';
+            }
+        } catch (err) {
+            console.warn('Errore nel mostrare anteprima giocatore:', err);
+        }
+
+        if (this.playerModal) this.playerModal.show();
     }
 
     async handleEditPlayer(e) {
+        // legacy shim: edit flow is handled by savePlayer()
         e.preventDefault();
-
-        const formData = new FormData(this.editPlayerForm);
-        const playerId = document.getElementById('editPlayerId').value;
-
-        this.loadingManager.show();
-
-        try {
-            const response = await fetch(`/squadre/${this.teamId}/giocatori/${playerId}`, {
-                method: 'PUT',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                this.notificationManager.showSuccess('Giocatore aggiornato con successo!');
-                if (this.editPlayerModal) this.editPlayerModal.hide();
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                throw new Error(result.error || 'Errore durante l\'aggiornamento del giocatore');
-            }
-        } catch (error) {
-            console.error('Errore:', error);
-            this.notificationManager.showError(error.message || 'Errore durante l\'aggiornamento del giocatore');
-        } finally {
-            this.loadingManager.hide();
-        }
+        await this.savePlayer();
     }
 
     async removePlayer(playerId) {
@@ -284,10 +352,12 @@ class PlayerManager {
 
         try {
             const response = await fetch(`/squadre/${this.teamId}/giocatori/${playerId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Giocatore rimosso con successo!');
@@ -298,6 +368,72 @@ class PlayerManager {
         } catch (error) {
             console.error('Errore:', error);
             this.notificationManager.showError(error.message || 'Errore durante la rimozione del giocatore');
+        } finally {
+            this.loadingManager.hide();
+        }
+    }
+
+    async savePlayer() {
+        if (!this.playerForm) return;
+
+        const formData = new FormData(this.playerForm);
+        const playerId = this.playerIdInput && this.playerIdInput.value ? this.playerIdInput.value : null;
+
+        this.loadingManager.show();
+
+        try {
+            const url = playerId ? `/squadre/${this.teamId}/giocatori/${playerId}` : `/squadre/${this.teamId}/giocatori`;
+            const method = playerId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
+
+            if (response.ok && result.success) {
+                const msg = playerId ? 'Giocatore aggiornato con successo!' : 'Giocatore aggiunto con successo!';
+                this.notificationManager.showSuccess(msg);
+                if (this.playerModal) this.playerModal.hide();
+                this.playerForm.reset();
+                setTimeout(() => location.reload(), 800);
+            } else {
+                throw new Error(result.error || 'Errore durante il salvataggio del giocatore');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            this.notificationManager.showError(error.message || 'Errore durante il salvataggio del giocatore');
+        } finally {
+            this.loadingManager.hide();
+        }
+    }
+
+    async deletePlayerFromModal() {
+        const playerId = this.playerIdInput && this.playerIdInput.value ? this.playerIdInput.value : null;
+        if (!playerId) return;
+
+        if (!confirm('Sei sicuro di voler eliminare questo giocatore?')) return;
+
+        this.loadingManager.show();
+        try {
+            const response = await fetch(`/squadre/${this.teamId}/giocatori/${playerId}`, { method: 'DELETE', credentials: 'same-origin' });
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
+
+            if (response.ok && result.success) {
+                this.notificationManager.showSuccess('Giocatore eliminato');
+                const el = document.querySelector(`[data-player-id="${playerId}"]`);
+                if (el) el.remove();
+                if (this.playerModal) this.playerModal.hide();
+            } else {
+                throw new Error(result.error || 'Errore durante l\'eliminazione');
+            }
+        } catch (err) {
+            console.error(err);
+            this.notificationManager.showError(err.message || 'Errore durante l\'eliminazione');
         } finally {
             this.loadingManager.hide();
         }
@@ -376,8 +512,9 @@ class ManagerManager {
 
     async searchUsers(query) {
         try {
-            const response = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
+            const response = await fetch(`/api/search-users?q=${encodeURIComponent(query)}&role=dirigente`, { credentials: 'same-origin' });
+            const contentType = response.headers.get('content-type') || '';
+            const data = contentType.includes('application/json') ? await response.json() : { users: [] };
 
             if (response.ok && data.users) {
                 this.displaySuggestions(data.users);
@@ -422,6 +559,10 @@ class ManagerManager {
         this.managerSearch.value = `${user.nome} ${user.cognome}`;
         this.managerSearch.disabled = true;
         
+        // Salva anche in un campo nascosto (se presente)
+        const sel = document.getElementById('selectedUtenteId');
+        if (sel) sel.value = user.id;
+
         // Abilita il pulsante salva
         document.getElementById('salvaDirigente').disabled = false;
     }
@@ -446,6 +587,7 @@ class ManagerManager {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify({ 
                     userId: this.selectedUserId,
                     ruolo: ruolo,
@@ -454,7 +596,8 @@ class ManagerManager {
                 })
             });
 
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Dirigente aggiunto con successo!');
@@ -480,6 +623,8 @@ class ManagerManager {
         document.getElementById('dataNomina').value = '';
         document.getElementById('dataScadenza').value = '';
         document.getElementById('salvaDirigente').disabled = true;
+        const sel = document.getElementById('selectedUtenteId');
+        if (sel) sel.value = '';
     }
 
     async removeManager(managerId) {
@@ -491,10 +636,12 @@ class ManagerManager {
 
         try {
             const response = await fetch(`/squadre/${this.teamId}/dirigenti/${managerId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'same-origin'
             });
 
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Dirigente rimosso con successo!');
