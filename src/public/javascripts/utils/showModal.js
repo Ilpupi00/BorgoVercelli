@@ -223,4 +223,3 @@ class ShowModal{
 
 window.ShowModal = ShowModal;
 export default ShowModal;
-export default ShowModal;
