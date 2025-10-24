@@ -151,16 +151,15 @@ class GalleriaAdmin {
           await ShowModal.showModalSuccess('Caricamento completato', data.message || 'Immagine caricata con successo!');
           const successModal = document.getElementById('modalSuccess');
           if (successModal && typeof bootstrap !== 'undefined') {
-            // quando il modal viene chiuso, ricarica la pagina per mostrare la nuova immagine
-            successModal.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
+            if (imageObj) {
+              successModal.addEventListener('hidden.bs.modal', () => { this.addImageToGallery(imageObj); }, { once: true });
+            }
           } else {
-            // fallback: ricarica la pagina dopo un breve delay
-            setTimeout(() => location.reload(), 300);
+            if (imageObj) setTimeout(() => this.addImageToGallery(imageObj), 300);
           }
         } else {
           alert(data.message || 'Immagine caricata con successo!');
-          // ricarica la pagina per mostrare la nuova immagine
-          location.reload();
+          if (imageObj) this.addImageToGallery(imageObj);
         }
       } else {
         const errMsg = data.error || data.message || 'Errore durante il caricamento';
@@ -242,6 +241,52 @@ class GalleriaAdmin {
   }
 
   confermaEliminazione() { this.performDelete(); }
+
+  addImageToGallery(image) {
+    if (!image || !image.url) return;
+    const adminContent = document.querySelector('.admin-content');
+    if (!adminContent) return;
+    let row = adminContent.querySelector(':scope > .row');
+    if (!row) row = adminContent.querySelector('.row');
+    if (!row) return;
+
+    // remove placeholder when no images
+    const placeholder = row.querySelector('.col-12.text-center');
+    if (placeholder) placeholder.remove();
+
+    const col = document.createElement('div');
+    col.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+    const descr = image.descrizione ? image.descrizione.replace(/"/g, '&quot;') : '';
+    const created = image.created_at ? new Date(image.created_at).toLocaleDateString('it-IT') : 'N/A';
+
+    col.innerHTML = `
+      <div class="card h-100">
+        <div class="card-img-container">
+          <img src="${image.url}" class="card-img-top" alt="${descr || 'Immagine galleria'}" style="height: 200px; object-fit: cover;">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h6 class="card-title">${descr || 'Senza descrizione'}</h6>
+          <p class="card-text text-muted small">Caricato: ${created}</p>
+          <div class="mt-auto">
+            <div class="btn-group w-100" role="group">
+              <button class="btn btn-sm btn-outline-primary" onclick="galleriaAdmin.visualizzaImmagine('${image.url}')"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-outline-warning modifica-btn" data-id="${image.id || ''}" data-descrizione="${descr}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger elimina-btn" data-id="${image.id || ''}"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    row.insertBefore(col, row.firstElementChild);
+
+    // bind events on the new buttons
+    const modificaBtn = col.querySelector('.modifica-btn');
+    if (modificaBtn) modificaBtn.addEventListener('click', (e) => this.modificaImmagine(e.currentTarget.dataset.id, e.currentTarget.dataset.descrizione));
+    const eliminaBtn = col.querySelector('.elimina-btn');
+    if (eliminaBtn) eliminaBtn.addEventListener('click', (e) => this.eliminaImmagine(e.currentTarget.dataset.id));
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => { window.galleriaAdmin = new GalleriaAdmin(); });
