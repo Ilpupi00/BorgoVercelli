@@ -630,42 +630,4 @@ header p {
   }
 }
 
-/* --- Small fix: reserve space for sticky navbar to avoid content overlap --- */
-/* Assumption: navbar height is around 72-84px across breakpoints; tune if needed */
-
-:root{
-  /* sensible defaults; tuned per-breakpoint below */
-  --site-navbar-height: 76px; /* desktop */
-  --site-navbar-height-sm: 64px; /* small screens */
-  --site-navbar-height-lg: 84px; /* large screens */
-}
-
-nav#navbar{
-  /* keep natural flow height but provide a stable reference for padding */
-  box-sizing: border-box;
-}
-
-/* Prefer setting padding on html to work well with anchored scrolling too */
-html {
-  scroll-padding-top: var(--site-navbar-height);
-}
-
-/* Default body padding for desktop-first sites; override per-breakpoint */
-body {
-  padding-top: var(--site-navbar-height);
-}
-
-/* Small screens: navbar is shorter */
-@media (max-width: 576px) {
-  :root { --site-navbar-height: var(--site-navbar-height-sm); }
-  body { padding-top: var(--site-navbar-height); }
-  html { scroll-padding-top: var(--site-navbar-height); }
-}
-
-/* Larger screens: navbar may be taller */
-@media (min-width: 1200px) {
-  :root { --site-navbar-height: var(--site-navbar-height-lg); }
-  body { padding-top: var(--site-navbar-height); }
-  html { scroll-padding-top: var(--site-navbar-height); }
-}
 

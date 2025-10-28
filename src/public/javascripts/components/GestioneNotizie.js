@@ -373,3 +373,10 @@ window.eliminaNotizia = function(id) {
 window.togglePubblicazione = function(id, currentStatus) {
     gestioneNotizie.togglePubblicazione(id, currentStatus);
 };
+
+// Wrapper globale per compatibilità con i button inline nella view
+window.clearAllFilters = function() {
+    if (typeof gestioneNotizie !== 'undefined' && gestioneNotizie && typeof gestioneNotizie.clearAllFilters === 'function') {
+        gestioneNotizie.clearAllFilters();
+    }
+};

@@ -222,4 +222,5 @@ class ShowModal{
 
 
 window.ShowModal = ShowModal;
-export default ShowModal;
+// Removed `export default` so this file can be included via a normal <script>
+// tag (non-module) and expose ShowModal on window.

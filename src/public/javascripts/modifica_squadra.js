@@ -696,5 +696,61 @@ class TeamManagementApp {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // create a back button (X) that returns to previous page with fallbacks
+    createBackButton();
+
     window.teamApp = new TeamManagementApp();
 });
+
+
+/**
+ * Create a small 'X' back button in the top-left corner.
+ * Uses history.back() when possible, falls back to document.referrer or /homepage.
+ */
+/**
+ * Create a small 'X' back button in the top-left corner.
+ * Uses history.back() when possible, falls back to document.referrer or /homepage.
+ */
+function createBackButton() {
+    try {
+        // don't duplicate
+        if (document.getElementById('backButton')) return;
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'backButton';
+        btn.className = 'btn position-fixed top-0 start-0 m-3 d-flex align-items-center justify-content-center';
+        btn.setAttribute('aria-label', 'Torna indietro');
+        btn.style.zIndex = '1060';
+    // make the icon black so it's visible on light backgrounds
+    btn.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true" style="color: black; font-size: 1.25rem;"></i>';
+
+        // Click handler with fallbacks
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            try {
+                if (window.history && window.history.length > 1) {
+                    window.history.back();
+                } else if (document.referrer) {
+                    window.location = document.referrer;
+                } else {
+                    window.location = '/homepage';
+                }
+            } catch (err) {
+                window.location = document.referrer || '/homepage';
+            }
+        });
+
+        // Keyboard accessibility: Enter/Space
+        btn.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+                ev.preventDefault();
+                btn.click();
+            }
+        });
+
+        document.body.appendChild(btn);
+    } catch (err) {
+        console.warn('Impossibile creare il pulsante back:', err);
+    }
+}

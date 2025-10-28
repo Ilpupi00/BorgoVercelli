@@ -84,24 +84,13 @@ class GestioneRecensioni {
                         body: JSON.stringify({ visibile: newStatus })
                     });
                     if (!response.ok) throw new Error('Errore nell\'aggiornamento');
-                    // show static success modal if present
-                    // Preferisci ShowModal se disponibile, altrimenti usa il modal statico 'successModal'
-                    const staticSuccessModalEl = document.getElementById('successModal');
+                    // Aggiorna immediatamente la riga nella tabella così l'utente vede il cambiamento
+                    this.updateRowVisibility(id, newStatus);
+                    // Mostra conferma (ShowModal preferito) senza forzare reload completo
                     if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
                         await ShowModal.showModalSuccess('Operazione completata', `Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`);
-                        if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
-                            staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
-                        } else {
-                            setTimeout(() => location.reload(), 900);
-                        }
-                    } else if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
-                        document.getElementById('successMessage').textContent = `Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`;
-                        const bs = new bootstrap.Modal(staticSuccessModalEl);
-                        bs.show();
-                        staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
                     } else {
                         this.mostraSuccesso(`Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`);
-                        setTimeout(() => location.reload(), 1000);
                     }
                 } catch (error) {
                     this.mostraErrore('Errore nell\'aggiornamento: ' + error.message);
@@ -124,9 +113,9 @@ class GestioneRecensioni {
 
             if (!response.ok) throw new Error('Errore nell\'aggiornamento');
 
+            // Aggiorna immediatamente la tabella invece di ricaricare
+            this.updateRowVisibility(id, newStatus);
             this.mostraSuccesso(`Recensione ${newStatus ? 'mostrata' : 'nascosta'} con successo`);
-            // Ricarica la pagina per aggiornare la tabella
-            setTimeout(() => location.reload(), 1500);
         } catch (error) {
             this.mostraErrore('Errore nell\'aggiornamento: ' + error.message);
         }
@@ -150,22 +139,17 @@ class GestioneRecensioni {
                     const response = await fetch(`/admin/recensioni/${id}`, { method: 'DELETE' });
                     if (!response.ok) throw new Error('Errore nell\'eliminazione');
 
+                    // Rimuovi la riga dalla tabella subito
+                    this.removeRow(id);
                     const staticSuccessModalEl = document.getElementById('successModal');
                     if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
                         await ShowModal.showModalSuccess('Operazione completata', 'Recensione eliminata con successo');
-                        if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
-                            staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
-                        } else {
-                            setTimeout(() => location.reload(), 900);
-                        }
                     } else if (staticSuccessModalEl && typeof bootstrap !== 'undefined') {
                         document.getElementById('successMessage').textContent = 'Recensione eliminata con successo';
                         const bs = new bootstrap.Modal(staticSuccessModalEl);
                         bs.show();
-                        staticSuccessModalEl.addEventListener('hidden.bs.modal', () => { location.reload(); }, { once: true });
                     } else {
                         this.mostraSuccesso('Recensione eliminata con successo');
-                        setTimeout(() => location.reload(), 1200);
                     }
                 } catch (error) {
                     this.mostraErrore('Errore nell\'eliminazione: ' + error.message);
@@ -186,9 +170,9 @@ class GestioneRecensioni {
 
             if (!response.ok) throw new Error('Errore nell\'eliminazione');
 
+            // Rimuovi la riga dalla tabella e mostra conferma
+            this.removeRow(id);
             this.mostraSuccesso('Recensione eliminata con successo');
-            // Ricarica la pagina per aggiornare la tabella
-            setTimeout(() => location.reload(), 1500);
         } catch (error) {
             this.mostraErrore('Errore nell\'eliminazione: ' + error.message);
         }
@@ -204,6 +188,63 @@ class GestioneRecensioni {
         const modal = new bootstrap.Modal(document.getElementById('errorModal'));
         document.getElementById('errorMessage').textContent = messaggio;
         modal.show();
+    }
+
+    // Aggiorna la riga della recensione nella tabella (badge + bottone mostra/nascondi + data-stato)
+    updateRowVisibility(id, visibile) {
+        const row = document.querySelector(`#recensioniTableBody tr[data-recensione-id="${id}"]`);
+        if (!row) return;
+        // Aggiorna data attribute
+        row.dataset.stato = visibile ? 'visibile' : 'nascosta';
+
+        // Aggiorna badge
+        const statoCell = row.querySelector('td:nth-child(7)');
+        if (statoCell) {
+            statoCell.innerHTML = visibile ? '<span class="badge bg-success">Visibile</span>' : '<span class="badge bg-secondary">Nascosta</span>';
+        }
+
+        // Aggiorna il bottone di toggle nello stesso gruppo di azioni
+        const azioniCell = row.querySelector('td:nth-child(8)');
+        if (azioniCell) {
+            // Trova il bottone di toggle esistente (ha title "Nascondi" oppure "Mostra")
+            const toggleBtn = azioniCell.querySelector('button[title="Nascondi"], button[title="Mostra"]');
+            if (toggleBtn) {
+                // Crea nuovo bottone con stato opposto
+                const newBtn = document.createElement('button');
+                newBtn.className = visibile ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success';
+                newBtn.title = visibile ? 'Nascondi' : 'Mostra';
+                newBtn.innerHTML = visibile ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                // Imposta onclick corretto (nascondi => passiamo currentStatus = true; mostra => currentStatus = false)
+                if (visibile) {
+                    newBtn.addEventListener('click', () => this.toggleVisibile(id, true));
+                } else {
+                    newBtn.addEventListener('click', () => this.toggleVisibile(id, false));
+                }
+                toggleBtn.replaceWith(newBtn);
+            }
+        }
+    }
+
+    // Rimuove una riga dalla tabella e aggiorna i contatori / messaggi "nessun risultato"
+    removeRow(id) {
+        const row = document.querySelector(`#recensioniTableBody tr[data-recensione-id="${id}"]`);
+        if (row) {
+            row.remove();
+        }
+        // Ricalcola e aggiorna i contatori e la riga di nessun risultato
+        // Chiamiamo filtraRecensioni per riallineare visibilità e contatori
+        try {
+            this.filtraRecensioni();
+        } catch (e) {
+            // In caso di errori non bloccanti, aggiorniamo semplicemente il conteggio totale
+            const totalCount = document.querySelectorAll('#recensioniTableBody tr[data-recensione-id]').length;
+            const visibleCount = document.querySelectorAll('#recensioniTableBody tr[data-recensione-id]:not([style*="display: none"])').length;
+            const totalEl = document.getElementById('totalCount');
+            const filteredEl = document.getElementById('filteredCount');
+            if (totalEl) totalEl.textContent = totalCount;
+            if (filteredEl) filteredEl.textContent = `(${visibleCount} filtrate)`;
+            this.toggleNoResultsRow(visibleCount === 0);
+        }
     }
 
     mostraRecensioniVisibili() {
