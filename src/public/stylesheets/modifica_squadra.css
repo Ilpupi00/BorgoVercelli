@@ -512,6 +512,69 @@ body {
 }
 
 /* ==========================================
+   SEARCH SUGGESTIONS
+   ========================================== */
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.suggestion-item:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.suggestion-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.suggestion-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.suggestion-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-email {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-role {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    background: rgba(13, 110, 253, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+/* ==========================================
    RESPONSIVE DESIGN
    ========================================== */
 

@@ -196,7 +196,13 @@ class GestioneSquadreAdmin {
                 <div class="row mt-3">
                     <div class="col-12">
                         <h6>Giocatori</h6>
-                        <p class="text-muted">Funzionalità da implementare - numero giocatori da API</p>
+                        <p class="text-muted">Totale giocatori attivi: <strong>${data.giocatori ? data.giocatori.length : 0}</strong></p>
+                        ${data.giocatori && data.giocatori.length > 0 ?
+                            `<ul class="list-unstyled">
+                                ${data.giocatori.map(giocatore => `<li>${giocatore.nome} ${giocatore.cognome} ${giocatore.numero_maglia ? `(N. ${giocatore.numero_maglia})` : ''}</li>`).join('')}
+                            </ul>` :
+                            '<p class="text-muted">Nessun giocatore attivo in questa squadra</p>'
+                        }
                     </div>
                 </div>
             `;

@@ -532,7 +532,7 @@ class ManagerManager {
 
         users.forEach((user, index) => {
             const suggestionItem = document.createElement('div');
-            suggestionItem.className = 'suggestion-item';
+            suggestionItem.className = 'list-group-item suggestion-item';
             suggestionItem.dataset.userId = user.id;
             suggestionItem.onclick = () => this.selectUser(user);
 

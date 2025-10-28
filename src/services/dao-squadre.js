@@ -12,7 +12,8 @@ const makeSquadra = (row) => {
         row.immagine_url,
         row.Anno,
         row.dirigenti || [],  // Aggiunto per dirigenti
-        row.giocatori || []   // Aggiunto per giocatori
+        row.giocatori || [],   // Aggiunto per giocatori
+        row.numero_giocatori || 0  // Numero di giocatori attivi
     );
 }
 
@@ -39,7 +40,14 @@ const makeGiocatore = (row) => {
 
 
 exports.getSquadre = async () => {
-    const sql = `SELECT s.*, i.url AS immagine_url FROM SQUADRE s LEFT JOIN IMMAGINI i ON s.id_immagine = i.id`;
+    const sql = `
+        SELECT 
+            s.*, 
+            i.url AS immagine_url,
+            (SELECT COUNT(*) FROM GIOCATORI g WHERE g.squadra_id = s.id AND g.attivo = 1) AS numero_giocatori
+        FROM SQUADRE s 
+        LEFT JOIN IMMAGINI i ON s.id_immagine = i.id
+    `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, async (err, squadre) => {
             if (err) {

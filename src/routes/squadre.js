@@ -387,7 +387,8 @@ router.get('/api/search-users', isLoggedIn, async (req, res) => {
             return res.json({ users: [] });
         }
 
-        const onlyDirigenti = role === 'dirigente';
+        // Quando cerchiamo dirigenti da assegnare, vogliamo utenti che NON sono già dirigenti
+        const onlyDirigenti = role !== 'dirigente';
         const users = await daoUser.searchUsers(q, onlyDirigenti);
         res.json({ users: users || [] });
     } catch (err) {
