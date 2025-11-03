@@ -300,6 +300,29 @@ router.delete('/squadre/:id/dirigenti/:managerId', isSquadraDirigente, async (re
     }
 });
 
+// Ripristina un dirigente (annulla soft-delete)
+router.post('/squadre/:id/dirigenti/:managerId/restore', isSquadraDirigente, async (req, res) => {
+    try {
+        const { managerId } = req.params;
+        await daoDirigenti.restoreDirigente(managerId);
+        res.json({ success: true, message: 'Dirigente ripristinato con successo' });
+    } catch (err) {
+        console.error('Errore ripristino dirigente:', err);
+        res.status(500).json({ error: err.error || 'Errore durante il ripristino del dirigente' });
+    }
+});
+
+// Route admin: ripristina TUTTI i dirigenti (setta attivo = 1 dove attivo = 0)
+router.post('/admin/dirigenti/restore-all', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const result = await daoDirigenti.restoreAllDirigenti();
+        res.json({ success: true, message: result.message, restored: result.changes });
+    } catch (err) {
+        console.error('Errore ripristino massivo dirigenti:', err);
+        res.status(500).json({ error: err.error || 'Errore durante il ripristino massivo dei dirigenti' });
+    }
+});
+
 router.post('/squadre/:id/giocatori', isSquadraDirigente, upload.single('foto'), async (req, res) => {
     try {
         const { id } = req.params;

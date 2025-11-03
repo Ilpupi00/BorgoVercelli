@@ -68,6 +68,11 @@ const isSquadraDirigente = async function(req,res,next){
         return;
     }
 
+    // Admin and Presidente can manage all teams
+    if (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2) {
+        return next();
+    }
+
     if (req.user.tipo_utente_id !== 2) {
         if (req.headers.accept && req.headers.accept.includes('application/json')) {
             res.status(403).json({ error: 'Forbidden' });

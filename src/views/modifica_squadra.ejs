@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/stylesheets/Navbar.css">
-    <link rel="stylesheet" href="/stylesheets/Footer.css">
     <link rel="stylesheet" href="/stylesheets/modifica_squadra.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -178,7 +176,7 @@
                                 <i class="fas fa-user-tie text-warning"></i> Staff Dirigenziale
                                 <span class="badge bg-warning text-dark ms-2"><%= squadra.dirigenti.length %></span>
                             </h3>
-                            <button class="btn btn-warning btn-lg text-dark" data-bs-toggle="modal" data-bs-target="#modalDirigente">
+                            <button class="btn btn-warning btn-lg text-dark" id="nuovoDirigenteBtn">
                                 <i class="fas fa-plus-circle"></i> Nuovo Dirigente
                             </button>
                         </div>
@@ -336,38 +334,39 @@
         </div>
     </div>
 
-    <!-- Modal Dirigente -->
-    <div class="modal fade" id="modalDirigente" tabindex="-1" data-bs-backdrop="static">
+    <!-- Modal Dirigente (riferito) - refatto da zero -->
+    <div class="modal fade" id="modalDirigente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content glass-effect">
                 <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="fas fa-user-tie text-warning"></i>
-                        <span id="modalDirigenteTitle">Aggiungi Nuovo Dirigente</span>
+                        <span id="modalDirigenteTitle">Aggiungi / Modifica Dirigente</span>
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="dirigenteForm" class="needs-validation" novalidate>
-                        <input type="hidden" id="dirigenteId">
-                        <div class="col-12 mb-4">
-                            <label for="searchUtente" class="form-label">
-                                <i class="fas fa-search text-primary"></i> Cerca Utente Esistente
-                            </label>
-                            <input type="text" class="form-control form-control-lg" id="searchUtente" placeholder="Digita nome o cognome dell'utente..." autocomplete="off">
-                            <div id="utentiResults" class="list-group mt-3 shadow-sm" style="max-height: 200px; overflow-y: auto;"></div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle text-info"></i>
-                                Seleziona un utente esistente dal database o lascia vuoto per creare un nuovo profilo
-                            </div>
-                            <input type="hidden" id="selectedUtenteId">
+                    <div class="mb-4">
+                        <label for="searchUtente" class="form-label">
+                            <i class="fas fa-search text-primary"></i> Cerca Utente Esistente
+                        </label>
+                        <input type="text" id="searchUtente" class="form-control form-control-lg" placeholder="Digita nome o cognome dell'utente..." autocomplete="off" aria-autocomplete="list">
+                        <div id="utentiResults" class="list-group mt-3 shadow-sm" style="max-height: 220px; overflow-y: auto;" role="listbox" aria-label="Risultati ricerca utenti"></div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle text-info"></i>
+                            Seleziona un utente esistente dal database o lascia vuoto per creare un nuovo profilo
                         </div>
+                        <input type="hidden" id="selectedUtenteId" name="selectedUtenteId">
+                    </div>
+
+                    <form id="dirigenteForm" class="needs-validation" novalidate enctype="multipart/form-data">
+                        <input type="hidden" id="dirigenteId" name="dirigenteId">
                         <div class="row g-4">
                             <div class="col-12">
                                 <label for="dirigenteRuolo" class="form-label">
                                     <i class="fas fa-id-badge text-warning"></i> Ruolo Dirigenziale
                                 </label>
-                                <select class="form-select form-select-lg" id="dirigenteRuolo" required>
+                                <select id="dirigenteRuolo" class="form-select form-select-lg" required>
                                     <option value="">Seleziona ruolo</option>
                                     <option value="Presidente">👑 Presidente</option>
                                     <option value="Vice Presidente">🤝 Vice Presidente</option>
@@ -379,31 +378,48 @@
                                 </select>
                                 <div class="invalid-feedback">Seleziona un ruolo dirigenziale</div>
                             </div>
+
                             <div class="col-md-6">
                                 <label for="dataNomina" class="form-label">
                                     <i class="fas fa-calendar-plus text-success"></i> Data Nomina
                                 </label>
-                                <input type="date" class="form-control" id="dataNomina">
+                                <input type="date" id="dataNomina" class="form-control" name="data_nomina">
                                 <div class="form-text">Quando è stato nominato in questo ruolo</div>
                             </div>
+
                             <div class="col-md-6">
                                 <label for="dataScadenza" class="form-label">
                                     <i class="fas fa-calendar-times text-danger"></i> Data Scadenza
                                 </label>
-                                <input type="date" class="form-control" id="dataScadenza">
+                                <input type="date" id="dataScadenza" class="form-control" name="data_scadenza">
                                 <div class="form-text">Quando scade il mandato (opzionale)</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="fotoDirigente" class="form-label">
+                                    <i class="fas fa-camera text-secondary"></i> Foto Profilo (opzionale)
+                                </label>
+                                <input type="file" id="fotoDirigente" name="foto" accept="image/*" class="form-control">
+                                <div class="form-text">Formati supportati: JPG, PNG, GIF. Max 5MB</div>
+                                <div id="dirigentePhotoPreviewContainer" class="mt-3 text-center" style="display:none;">
+                                    <img id="dirigentePhotoPreview" class="img-fluid rounded shadow-lg" style="max-width:150px; border:3px solid rgba(0,0,0,0.08);" alt="Anteprima foto dirigente">
+                                    <p class="text-muted mt-2 small">Anteprima foto selezionata</p>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i> Annulla
                     </button>
-                    <button type="button" class="btn btn-danger me-auto" id="eliminaDirigente" style="display: none;">
+
+                    <button type="button" id="eliminaDirigente" class="btn btn-danger me-auto" style="display:none;">
                         <i class="fas fa-trash"></i> Elimina Dirigente
                     </button>
-                    <button type="button" class="btn btn-warning text-dark" id="salvaDirigente" disabled>
+
+                    <button type="button" id="salvaDirigente" class="btn btn-warning text-dark" disabled>
                         <i class="fas fa-save"></i> Salva Dirigente
                     </button>
                 </div>
@@ -454,6 +470,28 @@
         </div>
     </div>
 
+    <!-- Generic entity delete confirmation modal (reusable for player/manager/team) -->
+    <div class="modal fade" id="entityDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="entityDeleteModalBody">
+                    Sei sicuro di voler eliminare questo elemento? Questa operazione è irreversibile.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" id="confirmDeleteEntityBtn" class="btn btn-danger btn-outline-danger" data-entity-type="" data-entity-id="">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/javascripts/modifica_squadra.js"></script>
+    <script>
+        window.userType = <%= user.tipo_utente_id %>;
+    </script>
 </body>
 </html>

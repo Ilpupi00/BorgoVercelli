@@ -351,7 +351,6 @@ body {
     border-radius: var(--radius-2xl);
     border: none;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(25px);
     /* Use a solid white background for modal panels to avoid gray/translucent appearance */
     background: #ffffff !important;
     overflow: hidden;
@@ -1028,3 +1027,29 @@ body {
    (If you need page-specific navbar tweaks later, add them to a separate file
     and avoid targeting #navbar directly; prefer utility classes or more specific
     components that don't alter the global nav.) */
+
+/* ------------------------------------------------------------------
+   Quick fixes for modal input interactivity
+   Some global pseudo-elements or overlays may capture pointer events
+   (or other styles may unintentionally affect children). These
+   overrides force inputs inside Bootstrap modals to remain interactive
+   and ensure the modal is above other page overlays during use.
+   If this fixes the issue, we can later narrow the selector further.
+   ------------------------------------------------------------------ */
+.modal {
+    z-index: 11050 !important; /* place above most page elements */
+}
+
+.modal .form-control,
+.modal .form-select,
+.modal .form-control:focus,
+.modal .form-select:focus,
+.modal .form-control::placeholder {
+    pointer-events: auto !important;
+    user-select: text !important;
+}
+
+/* ensure suggestion list is interactive */
+#utentiResults, .list-group, .suggestion-item {
+    pointer-events: auto !important;
+}

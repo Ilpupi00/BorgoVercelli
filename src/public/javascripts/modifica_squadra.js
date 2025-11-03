@@ -454,6 +454,9 @@ class ManagerManager {
         this.selectedUserId = null;
         this.searchTimeout = null;
 
+        // temporary array to track elements we change pointer-events on (for debug fix)
+        this._tempDisabledOverlays = [];
+
         this.init();
     }
 
@@ -469,16 +472,105 @@ class ManagerManager {
         if (salvaDirigenteBtn) {
             salvaDirigenteBtn.addEventListener('click', () => this.addManager());
         }
+        const nuovoDirigenteBtn = document.getElementById('nuovoDirigenteBtn');
+        if (nuovoDirigenteBtn) {
+            nuovoDirigenteBtn.addEventListener('click', () => {
+                this.resetManagerForm();
+                if (this.addManagerModal) this.addManagerModal.show();
+            });
+        }
+        if (this.addManagerModal) {
+            this.addManagerModal._element.addEventListener('shown.bs.modal', () => {
+                setTimeout(() => {
+                    if (this.managerSearch) {
+                        this.managerSearch.focus();
+                        this.managerSearch.disabled = false;
+                        this.managerSearch.removeAttribute('readonly');
+                    }
+                }, 500);
+            });
+        }
+
+        // Debug helpers: log interactions and computed styles for the manager search input
+        try {
+            if (this.managerSearch) {
+                ['focus', 'mousedown', 'click', 'keydown', 'input'].forEach(evt => {
+                    this.managerSearch.addEventListener(evt, (e) => {
+                        console.debug('[DEBUG] managerSearch event:', evt, 'disabled=', this.managerSearch.disabled, 'readonly=', this.managerSearch.readOnly, 'value=', this.managerSearch.value, e);
+                    }, { passive: true });
+                });
+            }
+
+            // When modal shown, report computed style to check pointer-events
+            if (this.addManagerModal) {
+                this.addManagerModal._element.addEventListener('shown.bs.modal', () => {
+                    setTimeout(() => {
+                        if (this.managerSearch) {
+                            const cs = window.getComputedStyle(this.managerSearch);
+                            console.debug('[DEBUG] managerSearch computed pointer-events:', cs.pointerEvents, 'visibility:', cs.visibility, 'opacity:', cs.opacity);
+                        }
+                        // report topmost element at the search input position
+                        const modalEl = document.getElementById('modalDirigente');
+                        const inputEl = this.managerSearch;
+                        if (modalEl && inputEl && inputEl.getBoundingClientRect) {
+                            const r = inputEl.getBoundingClientRect();
+                            const topEl = document.elementFromPoint(r.left + 2, r.top + 2);
+                            console.debug('[DEBUG] elementFromPoint at search coords:', topEl);
+                            // If the top element is not the input (something overlays it), try to temporarily disable pointer-events on it
+                            try {
+                                if (topEl && topEl !== inputEl && !inputEl.contains(topEl) && topEl.style) {
+                                    console.debug('[DEBUG] Temporarily disabling pointer-events on overlay element:', topEl);
+                                    // store previous value
+                                    this._tempDisabledOverlays.push({ el: topEl, prev: topEl.style.pointerEvents });
+                                    topEl.style.pointerEvents = 'none';
+                                }
+                            } catch (err) {
+                                console.warn('Could not modify overlay element pointer-events:', err);
+                            }
+                        }
+                    }, 350);
+                });
+                // restore on hide
+                this.addManagerModal._element.addEventListener('hidden.bs.modal', () => {
+                    try {
+                        this._tempDisabledOverlays.forEach(item => {
+                            if (item && item.el && item.el.style) item.el.style.pointerEvents = item.prev || '';
+                        });
+                    } catch (err) {
+                        console.warn('Error restoring overlay pointer-events:', err);
+                    }
+                    this._tempDisabledOverlays = [];
+                });
+            }
+        } catch (err) {
+            console.warn('Debug helpers failed to attach:', err);
+        }
     }
 
     handleManagerAction(e) {
         const target = e.target.closest('button');
         if (!target) return;
 
-        const managerCard = target.closest('.manager-card');
-        const managerId = managerCard.dataset.managerId;
+        // Try to find manager id from several possible sources to be robust
+        let managerId = null;
+        const managerCard = target.closest('.manager-card, [data-manager-id]');
+        if (managerCard && managerCard.dataset) managerId = managerCard.dataset.managerId || managerCard.dataset.managerId;
 
-        if (target.classList.contains('remove-manager-btn')) {
+        // buttons in templates may carry data-id or data-manager-id attributes
+        if (!managerId) managerId = target.dataset.id || target.getAttribute('data-id') || target.dataset.managerId || null;
+
+        // If still not found, try to find a parent element with data-id attribute
+        if (!managerId) {
+            const parentWithId = target.closest('[data-id], [data-manager-id]');
+            if (parentWithId) managerId = parentWithId.dataset.id || parentWithId.dataset.managerId || null;
+        }
+
+        // If the clicked button is a remove/delete button (supporting different class names), call remove
+        if (target.classList.contains('remove-manager-btn') || target.classList.contains('elimina-dirigente') || target.classList.contains('remove-manager') ) {
+            if (!managerId) {
+                console.warn('removeManager: managerId not found for target', target);
+                return;
+            }
             this.removeManager(managerId);
         }
     }
@@ -491,9 +583,18 @@ class ManagerManager {
             clearTimeout(this.searchTimeout);
         }
 
+        // If the query is very short, don't wipe the user's input by
+        // resetting the whole form — this was causing the typed
+        // character to be cleared immediately. Instead, clear
+        // suggestions and ensure any previously-selected user id is
+        // cleared and the save button disabled.
         if (query.length < 2) {
             this.managerSuggestions.innerHTML = '';
-            this.resetManagerForm();
+            this.selectedUserId = null;
+            const sel = document.getElementById('selectedUtenteId');
+            if (sel) sel.value = '';
+            const salvaBtn = document.getElementById('salvaDirigente');
+            if (salvaBtn) salvaBtn.disabled = true;
             return;
         }
 
@@ -610,6 +711,7 @@ class ManagerManager {
         } catch (error) {
             console.error('Errore:', error);
             this.notificationManager.showError(error.message || 'Errore durante l\'aggiunta del dirigente');
+            if (this.addManagerModal) this.addManagerModal.hide();
         } finally {
             this.loadingManager.hide();
         }
@@ -628,33 +730,108 @@ class ManagerManager {
     }
 
     async removeManager(managerId) {
-        if (!confirm('Sei sicuro di voler rimuovere questo dirigente dalla squadra?')) {
-            return;
-        }
+        // Show confirmation modal and perform deletion only on confirm
+        showEntityDeleteModal({
+            message: 'Sei sicuro di voler rimuovere questo dirigente dalla squadra? Questa operazione è irreversibile.',
+            entityType: 'dirigente',
+            entityId: managerId,
+            onConfirm: async (id) => {
+                this.loadingManager.show();
+                try {
+                    const response = await fetch(`/squadre/${this.teamId}/dirigenti/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'same-origin'
+                    });
 
-        this.loadingManager.show();
+                    const contentType = response.headers.get('content-type') || '';
+                    const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
-        try {
-            const response = await fetch(`/squadre/${this.teamId}/dirigenti/${managerId}`, {
-                method: 'DELETE',
-                credentials: 'same-origin'
-            });
+                    if (response.ok && result.success) {
+                        this.notificationManager.showSuccess('Dirigente rimosso con successo!');
+                        // try multiple selectors to find the DOM element representing the manager
+                        let el = document.querySelector(`[data-manager-id="${id}"]`);
+                        if (!el) el = document.querySelector(`[data-id="${id}"]`);
+                        if (!el) {
+                            // maybe the button carried the data-id; find the closest card column
+                            const btn = document.querySelector(`button[data-id="${id}"]`) || document.querySelector(`.elimina-dirigente[data-id="${id}"]`);
+                            if (btn) el = btn.closest('.col-xl-3, .col-lg-4, .col-md-6, .card, .player-card, .manager-card');
+                        }
+                        if (el) el.remove();
+                        else console.warn('Could not find DOM element for manager id', id, '— consider reloading the page');
 
-            const contentType = response.headers.get('content-type') || '';
-            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
+                        // Show a short-lived undo widget to allow restoring the dirigente
+                        try {
+                            const undoKey = `undo-restore-dirigente-${id}`;
+                            // remove existing if present
+                            const prev = document.getElementById(undoKey);
+                            if (prev) prev.remove();
 
-            if (response.ok && result.success) {
-                this.notificationManager.showSuccess('Dirigente rimosso con successo!');
-                document.querySelector(`[data-manager-id="${managerId}"]`).remove();
-            } else {
-                throw new Error(result.error || 'Errore durante la rimozione del dirigente');
+                            const undoDiv = document.createElement('div');
+                            undoDiv.id = undoKey;
+                            undoDiv.className = 'shadow-lg rounded p-2 bg-white border position-fixed';
+                            undoDiv.style.zIndex = '12000';
+                            undoDiv.style.right = '1rem';
+                            undoDiv.style.top = '1rem';
+                            undoDiv.style.minWidth = '220px';
+                            undoDiv.innerHTML = `
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-2" style="font-size:0.95rem;">Dirigente rimosso</div>
+                                    <div>
+                                        <button class="btn btn-sm btn-link p-0 undo-restore-btn">Annulla</button>
+                                        <button class="btn btn-sm btn-close ms-2 dismiss-undo" aria-label="Chiudi"></button>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.appendChild(undoDiv);
+
+                            const dismissBtn = undoDiv.querySelector('.dismiss-undo');
+                            if (dismissBtn) dismissBtn.addEventListener('click', () => undoDiv.remove());
+
+                            const undoBtn = undoDiv.querySelector('.undo-restore-btn');
+                            if (undoBtn) {
+                                undoBtn.addEventListener('click', async () => {
+                                    try {
+                                        // call restore endpoint
+                                        const resp = await fetch(`/squadre/${this.teamId}/dirigenti/${id}/restore`, {
+                                            method: 'POST',
+                                            credentials: 'same-origin'
+                                        });
+                                        const cT = resp.headers.get('content-type') || '';
+                                        const j = cT.includes('application/json') ? await resp.json() : {};
+                                        if (resp.ok && j.success) {
+                                            this.notificationManager.showSuccess('Dirigente ripristinato');
+                                            // reload to reflect restored item
+                                            setTimeout(() => location.reload(), 600);
+                                        } else {
+                                            throw new Error(j.error || 'Errore ripristino');
+                                        }
+                                    } catch (err) {
+                                        console.error('Errore ripristino dirigente:', err);
+                                        this.notificationManager.showError(err.message || 'Errore durante il ripristino');
+                                    } finally {
+                                        if (undoDiv) undoDiv.remove();
+                                    }
+                                });
+                            }
+
+                            // auto-dismiss after 8s
+                            setTimeout(() => {
+                                if (document.getElementById(undoKey)) document.getElementById(undoKey).remove();
+                            }, 8000);
+                        } catch (err) {
+                            console.warn('Undo UI failed:', err);
+                        }
+                    } else {
+                        throw new Error(result.error || 'Errore durante la rimozione del dirigente');
+                    }
+                } catch (error) {
+                    console.error('Errore:', error);
+                    this.notificationManager.showError(error.message || 'Errore durante la rimozione del dirigente');
+                } finally {
+                    this.loadingManager.hide();
+                }
             }
-        } catch (error) {
-            console.error('Errore:', error);
-            this.notificationManager.showError(error.message || 'Errore durante la rimozione del dirigente');
-        } finally {
-            this.loadingManager.hide();
-        }
+        });
     }
 }
 
@@ -681,6 +858,38 @@ function confirmDelete() {
     if (window.teamApp && window.teamApp.teamManager) {
         window.teamApp.teamManager.confirmDelete();
     }
+}
+
+// Generic entity delete modal helper
+function showEntityDeleteModal(options) {
+    // options: { title, message, entityType, entityId, onConfirm }
+    const modalEl = document.getElementById('entityDeleteModal');
+    const body = document.getElementById('entityDeleteModalBody');
+    const confirmBtn = document.getElementById('confirmDeleteEntityBtn');
+    if (!modalEl || !body || !confirmBtn) {
+        console.warn('Delete modal elements missing');
+        return;
+    }
+
+    body.textContent = options.message || 'Sei sicuro di voler eliminare questo elemento?';
+    confirmBtn.dataset.entityType = options.entityType || '';
+    confirmBtn.dataset.entityId = options.entityId || '';
+
+    // remove previous handlers
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.addEventListener('click', async () => {
+        try {
+            if (options.onConfirm) await options.onConfirm(options.entityId);
+        } catch (err) {
+            console.error('Error in delete onConfirm:', err);
+        }
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+    });
+
+    const bm = new bootstrap.Modal(modalEl);
+    bm.show();
 }
 
 // Main Application Class
@@ -730,7 +939,12 @@ function createBackButton() {
             e.preventDefault();
             try {
                 if (window.history && window.history.length > 1) {
-                    window.history.back();
+                    if(window.userType === 1){
+                        window.location = '/admin/squadre';
+                    }
+                    else{
+                        window.location='/profilo';
+                    }
                 } else if (document.referrer) {
                     window.location = document.referrer;
                 } else {

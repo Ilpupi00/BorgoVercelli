@@ -168,3 +168,35 @@ exports.deleteDirigente = async (id) => {
         });
     });
 }
+
+// Ripristina un dirigente impostando attivo = 1
+exports.restoreDirigente = function(id) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE id = ?`;
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        sqlite.run(sql, [now, id], function(err) {
+            if (err) {
+                return reject({ error: 'Errore ripristino dirigente: ' + err.message });
+            }
+            if (this.changes === 0) {
+                return reject({ error: 'Dirigente non trovato' });
+            }
+            resolve({ message: 'Dirigente ripristinato' });
+        });
+    });
+}
+
+// Ripristina tutti i dirigenti (setta attivo = 1 per tutte le righe con attivo = 0)
+exports.restoreAllDirigenti = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE attivo = 0`;
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        sqlite.run(sql, [now], function(err) {
+            if (err) {
+                return reject({ error: 'Errore ripristino massivo dirigenti: ' + err.message });
+            }
+            // this.changes contiene il numero di righe aggiornate
+            resolve({ message: 'Ripristino massivo completato', changes: this.changes });
+        });
+    });
+}
