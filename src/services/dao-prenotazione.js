@@ -280,7 +280,9 @@ exports.deleteScadute = async () => {
                 console.error('[DAO] deleteScadute: delete error', err);
                 return reject(err);
             }
-            resolve({ success: true, deleted: this.changes });
+            // normalize response: include both `deleted` and `changes` so callers
+            // and older front-ends can read either property.
+            resolve({ success: true, deleted: this.changes, changes: this.changes });
         });
     });
 }
