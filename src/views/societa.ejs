@@ -174,7 +174,7 @@
                 <div class="col-12 mb-5">
                     <div class="group-header text-center mb-4">
                         <div class="group-icon mb-3">
-                            <i class="<%= gruppo.icona %> fa-3x text-primary"></i>
+                            <i class="<%= gruppo.icona %> fa-3x text-white"></i>
                         </div>
                         <h3 class="group-title h2 fw-bold text-primary mb-2"><%= gruppo.titolo %></h3>
                         <p class="group-description lead text-muted"><%= gruppo.descrizione %></p>
@@ -192,7 +192,7 @@
                                      src="<%= membro.immagine_profilo %>"
                                      alt="Foto di <%= membro.nome %> <%= membro.cognome %>">
                             <% } else { %>
-                                <div class="member-avatar bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center border border-4 border-white shadow">
+                                <div class="member-avatar bg-dark rounded-circle d-flex align-items-center justify-content-center border border-4 border-white shadow">
                                     <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
                                 </div>
                             <% } %>

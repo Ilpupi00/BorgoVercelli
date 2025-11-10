@@ -28,102 +28,239 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Nuovo Messaggio di Contatto</title>
             <style>
-                :root { --primary: #0d6efd; --secondary: #22b14c; }
+                :root {
+                    --primary-blue: #0d6efd;
+                    --primary-blue-dark: #2563eb;
+                    --primary-blue-light: #4dabf7;
+                    --secondary-green: #22b14c;
+                    --text-primary: #212529;
+                    --text-secondary: #6c757d;
+                    --bg-light: #f8f9fa;
+                    --bg-white: #ffffff;
+                    --border-color: rgba(0,0,0,0.1);
+                    --shadow-color: rgba(0,0,0,0.15);
+                }
                 body {
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background-color: #f4f7fa;
+                    background: linear-gradient(135deg, rgba(13, 110, 253, 0.2) 0%, rgba(37, 99, 235, 0.15) 100%);
                     margin: 0;
-                    padding: 0;
-                    color: #333;
+                    padding: 20px;
+                    color: var(--text-primary);
+                    line-height: 1.6;
+                    min-height: 100vh;
                 }
                 .container {
-                    max-width: 600px;
-                    margin: 20px auto;
-                    background-color: #ffffff;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    max-width: 650px;
+                    margin: 0 auto;
+                    background-color: var(--bg-white);
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px var(--shadow-color);
                     overflow: hidden;
+                    border: 1px solid rgba(255, 255, 255, 0.8);
                 }
                 .header {
-                    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+                    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
                     color: white;
-                    padding: 30px 20px;
+                    padding: 40px 30px;
                     text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .header::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                    opacity: 0.3;
+                }
+                .header-content {
+                    position: relative;
+                    z-index: 1;
+                }
+                .logo-container {
+                    margin-bottom: 20px;
+                }
+                .logo {
+                    height: 60px;
+                    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
                 }
                 .header h1 {
                     margin: 0;
-                    font-size: 24px;
+                    font-size: 28px;
                     font-weight: 300;
+                    letter-spacing: -0.5px;
+                    margin-bottom: 8px;
+                }
+                .header p {
+                    margin: 0;
+                    font-size: 16px;
+                    opacity: 0.9;
+                    font-weight: 400;
                 }
                 .content {
-                    padding: 30px 20px;
+                    padding: 40px 30px;
                 }
                 .field {
-                    margin-bottom: 20px;
-                    border-left: 4px solid var(--primary);
-                    padding-left: 15px;
-                    background-color: #fbfdff;
-                    padding: 15px;
-                    border-radius: 8px;
+                    margin-bottom: 30px;
+                    background: linear-gradient(135deg, rgba(13, 110, 253, 0.02) 0%, rgba(13, 110, 253, 0.01) 100%);
+                    border: 1px solid rgba(13, 110, 253, 0.1);
+                    border-left: 4px solid var(--primary-blue);
+                    padding: 25px;
+                    border-radius: 15px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .field::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+                }
+                .field:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.1);
                 }
                 .field strong {
-                    color: var(--primary);
+                    color: var(--primary-blue);
                     font-weight: 600;
                     display: block;
-                    margin-bottom: 5px;
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .field-value {
+                    font-size: 16px;
+                    color: var(--text-primary);
+                    font-weight: 500;
                 }
                 .message-content {
-                    background-color: #fbfdff;
-                    padding: 15px;
-                    border-radius: 8px;
-                    border-left: 4px solid var(--secondary);
+                    background: linear-gradient(135deg, rgba(34, 177, 76, 0.02) 0%, rgba(34, 177, 76, 0.01) 100%);
+                    border: 1px solid rgba(34, 177, 76, 0.1);
+                    border-left: 4px solid var(--secondary-green);
+                    padding: 25px;
+                    border-radius: 15px;
                     white-space: pre-wrap;
-                    line-height: 1.6;
+                    line-height: 1.7;
+                    font-size: 15px;
+                    color: var(--text-primary);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .message-content::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--secondary-green) 0%, #4ade80 100%);
                 }
                 .footer {
-                    background-color: #f7fafc;
-                    padding: 20px;
+                    background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
+                    padding: 30px;
                     text-align: center;
-                    font-size: 14px;
-                    color: #666;
+                    border-top: 1px solid var(--border-color);
                 }
                 .footer p {
-                    margin: 5px 0;
+                    margin: 8px 0;
+                    font-size: 14px;
+                    color: var(--text-secondary);
+                }
+                .footer strong {
+                    color: var(--primary-blue);
+                    font-weight: 600;
+                }
+                .divider {
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+                    margin: 20px 0;
                 }
                 @media (max-width: 600px) {
+                    body {
+                        padding: 10px;
+                    }
                     .container {
-                        margin: 10px;
+                        margin: 0;
+                        border-radius: 15px;
                     }
                     .header, .content, .footer {
-                        padding: 20px 15px;
+                        padding: 25px 20px;
                     }
+                    .header h1 {
+                        font-size: 24px;
+                    }
+                    .field, .message-content {
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    }
+                }
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .field, .message-content {
+                    animation: fadeInUp 0.6s ease-out forwards;
                 }
             </style>
         </head>
-        <body>
-            <div class="container">
-                    <div class="header">
-                    <img src="cid:borgo-logo" alt="Borgo Vercelli" style="height:48px;margin-bottom:10px;" />
-                    <h1>📬 Nuovo Messaggio di Contatto</h1>
-                    <p>Ricevuto dal sito Borgo Vercelli</p>
-                </div>
-                <div class="content">
-                    <div class="field">
-                        <strong>👤 Nome:</strong> ${fromName}
-                    </div>
-                    <div class="field">
-                        <strong>📧 Email:</strong> ${fromEmail}
-                    </div>
-                    <div class="field">
-                        <strong>💬 Messaggio:</strong>
-                        <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
-                    </div>
-                </div>
-                <div class="footer">
-                    <p><strong>Borgo Vercelli</strong> - Società Sportiva Dilettantistica</p>
-                    <p>Questo messaggio è stato inviato automaticamente dal nostro sito web.</p>
-                </div>
-            </div>
+        <body style="margin:0;padding:0;background-color:#f4f7fa;">
+            <!-- Outer full-width table (neutral background) -->
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f4f7fa; min-width:100%;">
+                <tr>
+                    <td align="center" style="padding:20px;">
+                        <!-- Centered container table (email-safe) -->
+                        <table class="container" width="650" cellpadding="0" cellspacing="0" role="presentation" bgcolor="#ffffff" style="max-width:650px; width:100%; margin:0 auto; border-radius:18px; overflow:hidden; box-shadow:0 8px 30px rgba(16,24,40,0.06); border:1px solid rgba(13,110,253,0.06); background: linear-gradient(180deg, #ffffff 0%, #f8fbff 60%, #eef7ff 100%);">
+                            <tr>
+                                <td>
+                                    <div class="header">
+                                        <div class="header-content">
+                                            <div class="logo-container">
+                                                <img src="cid:borgo-logo" alt="Borgo Vercelli" class="logo" />
+                                            </div>
+                                            <h1>📬 Nuovo Messaggio</h1>
+                                            <p>Ricevuto dal sito web</p>
+                                        </div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="field">
+                                            <strong>👤 Mittente</strong>
+                                            <div class="field-value">${fromName}</div>
+                                        </div>
+                                        <div class="field">
+                                            <strong>📧 Email</strong>
+                                            <div class="field-value">${fromEmail}</div>
+                                        </div>
+                                        <div class="field">
+                                            <strong>💬 Messaggio</strong>
+                                            <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        <div class="divider"></div>
+                                        <p><strong>ASD Borgo Vercelli</strong></p>
+                                        <p>Società Sportiva Dilettantistica</p>
+                                        <p style="font-size: 12px; margin-top: 15px;">Questo messaggio è stato inviato automaticamente dal nostro sito web</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </body>
         </html>
         `;
