@@ -345,3 +345,36 @@ footer#footer .opacity-25 {
 .hide {
   display: none !important;
 }
+
+/* Stili specifici per la checkbox della privacy policy */
+footer#footer .form-check-input {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  width: 20px !important;
+  height: 20px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 10 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  appearance: auto !important;
+  -webkit-appearance: checkbox !important;
+  -moz-appearance: checkbox !important;
+}
+
+footer#footer .form-check-input:checked {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+footer#footer .form-check-input:focus {
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25) !important;
+  border-color: #0d6efd !important;
+  outline: none !important;
+}
+
+footer#footer .form-check-label {
+  cursor: pointer !important;
+  user-select: none;
+}

@@ -1,45 +1,35 @@
 class GestioneNotizie {
     constructor() {
-        this.originalNotizie = [];
+        this.notizieCards = [];
         this.initialize();
     }
 
     initialize() {
         this.loadNotizieData();
         this.setupEventListeners();
-        console.log('Gestione notizie caricata con', this.originalNotizie.length, 'notizie');
+        console.log('Gestione notizie caricata con', this.notizieCards.length, 'notizie');
     }
 
     loadNotizieData() {
+        // Supporta sia le card che le righe della tabella
+        const cards = document.querySelectorAll('.notizia-card[data-notizia-id]');
         const rows = document.querySelectorAll('#notizieTableBody tr[data-notizia-id]');
-        this.originalNotizie = Array.from(rows).map(row => ({
-            element: row,
-            id: row.dataset.notiziaId,
-            titolo: row.dataset.titolo || '',
-            contenuto: row.dataset.contenuto || '',
-            stato: row.dataset.stato || '',
-            data: row.dataset.data || ''
-        }));
+        
+        if (cards.length > 0) {
+            this.notizieCards = Array.from(cards);
+        } else if (rows.length > 0) {
+            this.notizieCards = Array.from(rows);
+        }
     }
 
     setupEventListeners() {
         const searchInput = document.getElementById('searchInput');
-        const clearSearch = document.getElementById('clearSearch');
         const statusFilter = document.getElementById('statusFilter');
         const dateFilter = document.getElementById('dateFilter');
+        const sortFilter = document.getElementById('sortFilter');
 
         if (searchInput) {
             searchInput.addEventListener('input', () => this.filterNotizie());
-        }
-
-        if (clearSearch) {
-            clearSearch.addEventListener('click', () => {
-                if (searchInput) {
-                    searchInput.value = '';
-                    this.filterNotizie();
-                    searchInput.focus();
-                }
-            });
         }
 
         if (statusFilter) {
@@ -48,6 +38,10 @@ class GestioneNotizie {
 
         if (dateFilter) {
             dateFilter.addEventListener('change', () => this.filterNotizie());
+        }
+
+        if (sortFilter) {
+            sortFilter.addEventListener('change', () => this.sortNotizie());
         }
 
         // Event listener for delete buttons
@@ -70,82 +64,103 @@ class GestioneNotizie {
         const statusValue = statusFilter ? statusFilter.value : 'all';
         const dateValue = dateFilter ? dateFilter.value : 'all';
 
-        const tableBody = document.getElementById('notizieTableBody');
-        const noResultsRow = document.getElementById('noResultsRow');
         let visibleCount = 0;
+        const now = new Date();
 
-        // Filtra le notizie
-        this.originalNotizie.forEach(notizia => {
-            let isVisible = true;
-
-            // Filtro ricerca
-            if (searchTerm && !(notizia.titolo.includes(searchTerm) || 
-                               notizia.contenuto.includes(searchTerm) || 
-                               notizia.id.includes(searchTerm))) {
-                isVisible = false;
+        this.notizieCards.forEach(card => {
+            const titolo = (card.dataset.titolo || '').toLowerCase();
+            const contenuto = (card.dataset.contenuto || '').toLowerCase();
+            const autore = (card.dataset.autore || '').toLowerCase();
+            const stato = card.dataset.stato || '';
+            const dataStr = card.dataset.data || '';
+            
+            // Search filter
+            const matchesSearch = !searchTerm || 
+                                titolo.includes(searchTerm) || 
+                                contenuto.includes(searchTerm) || 
+                                autore.includes(searchTerm);
+            
+            // Status filter
+            const matchesStatus = statusValue === 'all' || stato === statusValue;
+            
+            // Date filter
+            let matchesDate = true;
+            if (dateValue !== 'all' && dataStr) {
+                const cardDate = new Date(dataStr);
+                const diffTime = now - cardDate;
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                
+                if (dateValue === 'today') matchesDate = diffDays < 1;
+                else if (dateValue === 'week') matchesDate = diffDays < 7;
+                else if (dateValue === 'month') matchesDate = diffDays < 30;
+                else if (dateValue === 'year') matchesDate = diffDays < 365;
             }
-
-            // Filtro stato
-            if (statusValue !== 'all' && notizia.stato !== statusValue) {
-                isVisible = false;
-            }
-
-            // Filtro data
-            if (dateValue !== 'all' && notizia.data) {
-                const notiziaDate = new Date(notizia.data);
-                const now = new Date();
-                let isInRange = false;
-
-                switch(dateValue) {
-                    case 'today':
-                        isInRange = notiziaDate.toDateString() === now.toDateString();
-                        break;
-                    case 'week':
-                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                        isInRange = notiziaDate >= weekAgo;
-                        break;
-                    case 'month':
-                        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                        isInRange = notiziaDate >= monthAgo;
-                        break;
-                    case 'year':
-                        const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                        isInRange = notiziaDate >= yearAgo;
-                        break;
-                }
-
-                if (!isInRange) {
-                    isVisible = false;
-                }
-            }
-
-            // Mostra/nascondi la riga
-            if (isVisible) {
-                notizia.element.style.display = '';
+            
+            if (matchesSearch && matchesStatus && matchesDate) {
+                card.style.display = '';
                 visibleCount++;
             } else {
-                notizia.element.style.display = 'none';
+                card.style.display = 'none';
             }
         });
 
-        // Gestisci la riga "nessun risultato"
-        if (noResultsRow) {
-            if (visibleCount === 0 && this.originalNotizie.length > 0) {
-                noResultsRow.style.display = '';
-                noResultsRow.innerHTML = `
-                    <td colspan="7" class="text-center text-muted py-4">
-                        <i class="bi bi-search display-4 mb-3"></i>
-                        <p>Nessuna notizia corrisponde ai filtri selezionati.</p>
-                        <button class="btn btn-outline-secondary" onclick="gestioneNotizie.clearAllFilters()">Rimuovi filtri</button>
-                    </td>
-                `;
-            } else {
-                noResultsRow.style.display = 'none';
-            }
-        }
-
-        // Aggiorna i contatori
+        this.updateEmptyState(visibleCount);
         this.updateCounters(visibleCount);
+    }
+
+    updateEmptyState(visibleCount) {
+        const notizieList = document.getElementById('notizieList');
+        let emptyState = notizieList ? notizieList.querySelector('.empty-state.filter-empty') : null;
+        
+        if (visibleCount === 0 && this.notizieCards.length > 0) {
+            if (!emptyState) {
+                emptyState = document.createElement('div');
+                emptyState.className = 'empty-state filter-empty';
+                emptyState.innerHTML = `
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h2 class="empty-title">Nessun risultato trovato</h2>
+                    <p class="empty-text">
+                        Prova a modificare i filtri di ricerca.
+                    </p>
+                    <button class="btn btn-outline-secondary" onclick="gestioneNotizie.clearAllFilters()">
+                        <i class="bi bi-x-circle"></i> Rimuovi filtri
+                    </button>
+                `;
+                if (notizieList) notizieList.appendChild(emptyState);
+            }
+            emptyState.style.display = 'block';
+        } else if (emptyState) {
+            emptyState.style.display = 'none';
+        }
+    }
+
+    sortNotizie() {
+        const sortFilter = document.getElementById('sortFilter');
+        const sortValue = sortFilter ? sortFilter.value : 'data-desc';
+        const notizieList = document.getElementById('notizieList');
+        
+        if (!notizieList) return;
+
+        const cards = Array.from(this.notizieCards);
+
+        cards.sort((a, b) => {
+            if (sortValue === 'data-desc' || sortValue === 'data-asc') {
+                const dateA = new Date(a.dataset.data || 0);
+                const dateB = new Date(b.dataset.data || 0);
+                return sortValue === 'data-desc' ? dateB - dateA : dateA - dateB;
+            } else if (sortValue === 'titolo-asc' || sortValue === 'titolo-desc') {
+                const titleA = (a.dataset.titolo || '').toLowerCase();
+                const titleB = (b.dataset.titolo || '').toLowerCase();
+                return sortValue === 'titolo-asc' ? 
+                    titleA.localeCompare(titleB) : 
+                    titleB.localeCompare(titleA);
+            }
+            return 0;
+        });
+
+        cards.forEach(card => notizieList.appendChild(card));
     }
 
     clearAllFilters() {
@@ -162,14 +177,9 @@ class GestioneNotizie {
 
     updateCounters(visibleCount) {
         const totalCount = document.getElementById('totalCount');
-        const filteredCount = document.getElementById('filteredCount');
-
+        
         if (totalCount) {
-            totalCount.textContent = this.originalNotizie.length;
-        }
-
-        if (filteredCount) {
-            filteredCount.textContent = `(${visibleCount} filtrate)`;
+            totalCount.textContent = this.notizieCards.length;
         }
     }
 

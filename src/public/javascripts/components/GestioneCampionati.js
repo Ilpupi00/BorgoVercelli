@@ -213,19 +213,19 @@ class GestioneCampionati {
                 </small>
             </td>
             <td class="text-center">
-                <div class="btn-group btn-group-sm" role="group">
+                <div class="btn-group" role="group">
                     <a href="/campionato?id=${championship.id}" 
-                       class="btn btn-outline-primary" 
+                       class="btn btn-sm btn-info" 
                        title="Visualizza Campionato"
                        target="_blank">
                         <i class="bi bi-eye"></i>
                     </a>
                     <a href="/admin/campionati/${championship.id}/modifica" 
-                       class="btn btn-outline-warning" 
+                       class="btn btn-sm btn-primary" 
                        title="Modifica Campionato">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <button class="btn btn-outline-danger btn-elimina-campionato"
+                    <button class="btn btn-sm btn-danger btn-elimina-campionato"
                             data-id="${championship.id}"
                             data-name="${this.escapeHtml(championship.nome)}"
                             title="Elimina Campionato">

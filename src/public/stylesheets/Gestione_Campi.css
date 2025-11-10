@@ -1,0 +1,21 @@
+/**
+ * Gestione Campi - Stili Specifici
+ */
+
+.admin-table td:first-child {
+    width: 60px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.admin-table td:nth-child(2) { min-width: 180px; }
+.admin-table td:nth-child(3) { min-width: 200px; }
+.admin-table td:nth-child(4) { min-width: 140px; }
+.admin-table td:nth-child(5) { width: 100px; }
+.admin-table td:nth-child(6) { min-width: 140px; }
+
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+}

@@ -1,0 +1,90 @@
+/**
+ * Gestione Campionati - Stili Specifici
+ * Stili aggiuntivi per la pagina di gestione campionati
+ * Dipende da: Admin_Global.css
+ */
+
+/* Tabella - Colonne specifiche */
+.admin-table td:first-child {
+    font-weight: 600;
+    min-width: 200px;
+}
+
+.admin-table td:nth-child(2) {
+    min-width: 120px;
+}
+
+.admin-table td:nth-child(3) {
+    min-width: 100px;
+}
+
+.admin-table td:nth-child(4) {
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.admin-table td:nth-child(5) {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.admin-table td:nth-child(6) {
+    min-width: 140px;
+}
+
+/* Badge personalizzati per campionati */
+.badge-attivo {
+    background: linear-gradient(135deg, var(--success), var(--success-dark));
+}
+
+.badge-inattivo {
+    background: linear-gradient(135deg, var(--secondary), var(--text-secondary));
+}
+
+/* Action buttons specifiche */
+.championship-actions {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.championship-actions .btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Empty state per tabella */
+.championship-empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.championship-empty-state i {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.championship-empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-table td:first-child {
+        min-width: 150px;
+    }
+    
+    .championship-actions {
+        gap: 0.5rem;
+    }
+    
+    .championship-actions .btn {
+        flex: 1 1 auto;
+        min-width: 80px;
+    }
+}

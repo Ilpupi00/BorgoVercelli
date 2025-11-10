@@ -1,0 +1,194 @@
+/**
+ * Crea_Campionato.css
+ * Stili specifici per il form di creazione campionato
+ */
+
+/* === Form Card === */
+.form-card {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* === Form Sections === */
+.form-section {
+    padding: 2rem 0;
+}
+
+.form-section:not(:last-of-type) {
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.form-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+}
+
+/* === Form Floating Labels === */
+.form-floating > label {
+    padding-left: 1rem;
+}
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+    height: calc(3.5rem + 2px);
+    padding: 1rem 1rem;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(103, 58, 183, 0.15);
+}
+
+/* === Switch Checkbox === */
+.form-check-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+    background-color: #dee2e6;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.form-check-switch .form-check-input:checked {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.form-check-switch .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* === Input Group === */
+.input-group {
+    box-shadow: var(--shadow-sm);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.input-group .form-select {
+    border: 2px solid var(--border-color);
+    border-right: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+.input-group .btn {
+    border: 2px solid var(--success-color);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* === Form Footer === */
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 2px solid var(--border-color);
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-footer-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-footer-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.form-footer-actions .btn {
+    min-width: 140px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .form-card {
+        padding: 1.5rem !important;
+    }
+
+    .form-section {
+        padding: 1.5rem 0;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group .form-select {
+        border-right: 2px solid var(--border-color);
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .input-group .btn {
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        width: 100%;
+    }
+
+    .form-check-switch {
+        margin-top: 1rem !important;
+        margin-left: 0 !important;
+    }
+
+    .form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-footer-info {
+        text-align: center;
+    }
+
+    .form-footer-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .form-footer-actions .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        font-size: 0.95rem;
+    }
+
+    .form-section-title {
+        font-size: 1rem;
+    }
+
+    .admin-page-header-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .admin-page-header-actions .btn {
+        width: 100%;
+    }
+}

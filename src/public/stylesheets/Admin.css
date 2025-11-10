@@ -94,11 +94,19 @@ body {
     align-items: center;
 }
 
-.sidebar-nav .nav-link:hover,
-.sidebar-nav .nav-link.active {
+.sidebar-nav .nav-link:hover {
     background: rgba(255,255,255,0.1);
     color: #fff;
     transform: translateX(5px);
+}
+
+.sidebar-nav .nav-link.active {
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.3) 0%, rgba(37, 99, 235, 0.1) 100%);
+    color: #fff;
+    border-left: 4px solid #2563eb;
+    font-weight: 600;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .sidebar-nav .section-header {

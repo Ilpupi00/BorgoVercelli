@@ -1041,3 +1041,238 @@ button::-webkit-scrollbar,
         margin-bottom: 0.5rem;
     }
 }
+
+/* Stili per migliorare la visibilità delle scritte bianche */
+.profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.profile-header-card .text-dark {
+    color: #ffffff !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.profile-header-card .text-muted {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.profile-header-card .text-primary {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Stili per l'immagine del profilo */
+.profile-avatar img.profile-img-main {
+    width: 110px !important;
+    height: 110px !important;
+    object-fit: cover !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.profile-avatar .bi-person-circle.profile-img-main {
+    font-size: 110px !important;
+    color: #ffffff !important;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Stili per il bottone modifica foto */
+#editPicBtn {
+    width: 40px !important;
+    height: 40px !important;
+    z-index: 10 !important;
+}
+
+#editPicBtn .bi-camera-fill {
+    font-size: 20px !important;
+    color: white !important;
+}
+
+/* Miglioramento contrasto per le card headers */
+.card .card-header.bg-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .card-header.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+    color: #212529 !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.card .card-header.bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .card-header.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Miglioramento contrasto per testi nelle card */
+.card .text-white {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .text-dark {
+    color: #212529 !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Stili per i badge */
+.badge {
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Miglioramento per i link nelle card */
+.card a.text-white {
+    color: #ffffff !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.card a.text-white:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Stili per i bottoni nelle card */
+.card .btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-primary:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .btn-outline-info {
+    border-color: #17a2b8;
+    color: #17a2b8;
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-info:hover {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.card .btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.card .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Stili per le icone delle news/events */
+.news-event-icon {
+    width: 50px !important;
+    height: 50px !important;
+}
+
+/* Stili per l'icona empty state */
+.empty-state-icon .bi-plus-circle {
+    font-size: 4rem !important;
+}
+
+/* Miglioramento generale per testi su sfondi colorati */
+.card-header h5 {
+    font-weight: 600 !important;
+    margin-bottom: 0 !important;
+}
+
+.card-body .text-muted {
+    color: #6c757d !important;
+}
+
+.card-body .text-success {
+    color: #28a745 !important;
+}
+
+.card-body .text-warning {
+    color: #ffc107 !important;
+}
+
+.card-body .text-info {
+    color: #17a2b8 !important;
+}
+
+/* Miglioramento per le statistiche */
+.stat-number {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    color: #495057 !important;
+}
+
+.stat-label {
+    font-size: 0.9rem !important;
+    color: #6c757d !important;
+    margin-top: 0.25rem !important;
+}
+
+/* Miglioramento per i link nelle azioni rapide */
+.quick-links-card .btn {
+    transition: all 0.3s ease !important;
+    font-weight: 500 !important;
+}
+
+.quick-links-card .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}

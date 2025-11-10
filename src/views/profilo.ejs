@@ -25,12 +25,12 @@
                     <div class="profile-avatar mb-3 animate__animated animate__zoomIn">
                         <div class="position-relative d-inline-block pt-2">
                             <% if (imageUrl) { %>
-                                <img src="/<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main" style="width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
+                                <img src="/<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main">
                             <% } else { %>
-                                <i class="bi bi-person-circle profile-img-main" style="font-size: 110px; color: #007bff;"></i>
+                                <i class="bi bi-person-circle profile-img-main"></i>
                             <% } %>
-                            <button id="editPicBtn" type="button" class="btn btn-primary position-absolute bottom-0 end-0 rounded-circle p-2 shadow" style="width: 40px; height: 40px; z-index: 10;" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
-                                <span class="bi bi-camera-fill" style="font-size: 20px; color: white;"></span>
+                            <button id="editPicBtn" type="button" class="btn btn-primary position-absolute bottom-0 end-0 rounded-circle p-2 shadow" title="Modifica foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
+                                <span class="bi bi-camera-fill"></span>
                             </button>
                         </div>
                     </div>
@@ -49,16 +49,16 @@
                 </div>
                 <div class="col-md-8">
                     <div class="profile-info">
-                        <h1 class="display-5 fw-bold text-dark mb-2"><%= user.nome %> <%= user.cognome %></h1>
-                        <p class="text-muted mb-3 fs-5">
+                        <h1 class="display-5 fw-bold text-white mb-2"><%= user.nome %> <%= user.cognome %></h1>
+                        <p class="text-white mb-3 fs-5">
                             <i class="bi bi-envelope me-2"></i><%= user.email %>
                             <% if (user.telefono) { %>
                                 <br><i class="bi bi-telephone me-2"></i><%= user.telefono %>
                             <% } %>
                         </p>
                         <div class="member-since">
-                            <i class="bi bi-calendar-check text-primary me-2"></i>
-                            Utente dal <%= user.data_registrazione ? new Date(user.data_registrazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }) : 'N/D' %>
+                            <i class="bi bi-calendar-check text-white me-2"></i>
+                            <span class="text-white">Utente dal <%= user.data_registrazione ? new Date(user.data_registrazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }) : 'N/D' %></span>
                         </div>
                     </div>
                 </div>
@@ -393,7 +393,7 @@
                                     <% (notiziePersonali || []).forEach(notizia => { %>
                                         <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
                                             <div class="d-flex align-items-center flex-grow-1">
-                                                <div class="news-event-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                <div class="news-event-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
                                                     <i class="bi bi-newspaper fs-5"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -424,7 +424,7 @@
                                     <% (eventiPersonali || []).forEach(evento => { %>
                                         <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
                                             <div class="d-flex align-items-center flex-grow-1">
-                                                <div class="news-event-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                <div class="news-event-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3">
                                                     <i class="bi bi-calendar-event fs-5"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -458,7 +458,7 @@
                             <% } else { %>
                                 <div class="text-center py-5">
                                     <div class="empty-state-icon mb-3">
-                                        <i class="bi bi-plus-circle text-muted" style="font-size: 4rem;"></i>
+                                        <i class="bi bi-plus-circle text-muted"></i>
                                     </div>
                                     <h6 class="text-muted mb-3">Nessun contenuto creato</h6>
                                     <p class="text-muted small mb-4">Inizia creando il tuo primo evento o notizia per la comunità.</p>

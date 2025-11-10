@@ -6,293 +6,149 @@
     <title>Crea Nuovo Campionato - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
-    <link rel="stylesheet" href="/stylesheets/Gestione_Campionato.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/javascripts/components/Admin.js" defer></script>
-    
+    <link rel="stylesheet" href="/stylesheets/Admin_Global.css">
+    <link rel="stylesheet" href="/stylesheets/Crea_Campionato.css">
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <%- include('../../partials/sidebar.ejs'); %>
-            <div class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-xl-10">
-                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 text-center text-md-start">
-                                    <h1 class="display-5 fw-bold text-dark mb-2">
-                                        <i class="bi bi-plus-circle-fill text-primary me-2"></i>
-                                        Crea Nuovo Campionato
-                                    </h1>
-                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-plus-circle-fill"></i> Crea Nuovo Campionato</h1>
+                            <p class="admin-page-subtitle">Inserisci le informazioni del nuovo campionato</p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin/campionati" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Indietro
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i>Esci
+                            </a>
+                        </div>
+                    </header>
+
+                    <section class="content-card form-card fade-in">
+                        <form id="createChampionshipForm">
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-info-circle me-2"></i>Informazioni Generali
+                                </h3>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome" required>
+                                            <label for="nome"><i class="bi bi-trophy me-2"></i>Nome Campionato *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="stagione" name="stagione" 
+                                                   value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>" 
+                                                   placeholder="Stagione" required>
+                                            <label for="stagione"><i class="bi bi-calendar-event me-2"></i>Stagione *</label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                                    <a href="/admin/campionati" class="btn btn-outline-secondary btn-modern me-2">
-                                        <i class="bi bi-arrow-left"></i> Indietro
-                                    </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern">
-                                        <i class="bi bi-box-arrow-right"></i> Esci
-                                    </a>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="categoria" name="categoria" required>
+                                                <option value="">Seleziona categoria</option>
+                                                <option value="Juniores">Juniores</option>
+                                                <option value="Allievi">Allievi</option>
+                                                <option value="Giovanissimi">Giovanissimi</option>
+                                                <option value="Esordienti">Esordienti</option>
+                                                <option value="Pulcini">Pulcini</option>
+                                                <option value="Prima Squadra">Prima Squadra</option>
+                                            </select>
+                                            <label for="categoria"><i class="bi bi-tag me-2"></i>Categoria *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch mt-4 ms-3">
+                                            <input class="form-check-input" type="checkbox" id="attivo" checked style="width: 3rem; height: 1.5rem;">
+                                            <label class="form-check-label ms-2 fw-semibold" for="attivo">
+                                                <i class="bi bi-toggle-on me-2"></i>Campionato attivo
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card championship-card animate__animated animate__fadeInUp">
-                            <div class="card-body p-4">
-                                <form id="createChampionshipForm">
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <h4 class="mb-3">
-                                                <i class="bi bi-info-circle text-primary me-2"></i>
-                                                Informazioni Generali
-                                            </h4>
-                                            <hr class="mb-4">
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-people-fill me-2"></i>Squadre Partecipanti
+                                </h3>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="input-group">
+                                            <select class="form-select" id="nomeSquadra">
+                                                <option value="">Seleziona una squadra...</option>
+                                                <% if (squadre && squadre.length > 0) { %>
+                                                    <% squadre.forEach(squadra => { %>
+                                                        <option value="<%= squadra.nome %>"><%= squadra.nome %></option>
+                                                    <% }); %>
+                                                <% } %>
+                                            </select>
+                                            <button type="button" class="btn btn-success" id="addSquadraBtn">
+                                                <i class="bi bi-plus-circle me-1"></i> Aggiungi Squadra
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome" required>
-                                                <label for="nome"><i class="bi bi-trophy me-2"></i>Nome Campionato *</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="stagione" name="stagione" 
-                                                       value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>" 
-                                                       placeholder="Stagione" required>
-                                                <label for="stagione"><i class="bi bi-calendar-event me-2"></i>Stagione *</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-floating">
-                                                <select class="form-select" id="categoria" name="categoria" required>
-                                                    <option value="">Seleziona categoria</option>
-                                                    <option value="Juniores">Juniores</option>
-                                                    <option value="Allievi">Allievi</option>
-                                                    <option value="Giovanissimi">Giovanissimi</option>
-                                                    <option value="Esordienti">Esordienti</option>
-                                                    <option value="Pulcini">Pulcini</option>
-                                                    <option value="Prima Squadra">Prima Squadra</option>
-                                                </select>
-                                                <label for="categoria"><i class="bi bi-tag me-2"></i>Categoria *</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-check form-switch mt-4 ms-3">
-                                                <input class="form-check-input" type="checkbox" id="attivo" checked style="width: 3rem; height: 1.5rem;">
-                                                <label class="form-check-label ms-2 fw-semibold" for="attivo">
-                                                    <i class="bi bi-toggle-on me-2"></i>Campionato attivo
-                                                </label>
-                                            </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="table-responsive">
+                                            <table class="table admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Nome Squadra</th>
+                                                        <th class="text-center">Azioni</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="squadreTableBody">
+                                                    <tr id="noSquadreRow">
+                                                        <td colspan="3" class="text-center text-muted">
+                                                            Nessuna squadra aggiunta
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <h4 class="mb-3 mt-4">
-                                                <i class="bi bi-people-fill text-success me-2"></i>
-                                                Squadre Partecipanti
-                                            </h4>
-                                            <hr class="mb-4">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-12">
-                                            <div class="input-group">
-                                                <select class="form-select" id="nomeSquadra">
-                                                    <option value="">Seleziona una squadra...</option>
-                                                    <% if (squadre && squadre.length > 0) { %>
-                                                        <% squadre.forEach(squadra => { %>
-                                                            <option value="<%= squadra.nome %>"><%= squadra.nome %></option>
-                                                        <% }); %>
-                                                    <% } %>
-                                                </select>
-                                                <button type="button" class="btn btn-success" onclick="window.creaCampionato.addSquadra()">
-                                                    <i class="bi bi-plus-circle me-1"></i> Aggiungi Squadra
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Nome Squadra</th>
-                                                            <th class="text-center">Azioni</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="squadreTableBody">
-                                                        <tr id="noSquadreRow">
-                                                            <td colspan="3" class="text-center text-muted">
-                                                                Nessuna squadra aggiunta
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-5">
-                                        <div class="col-12">
-                                            <hr class="mb-4">
-                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-info-circle me-1"></i>
-                                                    I campi contrassegnati con * sono obbligatori
-                                                </small>
-                                                <div class="d-flex gap-2">
-                                                    <a href="/admin/campionati" class="btn btn-secondary btn-modern">
-                                                        <i class="bi bi-x-circle me-2"></i>Annulla
-                                                    </a>
-                                                    <button type="submit" class="btn btn-primary btn-modern">
-                                                        <i class="bi bi-check-circle me-2"></i>Crea Campionato
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+
+                            <div class="form-footer">
+                                <div class="form-footer-info">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        I campi contrassegnati con * sono obbligatori
+                                    </small>
+                                </div>
+                                <div class="form-footer-actions">
+                                    <a href="/admin/campionati" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-2"></i>Annulla
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Crea Campionato
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
-    <div id="loadingOverlay" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Caricamento...</span>
-        </div>
-    </div>
-    <script>
-        class CreaCampionato {
-            constructor() {
-                this.squadre = [];
-                this.init();
-            }
-            init() {
-                const form = document.getElementById('createChampionshipForm');
-                form.addEventListener('submit', (e) => this.handleSubmit(e));
-            }
-            addSquadra() {
-                const input = document.getElementById('nomeSquadra');
-                const nome = input.value.trim();
-                if (!nome) {
-                    this.showToast('Inserisci il nome della squadra', 'warning');
-                    return;
-                }
-                if (this.squadre.includes(nome)) {
-                    this.showToast('Squadra già aggiunta', 'warning');
-                    return;
-                }
-                this.squadre.push(nome);
-                input.value = '';
-                this.renderSquadre();
-            }
-            removeSquadra(nome) {
-                this.squadre = this.squadre.filter(s => s !== nome);
-                this.renderSquadre();
-            }
-            renderSquadre() {
-                const tbody = document.getElementById('squadreTableBody');
-                const noRow = document.getElementById('noSquadreRow');
-                if (this.squadre.length === 0) {
-                    noRow.style.display = '';
-                } else {
-                    noRow.style.display = 'none';
-                    tbody.innerHTML = this.squadre.map((squadra, index) => `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${this.escapeHtml(squadra)}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-outline-danger" 
-                                        onclick="window.creaCampionato.removeSquadra('${this.escapeHtml(squadra)}')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('') + noRow.outerHTML;
-                }
-            }
-            async handleSubmit(e) {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const data = {
-                    nome: formData.get('nome'),
-                    stagione: formData.get('stagione'),
-                    categoria: formData.get('categoria'),
-                    is_active: document.getElementById('attivo').checked
-                };
-                if (this.squadre.length === 0) {
-                    this.showToast('Aggiungi almeno una squadra', 'warning');
-                    return;
-                }
-                const overlay = document.getElementById('loadingOverlay');
-                try {
-                    overlay.style.display = 'flex';
-                    const response = await fetch('/api/admin/campionati', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        credentials: 'include',
-                        body: JSON.stringify(data)
-                    });
-                    if (!response.ok) throw new Error('Errore creazione campionato');
-                    const result = await response.json();
-                    const campionatoId = result.id;
-                    for (const squadra of this.squadre) {
-                        await fetch(`/api/admin/campionati/${campionatoId}/squadre`, {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            credentials: 'include',
-                            body: JSON.stringify({nome: squadra, posizione: 0, punti: 0})
-                        });
-                    }
-                    this.showToast('Campionato creato con successo!', 'success');
-                    setTimeout(() => window.location.href = '/admin/campionati', 1500);
-                } catch (error) {
-                    console.error(error);
-                    this.showToast('Errore: ' + error.message, 'danger');
-                } finally {
-                    overlay.style.display = 'none';
-                }
-            }
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-            showToast(message, type) {
-                let container = document.getElementById('toastContainer');
-                if (!container) {
-                    container = document.createElement('div');
-                    container.id = 'toastContainer';
-                    container.className = 'toast-container position-fixed top-0 end-0 p-3';
-                    container.style.zIndex = '9999';
-                    document.body.appendChild(container);
-                }
-                const id = 'toast-' + Date.now();
-                container.insertAdjacentHTML('beforeend', `
-                    <div id="${id}" class="toast align-items-center text-white bg-${type} border-0">
-                        <div class="d-flex">
-                            <div class="toast-body">${this.escapeHtml(message)}</div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                        </div>
-                    </div>
-                `);
-                const el = document.getElementById(id);
-                const toast = new bootstrap.Toast(el, {autohide: true, delay: 3000});
-                toast.show();
-                el.addEventListener('hidden.bs.toast', () => el.remove());
-            }
-        }
-        window.creaCampionato = new CreaCampionato();
-    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/AdminGlobal.js"></script>
+    <script src="/javascripts/CreaCampionato.js"></script>
 </body>
 </html>

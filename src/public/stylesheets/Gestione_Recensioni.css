@@ -1,0 +1,90 @@
+/**
+ * Gestione Recensioni - Stili Specifici
+ * Dipende da: Admin_Global.css
+ */
+
+/* Tabella - Colonne */
+.admin-table td:first-child {
+    width: 60px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.admin-table td:nth-child(2) { min-width: 150px; }
+.admin-table td:nth-child(3) { min-width: 140px; }
+.admin-table td:nth-child(4) { min-width: 180px; }
+.admin-table td:nth-child(5) { min-width: 200px; max-width: 300px; }
+.admin-table td:nth-child(6) { min-width: 100px; white-space: nowrap; }
+.admin-table td:nth-child(7) { width: 110px; }
+.admin-table td:nth-child(8) { min-width: 150px; }
+
+/* Rating Stars */
+.rating-stars {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.rating-stars i.bi-star-fill {
+    color: #fbbf24;
+    font-size: 1rem;
+}
+
+.rating-stars i.bi-star {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* Review Content */
+.review-content {
+    display: block;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 0.375rem 0.5rem;
+}
+
+/* Modal Body Content */
+#modalRecensioneContenuto {
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* Section Header Button Group */
+.section-header .btn-group,
+.section-header .d-flex {
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rating-stars {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons {
+        gap: 0.5rem;
+    }
+    
+    .action-buttons .btn {
+        flex: 1 1 auto;
+        min-width: 60px;
+    }
+    
+    .section-header .d-flex {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

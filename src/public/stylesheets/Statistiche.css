@@ -1,0 +1,194 @@
+/**
+ * Statistiche.css
+ * Stili specifici per la dashboard statistiche
+ */
+
+/* === Stats Cards === */
+.stats-cards-section {
+    margin-bottom: 3rem;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, var(--card-gradient-start), var(--card-gradient-end));
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stats-card:hover::before {
+    opacity: 1;
+}
+
+.stats-card-icon {
+    font-size: 3.5rem;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.stats-card-content {
+    flex: 1;
+}
+
+.stats-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.stats-card-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Varianti colore stats cards */
+.stats-card-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.stats-card-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: #fff;
+}
+
+.stats-card-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+}
+
+.stats-card-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #fff;
+}
+
+/* === Charts Section === */
+.charts-section {
+    margin-bottom: 3rem;
+}
+
+.chart-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(103, 58, 183, 0.05), rgba(33, 150, 243, 0.05));
+}
+
+.chart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.chart-container {
+    padding: 2rem;
+    position: relative;
+    min-height: 300px;
+}
+
+.chart-container-large {
+    min-height: 400px;
+}
+
+/* Canvas responsive */
+.chart-container canvas {
+    max-height: 300px;
+}
+
+.chart-container-large canvas {
+    max-height: 400px;
+}
+
+/* === Responsive === */
+@media (max-width: 1200px) {
+    .stats-card-value {
+        font-size: 2rem;
+    }
+
+    .stats-card-icon {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .stats-card {
+        padding: 1.5rem;
+    }
+
+    .chart-container {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .stats-card-icon {
+        font-size: 2.5rem;
+    }
+
+    .stats-card-value {
+        font-size: 1.8rem;
+    }
+
+    .chart-container {
+        padding: 1rem;
+        min-height: 250px;
+    }
+
+    .chart-container-large {
+        min-height: 300px;
+    }
+
+    .chart-container canvas,
+    .chart-container-large canvas {
+        max-height: 250px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-card-title {
+        font-size: 0.85rem;
+    }
+
+    .stats-card-value {
+        font-size: 1.5rem;
+    }
+
+    .chart-title {
+        font-size: 1rem;
+    }
+}

@@ -6,11 +6,9 @@
     <title>Gestione Orari Campo <%= campo.nome %> - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/components/Admin.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
-    
+    <link rel="stylesheet" href="/stylesheets/Admin_Global.css">
+    <link rel="stylesheet" href="/stylesheets/Gestione_Orari_Campi.css">
 </head>
 <body>
 
@@ -20,37 +18,80 @@
             <%- include('../../partials/sidebar.ejs'); %>
 
             <!-- Contenuto principale -->
-            <div class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-
-                        <!-- Header con profilo -->
-                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 text-center text-md-start">
-                                    <h1 class="display-5 fw-bold text-dark mb-2">
-                                        <i class="bi bi-clock-fill text-primary me-2"></i>
-                                        Orari Campo: <%= campo.nome %>
-                                    </h1>
-                                    <p class="text-primary fw-semibold mb-0">Gestione Orari Disponibili</p>
-                                </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
-                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
-                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
-                                    </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
-                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
-                                    </a>
-                                </div>
-                            </div>
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-clock-fill"></i> Orari Campo: <%= campo.nome %></h1>
+                            <p class="admin-page-subtitle">Gestione orari disponibili per prenotazioni</p>
                         </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin/campi" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Campi</span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
 
-                        <!-- Orari Default -->
-                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s mb-4">
-                            <h3>Orari Default (tutti i giorni)</h3>
+                    <!-- Orari Default -->
+                    <section class="content-card fade-in mb-4">
+                        <div class="section-header">
+                            <h2 class="section-title mb-0"><i class="bi bi-calendar-week me-2"></i>Orari Default (tutti i giorni)</h2>
+                            <button class="btn btn-success btn-sm" data-action="add-default">
+                                <i class="bi bi-plus-circle me-1"></i>Aggiungi Orario Default
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ora Inizio</th>
+                                        <th>Ora Fine</th>
+                                        <th>Attivo</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orariDefaultTable">
+                                    <% orariDefault.forEach(orario => { %>
+                                        <tr data-id="<%= orario.id %>">
+                                            <td>
+                                                <label for="ora_inizio_default_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
+                                                <input type="time" class="form-control form-control-sm" id="ora_inizio_default_<%= orario.id %>" value="<%= orario.ora_inizio %>" data-orario-id="<%= orario.id %>" data-field="ora_inizio">
+                                            </td>
+                                            <td>
+                                                <label for="ora_fine_default_<%= orario.id %>" class="visually-hidden">Ora fine</label>
+                                                <input type="time" class="form-control form-control-sm" id="ora_fine_default_<%= orario.id %>" value="<%= orario.ora_fine %>" data-orario-id="<%= orario.id %>" data-field="ora_fine">
+                                            </td>
+                                            <td>
+                                                <label for="attivo_default_<%= orario.id %>" class="visually-hidden">Attivo</label>
+                                                <input type="checkbox" class="form-check-input" id="attivo_default_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> data-orario-id="<%= orario.id %>" data-field="attivo">
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger" data-action="delete" data-orario-id="<%= orario.id %>" title="Elimina">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Orari per Giorno -->
+                    <% giorniSettimana.forEach(giorno => { %>
+                        <section class="content-card fade-in mb-4">
+                            <div class="section-header">
+                                <h2 class="section-title mb-0"><i class="bi bi-calendar-day me-2"></i>Orari <%= giorno.nome %></h2>
+                                <button class="btn btn-success btn-sm" data-action="add-day" data-giorno="<%= giorno.giorno %>">
+                                    <i class="bi bi-plus-circle me-1"></i>Aggiungi Orario per <%= giorno.nome %>
+                                </button>
+                            </div>
                             <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-dark">
+                                <table class="table admin-table">
+                                    <thead>
                                         <tr>
                                             <th>Ora Inizio</th>
                                             <th>Ora Fine</th>
@@ -58,82 +99,46 @@
                                             <th>Azioni</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="orariDefaultTable">
-                                        <% orariDefault.forEach(orario => { %>
+                                    <tbody id="orari<%= giorno.giorno %>Table">
+                                        <% giorno.orari.forEach(orario => { %>
                                             <tr data-id="<%= orario.id %>">
                                                 <td>
-                                                    <label for="ora_inizio_default_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
-                                                    <input type="time" class="form-control" id="ora_inizio_default_<%= orario.id %>" name="ora_inizio_default_<%= orario.id %>" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)">
+                                                    <label for="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
+                                                    <input type="time" class="form-control form-control-sm" id="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_inizio %>" data-orario-id="<%= orario.id %>" data-field="ora_inizio">
                                                 </td>
                                                 <td>
-                                                    <label for="ora_fine_default_<%= orario.id %>" class="visually-hidden">Ora fine</label>
-                                                    <input type="time" class="form-control" id="ora_fine_default_<%= orario.id %>" name="ora_fine_default_<%= orario.id %>" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)">
+                                                    <label for="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora fine</label>
+                                                    <input type="time" class="form-control form-control-sm" id="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_fine %>" data-orario-id="<%= orario.id %>" data-field="ora_fine">
                                                 </td>
                                                 <td>
-                                                    <label for="attivo_default_<%= orario.id %>" class="visually-hidden">Attivo</label>
-                                                    <input type="checkbox" id="attivo_default_<%= orario.id %>" name="attivo_default_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)">
+                                                    <label for="attivo_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Attivo</label>
+                                                    <input type="checkbox" class="form-check-input" id="attivo_<%= giorno.giorno %>_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> data-orario-id="<%= orario.id %>" data-field="attivo">
                                                 </td>
-                                                <td><button class="btn btn-sm btn-outline-danger" onclick="deleteOrario(<%= orario.id %>)"><i class="bi bi-trash"></i></button></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-danger" data-action="delete" data-orario-id="<%= orario.id %>" title="Elimina">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         <% }); %>
                                     </tbody>
                                 </table>
                             </div>
-                            <button class="btn btn-success" onclick="showAddModal(null)">Aggiungi Orario Default</button>
-                        </div>
+                        </section>
+                    <% }); %>
 
-                        <!-- Orari per Giorno -->
-                        <% giorniSettimana.forEach(giorno => { %>
-                            <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s mb-4">
-                                <h3>Orari <%= giorno.nome %></h3>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th>Ora Inizio</th>
-                                                <th>Ora Fine</th>
-                                                <th>Attivo</th>
-                                                <th>Azioni</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="orari<%= giorno.giorno %>Table">
-                                            <% giorno.orari.forEach(orario => { %>
-                                                <tr data-id="<%= orario.id %>">
-                                                    <td>
-                                                        <label for="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
-                                                        <input type="time" class="form-control" id="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" name="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_inizio %>" onchange="updateOrario(<%= orario.id %>, this.value, null, null)">
-                                                    </td>
-                                                    <td>
-                                                        <label for="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora fine</label>
-                                                        <input type="time" class="form-control" id="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" name="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_fine %>" onchange="updateOrario(<%= orario.id %>, null, this.value, null)">
-                                                    </td>
-                                                    <td>
-                                                        <label for="attivo_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Attivo</label>
-                                                        <input type="checkbox" id="attivo_<%= giorno.giorno %>_<%= orario.id %>" name="attivo_<%= giorno.giorno %>_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> onchange="updateOrario(<%= orario.id %>, null, null, this.checked)">
-                                                    </td>
-                                                    <td><button class="btn btn-sm btn-outline-danger" onclick="deleteOrario(<%= orario.id %>)"><i class="bi bi-trash"></i></button></td>
-                                                </tr>
-                                            <% }); %>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <button class="btn btn-success" onclick="showAddModal(<%= giorno.giorno %>)">Aggiungi Orario per <%= giorno.nome %></button>
-                            </div>
-                        <% }); %>
-
-                    </div>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 
     <!-- Modal per aggiungere orario -->
     <div class="modal fade" id="addOrarioModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Aggiungi Orario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Aggiungi Orario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addOrarioForm">
@@ -151,80 +156,15 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" onclick="addOrario()">Aggiungi</button>
+                    <button type="button" class="btn btn-success" id="confirmAddBtn">Aggiungi</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function showAddModal(giornoSettimana) {
-            document.getElementById('modalGiornoSettimana').value = giornoSettimana;
-            new bootstrap.Modal(document.getElementById('addOrarioModal')).show();
-        }
-
-        async function addOrario() {
-            const campoId = document.getElementById('modalCampoId').value;
-            const giornoSettimana = document.getElementById('modalGiornoSettimana').value;
-            const oraInizio = document.getElementById('ora_inizio').value;
-            const oraFine = document.getElementById('ora_fine').value;
-
-            try {
-                const response = await fetch(`/admin/campi/${campoId}/orari`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        giorno_settimana: giornoSettimana,
-                        ora_inizio: oraInizio,
-                        ora_fine: oraFine
-                    })
-                });
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Errore nell\'aggiunta dell\'orario');
-                }
-            } catch (error) {
-                alert('Errore: ' + error.message);
-            }
-        }
-
-        async function updateOrario(id, oraInizio, oraFine, attivo) {
-            const data = {};
-            if (oraInizio !== null) data.ora_inizio = oraInizio;
-            if (oraFine !== null) data.ora_fine = oraFine;
-            if (attivo !== null) data.attivo = attivo;
-
-            try {
-                const response = await fetch(`/admin/campi/orari/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) {
-                    alert('Errore nell\'aggiornamento');
-                }
-            } catch (error) {
-                alert('Errore: ' + error.message);
-            }
-        }
-
-        async function deleteOrario(id) {
-            if (confirm('Sei sicuro di voler eliminare questo orario?')) {
-                try {
-                    const response = await fetch(`/admin/campi/orari/${id}`, {
-                        method: 'DELETE'
-                    });
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Errore nella cancellazione');
-                    }
-                } catch (error) {
-                    alert('Errore: ' + error.message);
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/components/AdminGlobal.js"></script>
+    <script src="/javascripts/components/Admin.js"></script>
+    <script src="/javascripts/GestioneOrariCampi.js"></script>
 </body>
 </html>

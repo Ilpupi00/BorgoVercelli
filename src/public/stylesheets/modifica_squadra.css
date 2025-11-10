@@ -1,7 +1,10 @@
 /* ==========================================
    MODIFICA SQUADRA - STILI COERENTI CON IL SITO
-   Sistema di design unificato con Homepage.css
+   Sistema di design unificato con Admin_Global.css
    ========================================== */
+
+/* Import Admin Global Styles */
+/* Gli stili Admin_Global.css vengono caricati nel file HTML */
 
 /* Variabili CSS coerenti con tutto il sito */
 :root {

@@ -6,13 +6,8 @@
     <title>Gestione Prenotazioni - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/javascripts/utils/showModal.js" defer></script>
-    <script src="/javascripts/components/Admin.js" defer></script>
-    <script src="/javascripts/components/GestionePrenotazione.js" defer></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
-    
+    <link rel="stylesheet" href="/stylesheets/Admin_Global.css">
 </head>
 <body>
 
@@ -22,85 +17,57 @@
             <%- include('../../partials/sidebar.ejs'); %>
 
             <!-- Contenuto principale -->
-            <div class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-
-                        <!-- Header con profilo -->
-                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 text-center text-md-start">
-                                    <h1 class="display-5 fw-bold text-dark mb-2">
-                                        <i class="bi bi-calendar-check-fill text-primary me-2"></i>
-                                        Gestione Prenotazioni
-                                    </h1>
-                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
-                                </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
-                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
-                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
-                                    </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
-                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
-                                    </a>
-                                </div>
-                            </div>
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-calendar-check-fill"></i> Gestione Prenotazioni</h1>
+                            <p class="admin-page-subtitle">Gestisci prenotazioni campi sportivi</p>
                         </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Pannello</span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
 
-                        <!-- Contenuto principale -->
-                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="mb-0">
-                                    <i class="bi bi-list-ul text-primary me-2"></i>
-                                    Tutte le Prenotazioni
-                                </h2>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-success btn-modern">
-                                        <i class="bi bi-check-circle me-2"></i>
-                                        Confermate
-                                    </button>
-                                    <button class="btn btn-warning btn-modern">
-                                        <i class="bi bi-clock me-2"></i>
-                                        In Attesa
-                                    </button>
-                                    <button class="btn btn-danger btn-modern">
-                                        <i class="bi bi-x-circle me-2"></i>
-                                        Annullate
-                                    </button>
-                                    <button class="btn btn-secondary btn-modern">
-                                        <i class="bi bi-calendar-x me-2"></i>
-                                        Scadute
-                                    </button>
-                                    <button id="deleteScaduteBtn" class="btn btn-outline-danger btn-modern">
-                                        <i class="bi bi-trash me-2"></i>
-                                        Elimina Scadute
-                                    </button>
-                                </div>
-                            </div>
+                    <section class="section-header fade-in">
+                        <h2 class="section-title mb-0"><i class="bi bi-list-ul me-2"></i>Tutte le Prenotazioni</h2>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-success btn-sm"><i class="bi bi-check-circle me-1"></i>Confermate</button>
+                            <button class="btn btn-warning btn-sm"><i class="bi bi-clock me-1"></i>In Attesa</button>
+                            <button class="btn btn-danger btn-sm"><i class="bi bi-x-circle me-1"></i>Annullate</button>
+                            <button class="btn btn-secondary btn-sm"><i class="bi bi-calendar-x me-1"></i>Scadute</button>
+                            <button id="deleteScaduteBtn" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Elimina Scadute
+                            </button>
+                        </div>
+                    </section>
 
-                            <!-- Search Bar -->
-                            <div class="mb-3">
-                                <input type="text" id="searchInput" name="q" class="form-control" placeholder="Cerca prenotazioni...">
-                            </div>
+                    <section class="search-section fade-in">
+                        <input type="text" id="searchInput" name="q" class="form-control form-control-lg" placeholder="🔍 Cerca prenotazioni...">
+                    </section>
 
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Campo</th>
-                                                    <th>Utente</th>
-                                                    <th>Squadra</th>
-                                                    <th>Data</th>
-                                                    <th>Orario</th>
-                                                    <th>Tipo Attività</th>
-                                                    <th>Stato</th>
-                                                    <th>Azioni</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                    <section class="content-card fade-in">
+                        <div class="table-responsive">
+                            <table class="table admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Campo</th>
+                                        <th>Utente</th>
+                                        <th>Squadra</th>
+                                        <th>Data</th>
+                                        <th>Orario</th>
+                                        <th>Tipo Attività</th>
+                                        <th>Stato</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                                 <% if (prenotazioni && prenotazioni.length > 0) { %>
                                                     <% prenotazioni.forEach(prenotazione => { %>
                                                         <tr>
@@ -119,15 +86,15 @@
                                                             <td><%= prenotazione.tipo_attivita || '-' %></td>
                                                             <td>
                                                                 <% if (prenotazione.stato === 'confermata') { %>
-                                                                    <span class="badge bg-success">Confermata</span>
+                                                                    <span class="badge badge-success">Confermata</span>
                                                                 <% } else if (prenotazione.stato === 'in_attesa') { %>
-                                                                    <span class="badge bg-warning">In Attesa</span>
+                                                                    <span class="badge badge-warning">In Attesa</span>
                                                                 <% } else if (prenotazione.stato === 'annullata') { %>
-                                                                    <span class="badge bg-danger">Annullata</span>
+                                                                    <span class="badge badge-danger">Annullata</span>
                                                                 <% } else if (prenotazione.stato === 'scaduta') { %>
-                                                                    <span class="badge bg-secondary">Scaduta</span>
+                                                                    <span class="badge badge-secondary">Scaduta</span>
                                                                 <% } else { %>
-                                                                    <span class="badge bg-secondary"><%= prenotazione.stato %></span>
+                                                                    <span class="badge badge-secondary"><%= prenotazione.stato %></span>
                                                                 <% } %>
                                                             </td>
                                                             <td>
@@ -172,15 +139,59 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </section>
+                            </main>
+        </div>
+    </div>
+
+    <!-- Modal Dettagli Prenotazione -->
+    <div class="modal fade" id="visualizzaPrenotazioneModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Dettagli Prenotazione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalPrenotazioneBody">
+                    <!-- Contenuto dinamico caricato da JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Chiudi
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="page"></div>
+    <!-- Modal Conferma Eliminazione -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler eliminare questa prenotazione?</p>
+                    <p class="text-muted mb-0">Questa azione non può essere annullata.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Annulla
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-2"></i>Elimina
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/components/AdminGlobal.js"></script>
+    <script src="/javascripts/components/Admin.js"></script>
+    <script src="/javascripts/components/AdminSidebar.js"></script>
+    <script src="/javascripts/GestionePrenotazione.js"></script>
 </body>
 </html>

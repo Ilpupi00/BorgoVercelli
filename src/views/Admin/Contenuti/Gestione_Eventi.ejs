@@ -6,13 +6,11 @@
     <title>Gestione Eventi - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/components/Admin.js" defer></script>
-    <script type="module" src="/javascripts/utils/showModal.js" defer></script>
-    <script src="/javascripts/components/GestioneEventi.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Stili globali admin -->
     <link rel="stylesheet" href="/stylesheets/Admin.css">
-    
+    <link rel="stylesheet" href="/stylesheets/Admin_Global.css">
+    <!-- Stili specifici pagina -->
+    <link rel="stylesheet" href="/stylesheets/Gestione_Eventi.css">
 </head>
 <body>
 
@@ -22,127 +20,115 @@
             <%- include('../../partials/sidebar.ejs'); %>
 
             <!-- Contenuto principale -->
-            <div class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="row justify-content-center">
-                    <div class="col-12">
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
 
-                        <!-- Header con profilo -->
-                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 text-center text-md-start">
-                                    <h1 class="display-5 fw-bold text-dark mb-2">
-                                        <i class="bi bi-calendar-event text-primary me-2"></i>
-                                        Gestione Eventi
-                                    </h1>
-                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
-                                </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                                    <div class="d-flex justify-content-center justify-content-md-end gap-2">
-                                        <a href="/admin" class="btn btn-outline-secondary">
-                                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
-                                        </a>
-                                        <a href="/Logout" class="btn btn-outline-danger">
-                                            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
-                                        </a>
-                                    </div>
+                    <!-- Header -->
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1>
+                                <i class="bi bi-calendar-event"></i>
+                                Gestione Eventi
+                            </h1>
+                            <p>Organizza e gestisci tutti gli eventi del sito</p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <!-- Section Header -->
+                    <section class="section-header fade-in">
+                        <h2 class="section-title mb-0">
+                            <i class="bi bi-list-ul"></i>
+                            Tutti gli Eventi
+                        </h2>
+                        <a href="/evento/crea-evento" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Crea Nuovo Evento
+                        </a>
+                    </section>
+
+                    <!-- Barra di ricerca e filtri -->
+                    <section class="filters-section fade-in">
+                        <div class="search-box">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Cerca per ID, titolo, descrizione, luogo...">
+                        </div>
+                        
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label for="statusFilter" class="filter-label">
+                                    <i class="bi bi-filter"></i> Stato
+                                </label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="all">Tutti gli stati</option>
+                                    <option value="published">Pubblicati</option>
+                                    <option value="draft">Bozze</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="typeFilter" class="filter-label">
+                                    <i class="bi bi-tag"></i> Tipo
+                                </label>
+                                <select class="form-select" id="typeFilter">
+                                    <option value="all">Tutti i tipi</option>
+                                    <option value="Torneo">Torneo</option>
+                                    <option value="Partita">Partita</option>
+                                    <option value="Allenamento">Allenamento</option>
+                                    <option value="Evento Sociale">Evento Sociale</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="dateFilter" class="filter-label">
+                                    <i class="bi bi-calendar"></i> Data
+                                </label>
+                                <select class="form-select" id="dateFilter">
+                                    <option value="all">Tutte le date</option>
+                                    <option value="upcoming">Futuri</option>
+                                    <option value="past">Passati</option>
+                                    <option value="today">Oggi</option>
+                                    <option value="week">Questa settimana</option>
+                                    <option value="month">Questo mese</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <small class="text-muted d-block mb-1">Risultati</small>
+                                <div>
+                                    <span id="totalCount"><%= eventi ? eventi.length : 0 %></span> eventi
+                                    <span id="filteredCount" class="text-primary">(<%= eventi ? eventi.length : 0 %> visualizzati)</span>
                                 </div>
                             </div>
                         </div>
+                    </section>
 
-                        <!-- Contenuto principale -->
-                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="mb-0">
-                                    <i class="bi bi-list-ul text-primary me-2"></i>
-                                    Tutti gli Eventi
-                                </h2>
-                                <a href="/evento/crea-evento" class="btn btn-primary btn-modern">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                    Crea Nuovo Evento
-                                </a>
-                            </div>
-
-                            <!-- Barra di ricerca e filtri -->
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <!-- Barra di ricerca -->
-                                        <div class="col-md-6">
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="bi bi-search"></i>
-                                                </span>
-                                                <input type="text" class="form-control" id="searchInput" name="q" placeholder="Cerca per ID, titolo, descrizione, luogo...">
-                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                                    <i class="bi bi-x"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Filtro stato -->
-                                        <div class="col-md-2">
-                                            <select class="form-select" id="statusFilter">
-                                                <option value="all">Tutti gli stati</option>
-                                                <option value="published">Pubblicati</option>
-                                                <option value="draft">Bozze</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Filtro tipo -->
-                                        <div class="col-md-2">
-                                            <select class="form-select" id="typeFilter">
-                                                <option value="all">Tutti i tipi</option>
-                                                <option value="Torneo">Torneo</option>
-                                                <option value="Partita">Partita</option>
-                                                <option value="Allenamento">Allenamento</option>
-                                                <option value="Evento Sociale">Evento Sociale</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Filtro data -->
-                                        <div class="col-md-2">
-                                            <select class="form-select" id="dateFilter">
-                                                <option value="all">Tutte le date</option>
-                                                <option value="upcoming">Futuri</option>
-                                                <option value="past">Passati</option>
-                                                <option value="today">Oggi</option>
-                                                <option value="week">Questa settimana</option>
-                                                <option value="month">Questo mese</option>
-                                                <option value="year">Quest'anno</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- Statistiche filtrate -->
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <small class="text-muted">
-                                                <span id="totalCount"><%= eventi ? eventi.length : 0 %></span> eventi totali
-                                                <span id="filteredCount" class="ms-3">(<%= eventi ? eventi.length : 0 %> filtrate)</span>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Titolo</th>
-                                                    <th>Data Inizio</th>
-                                                    <th>Data Fine</th>
-                                                    <th>Luogo</th>
-                                                    <th>Tipo</th>
-                                                    <th>Stato</th>
-                                                    <th>Partecipanti Max</th>
-                                                    <th>Azioni</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="eventiTableBody">
+                    <!-- Eventi Table -->
+                    <section class="admin-content-section fade-in">
+                        <div class="admin-table-container">
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Titolo</th>
+                                            <th>Data Inizio</th>
+                                            <th>Data Fine</th>
+                                            <th>Luogo</th>
+                                            <th>Tipo</th>
+                                            <th>Stato</th>
+                                            <th>Partecipanti Max</th>
+                                            <th class="text-center">Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="eventiTableBody">
                                                 <% if (eventi && eventi.length > 0) { %>
                                                     <% eventi.forEach(evento => { %>
                                                         <tr data-evento-id="<%= evento.id %>" 
@@ -155,32 +141,43 @@
                                                             data-tipo="<%= evento.tipo_evento || '' %>">
                                                             <td><%= evento.id %></td>
                                                             <td>
-                                                                <strong><%= evento.titolo %></strong>
+                                                                <div class="fw-semibold"><%= evento.titolo %></div>
                                                                 <% if (evento.descrizione) { %>
-                                                                    <br><small class="text-muted"><%= evento.descrizione.substring(0, 50) %>...</small>
+                                                                    <small class="text-muted"><%= evento.descrizione.substring(0, 50) %>...</small>
                                                                 <% } %>
                                                             </td>
                                                             <td><%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'N/A' %></td>
                                                             <td><%= evento.data_fine ? new Date(evento.data_fine).toLocaleDateString('it-IT') : 'N/A' %></td>
                                                             <td><%= evento.luogo || 'N/A' %></td>
-                                                            <td><%= evento.tipo_evento || 'N/A' %></td>
+                                                            <td>
+                                                                <span class="badge badge-info">
+                                                                    <%= evento.tipo_evento || 'N/A' %>
+                                                                </span>
+                                                            </td>
                                                             <td>
                                                                 <% if (evento.pubblicato) { %>
-                                                                    <span class="badge bg-success">Pubblicato</span>
+                                                                    <span class="badge badge-success">
+                                                                        <i class="bi bi-check-circle me-1"></i>Pubblicato
+                                                                    </span>
                                                                 <% } else { %>
-                                                                    <span class="badge bg-warning">Bozza</span>
+                                                                    <span class="badge badge-warning">
+                                                                        <i class="bi bi-pencil me-1"></i>Bozza
+                                                                    </span>
                                                                 <% } %>
                                                             </td>
-                                                            <td><%= evento.max_partecipanti || 'N/A' %></td>
+                                                            <td class="text-center"><%= evento.max_partecipanti || '∞' %></td>
                                                             <td>
-                                                                <div class="btn-group" role="group">
-                                                                    <a href="/evento/<%= evento.id %>" class="btn btn-sm btn-outline-primary" title="Visualizza">
+                                                                <div class="action-buttons">
+                                                                    <a href="/evento/<%= evento.id %>" class="btn btn-sm btn-outline-primary" title="Visualizza" target="_blank">
                                                                         <i class="bi bi-eye"></i>
                                                                     </a>
                                                                     <button class="btn btn-sm btn-outline-warning btn-modifica-evento" title="Modifica" data-evento-id="<%= evento.id %>">
                                                                         <i class="bi bi-pencil"></i>
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-outline-success toggle-pubblicazione" title="<%= evento.pubblicato ? 'Sospendi' : 'Pubblica' %>" data-evento-id="<%= evento.id %>" data-current-status="<%= evento.pubblicato ? 1 : 0 %>">
+                                                                    <button class="btn btn-sm btn-outline-<%= evento.pubblicato ? 'secondary' : 'success' %> toggle-pubblicazione" 
+                                                                            title="<%= evento.pubblicato ? 'Ritira' : 'Pubblica' %>" 
+                                                                            data-evento-id="<%= evento.id %>" 
+                                                                            data-current-status="<%= evento.pubblicato ? 1 : 0 %>">
                                                                         <i class="bi <%= evento.pubblicato ? 'bi-eye-slash' : 'bi-eye' %>"></i>
                                                                     </button>
                                                                     <button class="btn btn-sm btn-outline-danger btn-elimina-evento" title="Elimina" data-evento-id="<%= evento.id %>">
@@ -190,36 +187,50 @@
                                                             </td>
                                                         </tr>
                                                     <% }); %>
-                                                    <!-- Riga per nessun risultato dai filtri (inizialmente nascosta) -->
-                                                    <tr id="noResultsRow" style="display: none;">
-                                                        <td colspan="9" class="text-center text-muted py-4">
-                                                            <i class="bi bi-search display-4 mb-3"></i>
-                                                            <p>Nessun evento corrisponde ai filtri selezionati.</p>
-                                                            <button class="btn btn-outline-secondary" onclick="gestioneEventi.clearAllFilters()">Rimuovi filtri</button>
+                                                    <!-- Riga per nessun risultato dai filtri -->
+                                                    <tr id="noResultsRow" class="d-none">
+                                                        <td colspan="9" class="text-center py-5">
+                                                            <div class="empty-state">
+                                                                <i class="bi bi-search empty-icon"></i>
+                                                                <p class="empty-text">Nessun evento corrisponde ai filtri selezionati</p>
+                                                                <button class="btn btn-outline-secondary" onclick="gestioneEventi.clearAllFilters()">
+                                                                    <i class="bi bi-x-circle me-1"></i> Rimuovi filtri
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 <% } else { %>
-                                                    <tr id="noResultsRow">
-                                                        <td colspan="9" class="text-center text-muted py-4">
-                                                            <i class="bi bi-info-circle display-4 mb-3"></i>
-                                                            <p>Nessun evento presente nel sistema.</p>
-                                                            <a href="/crea-evento" class="btn btn-primary">Crea il primo evento</a>
+                                                    <tr id="noDataRow">
+                                                        <td colspan="9" class="text-center py-5">
+                                                            <div class="empty-state">
+                                                                <i class="bi bi-calendar-x empty-icon"></i>
+                                                                <p class="empty-text">Nessun evento presente nel sistema</p>
+                                                                <a href="/crea-evento" class="btn btn-primary">
+                                                                    <i class="bi bi-plus-circle me-1"></i> Crea il primo evento
+                                                                </a>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 <% } %>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </section>
+                </main>
             </div>
         </div>
     </div>
 
-    <div id="page"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/components/AdminGlobal.js"></script>
+    <script src="/javascripts/components/Admin.js"></script>
+    
+    <!-- Page-specific JS -->
+    <script src="/javascripts/components/GestioneEventi.js"></script>
+    
+    <!-- Modal Helper -->
+    <script type="module" src="/javascripts/utils/showModal.js"></script>
 
 </body>
 </html>

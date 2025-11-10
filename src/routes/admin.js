@@ -536,6 +536,22 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
             console.error('Errore recupero attività:', activityErr);
         }
 
+        // Recupera notizie ed eventi personali per dirigenti e admin
+        let notiziePersonali = [];
+        let eventiPersonali = [];
+        if (dirigente || user.isAdmin) {
+            try {
+                notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero notizie personali:', err);
+            }
+            try {
+                eventiPersonali = await eventiDao.getEventiPersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero eventi personali:', err);
+            }
+        }
+
         res.render('profilo', {
             user,
             imageUrl,
@@ -543,6 +559,8 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
             dirigente,
             stats,
             activity,
+            notiziePersonali,
+            eventiPersonali,
             isLogged: true
         });
     } catch (err) {
