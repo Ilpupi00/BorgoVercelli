@@ -113,10 +113,13 @@ router.delete('/prenotazioni/scadute', async (req, res) => {
             console.error('Errore durante il check delle scadute prima della cancellazione:', e);
         }
         
-        console.error('[route prenotazioni] calling dao.deleteScadute');
-        const result = await daoPrenotazione.deleteScadute();
-        console.error(`[route prenotazioni] deleteScadute dao result: ${JSON.stringify(result)}`);
-        res.json(result);
+    // call DAO to delete scadute and normalize the response so the front-end
+    // can read either `deleted`, `changes` or `actualChanges` depending on
+    // historical variations.
+    const result = await daoPrenotazione.deleteScadute();
+    console.error(`[route prenotazioni] deleteScadute dao result: ${JSON.stringify(result)}`);
+    const count = result.deleted || result.actualChanges || result.changes || 0;
+    res.json({ success: !!result.success, deleted: count, changes: count });
     } catch (err) {
         console.error('[route prenotazioni] Error in DELETE /prenotazioni/scadute:', err);
         res.status(500).json({ error: err.message });
