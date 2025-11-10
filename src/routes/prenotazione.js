@@ -116,7 +116,7 @@ router.delete('/prenotazioni/scadute', async (req, res) => {
         console.error('[route prenotazioni] calling dao.deleteScadute');
         const result = await daoPrenotazione.deleteScadute();
         console.error(`[route prenotazioni] deleteScadute dao result: ${JSON.stringify(result)}`);
-        res.json({ test: 'ok' });
+        res.json(result);
     } catch (err) {
         console.error('[route prenotazioni] Error in DELETE /prenotazioni/scadute:', err);
         res.status(500).json({ error: err.message });

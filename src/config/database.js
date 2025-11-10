@@ -15,9 +15,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 // Test query
-db.get("SELECT 1 as test", [], (err, row) => {
-    if (err) console.error('Test query error:', err);
-    else console.log('Test query success:', row);
-});
+// db.get("SELECT 1 as test", [], (err, row) => {
+//     if (err) console.error('Test query error:', err);
+//     else console.log('Test query success:', row);
+// });
+
+// process.on('exit', () => {
+//     console.log('Closing database');
+//     db.close();
+// });
 
 module.exports=db;
