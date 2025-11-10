@@ -765,4 +765,162 @@ router.put('/api/admin/campionati/:id/squadre/:nome', isLoggedIn, isAdmin, async
     }
 });
 
+// ==================== GESTIONE SOSPENSIONE/BAN UTENTI ====================
+
+const emailService = require('../services/email-service');
+
+// Route per sospendere un utente
+router.post('/api/admin/utenti/:id/sospendi', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { motivo, durataGiorni } = req.body;
+
+        if (!motivo || !durataGiorni) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Motivo e durata sono obbligatori' 
+            });
+        }
+
+        // Calcola data fine sospensione
+        const moment = require('moment');
+        const dataFine = moment().add(parseInt(durataGiorni), 'days').format('YYYY-MM-DD HH:mm:ss');
+
+        // Recupera dati utente
+        const utente = await userDao.getUserById(userId);
+        
+        // Sospendi utente
+        await userDao.sospendiUtente(userId, req.user.id, motivo, dataFine);
+
+        // Invia email
+        try {
+            await emailService.sendSospensioneEmail(
+                utente.email,
+                `${utente.nome} ${utente.cognome}`,
+                motivo,
+                dataFine
+            );
+        } catch (emailErr) {
+            console.error('Errore invio email sospensione:', emailErr);
+            // Continua comunque, la sospensione è stata applicata
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Utente sospeso con successo',
+            dataFine: dataFine
+        });
+    } catch (err) {
+        console.error('Errore nella sospensione:', err);
+        res.status(500).json({ 
+            success: false, 
+            error: err.error || 'Errore nella sospensione dell\'utente' 
+        });
+    }
+});
+
+// Route per bannare un utente
+router.post('/api/admin/utenti/:id/banna', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { motivo } = req.body;
+
+        if (!motivo) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Il motivo è obbligatorio' 
+            });
+        }
+
+        // Recupera dati utente
+        const utente = await userDao.getUserById(userId);
+        
+        // Banna utente
+        await userDao.bannaUtente(userId, req.user.id, motivo);
+
+        // Invia email
+        try {
+            await emailService.sendBanEmail(
+                utente.email,
+                `${utente.nome} ${utente.cognome}`,
+                motivo
+            );
+        } catch (emailErr) {
+            console.error('Errore invio email ban:', emailErr);
+            // Continua comunque, il ban è stato applicato
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Utente bannato con successo'
+        });
+    } catch (err) {
+        console.error('Errore nel ban:', err);
+        res.status(500).json({ 
+            success: false, 
+            error: err.error || 'Errore nel ban dell\'utente' 
+        });
+    }
+});
+
+// Route per revocare sospensione/ban
+router.post('/api/admin/utenti/:id/revoca', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Recupera dati utente
+        const utente = await userDao.getUserById(userId);
+        
+        // Revoca sospensione/ban
+        await userDao.revocaSospensioneBan(userId);
+
+        // Invia email
+        try {
+            await emailService.sendRevocaEmail(
+                utente.email,
+                `${utente.nome} ${utente.cognome}`
+            );
+        } catch (emailErr) {
+            console.error('Errore invio email revoca:', emailErr);
+            // Continua comunque, la revoca è stata applicata
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Sospensione/Ban revocato con successo'
+        });
+    } catch (err) {
+        console.error('Errore nella revoca:', err);
+        res.status(500).json({ 
+            success: false, 
+            error: err.error || 'Errore nella revoca' 
+        });
+    }
+});
+
+// Route per ottenere lo stato di un utente
+router.get('/api/admin/utenti/:id/stato', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const stato = await userDao.getStatoUtente(userId);
+        res.json({ success: true, stato });
+    } catch (err) {
+        console.error('Errore nel recupero stato:', err);
+        res.status(500).json({ 
+            success: false, 
+            error: err.error || 'Errore nel recupero dello stato' 
+        });
+    }
+});
+
+router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const utenti = await userDao.getAllUsers();
+        res.render('Admin/Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
+    } catch (err) {
+        console.error('Errore nel caricamento degli utenti:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
 module.exports = router;

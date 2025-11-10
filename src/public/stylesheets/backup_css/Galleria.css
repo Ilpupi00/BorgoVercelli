@@ -1,0 +1,305 @@
+/* Galleria Moderna - Mobile First, Responsive Design */
+
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #22b14c;
+  --accent-color: #ffc107;
+  --dark-bg: #1a1a1a;
+  --light-bg: #f8fafc;
+  --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%);
+  --gradient-secondary: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
+  --shadow-light: 0 4px 20px rgba(13, 110, 253, 0.1);
+  --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* Container Galleria */
+.gallery-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(200px, 1fr);
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Item Galleria */
+.gallery-item {
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  background: white;
+  cursor: pointer;
+  height: 100%;
+}
+
+.gallery-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Wrapper Immagine */
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  overflow: hidden;
+  display: block;
+  background: #f4f4f4;
+  border-radius: var(--border-radius);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+  display: block;
+  min-width: 0;
+  min-height: 0;
+}
+
+.image-wrapper:hover .gallery-image {
+  transform: scale(1.1);
+}
+
+/* Overlay */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.image-wrapper:hover .overlay {
+  opacity: 1;
+}
+
+/* Pulsante Visualizza */
+.view-btn {
+  padding: 10px 24px;
+  background: var(--gradient-primary);
+  border: none;
+  color: white;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+  position: relative;
+  overflow: visible;
+}
+
+.view-btn:hover {
+  background: var(--gradient-secondary);
+  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  transform: translateY(-2px);
+}
+
+.view-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.view-btn:hover::before {
+  left: 100%;
+}
+
+/* Pulsante Upload */
+.upload-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: var(--border-radius);
+  background: var(--gradient-secondary);
+  border: none;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+  position: relative;
+  overflow: visible;
+}
+
+.upload-btn:hover {
+  background: var(--gradient-primary);
+  box-shadow: 0 6px 20px rgba(34,139,34,0.3);
+  transform: translateY(-2px);
+}
+
+.upload-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.upload-btn:hover::before {
+  left: 100%;
+}
+
+/* Container Immagine Singola */
+.img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-color), #e9ecef);
+}
+
+.centered-image {
+  max-width: 90vw;
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.centered-image:hover {
+  transform: scale(1.02);
+}
+
+/* Pulsante Primario */
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  padding: 12px 24px;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+
+.btn-primary:hover {
+  background: var(--gradient-secondary);
+  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+/* Media Queries per Responsive */
+
+/* Mobile small */
+@media (max-width: 575px) {
+  .gallery-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .image-wrapper {
+    min-height: 180px;
+  }
+
+  .centered-image {
+    max-width: 95%;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .gallery-container {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(250px, 1fr);
+    gap: 25px;
+    padding: 25px;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    min-height: 250px;
+  }
+
+  .centered-image {
+    max-width: 80%;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .gallery-container {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(300px, 1fr);
+    gap: 30px;
+    padding: 30px;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    min-height: 300px;
+  }
+
+  .centered-image {
+    max-width: 900px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .gallery-container {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(350px, 1fr);
+    gap: 35px;
+    padding: 35px;
+  }
+
+  .image-wrapper {
+    min-height: 350px;
+  }
+}

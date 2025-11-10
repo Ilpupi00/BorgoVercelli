@@ -120,6 +120,22 @@ class ScriviRecensione {
                 return;
             }
 
+            // Controllo checkbox privacy
+            const privacyCheckbox = this.page.querySelector('#recensione_privacy_accept');
+            const privacyError = this.page.querySelector('#privacy_error_recensione');
+            
+            if (!privacyCheckbox.checked) {
+                if (privacyError) {
+                    privacyError.style.display = 'block';
+                }
+                ShowModal.showModalError('Devi accettare la Privacy Policy per inviare la recensione.', 'Privacy Policy Richiesta');
+                return;
+            }
+            
+            if (privacyError) {
+                privacyError.style.display = 'none';
+            }
+
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
 

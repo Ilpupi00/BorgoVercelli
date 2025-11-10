@@ -9,6 +9,58 @@ const dao = require('../services/dao-notizie');
 
 const isLoggedIn = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
+        // Verifica stato utente (sospeso/bannato)
+        if (req.user.stato === 'bannato') {
+            req.logout(function(err) {
+                if (err) { console.error('Errore logout:', err); }
+            });
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(403).json({ 
+                    error: 'Account bannato', 
+                    message: 'Il tuo account è stato bannato. Contatta l\'amministrazione per maggiori informazioni.' 
+                });
+            } else {
+                return res.status(403).render('error', { 
+                    message: 'Account bannato: il tuo account è stato bannato dal sito. Contatta l\'amministrazione per maggiori informazioni.', 
+                    error: { status: 403 } 
+                });
+            }
+        }
+        
+        if (req.user.stato === 'sospeso') {
+            // Verifica se la sospensione è scaduta
+            const moment = require('moment');
+            if (req.user.data_fine_sospensione && moment(req.user.data_fine_sospensione).isBefore(moment())) {
+                // Sospensione scaduta, riattiva automaticamente
+                const userDao = require('../services/dao-user');
+                userDao.revocaSospensioneBan(req.user.id).catch(err => {
+                    console.error('Errore riattivazione automatica:', err);
+                });
+                // Continua l'accesso
+                return next();
+            }
+            
+            req.logout(function(err) {
+                if (err) { console.error('Errore logout:', err); }
+            });
+            
+            const dataFine = req.user.data_fine_sospensione 
+                ? moment(req.user.data_fine_sospensione).format('DD/MM/YYYY HH:mm')
+                : 'Non specificato';
+            
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(403).json({ 
+                    error: 'Account sospeso', 
+                    message: `Il tuo account è sospeso fino al ${dataFine}. Motivo: ${req.user.motivo_sospensione || 'Non specificato'}` 
+                });
+            } else {
+                return res.status(403).render('error', { 
+                    message: `Account sospeso: il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${req.user.motivo_sospensione || 'Non specificato'}`, 
+                    error: { status: 403 } 
+                });
+            }
+        }
+        
         return next();
     }
     if (req.headers.accept && req.headers.accept.includes('application/json')) {

@@ -1,0 +1,664 @@
+/* Variabili CSS coerenti con Homepage.css */
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #22b14c;
+  --accent-color: #ffc107;
+  --dark-bg: #1a1a1a;
+  --light-bg: #f8fafc;
+  --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%);
+  --gradient-secondary: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
+  --shadow-light: 0 4px 20px rgba(13, 110, 253, 0.1);
+  --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Contenitore select centrato e max-width su desktop */
+.select-container {
+  max-width: 400px;
+  width: 100%;
+  margin-bottom: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: var(--transition);
+  border: 1px solid #e9ecef;
+}
+
+.select-container:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Stili moderni per select squadra */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1.2rem;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.select-wrapper:hover::after {
+  color: var(--primary-color);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.custom-select {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1rem; /* Spazio per icona destra */
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+  cursor: pointer;
+  appearance: none; /* Rimuovi freccia default */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.custom-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.custom-select:hover {
+  border-color: #bbb;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.custom-select option {
+  background: #fff;
+  color: #333;
+  padding: 1rem;
+  font-weight: 400;
+}
+
+.custom-select option:hover {
+  background: #f8f9fa;
+}
+
+.custom-select option:checked {
+  background: #e9ecef;
+  font-weight: 500;
+}
+
+/* Placeholder styling */
+.custom-select::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+/* Stato selezionato */
+.custom-select:not(:placeholder-shown) {
+  color: #333;
+}
+
+/* Placeholder styling */
+.custom-select::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Stato selezionato */
+.custom-select:not(:placeholder-shown) {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+/* Icona team accanto al nome (se aggiunta via JS) */
+.team-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-logo-small {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.img-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    filter: brightness(1.1) contrast(1.05);
+}
+
+.img-container img:hover {
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: var(--shadow-dark);
+    filter: brightness(1.2) contrast(1.1) saturate(1.2);
+}
+
+.table-soccer {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    background: var(--light-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+    margin: 2rem 0;
+}
+
+.table-soccer:hover {
+    box-shadow: var(--shadow-dark);
+    transform: translateY(-4px);
+}
+
+.table-soccer thead {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.table-soccer thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: none;
+}
+
+.table-soccer tbody tr {
+    transition: var(--transition);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-soccer tbody tr:hover {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(34, 177, 76, 0.1));
+    transform: scale(1.01);
+}
+
+.table-soccer tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.position-badge {
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.position-badge:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-dark);
+}
+
+.position-portiere {
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    color: #000;
+}
+
+.position-difensore {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: #fff;
+}
+
+.position-centrocampista {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+}
+
+.position-attaccante {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+}
+
+.player-photo {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--secondary-color);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.player-photo:hover {
+    transform: scale(1.2) rotate(5deg);
+    box-shadow: var(--shadow-dark);
+    filter: brightness(1.1) saturate(1.2);
+}
+
+/* Aggiunte per modernità e web 2.0 */
+.squadra-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-dark);
+    position: relative;
+    overflow: hidden;
+}
+
+.squadra-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.squadra-title {
+    font-size: clamp(2em, 5vw, 3em);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.squadra-subtitle {
+    font-size: clamp(1em, 3vw, 1.5em);
+    font-weight: 600;
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+}
+
+/* Responsive design migliorato */
+@media (max-width: 768px) {
+    .table-soccer {
+        font-size: 0.75em;
+    }
+
+    .table-soccer thead th,
+    .table-soccer tbody td {
+        padding: 0.2rem;
+    }
+
+    .position-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+
+    .player-photo {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Riduci larghezza colonne su mobile invece di nasconderle */
+    .table-soccer th:nth-child(1), /* # */
+    .table-soccer td:nth-child(1) {
+        width: 5%;
+    }
+
+    .table-soccer th:nth-child(2), /* Foto */
+    .table-soccer td:nth-child(2) {
+        width: 10%;
+    }
+
+    .table-soccer th:nth-child(3), /* Nome */
+    .table-soccer td:nth-child(3),
+    .table-soccer th:nth-child(4), /* Cognome */
+    .table-soccer td:nth-child(4) {
+        width: 15%;
+    }
+
+    .table-soccer th:nth-child(5), /* Numero */
+    .table-soccer td:nth-child(5) {
+        width: 8%;
+    }
+
+    .table-soccer th:nth-child(6), /* Ruolo */
+    .table-soccer td:nth-child(6) {
+        width: 12%;
+    }
+
+    .table-soccer th:nth-child(7), /* Età */
+    .table-soccer td:nth-child(7) {
+        width: 8%;
+    }
+
+    .table-soccer th:nth-child(8), /* Piede */
+    .table-soccer td:nth-child(8) {
+        width: 8%;
+    }
+
+    .table-soccer th:nth-child(9), /* Nazionalità */
+    .table-soccer td:nth-child(9) {
+        width: 14%;
+    }
+}
+
+/* Animazioni di entrata per elementi */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s cubic-bezier(0.39, 0.575, 0.565, 1.000) forwards;
+}
+
+.fade-in-up.delay-1 { animation-delay: 0.1s; }
+.fade-in-up.delay-2 { animation-delay: 0.2s; }
+.fade-in-up.delay-3 { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effetti aggiuntivi per la tabella */
+.table-soccer tbody tr:nth-child(even) {
+    background: rgba(248, 249, 252, 0.5);
+}
+
+.table-soccer tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Miglioramenti per i badge posizioni */
+.position-badge::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Stili per pulsanti aggiuntivi */
+.btn-squadra {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-squadra::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-squadra:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: var(--shadow-dark);
+}
+
+.btn-squadra:hover::before {
+    left: 100%;
+}
+
+.btn-squadra:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Effetto glow per elementi speciali */
+.glow {
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.5), var(--shadow-light);
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+    from {
+        box-shadow: 0 0 20px rgba(13, 110, 253, 0.5), var(--shadow-light);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(13, 110, 253, 0.8), var(--shadow-dark);
+    }
+}
+
+/* Stili per overlay o modali */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: var(--light-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-dark);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    transition: var(--transition);
+}
+
+.overlay.active .overlay-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Miglioramenti per immagini squadra */
+.team-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid var(--secondary-color);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    object-fit: cover;
+}
+
+.team-logo:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: var(--shadow-dark);
+    filter: brightness(1.1) saturate(1.2);
+}
+
+/* Stili per statistiche o card aggiuntive */
+.stat-card {
+    background: var(--light-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-dark);
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: 900;
+    color: var(--primary-color);
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+.stat-label {
+    font-size: 1em;
+    color: var(--dark-bg);
+    margin: 0.5rem 0 0 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Effetto parallax per sfondi */
+.parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* Miglioramenti finali per accessibilità e performance */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support (se implementato) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --light-bg: #2d3748;
+        --dark-bg: #1a202c;
+    }
+}
+
+/* Stili per Choices.js - Select moderni */
+.choices {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.choices__inner {
+    background: var(--gradient-secondary);
+    color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    min-height: auto;
+}
+
+.choices__inner:hover {
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-dark);
+    transform: translateY(-1px);
+}
+
+.choices__inner:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(34, 177, 76, 0.25), var(--shadow-light);
+    outline: none;
+    transform: scale(1.02);
+}
+
+.choices__list--dropdown {
+    background: var(--light-bg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-dark);
+    margin-top: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.choices__item {
+    padding: 0.75rem 1rem;
+    color: var(--dark-bg);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.choices__item:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: scale(1.02);
+}
+
+.choices__item--selectable {
+    cursor: pointer;
+}
+
+.choices__item--selected {
+    background: var(--gradient-secondary);
+    color: white;
+    font-weight: 600;
+}
+
+.choices__placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+}
+
+.choices__button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.5rem;
+    transition: var(--transition);
+}
+
+.choices__button:hover {
+    color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.choices.is-open .choices__inner {
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-dark);
+}

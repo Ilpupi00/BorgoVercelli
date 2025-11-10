@@ -1,0 +1,633 @@
+/* --- Ottimizzazioni mobile navbar --- */
+
+@media (max-width: 576px) {
+  .navbar {
+    min-height: 54px;
+    padding: 0 2vw;
+    background-color: #0d6efd;
+    transition: box-shadow 0.3s, background 0.3s;
+  }
+  .navbar-brand {
+    margin: 0;
+    padding: 0;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+    transition: filter 0.2s;
+  }
+  .navbar-logo {
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 auto;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    object-fit: contain;
+    transition: width 0.2s, height 0.2s;
+  }
+@media (min-width: 577px) {
+  .navbar-logo {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+  .navbar-toggler {
+    margin-left: auto;
+    padding: 4px 8px;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: #0d6efd;
+    border: none;
+    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .navbar-toggler:active {
+    background-color: #0d6efd;
+    box-shadow: 0 4px 16px rgba(13,110,253,0.18);
+  }
+  .navbar {
+    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%) !important;
+    box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+  }
+  .navbar-nav {
+    padding: 4px 0;
+    margin: 0 auto;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    background: none;
+  }
+  .navbar-nav .nav-item {
+    margin: 2px 1px;
+    font-size: 15px;
+  }
+  .navbar-nav .nav-link {
+    font-size: 15px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: #fff;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: none;
+    position: relative;
+    z-index: 1;
+  }
+  .navbar-nav .nav-link:active {
+    background: #fff;
+    color: #0d6efd;
+    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+  }
+  .navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: #fff;
+    width: 0;
+    border-radius: 2px;
+    transition: width 0.3s;
+    z-index: -1;
+  }
+  .navbar-nav .nav-link:hover::after,
+  .navbar-nav .nav-link:focus::after {
+    width: 100%;
+  }
+  .navbar-profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0;
+    height: 40px;
+    gap: 0.5em;
+    background: none;
+  }
+  .profile-pic {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border: 2px solid #fff;
+    transition: box-shadow 0.2s, border 0.2s;
+  }
+  .profile-pic:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    border: 2px solid #00d2ff;
+  }
+  .profile-icon {
+    font-size: 1.6rem;
+    color: #fff;
+    filter: drop-shadow(0 1px 4px #00d2ff);
+    transition: color 0.2s, filter 0.2s;
+  }
+  .profile-icon:hover {
+    color: #00d2ff;
+    filter: drop-shadow(0 2px 8px #0d6efd);
+  }
+  #Login {
+    font-size: 15px;
+    gap: 4px;
+    padding: 4px 14px;
+    border-radius: 12px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(58,123,213,0.12);
+    border: none;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  form[role="search"] {
+    margin: 0 auto 4px auto !important;
+    padding: 0 !important;
+    max-width: 90vw !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    border-radius: 12px;
+    background: rgba(13,110,253,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s, background 0.2s;
+  }
+  form[role="search"] input {
+    min-width: 80px !important;
+    max-width: 100vw !important;
+    font-size: 15px !important;
+    padding: 7px 10px !important;
+    border-radius: 10px;
+    border: 1px solid #e3e3e3;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, border 0.2s;
+  }
+  form[role="search"] input:focus {
+    border: 1px solid #0d6efd;
+    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+  }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    overflow: hidden;
+  }
+  to {
+    overflow: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes expandFadeIn {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.5);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scaleX(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+* {
+  padding: 0;
+  margin: 0;
+  /* Removed overflow-x: hidden to prevent issues */
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto; /* Changed from hidden to auto to allow vertical scrolling */
+}
+
+form {
+  overflow: hidden;
+}
+
+.form-control {
+  overflow: hidden;
+  display: flex;
+  animation: fadeinUp 0.5s ease-in-out;
+}
+@media(max-width: 992px) {
+  .form-control {
+    width: 50vw;
+    margin: auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+  }
+}
+
+#navbarSupportedContent {
+  background-color: #0d6efd;
+  color: white;
+  padding: 10px;
+  z-index: 1000;
+  top: 0;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.navbar-toggler {
+  display: flex;
+  float: right;
+  z-index: 1100;
+  background-color: #0d6efd;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  box-shadow: none;
+  transition: background 0.2s, border 0.2s;
+}
+.navbar-toggler:hover, .navbar-toggler:focus {
+  background-color: #0d6efd;
+  border-color: #bdbdbd;
+  box-shadow: none;
+}
+.navbar-toggler-icon {
+  background-image: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.navbar-toggler-icon::before, .navbar-toggler-icon::after, .navbar-toggler-icon span {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+  transition: all 0.2s;
+}
+.navbar-toggler-icon span {
+  top: 10px;
+}
+.navbar-toggler-icon::before {
+  top: 5px;
+}
+.navbar-toggler-icon::after {
+  top: 15px;
+}
+
+.navbar-collapse {
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50%;
+  background-color: #0d6efd;
+  color: white;
+  /* keep off-canvas transform for mobile, but allow overflow visible so dropdowns aren't clipped */
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1050;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* allow children overflow to be visible (prevents dropdown clipping) */
+  overflow: visible;
+}
+@media (max-width: 768px) {
+  .navbar-collapse {
+    width: 50%;
+  }
+}
+@media (min-width: 992px) {
+  .navbar-collapse {
+    position: relative;
+    transform: none;
+    width: 50%;
+    background-color: transparent;
+  }
+}
+
+.navbar-collapse.show {
+  transform: translateX(0);
+}
+
+.navbar-collapse.collapsing {
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%);
+}
+
+.navbar {
+  /* avoid clipping dropdowns */
+  overflow: visible;
+  /* Keep navbar above regular page content but below modals/overlays.
+     Use a conservative z-index aligned to Bootstrap's stacking context (≈1030).
+     Dropdowns and other overlays can use higher z-indexes when needed. */
+  z-index: 1030 !important;
+}
+.navbar-nav {
+  padding: 20px;
+  /* allow dropdowns to overflow the nav container */
+  overflow: visible;
+  margin-right: auto;
+  margin-left: 20px;
+}
+@media (min-width: 992px) {
+  .navbar-nav {
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.navbar-nav .nav-item {
+  margin: 10px 0;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-in-out forwards;
+}
+
+/* Ensure nav items don't clip absolutely positioned dropdown menus
+   (some keyframes set overflow during animation; override it) */
+.navbar-nav .nav-item,
+.navbar .dropdown {
+  overflow: visible !important;
+}
+
+@media (min-width: 992px) {
+  .navbar-nav .nav-item {
+    margin: 0 10px;
+  }
+}
+
+
+
+.navbar-nav .nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  position: relative;
+  transition: color 0.2s, background 0.2s;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: #fff;
+  transition: width 0.3s;
+}
+
+
+.navbar-nav .nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+}
+
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link:focus::after {
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .navbar-nav .nav-link {
+    font-size: 18px;
+  }
+}
+
+.navbar-nav .nav-item:nth-child(1) { animation-delay: 0.1s; }
+.navbar-nav .nav-item:nth-child(2) { animation-delay: 0.2s; }
+.navbar-nav .nav-item:nth-child(3) { animation-delay: 0.3s; }
+.navbar-nav .nav-item:nth-child(4) { animation-delay: 0.4s; }
+.navbar-nav .nav-item:nth-child(5) { animation-delay: 0.5s; }
+.navbar-nav .nav-item:nth-child(6) { animation-delay: 0.6s; }
+.navbar-nav .nav-item:nth-child(7) { animation-delay: 0.7s; }
+
+#Login{
+  overflow: hidden;
+  display: flex;
+  margin: 0 auto;
+  text-align: center;
+  animation: fadeInUp 1s ease-in-out;
+}
+@media (max-width: 992px) {
+  #Login{
+    text-align: center;
+    margin: auto;
+    display: flex;
+    width: 50%;
+    height: 50%;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    animation: fadeInUp 1s ease-in-out;
+    font-size: 3vw;
+    color: white;
+  }
+}
+#Profilo {
+  overflow: hidden;
+  display: flex;
+  margin: 0 auto;
+  text-align: center;
+  animation: fadeInUp 1s ease-in-out;
+}
+@media (max-width: 992px) {
+  #Profilo {
+    animation: fadeInUp 1s ease-in-out;
+    font-size: 3vw;
+    color: white;
+  }
+}
+
+.title {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  width: auto;
+  display: flex;
+  font-size: 10vh;
+  text-transform: uppercase;
+  color: white;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  animation: fadeInUp 1s ease-in-out;
+  overflow: hidden !important;
+}
+
+@media (max-width: 992px) {
+  .title {
+    font-size: 6vw;
+    color: white;
+  }
+}
+
+header p {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-size: 6vh;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInUp 1s ease-in-out;
+  overflow: hidden;
+}
+
+.hide {
+  display: none !important;
+}
+
+.navbar .nav-link.active {
+  color: #0d6efd !important;
+  background: #fff;
+  font-weight: 600;
+}
+
+/* --- Dropdown fixes: ensure dropdowns are not clipped and appear like Bootstrap examples --- */
+/* Force overflow visible in case other rules reintroduce clipping */
+.navbar, .navbar-collapse, .navbar-nav {
+  overflow: visible !important;
+}
+
+/* Ensure dropdown container is positioned relative for proper menu placement */
+.navbar .dropdown {
+  position: relative !important;
+}
+
+.navbar .dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  margin-top: 0.125rem !important;
+  z-index: 2050 !important; /* above navbar and other elements */
+  /* avoid forcing display so Bootstrap can manage visibility; use opacity/visibility instead */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform-origin: top center;
+  will-change: transform, opacity;
+  transition: opacity 180ms cubic-bezier(.2,.9,.2,1), transform 180ms cubic-bezier(.2,.9,.2,1);
+
+  /* modern look: slightly larger, rounded, solid background (not transparent) */
+  min-width: 260px; /* default mobile/tablet fallback */
+  padding: 8px; /* space around items */
+  border-radius: 12px;
+  /* Use a solid, brand-coherent background instead of transparent glass */
+  background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.35), 0 2px 6px rgba(13,110,253,0.08);
+  overflow: visible;
+}
+
+.navbar .dropdown-menu.show {
+  /* when Bootstrap adds .show make it visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(6px) !important;
+  display: block !important; /* keep for compatibility */
+}
+
+/* Dropdown items styling */
+.navbar .dropdown-item {
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background 120ms ease, transform 90ms ease, color 120ms ease;
+  background: transparent;
+}
+/* Apply hover/focus/active styles only while the dropdown is open (.show)
+   so they don't persist after the menu is closed (focus remains) */
+.navbar .dropdown.show .dropdown-item:hover,
+.navbar .dropdown.show .dropdown-item:focus {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+.navbar .dropdown.show .dropdown-item:active {
+  background: rgba(255,255,255,0.12);
+}
+/* Remove default focus outline for a cleaner look but keep accessibility via :focus-visible if desired */
+.navbar .dropdown-item:focus {
+  outline: none;
+}
+
+.navbar .dropdown-divider {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: 6px 0;
+}
+
+/* Larger dropdown on desktop for more space */
+@media (min-width: 992px) {
+  .navbar .dropdown-menu {
+    min-width: 320px !important;
+    padding: 10px !important;
+    right: 0 !important;
+    left: auto !important;
+  }
+  .navbar .dropdown-menu.show {
+    transform: translateY(8px) !important;
+  }
+}
+
+/* On larger screens keep dropdown inside nav visually aligned */
+@media (min-width: 992px) {
+  .navbar .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+  }
+}
+
+

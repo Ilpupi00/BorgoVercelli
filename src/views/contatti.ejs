@@ -68,6 +68,12 @@
                                 <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Scrivi il tuo messaggio qui..."></textarea>
                                 <div class="invalid-feedback">Il messaggio è obbligatorio.</div>
                             </div>
+                            <div class="mb-4 form-check">
+                                <input class="form-check-input" type="checkbox" id="privacy_accept" name="privacy_accept" required>
+                                <label class="form-check-label" for="privacy_accept">
+                                    <span class="text-danger">*</span> Accetto la <a href="/privacy" target="_blank" class="text-decoration-underline">Privacy Policy</a> e il <a href="/regolamento" target="_blank" class="text-decoration-underline">Regolamento</a>
+                                </label>
+                            </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                                     <i class="fas fa-paper-plane me-2"></i>Invia Messaggio

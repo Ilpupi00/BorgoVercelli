@@ -1,0 +1,787 @@
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #22b14c;
+  --accent-color: #ffc107;
+  --dark-bg: #1a1a1a;
+  --light-bg: #f8fafc;
+  --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%);
+  --gradient-secondary: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
+  --shadow-light: 0 4px 20px rgba(13, 110, 253, 0.1);
+  --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global styles for smooth interactions */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent horizontal overflow on all components */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  overflow-y: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+.news-card {
+  position: relative;
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(.39,.575,.565,1.000) forwards;
+  animation-delay: calc(var(--index, 0) * 0.1s);
+  background: var(--light-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden; /* Cambiato da visible a hidden */
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0; /* Rimosso margine per mobile */
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .news-card {
+    margin: 1em; /* Margine solo su tablet/desktop */
+  }
+}
+
+.news-card:active {
+  transform: scale(0.98);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    overflow: hidden;
+  }
+  to {
+    overflow: auto; 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes expandFadeIn {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.5);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scaleX(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* --- CARD BUTTON MODERNO E CALCISTICO --- */
+.card-button {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 0.75em 1.5em;
+  background: var(--gradient-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+  position: relative;
+  overflow: visible;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.07em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.card-button .fa-futbol {
+  font-size: 1.1em;
+  margin-right: 0.3em;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- CARD IMG MODERNA E CALCISTICA --- */
+.card-img-container {
+  height: 200px; /* Mobile first: altezza fissa */
+  overflow: hidden; /* Cambiato da visible a hidden per prevenire overflow */
+  border-bottom: 3px solid var(--secondary-color);
+  background: url('../images/Campo.png') center/cover no-repeat;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .card-img-container {
+    height: 32vw; /* Tablet e desktop: altezza relativa */
+    min-height: 160px;
+    max-height: 220px;
+  }
+}
+
+.card-img-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(34, 177, 76, 0.1), rgba(13, 110, 253, 0.1));
+  pointer-events: none;
+}
+
+.card-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+  filter: brightness(1.1) contrast(1.05);
+}
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- CARD TITLE MODERNA E CALCISTICA --- */
+.card-title {
+  font-size: clamp(1.1em, 3.5vw, 1.4em);
+  margin-bottom: 1vw;
+  font-weight: 900;
+  color: var(--secondary-color);
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 12px rgba(13,110,253,0.15), 0 1px 8px rgba(34,139,34,0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: var(--transition);
+}
+
+.card-title .fa-trophy {
+  color: var(--primary-color);
+  font-size: 1.2em;
+  filter: drop-shadow(0 2px 4px rgba(13,110,253,0.3));
+  animation: pulse 2s infinite;
+}
+@keyframes reviewSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- REVIEW STARS MODERNE E CALCISTICHE --- */
+.review-stars {
+  color: #ffc107;
+  margin-bottom: 1vw;
+  font-size: clamp(1em, 2.5vw, 1.2em);
+  display: flex;
+  gap: 2px;
+  filter: drop-shadow(0 2px 4px #22b14c);
+}
+
+.title {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  font-size: clamp(2.5em, 10vw, 5em);
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  animation: fadeInUp 1.2s ease-in-out;
+  overflow: hidden !important;
+  background-clip: text;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 4px;
+  background: var(--gradient-secondary);
+  border-radius: 2px;
+  animation: expandFadeIn 1.5s ease-out 0.5s both;
+}
+/* --- REVIEWER IMAGE MODERNA E CALCISTICA --- */
+.reviewer-image {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 2vw;
+  border: 2.5px solid #22b14c;
+  box-shadow: 0 2px 8px rgba(34,139,34,0.12);
+}
+/* --- REVIEWER ICON MODERNA E CALCISTICA --- */
+.reviewer-icon {
+  font-size: clamp(2em, 8vw, 3em);
+  color: var(--secondary-color);
+  margin-right: 12px;
+  filter: drop-shadow(0 4px 8px rgba(13,110,253,0.4));
+  padding: 0 4vw;
+  letter-spacing: 0.08em;
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+  font-weight: 900;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: glow 3s ease-in-out infinite alternate;
+}
+
+
+@media (max-width: 992px) {
+  .title {
+    font-size: clamp(1.5em, 10vw, 2.5em);
+    white-space: normal;
+    padding: 0 3vw;
+  }
+}
+
+@media (max-width: 576px) {
+  .title {
+    font-size: clamp(1.2em, 12vw, 2em);
+    padding: 0 2vw;
+  }
+}
+
+/* Additional mobile fix for logo and overflow */
+@media (max-width: 480px) {
+  .title {
+    font-size: clamp(1em, 10vw, 1.8em);
+    white-space: normal;
+    word-wrap: break-word;
+    hyphens: auto;
+    max-width: 90vw;
+  }
+  .header::after {
+    width: 70vw;
+    height: 5vw;
+  }
+}
+
+
+.header {
+  display: flex;
+  flex-direction: column;
+  min-height: 50vh;
+  width: 100%;
+  background:
+    linear-gradient(135deg, rgba(13,110,253,0.9) 0%, rgba(34,139,34,0.8) 100%),
+    url("../images/Campo.png"),
+    repeating-linear-gradient(135deg, rgba(34,139,34,0.08) 0px, rgba(34,139,34,0.08) 8px, transparent 8px, transparent 16px);
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-position: center, center, center;
+  background-size: cover, cover, 100% 100%;
+  overflow: hidden;
+  padding: 4vw 0 2vw 0;
+  box-shadow: var(--shadow-dark);
+  border-radius: 0 0 12px 12px;
+  position: relative;
+  backdrop-filter: blur(2px);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(34,139,34,0.2) 0%, rgba(255,255,255,0.1) 100%);
+  pointer-events: none;
+  z-index: 1;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+/* Removed ::after to prevent overflow on mobile */
+/*
+.header::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 90vw;
+  height: 8vw;
+  background: url('../images/Logo.png') center/contain no-repeat;
+  opacity: 0.1;
+  z-index: 2;
+  pointer-events: none;
+  filter: blur(1px);
+}
+*/
+
+
+.reviews-section {
+  background: linear-gradient(120deg, #f8f9fa 80%, #e3f0ff 100%), url('../images/Campo.png') center/cover no-repeat;
+  background-blend-mode: lighten;
+  padding: 10vw 2em 6vw 2em;
+  position: relative;
+}
+.reviews-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(34,139,34,0.09) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+.section-title {
+  text-align: center;
+  margin-top: 6vw;
+  font-size: clamp(1.1em, 5vw, 2em);
+  font-weight: 700;
+  color: #0d6efd;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+}
+
+
+section.vw100 {
+  min-height: 80vh;
+  padding: 6vw 0 2vw 0;
+  overflow: visible;
+}
+
+
+.news-section {
+  padding: 6vw 0 2vw 0;
+}
+
+
+.news-container {
+  max-width: 98vw;
+  margin: 0 auto;
+}
+
+
+.news-title {
+  margin-bottom: 4vw;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 2vw;
+  font-size: clamp(1em, 4vw, 1.5em);
+  color: #0d6efd;
+  letter-spacing: 0.04em;
+}
+
+
+.news-title:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12vw;
+  max-width: 60px;
+  height: 3px;
+  background-color: #0d6efd;
+  border-radius: 2px;
+}
+
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 4vw;
+  width: 100%;
+  padding: 2em;
+}
+
+/* --- REVIEW CARD MODERNA E SOFISTICATA --- */
+.review-card {
+  background: var(--light-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  overflow: visible;
+  position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: reviewSlideIn 0.8s cubic-bezier(.39,.575,.565,1.000) forwards;
+  animation-delay: calc(var(--index, 0) * 0.15s);
+  margin: 1em; /* Aggiunto margine per spazio extra */
+}
+
+.review-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.review-content {
+  padding: 1.5em;
+  position: relative;
+  z-index: 1;
+}
+
+.review-text {
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 1em;
+  font-style: italic;
+  position: relative;
+}
+
+.review-text::before {
+  content: '"';
+  font-size: 2em;
+  color: var(--primary-color);
+  position: absolute;
+  top: -0.2em;
+  left: -0.3em;
+  opacity: 0.3;
+}
+
+.review-text::after {
+  content: '"';
+  font-size: 2em;
+  color: var(--primary-color);
+  position: absolute;
+  bottom: -0.5em;
+  right: -0.3em;
+  opacity: 0.3;
+}
+
+.reviewer-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+}
+
+.reviewer-name {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.review-date {
+  color: #666;
+  font-size: 0.8em;
+  margin: 0.2em 0 0 0;
+}
+
+.review-stars {
+  color: var(--accent-color);
+  margin-bottom: 1em;
+  font-size: clamp(1.2em, 3vw, 1.4em);
+  display: flex;
+  gap: 2px;
+  filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.3));
+  transition: var(--transition);
+
+}
+
+.review-stars:hover {
+  transform: scale(1.05);
+  overflow:hidden;
+}
+
+.review-stars i {
+  transition: var(--transition);
+}
+
+.review-stars i:hover {
+  animation: starTwinkle 0.6s ease-in-out;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    overflow:hidden;
+  }
+  50% {
+    transform: scale(1.3) rotate(10deg);
+    opacity: 0.8;
+  }
+}
+
+.text-warning {
+  color: var(--accent-color) !important;
+}
+
+.text-muted {
+  color: #666 !important;
+}
+
+.fa-star {
+  transition: var(--transition);
+}
+
+.far.fa-star {
+  opacity: 0.4;
+}
+
+.reviewer-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1em;
+  border: 3px solid var(--secondary-color);
+  box-shadow: 0 4px 12px rgba(34,139,34,0.2);
+  transition: var(--transition);
+}
+
+.reviewer-icon {
+  font-size: clamp(2.5em, 8vw, 3.5em);
+  color: var(--secondary-color);
+  margin-right: 1em;
+  filter: drop-shadow(0 4px 8px rgba(13,110,253,0.4));
+  padding: 0 1em;
+  letter-spacing: 0.08em;
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+  font-weight: 900;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: glow 3s ease-in-out infinite alternate;
+  transition: var(--transition);
+}
+
+/* Modal overlay per custom modal */
+.modal-fancy {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.modal-fancy .modal-content {
+  background: var(--light-bg);
+  margin: 15% auto;
+  padding: 2em;
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.modal-fancy .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+
+.modal-fancy .modal-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+.modal-fancy .modal-icon {
+  font-size: 2em;
+  color: var(--secondary-color);
+  margin-bottom: 0.5em;
+}
+
+.modal-fancy .modal-body {
+  color: #333;
+  line-height: 1.6;
+}
+
+.modal-fancy .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: #666;
+  cursor: pointer;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  transition: var(--transition);
+}
+
+.modal-fancy .btn-close:hover {
+  color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .modal-fancy .modal-content {
+    margin: 20% auto;
+    width: 95%;
+  }
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  position: relative;
+  overflow: visible;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .header.vh-100 {
+    height: 60vh !important; /* Reduce height on mobile for better usability */
+  }
+  .news-card {
+    margin: 0.5em; /* Reduce margin on mobile */
+  }
+  .news-grid {
+    padding: 1em; /* Reduce padding on mobile to prevent horizontal overflow */
+  }
+  .review-card {
+    margin: 0.5em; /* Reduce margin on mobile */
+  }
+}
+
+/* Hero Section Styles */
+.hero-section {
+  position: relative;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../images/Campo.png') center/cover no-repeat;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+.hero-section .container-fluid {
+  position: relative;
+  z-index: 2;
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.text-white {
+  color: white !important;
+}
+
+/* Mobile-first responsive adjustments */
+@media (min-width: 576px) {
+  /* Small devices (landscape phones, 576px and up) */
+  .news-card {
+    margin: 0.5em;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Medium devices (tablets, 768px and up) */
+  .news-card {
+    margin: 1em;
+  }
+  
+  .card-img-container {
+    height: 32vw;
+    min-height: 160px;
+    max-height: 220px;
+  }
+  
+  .hero-section .display-1 {
+    font-size: 4rem;
+  }
+  
+  .hero-section .lead {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  /* Large devices (desktops, 992px and up) */
+  .hero-section .display-1 {
+    font-size: 5rem;
+  }
+  
+  .hero-section .lead {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section .display-1 {
+    font-size: 3rem;
+  }
+  .hero-section .lead {
+    font-size: 1.25rem;
+  }
+}

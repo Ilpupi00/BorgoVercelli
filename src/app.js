@@ -7,6 +7,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const methodOverride = require('method-override');
+const cookieParser = require('cookie-parser');
 const userDao = require('./services/dao-user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -62,6 +63,7 @@ app.get('/', (req, res) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 app.use(methodOverride(function (req, res) {
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
     var method = req.body._method;
@@ -93,7 +95,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Middleware per gestione automatica prenotazioni (scadute e accettazione tacita)
+// Middleware JWT per "Ricordami"
+const { jwtAuth } = require('./middlewares/jwt');
+app.use(jwtAuth);
+
+// Middleware per gestione automatica prenotazioni (scadute e accettazione tacita) e sospensioni
 const daoPrenotazione = require('./services/dao-prenotazione');
 let lastAutoCheck = null;
 
@@ -111,8 +117,11 @@ app.use(async function(req, res, next) {
         
         // 2. Accetta automaticamente prenotazioni in attesa da più di 3 giorni
         await daoPrenotazione.autoAcceptPendingBookings();
+        
+        // 3. Verifica e riattiva sospensioni scadute
+        await userDao.verificaSospensioniScadute();
       } catch (error) {
-        console.error('[AUTO-CHECK] Errore durante il controllo automatico prenotazioni:', error);
+        console.error('[AUTO-CHECK] Errore durante il controllo automatico:', error);
       }
     });
   }
@@ -152,11 +161,28 @@ app.use('/campionato', routesCampionati);
 app.use('/users', routesUsers);
 
 // Serve uploaded files at the canonical public path '/uploads'
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', (req, res, next) => {
+    const filePath = path.join(__dirname, 'public/uploads', req.path);
+    // Check if file exists
+    if (require('fs').existsSync(filePath)) {
+        // File exists, serve it normally
+        express.static(path.join(__dirname, 'public/uploads'))(req, res, next);
+    } else {
+        // File doesn't exist, return 404 without logging
+        res.status(404).send('File not found');
+    }
+});
 
 // Legacy route (some DB records or older clients might reference '/src/public/uploads/...')
 // Keep this as a compatibility shim so images already stored with that URL remain accessible.
-app.use('/src/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/src/public/uploads', (req, res, next) => {
+    const filePath = path.join(__dirname, 'public/uploads', req.path);
+    if (require('fs').existsSync(filePath)) {
+        express.static(path.join(__dirname, 'public/uploads'))(req, res, next);
+    } else {
+        res.status(404).send('File not found');
+    }
+});
 
 // Configura il motore di template EJS
 app.set('view engine', 'ejs');

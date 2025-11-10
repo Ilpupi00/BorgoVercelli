@@ -1,0 +1,90 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body{
+  /* Gradient background covering entire viewport */
+  background-image: linear-gradient(to bottom right, #0d6efd, #6c757d);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* keep gradient fixed while scrolling */
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.login-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 25px;
+  padding: 50px;
+  width: 450px;
+  animation: fadeInUp 0.8s ease-in-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: #0d6efd;
+  animation: fadeInUp 1s ease-in-out;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  padding: 10px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #084298;
+  transform: scale(1.05);
+}
+
+a {
+  color: #0d6efd;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+a:hover {
+  color: #084298;
+  text-decoration: underline;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

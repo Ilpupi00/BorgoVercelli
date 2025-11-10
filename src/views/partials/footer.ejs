@@ -4,23 +4,32 @@
       <div class="col-lg-6 mb-4 mb-lg-0">
         <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
         <form id="emailForm" action="/send_email" method="POST">
-          <div class="row g-3 mb-3">
-            <div class="col-sm-6">
-              <label for="contact_name" class="form-label text-white">Nome e Cognome</label>
-              <input type="text" class="form-control" id="contact_name" name="name" placeholder="Nome e Cognome" required autocomplete="name">
-            </div>
-            <div class="col-sm-6">
-              <label for="contact_email" class="form-label text-white">Email</label>
-              <input type="email" class="form-control" id="contact_email" name="email" placeholder="Email" required autocomplete="email">
-            </div>
+          <div class="mb-3">
+            <label for="contact_name" class="form-label text-white">Nome e Cognome</label>
+            <input type="text" class="form-control form-control-lg" id="contact_name" name="name" placeholder="Nome e Cognome" required autocomplete="name">
+          </div>
+          <div class="mb-3">
+            <label for="contact_email" class="form-label text-white">Email</label>
+            <input type="email" class="form-control form-control-lg" id="contact_email" name="email" placeholder="Email" required autocomplete="email">
           </div>
           <div class="mb-3">
             <label for="contact_subject" class="form-label text-white">Oggetto</label>
-            <input type="text" class="form-control" id="contact_subject" name="subject" placeholder="Oggetto" required>
+            <input type="text" class="form-control form-control-lg" id="contact_subject" name="subject" placeholder="Oggetto" required>
           </div>
-          <div class="mb-4">
+          <div class="mb-3">
             <label for="contact_message" class="form-label text-white">Messaggio</label>
             <textarea class="form-control" id="contact_message" name="message" placeholder="Messaggio" rows="4" required></textarea>
+          </div>
+          <div class="mb-4">
+            <div class="d-flex align-items-start">
+              <input class="form-check-input me-2 mt-1" type="checkbox" id="footer_privacy_accept" name="privacy_accept" required style="width: 20px; height: 20px; cursor: pointer;">
+              <label class="text-white" for="footer_privacy_accept" style="cursor: pointer; line-height: 1.5;">
+                Accetto la <a href="/privacy" target="_blank" class="text-white fw-bold text-decoration-underline">Privacy Policy</a> <span class="text-warning">*</span>
+              </label>
+            </div>
+            <div class="invalid-feedback text-white" id="privacy_error" style="display: none;">
+              Devi accettare la Privacy Policy per inviare il messaggio.
+            </div>
           </div>
           <div class="text-center">
             <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>
@@ -44,6 +53,11 @@
     <div class="row mt-5">
       <div class="col-12 text-center">
         <hr class="my-4 bg-light opacity-25">
+        <div class="mb-3">
+          <a href="/privacy" class="text-white text-decoration-none me-3">Privacy Policy</a>
+          <span class="text-white-50">|</span>
+          <a href="/regolamento" class="text-white text-decoration-none ms-3">Regolamento</a>
+        </div>
         <p class="mb-0">&copy; <%= new Date().getFullYear() %> Asd BorgoVercelli. Tutti i diritti riservati.</p>
       </div>
     </div>

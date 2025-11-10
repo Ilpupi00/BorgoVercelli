@@ -231,6 +231,7 @@ exports.getAllUsers = function() {
     return new Promise((resolve, reject) => {
         const sql = `
             SELECT u.id, u.nome, u.cognome, u.email, u.telefono, u.tipo_utente_id, u.data_registrazione,
+                   u.stato, u.motivo_sospensione, u.data_inizio_sospensione, u.data_fine_sospensione,
                    i.url AS immagine_profilo
             FROM UTENTI u
             LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
@@ -614,6 +615,135 @@ exports.updatePassword = function(userId, newPasswordHash) {
                 reject({ error: 'Error updating password: ' + err.message });
             } else {
                 resolve({ message: 'Password updated successfully' });
+            }
+        });
+    });
+}
+
+// Funzioni per gestione stato utente (sospensione/ban)
+
+exports.sospendiUtente = function(userId, adminId, motivo, dataFine) {
+    return new Promise((resolve, reject) => {
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        const sql = `UPDATE UTENTI 
+                     SET stato = 'sospeso',
+                         motivo_sospensione = ?,
+                         data_inizio_sospensione = ?,
+                         data_fine_sospensione = ?,
+                         admin_sospensione_id = ?,
+                         updated_at = ?
+                     WHERE id = ?`;
+        
+        sqlite.run(sql, [motivo, now, dataFine, adminId, now, userId], function(err) {
+            if (err) {
+                reject({ error: 'Errore nella sospensione dell\'utente: ' + err.message });
+            } else if (this.changes === 0) {
+                reject({ error: 'Utente non trovato' });
+            } else {
+                resolve({ 
+                    message: 'Utente sospeso con successo',
+                    userId: userId,
+                    dataFine: dataFine
+                });
+            }
+        });
+    });
+}
+
+exports.bannaUtente = function(userId, adminId, motivo) {
+    return new Promise((resolve, reject) => {
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        const sql = `UPDATE UTENTI 
+                     SET stato = 'bannato',
+                         motivo_sospensione = ?,
+                         data_inizio_sospensione = ?,
+                         data_fine_sospensione = NULL,
+                         admin_sospensione_id = ?,
+                         updated_at = ?
+                     WHERE id = ?`;
+        
+        sqlite.run(sql, [motivo, now, adminId, now, userId], function(err) {
+            if (err) {
+                reject({ error: 'Errore nel ban dell\'utente: ' + err.message });
+            } else if (this.changes === 0) {
+                reject({ error: 'Utente non trovato' });
+            } else {
+                resolve({ 
+                    message: 'Utente bannato con successo',
+                    userId: userId
+                });
+            }
+        });
+    });
+}
+
+exports.revocaSospensioneBan = function(userId) {
+    return new Promise((resolve, reject) => {
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        const sql = `UPDATE UTENTI 
+                     SET stato = 'attivo',
+                         motivo_sospensione = NULL,
+                         data_inizio_sospensione = NULL,
+                         data_fine_sospensione = NULL,
+                         admin_sospensione_id = NULL,
+                         updated_at = ?
+                     WHERE id = ?`;
+        
+        sqlite.run(sql, [now, userId], function(err) {
+            if (err) {
+                reject({ error: 'Errore nella revoca: ' + err.message });
+            } else if (this.changes === 0) {
+                reject({ error: 'Utente non trovato' });
+            } else {
+                resolve({ 
+                    message: 'Sospensione/Ban revocato con successo',
+                    userId: userId
+                });
+            }
+        });
+    });
+}
+
+exports.verificaSospensioniScadute = function() {
+    return new Promise((resolve, reject) => {
+        const now = moment().format('YYYY-MM-DD HH:mm:ss');
+        const sql = `UPDATE UTENTI 
+                     SET stato = 'attivo',
+                         motivo_sospensione = NULL,
+                         data_inizio_sospensione = NULL,
+                         data_fine_sospensione = NULL,
+                         admin_sospensione_id = NULL
+                     WHERE stato = 'sospeso' 
+                     AND data_fine_sospensione IS NOT NULL 
+                     AND data_fine_sospensione < ?`;
+        
+        sqlite.run(sql, [now], function(err) {
+            if (err) {
+                reject({ error: 'Errore nella verifica sospensioni: ' + err.message });
+            } else {
+                resolve({ 
+                    message: 'Verifica completata',
+                    aggiornati: this.changes
+                });
+            }
+        });
+    });
+}
+
+exports.getStatoUtente = function(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT stato, motivo_sospensione, data_inizio_sospensione, 
+                            data_fine_sospensione, admin_sospensione_id
+                     FROM UTENTI
+                     WHERE id = ?`;
+        
+        sqlite.get(sql, [userId], (err, row) => {
+            if (err) {
+                reject({ error: 'Errore nel recupero stato utente: ' + err.message });
+            } else if (!row) {
+                reject({ error: 'Utente non trovato' });
+            } else {
+                resolve(row);
             }
         });
     });

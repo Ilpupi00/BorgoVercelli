@@ -8,6 +8,7 @@ class RegistrazionePage {
     init() {
         document.addEventListener('DOMContentLoaded', () => {
             this.setupEventListeners();
+            this.setupPrivacyOverlay();
         });
     }
 
@@ -18,6 +19,7 @@ class RegistrazionePage {
         const confirmPasswordField = document.getElementById('confirmPassword');
         const togglePasswordBtn = document.getElementById('togglePassword');
         const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+        const privacyCheckbox = document.getElementById('privacy_accept');
 
         if (form) {
             form.addEventListener('submit', (event) => {
@@ -28,6 +30,32 @@ class RegistrazionePage {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 this.handleClose();
+            });
+        }
+
+        // Gestisci il checkbox privacy
+        if (privacyCheckbox) {
+            // Controlla se è già stato accettato
+            const privacyAccepted = localStorage.getItem('privacyAccepted');
+            if (privacyAccepted === 'true') {
+                privacyCheckbox.checked = true;
+                privacyCheckbox.disabled = true; // Impedisci di deselezionarlo
+            }
+            
+            // Salva lo stato quando viene cambiato (solo se non è disabilitato)
+            privacyCheckbox.addEventListener('change', () => {
+                if (!privacyCheckbox.disabled) {
+                    if (privacyCheckbox.checked) {
+                        localStorage.setItem('privacyAccepted', 'true');
+                        privacyCheckbox.disabled = true; // Una volta accettato, non può più essere deselezionato
+                    } else {
+                        localStorage.removeItem('privacyAccepted');
+                    }
+                } else if (!privacyCheckbox.checked) {
+                    // Se prova a deselezionarlo quando è disabilitato, riselezionalo
+                    privacyCheckbox.checked = true;
+                    ShowModal.showModalInfo('Hai già accettato la Privacy Policy. Non puoi deselezionarla.', 'Attenzione');
+                }
             });
         }
 
@@ -182,6 +210,72 @@ class RegistrazionePage {
         field.setAttribute('type', type);
         const icon = button.querySelector('i');
         icon.className = type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    }
+
+    setupPrivacyOverlay() {
+        const overlay = document.getElementById('privacyOverlay');
+        const acceptBtn = document.getElementById('acceptPrivacyBtn');
+        
+        if (!overlay || !acceptBtn) return;
+        
+        // Controlla se l'utente ha già accettato la privacy (localStorage)
+        const privacyAccepted = localStorage.getItem('privacyAccepted');
+        
+        if (privacyAccepted === 'true') {
+            overlay.style.display = 'none';
+            return;
+        }
+        
+        // Mostra l'overlay e impedisci lo scrolling
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Gestisci il click sul pulsante accetta
+        acceptBtn.addEventListener('click', () => {
+            localStorage.setItem('privacyAccepted', 'true');
+            overlay.style.display = 'none';
+            document.body.style.overflow = ''; // Ripristina lo scrolling
+            
+            // Seleziona e disabilita il checkbox nel form
+            const privacyCheckbox = document.getElementById('privacy_accept');
+            if (privacyCheckbox) {
+                privacyCheckbox.checked = true;
+                privacyCheckbox.disabled = true;
+            }
+            
+            // Mostra un messaggio di conferma
+            ShowModal.showModalInfo('Grazie per aver accettato la Privacy Policy. Ora puoi procedere con la registrazione.', 'Privacy Policy Accettata');
+        });
+        
+        // Impedisci di chiudere l'overlay cliccando fuori
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+        
+        // Impedisci la chiusura con ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay.style.display !== 'none') {
+                e.preventDefault();
+            }
+        });
+        
+        // Impedisci lo scrolling della pagina quando l'overlay è attivo
+        const preventScroll = (e) => {
+            if (overlay.style.display !== 'none') {
+                e.preventDefault();
+            }
+        };
+        
+        document.addEventListener('wheel', preventScroll, { passive: false });
+        document.addEventListener('touchmove', preventScroll, { passive: false });
+        document.addEventListener('keydown', (e) => {
+            if (overlay.style.display !== 'none' && (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'PageUp' || e.key === 'PageDown' || e.key === 'Home' || e.key === 'End')) {
+                e.preventDefault();
+            }
+        });
     }
 }
 

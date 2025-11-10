@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/components/Admin.js" defer></script>
-    <script src="/javascripts/utils/showModal.js" defer></script>
-    <script src="/javascripts/components/Gestore_utenti.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/stylesheets/Admin.css">
+    <link rel="stylesheet" href="/stylesheets/Admin_Contenuti_Global.css">
+    <link rel="stylesheet" href="/stylesheets/Gestore_Utenti.css">
 </head>
 <body>
 
@@ -122,6 +121,14 @@
                                                                 <% } else { %>
                                                                     <span class="badge bg-info">Utente</span>
                                                                 <% } %>
+                                                                <br>
+                                                                <% if (utente.stato === 'bannato') { %>
+                                                                    <span class="badge bg-dark mt-1">🚫 Bannato</span>
+                                                                <% } else if (utente.stato === 'sospeso') { %>
+                                                                    <span class="badge bg-warning text-dark mt-1">⏸️ Sospeso</span>
+                                                                <% } else { %>
+                                                                    <span class="badge bg-success mt-1">✓ Attivo</span>
+                                                                <% } %>
                                                             </td>
                                                             <td><%= utente.data_registrazione ? new Date(utente.data_registrazione).toLocaleDateString('it-IT') : '-' %></td>
                                                             <td>
@@ -132,6 +139,15 @@
                                                                     <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaUtente('<%= utente.id %>')">
                                                                         <i class="bi bi-pencil"></i>
                                                                     </button>
+                                                                    <% if (!utente.stato || utente.stato === 'attivo') { %>
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Sospendi/Banna" onclick="mostraSospendiBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')">
+                                                                            <i class="bi bi-ban"></i>
+                                                                        </button>
+                                                                    <% } else { %>
+                                                                        <button class="btn btn-sm btn-outline-success" title="Revoca Sospensione/Ban" onclick="revocaSospensioneBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')">
+                                                                            <i class="bi bi-check-circle"></i>
+                                                                        </button>
+                                                                    <% } %>
                                                                     <button class="btn btn-sm btn-outline-danger" title="Elimina" onclick="eliminaUtente('<%= utente.id %>')">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
@@ -270,6 +286,154 @@
                 </div>
             </div>
         </div>
+    <!-- Modal Sospendi/Banna Scelta -->
+    <div class="modal fade" id="sceltaSospendiBanModal" tabindex="-1" aria-labelledby="sceltaSospendiBanLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="sceltaSospendiBanLabel">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Gestione Utente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="lead mb-4">Cosa vuoi fare con l'utente <strong id="utenteNomeScelta"></strong>?</p>
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-warning btn-lg" onclick="mostraSospensione()">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Sospendi Temporaneamente
+                        </button>
+                        <button type="button" class="btn btn-danger btn-lg" onclick="mostraBan()">
+                            <i class="bi bi-ban me-2"></i>
+                            Banna Permanentemente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sospensione -->
+    <div class="modal fade" id="sospensioneModal" tabindex="-1" aria-labelledby="sospensioneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="sospensioneModalLabel">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Sospendi Utente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="sospensioneUtenteId">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Stai per sospendere <strong id="sospensioneUtenteNome"></strong>. L'utente riceverà una email di notifica.
+                    </div>
+                    <form id="sospensioneForm">
+                        <div class="mb-3">
+                            <label for="suspensionMotivo" class="form-label">Motivo della sospensione *</label>
+                            <textarea class="form-control" id="suspensionMotivo" rows="3" required 
+                                placeholder="Es: Violazione delle regole della community..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="suspensionDurata" class="form-label">Durata sospensione (giorni) *</label>
+                            <select class="form-select" id="suspensionDurata" required>
+                                <option value="">Seleziona durata...</option>
+                                <option value="1">1 giorno</option>
+                                <option value="3">3 giorni</option>
+                                <option value="7">7 giorni (1 settimana)</option>
+                                <option value="14">14 giorni (2 settimane)</option>
+                                <option value="30">30 giorni (1 mese)</option>
+                                <option value="90">90 giorni (3 mesi)</option>
+                                <option value="180">180 giorni (6 mesi)</option>
+                                <option value="365">365 giorni (1 anno)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="tornaScelta()">
+                        <i class="bi bi-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="confermaSubmit()">
+                        <i class="bi bi-check-circle me-2"></i>Conferma Sospensione
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ban -->
+    <div class="modal fade" id="banModal" tabindex="-1" aria-labelledby="banModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="banModalLabel">
+                        <i class="bi bi-ban me-2"></i>
+                        Banna Utente Permanentemente
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="banUtenteId">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Attenzione!</strong> Stai per bannare permanentemente <strong id="banUtenteNome"></strong>. 
+                        L'utente non potrà più accedere al sito e riceverà una email di notifica.
+                    </div>
+                    <form id="banForm">
+                        <div class="mb-3">
+                            <label for="banMotivo" class="form-label">Motivo del ban *</label>
+                            <textarea class="form-control" id="banMotivo" rows="4" required 
+                                placeholder="Es: Comportamento gravemente scorretto, violazioni ripetute..."></textarea>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            L'utente potrà richiedere lo sblocco contattando l'amministrazione via email.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="tornaScelta()">
+                        <i class="bi bi-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confermaBan()">
+                        <i class="bi bi-ban me-2"></i>Conferma Ban
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Revoca -->
+    <div class="modal fade" id="revocaModal" tabindex="-1" aria-labelledby="revocaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="revocaModalLabel">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Revoca Sospensione/Ban
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <input type="hidden" id="revocaUtenteId">
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <p class="lead mt-3">Vuoi riattivare l'account di <strong id="revocaUtenteNome"></strong>?</p>
+                    <p class="text-muted">L'utente potrà nuovamente accedere al sito e riceverà una email di notifica.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-success" onclick="confermaRevoca()">
+                        <i class="bi bi-check-circle me-2"></i>Conferma Riattivazione
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Notifica -->
     <div class="modal fade" id="notificaModal" tabindex="-1" aria-labelledby="notificaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -290,8 +454,57 @@
 
     <div id="page"></div>
 
+    <!-- Scripts alla fine per garantire il caricamento corretto -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/javascripts/utils/showModal.js"></script>
+    <script src="/javascripts/components/Admin.js"></script>
+    <script src="/javascripts/components/Gestore_utenti.js"></script>
+    
     <script>
-        // Funzioni implementate in Gestore_utente.js
+        // Debug: Verifica caricamento Bootstrap e modali
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Pagina Gestore Utenti caricata');
+            
+            // Verifica Bootstrap
+            if (typeof bootstrap !== 'undefined') {
+                console.log('✅ Bootstrap caricato, versione:', bootstrap.Tooltip.VERSION);
+            } else {
+                console.error('❌ Bootstrap NON caricato!');
+            }
+            
+            // Verifica modali
+            const modals = [
+                'sceltaSospendiBanModal',
+                'sospensioneModal', 
+                'banModal',
+                'revocaModal'
+            ];
+            
+            modals.forEach(modalId => {
+                const element = document.getElementById(modalId);
+                if (element) {
+                    console.log(`✅ Modal "${modalId}" trovato nel DOM`);
+                } else {
+                    console.error(`❌ Modal "${modalId}" NON trovato nel DOM!`);
+                }
+            });
+            
+            // Verifica funzioni window
+            const functions = [
+                'mostraSospendiBan',
+                'mostraSospensione',
+                'mostraBan',
+                'revocaSospensioneBan'
+            ];
+            
+            functions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    console.log(`✅ Funzione "${funcName}" disponibile`);
+                } else {
+                    console.error(`❌ Funzione "${funcName}" NON disponibile!`);
+                }
+            });
+        });
     </script>
 </body>
 </html>

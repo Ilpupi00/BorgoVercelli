@@ -1,0 +1,455 @@
+/* Società Page Styles */
+
+/* Variabili CSS per i colori del sito */
+:root {
+    /* Colori principali del sito */
+    --primary-blue: #0d6efd;
+    --primary-blue-dark: #2563eb;
+    --primary-blue-light: #4dabf7;
+
+    /* Colori per ruoli */
+    --role-presidente: #FFD700;
+    --role-presidente-dark: #FFA500;
+    --role-presidente-text: #8B4513;
+
+    --role-vice-presidente: #C0C0C0;
+    --role-vice-presidente-dark: #A8A8A8;
+    --role-vice-presidente-text: #2F4F4F;
+
+    --role-dirigente: #0d6efd;
+    --role-dirigente-dark: #2563eb;
+    --role-dirigente-text: #ffffff;
+
+    --role-segretario: #28a745;
+    --role-segretario-dark: #20c997;
+    --role-segretario-text: #ffffff;
+
+    --role-allenatore: #dc3545;
+    --role-allenatore-dark: #fd7e14;
+    --role-allenatore-text: #ffffff;
+
+    --role-dirigente-accompagnatore: #17a2b8;
+    --role-dirigente-accompagnatore-dark: #138496;
+    --role-dirigente-accompagnatore-text: #ffffff;
+
+    /* Colori neutri */
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --border-color: rgba(0,0,0,0.1);
+    --shadow-color: rgba(0,0,0,0.15);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+}
+
+.stat-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* About Section */
+.about-section {
+    background: linear-gradient(135deg, var(--bg-light) 0%, #c3cfe2 100%);
+}
+
+.feature-card {
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+.feature-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Team Section */
+.team-section {
+    background: var(--bg-white);
+}
+
+.group-header {
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 3rem;
+}
+
+.group-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(13, 110, 253, 0.2);
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.group-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.group-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    border-radius: 2px;
+}
+
+.group-description {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-secondary);
+}
+
+.member-card {
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+    animation-delay: var(--animation-delay, 0s);
+}
+
+.member-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px var(--shadow-color) !important;
+}
+
+.member-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    position: relative;
+}
+
+.member-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-width: 4px !important;
+}
+
+.member-name {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+}
+
+.member-role {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.member-body {
+    background: var(--bg-white);
+}
+
+.member-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.member-actions {
+    margin-top: auto;
+}
+
+.contact-btn, .details-btn {
+    transition: all 0.3s ease;
+    border-radius: 25px;
+    font-weight: 500;
+}
+
+.contact-btn:hover {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    transform: scale(1.05);
+}
+
+.details-btn:hover {
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
+    transform: scale(1.05);
+}
+
+/* Contact Section */
+.contact-section {
+    background: linear-gradient(135deg, var(--bg-light) 0%, #c3cfe2 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 50vh;
+        padding: 3rem 0;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .member-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .member-name {
+        font-size: 1.1rem;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .member-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .member-actions .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Animazioni per i badge dei ruoli */
+.role-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+    animation: badgeGlow 2s ease-in-out infinite alternate;
+}
+
+.role-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Legenda gruppi */
+.groups-legend {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.legend-item {
+    min-width: 140px;
+    padding: 1rem;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.legend-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.legend-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+}
+
+.legend-badges .badge {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+}
+
+/* Colori specifici per ogni ruolo */
+.role-presidente {
+    background: linear-gradient(135deg, var(--role-presidente) 0%, var(--role-presidente-dark) 100%);
+    color: var(--role-presidente-text);
+    border-color: var(--role-presidente);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.role-vice-presidente {
+    background: linear-gradient(135deg, var(--role-vice-presidente) 0%, var(--role-vice-presidente-dark) 100%);
+    color: var(--role-vice-presidente-text);
+    border-color: var(--role-vice-presidente);
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+}
+
+.role-dirigente {
+    background: linear-gradient(135deg, var(--role-dirigente) 0%, var(--role-dirigente-dark) 100%);
+    color: var(--role-dirigente-text);
+    border-color: var(--role-dirigente);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+}
+
+.role-segretario {
+    background: linear-gradient(135deg, var(--role-segretario) 0%, var(--role-segretario-dark) 100%);
+    color: var(--role-segretario-text);
+    border-color: var(--role-segretario);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.role-allenatore {
+    background: linear-gradient(135deg, var(--role-allenatore) 0%, var(--role-allenatore-dark) 100%);
+    color: var(--role-allenatore-text);
+    border-color: var(--role-allenatore);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.role-dirigente-accompagnatore {
+    background: linear-gradient(135deg, var(--role-dirigente-accompagnatore) 0%, var(--role-dirigente-accompagnatore-dark) 100%);
+    color: var(--role-dirigente-accompagnatore-text);
+    border-color: var(--role-dirigente-accompagnatore);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+/* Card styling basato sui ruoli */
+.member-card[data-role="presidente"] .member-header {
+    background: linear-gradient(135deg, var(--role-presidente) 0%, var(--role-presidente-dark) 100%);
+}
+
+.member-card[data-role="vice-presidente"] .member-header {
+    background: linear-gradient(135deg, var(--role-vice-presidente) 0%, var(--role-vice-presidente-dark) 100%);
+}
+
+.member-card[data-role="dirigente"] .member-header {
+    background: linear-gradient(135deg, var(--role-dirigente) 0%, var(--role-dirigente-dark) 100%);
+}
+
+.member-card[data-role="segretario"] .member-header {
+    background: linear-gradient(135deg, var(--role-segretario) 0%, var(--role-segretario-dark) 100%);
+}
+
+.member-card[data-role="allenatore"] .member-header {
+    background: linear-gradient(135deg, var(--role-allenatore) 0%, var(--role-allenatore-dark) 100%);
+}
+
+.member-card[data-role="dirigente-accompagnatore"] .member-header {
+    background: linear-gradient(135deg, var(--role-dirigente-accompagnatore) 0%, var(--role-dirigente-accompagnatore-dark) 100%);
+}
+
+/* Bordi colorati per le card */
+.member-card[data-role="presidente"] {
+    border-left: 4px solid var(--role-presidente);
+}
+
+.member-card[data-role="vice-presidente"] {
+    border-left: 4px solid var(--role-vice-presidente);
+}
+
+.member-card[data-role="dirigente"] {
+    border-left: 4px solid var(--role-dirigente);
+}
+
+.member-card[data-role="segretario"] {
+    border-left: 4px solid var(--role-segretario);
+}
+
+.member-card[data-role="allenatore"] {
+    border-left: 4px solid var(--role-allenatore);
+}
+
+.member-card[data-role="dirigente-accompagnatore"] {
+    border-left: 4px solid var(--role-dirigente-accompagnatore);
+}
+
+/* Hover effects specifici per ruolo */
+.member-card[data-role="presidente"]:hover {
+    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.member-card[data-role="vice-presidente"]:hover {
+    box-shadow: 0 20px 40px rgba(192, 192, 192, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.member-card[data-role="dirigente"]:hover {
+    box-shadow: 0 20px 40px rgba(13, 110, 253, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.member-card[data-role="segretario"]:hover {
+    box-shadow: 0 20px 40px rgba(40, 167, 69, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.member-card[data-role="allenatore"]:hover {
+    box-shadow: 0 20px 40px rgba(220, 53, 69, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.member-card[data-role="dirigente-accompagnatore"]:hover {
+    box-shadow: 0 20px 40px rgba(23, 162, 184, 0.2);
+    transform: translateY(-12px) scale(1.02);
+}

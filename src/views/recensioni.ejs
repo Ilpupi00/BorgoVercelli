@@ -48,11 +48,31 @@
                         <div class="card shadow-sm h-100">
                             <div class="card-body text-center">
                                 <h2 class="card-title h4 mb-3">Valutazione Media</h2>
-                                <div class="display-4 text-warning mb-3">
-                                    <span id="averageRating" class="fw-bold">
+                                <div class="mb-3">
+                                    <div class="display-4 fw-bold text-primary mb-2">
                                         <%= (typeof averageRating === 'number' && !isNaN(averageRating)) ? averageRating.toFixed(1) : 'N/A' %>
-                                    </span>
-                                    <i class="bi bi-star-fill"></i>
+                                    </div>
+                                    <div class="fs-3 text-warning" id="averageStars">
+                                        <% if (typeof averageRating === 'number' && !isNaN(averageRating)) { 
+                                            const fullStars = Math.floor(averageRating);
+                                            const hasHalfStar = (averageRating % 1) >= 0.5;
+                                            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                                            
+                                            for (let i = 0; i < fullStars; i++) { %>
+                                                <i class="fas fa-star"></i>
+                                            <% }
+                                            
+                                            if (hasHalfStar) { %>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            <% }
+                                            
+                                            for (let i = 0; i < emptyStars; i++) { %>
+                                                <i class="far fa-star"></i>
+                                            <% }
+                                        } else { %>
+                                            <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                                        <% } %>
+                                    </div>
                                 </div>
                                 <p class="text-muted mb-4">Basato su <%= totalReviews || 0 %> recensioni</p>
                                 <div id="ratingBars">

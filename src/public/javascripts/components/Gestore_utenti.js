@@ -296,6 +296,243 @@ class GestoreUtente {
             default: return 'Sconosciuto';
         }
     }
+
+    // ==================== GESTIONE SOSPENSIONE/BAN ====================
+    
+    static mostraSospendiBan(id, nome, cognome) {
+        console.log('🔍 mostraSospendiBan chiamato con:', { id, nome, cognome });
+        
+        const nomeCompleto = `${nome} ${cognome}`;
+        const nomeElement = document.getElementById('utenteNomeScelta');
+        
+        if (!nomeElement) {
+            console.error('❌ Elemento utenteNomeScelta non trovato!');
+            return;
+        }
+        
+        nomeElement.textContent = nomeCompleto;
+        
+        // Store data for next modals
+        window.tempUtenteData = { id, nome, cognome, nomeCompleto };
+        console.log('💾 Dati salvati in window.tempUtenteData:', window.tempUtenteData);
+        
+        const modalElement = document.getElementById('sceltaSospendiBanModal');
+        if (!modalElement) {
+            console.error('❌ Modal sceltaSospendiBanModal non trovato!');
+            return;
+        }
+        
+        console.log('✅ Modal element trovato, apertura in corso...');
+        
+        try {
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modal.show();
+            console.log('✅ Modal mostrato con successo!');
+        } catch (error) {
+            console.error('❌ Errore apertura modal:', error);
+        }
+    }
+
+    static mostraSospensione() {
+        console.log('🔍 mostraSospensione chiamato');
+        
+        const data = window.tempUtenteData;
+        if (!data) {
+            console.error('❌ Nessun dato utente trovato in window.tempUtenteData');
+            return;
+        }
+        
+        console.log('💾 Dati utente recuperati:', data);
+        
+        // Hide choice modal
+        const sceltaModal = document.getElementById('sceltaSospendiBanModal');
+        const sceltaInstance = bootstrap.Modal.getInstance(sceltaModal);
+        if (sceltaInstance) {
+            console.log('🔒 Chiusura modal scelta...');
+            sceltaInstance.hide();
+        }
+        
+        // Show suspension modal
+        setTimeout(() => {
+            console.log('⏰ Apertura modal sospensione...');
+            
+            const sospensioneIdElement = document.getElementById('sospensioneUtenteId');
+            const sospensioneNomeElement = document.getElementById('sospensioneUtenteNome');
+            
+            if (sospensioneIdElement) sospensioneIdElement.value = data.id;
+            if (sospensioneNomeElement) sospensioneNomeElement.textContent = data.nomeCompleto;
+            
+            const motivoElement = document.getElementById('suspensionMotivo');
+            const durataElement = document.getElementById('suspensionDurata');
+            
+            if (motivoElement) motivoElement.value = '';
+            if (durataElement) durataElement.value = '';
+            
+            const modalElement = document.getElementById('sospensioneModal');
+            if (!modalElement) {
+                console.error('❌ Modal sospensioneModal non trovato!');
+                return;
+            }
+            
+            try {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                console.log('✅ Modal sospensione mostrato!');
+            } catch (error) {
+                console.error('❌ Errore apertura modal sospensione:', error);
+            }
+        }, 300);
+    }
+
+    static mostraBan() {
+        const data = window.tempUtenteData;
+        if (!data) return;
+        
+        // Hide choice modal
+        bootstrap.Modal.getInstance(document.getElementById('sceltaSospendiBanModal')).hide();
+        
+        // Show ban modal
+        setTimeout(() => {
+            document.getElementById('banUtenteId').value = data.id;
+            document.getElementById('banUtenteNome').textContent = data.nomeCompleto;
+            document.getElementById('banMotivo').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('banModal'));
+            modal.show();
+        }, 300);
+    }
+
+    static tornaScelta() {
+        // Hide current modal
+        const sospensioneModal = bootstrap.Modal.getInstance(document.getElementById('sospensioneModal'));
+        const banModal = bootstrap.Modal.getInstance(document.getElementById('banModal'));
+        
+        if (sospensioneModal) sospensioneModal.hide();
+        if (banModal) banModal.hide();
+        
+        // Show choice modal again
+        setTimeout(() => {
+            const modal = new bootstrap.Modal(document.getElementById('sceltaSospendiBanModal'));
+            modal.show();
+        }, 300);
+    }
+
+    static async confermaSospensione() {
+        const id = document.getElementById('sospensioneUtenteId').value;
+        const motivo = document.getElementById('suspensionMotivo').value.trim();
+        const durataGiorni = document.getElementById('suspensionDurata').value;
+
+        if (!motivo || !durataGiorni) {
+            GestoreUtente.showNotification('Compila tutti i campi obbligatori', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/utenti/${id}/sospendi`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ motivo, durataGiorni })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Errore nella sospensione');
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('sospensioneModal')).hide();
+            
+            if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                await ShowModal.showModalSuccess('Operazione completata', 'Utente sospeso con successo. Email di notifica inviata.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                GestoreUtente.showNotification('Utente sospeso con successo', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            GestoreUtente.showNotification(error.message, 'error');
+        }
+    }
+
+    static async confermaBan() {
+        const id = document.getElementById('banUtenteId').value;
+        const motivo = document.getElementById('banMotivo').value.trim();
+
+        if (!motivo) {
+            GestoreUtente.showNotification('Il motivo è obbligatorio', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/utenti/${id}/banna`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ motivo })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Errore nel ban');
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('banModal')).hide();
+            
+            if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                await ShowModal.showModalSuccess('Operazione completata', 'Utente bannato con successo. Email di notifica inviata.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                GestoreUtente.showNotification('Utente bannato con successo', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            GestoreUtente.showNotification(error.message, 'error');
+        }
+    }
+
+    static revocaSospensioneBan(id, nome, cognome) {
+        const nomeCompleto = `${nome} ${cognome}`;
+        document.getElementById('revocaUtenteId').value = id;
+        document.getElementById('revocaUtenteNome').textContent = nomeCompleto;
+        
+        const modal = new bootstrap.Modal(document.getElementById('revocaModal'));
+        modal.show();
+    }
+
+    static async confermaRevoca() {
+        const id = document.getElementById('revocaUtenteId').value;
+
+        try {
+            const response = await fetch(`/api/admin/utenti/${id}/revoca`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Errore nella revoca');
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('revocaModal')).hide();
+            
+            if (typeof ShowModal !== 'undefined' && ShowModal.showModalSuccess) {
+                await ShowModal.showModalSuccess('Operazione completata', 'Sospensione/Ban revocato con successo. Email di notifica inviata.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                GestoreUtente.showNotification('Revoca completata con successo', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            GestoreUtente.showNotification(error.message, 'error');
+        }
+    }
 }
 
 window.visualizzaUtente = GestoreUtente.visualizzaUtente;
@@ -305,6 +542,16 @@ window.modificaUtente = GestoreUtente.modificaUtente;
 window.salvaModifica = GestoreUtente.salvaModifica;
 window.eliminaUtente = GestoreUtente.eliminaUtente;
 window.showNotification = GestoreUtente.showNotification;
+
+// Sospensione/Ban functions
+window.mostraSospendiBan = GestoreUtente.mostraSospendiBan;
+window.mostraSospensione = GestoreUtente.mostraSospensione;
+window.mostraBan = GestoreUtente.mostraBan;
+window.tornaScelta = GestoreUtente.tornaScelta;
+window.confermaSubmit = GestoreUtente.confermaSospensione;
+window.confermaBan = GestoreUtente.confermaBan;
+window.revocaSospensioneBan = GestoreUtente.revocaSospensioneBan;
+window.confermaRevoca = GestoreUtente.confermaRevoca;
 
 // Istanza globale
 const gestoreUtente = new GestoreUtente();

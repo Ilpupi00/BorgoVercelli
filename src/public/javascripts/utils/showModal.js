@@ -252,3 +252,8 @@ class ShowModal{
 
 // Expose ShowModal on window for non-module usage
 window.ShowModal = ShowModal;
+
+// Export for ES6 modules
+export default ShowModal;
+
+

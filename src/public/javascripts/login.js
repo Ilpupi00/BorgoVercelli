@@ -37,11 +37,12 @@ class LoginPage {
         event.preventDefault();
         const email = document.getElementById('exampleInputEmail1').value;
         const password = document.getElementById('exampleInputPassword1').value;
+        const remember = document.getElementById('rememberMe').checked;
         try {
             const res = await fetch('/session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password, remember })
             });
             if (res.ok) {
                 window.location.href = '/homepage';

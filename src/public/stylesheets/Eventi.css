@@ -540,3 +540,35 @@
         border: 1px solid #000;
     }
 }
+
+/* Load More Button - Same style as News page */
+.btn-load-more {
+    background: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%);
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(13, 110, 253, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-load-more:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(13, 110, 253, 0.15);
+}
+
+.btn-load-more:active {
+    transform: translateY(0);
+}

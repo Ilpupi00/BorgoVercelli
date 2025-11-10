@@ -94,6 +94,19 @@
 .review-stars {
     color: #ffc107;
     margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.review-stars i {
+    margin-right: 2px;
+}
+
+#averageStars {
+    color: #ffc107;
+}
+
+#averageStars i {
+    margin: 0 2px;
 }
 
 .review-content {

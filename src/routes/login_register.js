@@ -159,6 +159,8 @@ router.get('/Logout', (req, res) => {
             console.error('Errore durante il logout:', err);
             return res.status(500).json({ error: 'Errore durante il logout' });
         }
+        // Rimuovi il token JWT se presente
+        res.clearCookie('rememberToken');
         req.session.destroy((err) => {
             if (err) {
                 console.error('Errore nella distruzione della sessione:', err);

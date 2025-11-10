@@ -8,10 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="/javascripts/components/Admin.js" defer></script>
-    <script src="/javascripts/utils/showModal.js" defer></script>
+    <script type="module" src="/javascripts/utils/showModal.js" defer></script>
     <script src="/javascripts/components/GestioneEventi.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
+    
 </head>
 <body>
 
@@ -35,13 +36,15 @@
                                     </h1>
                                     <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
                                 </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
-                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
-                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
-                                    </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
-                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
-                                    </a>
+                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                                    <div class="d-flex justify-content-center justify-content-md-end gap-2">
+                                        <a href="/admin" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
+                                        </a>
+                                        <a href="/Logout" class="btn btn-outline-danger">
+                                            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

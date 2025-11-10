@@ -146,6 +146,87 @@ body {
     color: #ffc107;
 }
 
+/* Modal styles for suspension/ban */
+.modal {
+    z-index: 1055 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1056 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header.bg-warning,
+.modal-header.bg-danger,
+.modal-header.bg-success {
+    border: none;
+}
+
+.modal-header .btn-close,
+.modal-header .btn-close-white {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.modal-header .btn-close:hover,
+.modal-header .btn-close-white:hover {
+    opacity: 1;
+}
+
+.modal-body .alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.btn-group .btn {
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+}
+
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
     .admin-sidebar {
@@ -161,5 +242,10 @@ body {
     .sidebar-nav .nav-link {
         padding: 10px 12px;
         font-size: 0.9rem;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.8rem;
     }
 }

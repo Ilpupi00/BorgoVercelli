@@ -1,0 +1,1043 @@
+/* Profilo.css - Stili personalizzati per la pagina profilo di Borgo Vercelli */
+
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+html {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    position: relative;
+}
+
+.profile-img-main {
+    border: 4px solid white !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.profile-img-main:hover {
+    transform: scale(1.05);
+}
+
+.profile-avatar .position-relative {
+    position: relative !important;
+    display: inline-block;
+    width: 110px !important;
+    height: 110px !important;
+}
+
+.profile-avatar img,
+.profile-avatar i {
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    display: block !important;
+}
+
+.profile-avatar #editPicBtn {
+    position: absolute !important;
+    bottom: 5px !important;
+    right: 5px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: #007bff !important;
+    border: 2px solid white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+}
+
+.profile-avatar #editPicBtn:hover {
+    background: #0056b3 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.profile-avatar #editPicBtn i {
+    font-size: 18px !important;
+    color: white !important;
+    margin: 0 !important;
+}
+
+.profile-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-info p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.member-since {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.user-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Cards laterali */
+.stats-card,
+.quick-links-card,
+.preferences-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover,
+.quick-links-card:hover,
+.preferences-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.stat-content .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.stat-content .stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.preference-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+/* Cards destra */
+.activity-card,
+.sports-card,
+.management-card,
+.actions-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.activity-card:hover,
+.sports-card:hover,
+.management-card:hover,
+.actions-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.activity-timeline {
+    position: relative;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-left: 3px solid #e9ecef;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.activity-details {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.sports-info,
+.management-info {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: #555;
+}
+
+.sports-info i,
+.management-info i {
+    width: 20px;
+    margin-right: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+    }
+
+    .profile-info h1 {
+        font-size: 2rem;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .profile-header-card .row {
+        text-align: center;
+    }
+
+    .profile-avatar {
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem 0;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .stat-content .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .activity-item {
+        padding-left: 1rem;
+        word-wrap: break-word;
+    }
+
+    .activity-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    /* Impedisci overflow orizzontale nelle card */
+    .card {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-info h1 {
+        font-size: 1.8rem;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .user-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    .user-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    /* Gestione overflow per testi lunghi */
+    .activity-details,
+    .sports-info,
+    .management-info {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Assicurati che i bottoni non causino overflow */
+    .btn {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Animazioni personalizzate */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+.stats-card .stat-icon.bg-success {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Gradients per le cards */
+.stats-card .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.quick-links-card .card-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.preferences-card .card-header {
+    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+}
+
+.activity-card .card-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.sports-card .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.management-card .card-header {
+    background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%);
+}
+
+.actions-card .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.actions-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.actions-card:hover .card-header::before {
+    left: 100%;
+}
+
+.actions-card .card-body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Hover effects per i bottoni */
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-info:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stili per i modali */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+}
+
+/* Loading states */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modali senza scrollbar */
+.modal-dialog,
+.modal-content,
+.modal-body,
+.modal-header,
+.modal-footer {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.modal-dialog::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.modal-header::-webkit-scrollbar,
+.modal-footer::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Form elements senza scrollbar */
+input,
+textarea,
+select,
+.form-control,
+.form-select {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+input::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+select::-webkit-scrollbar,
+.form-control::-webkit-scrollbar,
+.form-select::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Pulsanti e link senza scrollbar */
+a,
+button,
+.btn,
+.nav-link {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+a::-webkit-scrollbar,
+button::-webkit-scrollbar,
+.btn::-webkit-scrollbar,
+.nav-link::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Regola universale per nascondere scrollbar su tutti gli elementi della pagina profilo */
+#navbar *,
+#footer *,
+.profile-container *,
+.card *,
+.modal *,
+.form-control *,
+.form-select *,
+.btn *,
+.nav-link *,
+.activity-item *,
+.stat-item *,
+.preference-item *,
+.sports-info *,
+.management-info *,
+.user-badges * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#navbar *::-webkit-scrollbar,
+#footer *::-webkit-scrollbar,
+.profile-container *::-webkit-scrollbar,
+.card *::-webkit-scrollbar,
+.modal *::-webkit-scrollbar,
+.form-control *::-webkit-scrollbar,
+.form-select *::-webkit-scrollbar,
+.btn *::-webkit-scrollbar,
+.nav-link *::-webkit-scrollbar,
+.activity-item *::-webkit-scrollbar,
+.stat-item *::-webkit-scrollbar,
+.preference-item *::-webkit-scrollbar,
+.sports-info *::-webkit-scrollbar,
+.management-info *::-webkit-scrollbar,
+.user-badges *::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Regole generali per nascondere scrollbar */
+* {
+    box-sizing: border-box;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Elementi specifici senza scrollbar */
+.profile-container,
+.card,
+.card-body,
+.modal-content,
+.modal-body,
+.form-control,
+.form-select,
+.btn {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.profile-container::-webkit-scrollbar,
+.card::-webkit-scrollbar,
+.card-body::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.form-control::-webkit-scrollbar,
+.form-select::-webkit-scrollbar,
+.btn::-webkit-scrollbar {
+    display: none !important;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col, .col-lg-4, .col-lg-8, .col-md-6 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Gestione testi lunghi senza scrollbar */
+.text-break {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+.card-title {
+    word-wrap: break-word;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+.card-body {
+    word-wrap: break-word;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+/* Contenitori specifici senza scrollbar */
+.activity-timeline,
+.user-badges,
+.profile-details,
+.sports-info,
+.management-info {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.activity-timeline::-webkit-scrollbar,
+.user-badges::-webkit-scrollbar,
+.profile-details::-webkit-scrollbar,
+.sports-info::-webkit-scrollbar,
+.management-info::-webkit-scrollbar {
+    display: none !important;
+}
+
+.profile-avatar img,
+.profile-avatar i,
+.profile-img-mobile {
+    width: 110px !important;
+    height: 110px !important;
+    min-width: 110px !important;
+    min-height: 110px !important;
+    max-width: 110px !important;
+    max-height: 110px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 auto !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.profile-avatar i.bi-person-circle {
+    font-size: 110px !important;
+    color: #007bff !important;
+    line-height: 1 !important;
+}
+
+.profile-card h2 {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-card .text-muted {
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-details {
+    position: relative;
+    z-index: 2;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    animation: animation2 0.5s 0.3s both;
+}
+
+.profile-details dt {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.profile-details dt i {
+    margin-right: 8px;
+    color: #3f80ea;
+    font-size: 1.1rem;
+}
+
+.profile-details dd {
+    margin-bottom: 1.2rem;
+    color: #212529;
+    position: relative;
+    transition: all 0.2s ease;
+    padding: 4px 0;
+}
+
+.profile-details dd:last-child {
+    margin-bottom: 0;
+}
+
+.profile-details dd::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: #dee2e6;
+    transition: width 0.3s ease;
+}
+
+.profile-details dd:hover::after {
+    width: 100%;
+}
+
+.profile-details dt:hover,
+.profile-details dd:hover {
+    transform: translateX(5px);
+}
+
+.text-center.mt-4 {
+    position: relative;
+    z-index: 2;
+    margin-top: 2rem !important;
+}
+
+.btn-outline-danger {
+    border-width: 2px;
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-outline-danger::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(220, 53, 69, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover::before {
+    left: 0;
+}
+
+.btn-outline-danger i {
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+}
+
+.btn-outline-danger:hover i {
+    transform: translateX(3px);
+}
+
+/* Animazioni */
+@keyframes animation1 {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes animation2 {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseAvatar {
+    from { box-shadow: 0 5px 15px rgba(63, 128, 234, 0.2); }
+    to { box-shadow: 0 8px 25px rgba(63, 128, 234, 0.4); }
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .profile-card {
+        margin: 20px;
+        padding: 2rem 1.5rem;
+    }
+    .profile-avatar {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 1.6rem !important;
+        border-width: 3px !important;
+        margin: 0 auto 1rem auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+    }
+    .profile-avatar .position-relative {
+        width: 80px !important;
+        height: 80px !important;
+        max-width: 80px !important;
+        max-height: 80px !important;
+        min-width: 80px !important;
+        min-height: 80px !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .profile-avatar img,
+    .profile-avatar i,
+    .profile-img-mobile {
+        width: 74px !important;
+        height: 74px !important;
+        min-width: 74px !important;
+        min-height: 74px !important;
+        max-width: 74px !important;
+        max-height: 74px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        display: block !important;
+        margin: 0 auto !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: relative !important;
+        left: 0 !important;
+    }
+    .profile-avatar #editPicBtn {
+        width: 32px !important;
+        height: 32px !important;
+        bottom: 3px !important;
+        right: 3px !important;
+    }
+    .profile-avatar #editPicBtn i {
+        font-size: 16px !important;
+    }
+    .profile-details dt {
+        display: flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        white-space: normal !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        text-align: center !important;
+    }
+    .profile-details dt i {
+        margin-right: 10px !important;
+        margin-top: 0 !important;
+        font-size: 1.2rem !important;
+        vertical-align: middle !important;
+        align-self: center !important;
+        position: static !important;
+        display: inline-block !important;
+        color: #3f80ea !important;
+    }
+    .profile-details dd {
+        padding-left: 0 !important;
+        font-size: 1rem !important;
+        word-break: break-word !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+    }
+}
+
+.gestione_bottone{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* Stili per la sezione Crea Eventi e Notizie */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.btn-gradient-event {
+    background: linear-gradient(135deg, #007bff 0%, #28a745 100%);
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-gradient-event:hover {
+    background: linear-gradient(135deg, #28a745 0%, #007bff 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+    color: white;
+    text-decoration: none;
+    animation: pulse 1s infinite;
+}
+
+.btn-gradient-news {
+    background: linear-gradient(135deg, #007bff 0%, #17a2b8 100%);
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-gradient-news:hover {
+    background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+    color: white;
+    text-decoration: none;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateY(-2px) scale(1.02); }
+    50% { transform: translateY(-2px) scale(1.05); }
+    100% { transform: translateY(-2px) scale(1.02); }
+}
+
+/* Hover effects for news/events items */
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Enhanced button styles */
+.btn-group .btn {
+    border-radius: 6px !important;
+    margin: 0 1px;
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+    transform: scale(1.1);
+}
+
+/* Empty state styling */
+.empty-state-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Content counter badge */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Improved responsive design for content cards */
+@media (max-width: 768px) {
+    .news-event-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+    
+    .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .news-event-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .news-event-icon i {
+        font-size: 1rem !important;
+    }
+}
+
+/* Loading animation for content */
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.content-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced card shadows and transitions */
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Better focus states for accessibility */
+.btn:focus,
+.btn-group .btn:focus {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* Improved text truncation */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Enhanced responsive grid for action buttons */
+@media (max-width: 576px) {
+    .d-flex.justify-content-center.gap-2 {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .d-flex.justify-content-center.gap-2 .btn {
+        margin-bottom: 0.5rem;
+    }
+}

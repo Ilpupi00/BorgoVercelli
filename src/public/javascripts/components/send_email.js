@@ -63,6 +63,22 @@ export function setupEmailFormListener() {
     e.preventDefault();
     console.log('Submit event triggered');
 
+    // Controllo checkbox privacy
+    const privacyCheckbox = newForm.querySelector('#footer_privacy_accept');
+    const privacyError = document.getElementById('privacy_error');
+    
+    if (!privacyCheckbox.checked) {
+      if (privacyError) {
+        privacyError.style.display = 'block';
+      }
+      showModalMessage('Devi accettare la Privacy Policy per inviare il messaggio.', false);
+      return;
+    }
+    
+    if (privacyError) {
+      privacyError.style.display = 'none';
+    }
+
     const submitBtn = newForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;

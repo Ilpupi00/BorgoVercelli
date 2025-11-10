@@ -51,28 +51,15 @@ class CampoManager {
 
         // If ShowModal is available, use its delete modal
         if (window.ShowModal && typeof ShowModal.modalDelete === 'function') {
-            await ShowModal.modalDelete('Sei sicuro di voler eliminare questo campo? Questa operazione è irreversibile.', 'Conferma eliminazione');
-            const confirmBtn = document.getElementById('confirmDeleteBtn');
-            if (confirmBtn) {
-                const handler = async () => {
-                    confirmBtn.removeEventListener('click', handler);
-                    await proceedDelete();
-                    // close the modal if still open
-                    const modalEl = document.getElementById('modalDelete');
-                    if (modalEl) {
-                        const bs = bootstrap.Modal.getInstance(modalEl);
-                        if (bs) bs.hide();
-                    }
-                };
-                confirmBtn.addEventListener('click', handler);
-            } else {
-                // fallback if modal button not present
-                if (confirm('Sei sicuro di voler eliminare questo campo?')) await proceedDelete();
+            const confirmed = await ShowModal.modalDelete('Sei sicuro di voler eliminare questo campo? Questa operazione è irreversibile.', 'Conferma eliminazione');
+            if (confirmed) {
+                await proceedDelete();
             }
         } else {
             // fallback to native confirm
-            if (!confirm('Sei sicuro di voler eliminare questo campo? Questa operazione è irreversibile.')) return;
-            await proceedDelete();
+            if (confirm('Sei sicuro di voler eliminare questo campo? Questa operazione è irreversibile.')) {
+                await proceedDelete();
+            }
         }
     }
 

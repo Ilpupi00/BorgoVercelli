@@ -63,6 +63,31 @@ class Reviews {
         }
     }
 
+    generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let starsHtml = '';
+        
+        // Stelle piene
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<i class="fas fa-star"></i>';
+        }
+        
+        // Mezza stella
+        if (hasHalfStar) {
+            starsHtml += '<i class="fas fa-star-half-alt"></i>';
+        }
+        
+        // Stelle vuote
+        for (let i = 0; i < emptyStars; i++) {
+            starsHtml += '<i class="far fa-star"></i>';
+        }
+        
+        return starsHtml;
+    }
+
     renderReviews() {
         if (!this.reviewsContainer) return;
 
@@ -78,9 +103,10 @@ class Reviews {
             card.style.animationDelay = `${index * 0.1}s`;
             card.setAttribute('data-rating', review.valutazione);
 
-            const hasImage = review.immagine_utente && review.immagine_utente.trim();
+            const hasImage = review.immagine_utente && review.immagine_utente.trim() && review.immagine_utente !== 'null';
             const avatarHtml = hasImage ?
-                `<img src="${review.immagine_utente.startsWith('/uploads/') ? review.immagine_utente : '/uploads/' + review.immagine_utente}" alt="Foto profilo" class="review-avatar-img">` :
+                `<img src="${review.immagine_utente}" alt="Foto profilo" class="review-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="review-avatar" style="display:none;">${(review.nome_utente && review.cognome_utente ? (review.nome_utente.charAt(0) + review.cognome_utente.charAt(0)) : 'U').toUpperCase()}</div>` :
                 `<div class="review-avatar">${(review.nome_utente && review.cognome_utente ? (review.nome_utente.charAt(0) + review.cognome_utente.charAt(0)) : 'U').toUpperCase()}</div>`;
 
             card.innerHTML = `
@@ -90,7 +116,7 @@ class Reviews {
                         <div class="flex-grow-1">
                             <h6 class="mb-1 fw-bold">${review.nome_utente || 'Utente'} ${review.cognome_utente || ''}</h6>
                             <div class="review-stars mb-2">
-                                ${[1,2,3,4,5].map(i => `<i class="fas ${i <= review.valutazione ? 'fa-star' : 'fa-star-half-alt'}"></i>`).join('')}
+                                ${this.generateStars(review.valutazione)}
                             </div>
                         </div>
                         <small class="text-muted">${new Date(review.data_recensione).toLocaleDateString('it-IT')}</small>

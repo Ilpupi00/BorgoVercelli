@@ -1,4 +1,5 @@
 import { setupEmailFormListener } from './send_email.js';
+import ShowModal from '../utils/showModal.js';
 
 class Prenotazione {
     constructor(page) {
@@ -26,9 +27,22 @@ class Prenotazione {
 
     addEventListeners() {
         this.page.querySelectorAll('.btn-prenota').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 const campoId = btn.getAttribute('data-campo-id');
-                this.openPrenotaModal(campoId);
+                try {
+                    const resUser = await fetch('/session/user');
+                    if (resUser.ok) {
+                        this.openPrenotaModal(campoId);
+                    } else {
+                        if (ShowModal && typeof ShowModal.showLoginRequiredModal === 'function') {
+                            ShowModal.showLoginRequiredModal('Devi essere loggato per prenotare');
+                        }
+                    }
+                } catch (e) {
+                    if (ShowModal && typeof ShowModal.showLoginRequiredModal === 'function') {
+                        ShowModal.showLoginRequiredModal('Errore nel controllo del login. Riprova.');
+                    }
+                }
             });
         });
 
@@ -119,8 +133,8 @@ class Prenotazione {
                         body: JSON.stringify({ ...datiPrenotazione, utente_id: utenteId })
                     });
                     if (res.status === 401) {
-                        if (window.ShowModal && typeof window.ShowModal.showLoginRequiredModal === 'function') {
-                            window.ShowModal.showLoginRequiredModal('Devi essere loggato per prenotare');
+                        if (ShowModal && typeof ShowModal.showLoginRequiredModal === 'function') {
+                            ShowModal.showLoginRequiredModal('Devi essere loggato per prenotare');
                         }
                         return;
                     }
@@ -130,27 +144,27 @@ class Prenotazione {
                             const errJson = await res.json();
                             msg = errJson.error || msg;
                         } catch(e) {}
-                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
-                            window.ShowModal.showModalError(msg, 'Errore nella prenotazione');
+                        if (ShowModal && typeof ShowModal.showModalError === 'function') {
+                            ShowModal.showModalError(msg, 'Errore nella prenotazione');
                         }
                         return;
                     }
                     const result = await res.json();
                     if (result && result.success) {
-                        if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
-                            window.ShowModal.showModalSuccess('Prenotazione avvenuta con successo');
+                        if (ShowModal && typeof ShowModal.showModalInfo === 'function') {
+                            ShowModal.showModalInfo('La tua prenotazione è stata inviata e è in attesa di approvazione.', 'Prenotazione in attesa');
                         }
                         // Update orari after booking
                         const data = this.page.querySelector(`.input-orari-campo[data-campo-id='${campoId}']`)?.value || new Date().toISOString().slice(0,10);
                         await this.updateOrariDisponibili(campoId, data);
                     } else {
-                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
-                            window.ShowModal.showModalError(result.error || 'Errore nella prenotazione');
+                        if (ShowModal && typeof ShowModal.showModalError === 'function') {
+                            ShowModal.showModalError(result.error || 'Errore nella prenotazione');
                         }
                     }
                 } catch (err) {
-                    if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
-                        window.ShowModal.showModalError('Errore di rete nella prenotazione');
+                    if (ShowModal && typeof ShowModal.showModalError === 'function') {
+                        ShowModal.showModalError('Errore di rete nella prenotazione');
                     }
                 }
             });

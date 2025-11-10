@@ -7,11 +7,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="/javascripts/utils/showModal.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="/javascripts/utils/showModal.js" defer></script>
     <script src="/javascripts/components/Admin.js" defer></script>
     <script src="/javascripts/components/GestioneNotizie.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/Admin.css">
+    <link rel="stylesheet" href="/stylesheets/Gestione_Notizie.css">
+    
 </head>
 <body>
 
@@ -21,177 +24,379 @@
             <%- include('../../partials/sidebar.ejs'); %>
 
             <!-- Contenuto principale -->
-            <div class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="row justify-content-center">
-                    <div class="col-12">
+            <div class="col-lg-9 col-xl-10 px-0">
+                <div class="gestione-notizie-container">
+                    <!-- Header -->
+                    <header class="page-header">
+                        <div class="page-header-content">
+                            <h1>
+                                <i class="fas fa-newspaper"></i>
+                                Gestione Notizie
+                            </h1>
+                            <p>Crea, modifica e gestisci le notizie del sito</p>
+                        </div>
+                        <div class="page-header-actions d-none d-md-flex" style="gap: 0.5rem;">
+                            <a href="/admin" class="btn btn-outline-secondary" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: white;">
+                                <i class="bi bi-arrow-left"></i> Pannello
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger" style="background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: white;">
+                                <i class="bi bi-box-arrow-right"></i> Esci
+                            </a>
+                        </div>
+                    </header>
 
-                        <!-- Header con profilo -->
-                        <div class="admin-header animate__animated animate__fadeInDown mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-6 text-center text-md-start">
-                                    <h1 class="display-5 fw-bold text-dark mb-2">
-                                        <i class="bi bi-newspaper text-primary me-2"></i>
-                                        Gestione Notizie
-                                    </h1>
-                                    <p class="text-primary fw-semibold mb-0">Amministratore del Sistema</p>
-                                </div>
-                                <div class="col-md-4 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end">
-                                    <a href="/admin" class="btn btn-outline-secondary btn-modern me-2 flex-fill flex-md-auto" style="max-width: 140px;">
-                                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
-                                    </a>
-                                    <a href="/Logout" class="btn btn-outline-danger btn-modern flex-fill flex-md-auto" style="max-width: 100px;">
-                                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
-                                    </a>
+                    <!-- Action Bar -->
+                    <div class="action-bar">
+                        <a href="/crea-notizie" class="btn btn-primary">
+                            <i class="fas fa-plus btn-icon"></i>
+                            Crea Nuova Notizia
+                        </a>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="search-filter-section">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput"
+                                placeholder="Cerca notizie per titolo, autore o contenuto..."
+                                aria-label="Cerca notizie"
+                            >
+                        </div>
+                        
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="statusFilter" class="filter-label">
+                                    <i class="fas fa-filter"></i> Stato
+                                </label>
+                                <select id="statusFilter" class="filter-select">
+                                    <option value="all">Tutti gli stati</option>
+                                    <option value="published">Pubblicate</option>
+                                    <option value="draft">Bozze</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="dateFilter" class="filter-label">
+                                    <i class="fas fa-calendar"></i> Data
+                                </label>
+                                <select id="dateFilter" class="filter-select">
+                                    <option value="all">Tutte le date</option>
+                                    <option value="today">Oggi</option>
+                                    <option value="week">Questa settimana</option>
+                                    <option value="month">Questo mese</option>
+                                    <option value="year">Quest'anno</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="sortFilter" class="filter-label">
+                                    <i class="fas fa-sort"></i> Ordina per
+                                </label>
+                                <select id="sortFilter" class="filter-select">
+                                    <option value="data-desc">Data (più recente)</option>
+                                    <option value="data-asc">Data (più vecchia)</option>
+                                    <option value="titolo-asc">Titolo (A-Z)</option>
+                                    <option value="titolo-desc">Titolo (Z-A)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Totale Notizie</div>
+                                <div class="stat-value" id="totalCount">
+                                    <%= notizie ? notizie.length : 0 %>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Contenuto principale -->
-                        <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="mb-0">
-                                    <i class="bi bi-list-ul text-primary me-2"></i>
-                                    Tutte le Notizie
-                                </h2>
-                                <a href="/crea-notizie" class="btn btn-primary btn-modern">
-                                    <i class="bi bi-plus-circle me-2"></i>
-                                    Crea Notizia
-                                </a>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-check-circle"></i>
                             </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Pubblicate</div>
+                                <div class="stat-value" id="publishedCount">
+                                    <%= notizie ? notizie.filter(n => n.pubblicata).length : 0 %>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Bozze</div>
+                                <div class="stat-value" id="draftCount">
+                                    <%= notizie ? notizie.filter(n => !n.pubblicata).length : 0 %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                            <!-- Barra di ricerca e filtri -->
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <!-- Barra di ricerca -->
-                                        <div class="col-md-6">
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="bi bi-search"></i>
+                    <!-- Notizie List -->
+                    <div class="notizie-list" id="notizieList">
+                        <% if (notizie && notizie.length > 0) { %>
+                            <% notizie.forEach(notizia => { %>
+                                <article class="notizia-card" 
+                                    data-notizia-id="<%= notizia.id %>" 
+                                    data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
+                                    data-titolo="<%= notizia.titolo.toLowerCase() %>"
+                                    data-contenuto="<%= (notizia.contenuto || '').toLowerCase() %>"
+                                    data-autore="<%= notizia.autore_nome %> <%= notizia.autore_cognome %>"
+                                    data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">
+                                    
+                                    <!-- Image -->
+                                    <div class="notizia-image-container">
+                                        <% if (notizia.immagine && notizia.immagine.url) { %>
+                                            <img 
+                                                src="<%= notizia.immagine.url %>" 
+                                                alt="<%= notizia.titolo %>"
+                                                class="notizia-image"
+                                                loading="lazy"
+                                            >
+                                        <% } else { %>
+                                            <img 
+                                                src="/images/default-news.jpg" 
+                                                alt="Immagine placeholder"
+                                                class="notizia-image"
+                                                loading="lazy"
+                                            >
+                                        <% } %>
+                                        
+                                        <!-- Status Badge -->
+                                        <span class="notizia-status-badge badge-<%= notizia.pubblicata ? 'pubblicata' : 'bozza' %>">
+                                            <% if (notizia.pubblicata) { %>
+                                                <i class="fas fa-check"></i> Pubblicata
+                                            <% } else { %>
+                                                <i class="fas fa-file-alt"></i> Bozza
+                                            <% } %>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Content -->
+                                    <div class="notizia-content">
+                                        <!-- Meta Information -->
+                                        <div class="notizia-meta">
+                                            <span class="meta-item">
+                                                <i class="fas fa-calendar meta-icon"></i>
+                                                <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { 
+                                                    day: '2-digit', 
+                                                    month: 'short', 
+                                                    year: 'numeric' 
+                                                }) : 'Non pubblicata' %>
+                                            </span>
+                                            <% if (notizia.visualizzazioni) { %>
+                                                <span class="meta-item">
+                                                    <i class="fas fa-eye meta-icon"></i>
+                                                    <%= notizia.visualizzazioni %>
                                                 </span>
-                                                <input type="text" class="form-control" id="searchInput" name="q" placeholder="Cerca per ID, titolo, contenuto...">
-                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                                    <i class="bi bi-x"></i>
+                                            <% } %>
+                                        </div>
+                                        
+                                        <!-- Title -->
+                                        <h2 class="notizia-title"><%= notizia.titolo %></h2>
+                                        
+                                        <!-- Excerpt -->
+                                        <% if (notizia.sottotitolo || notizia.contenuto) { %>
+                                            <p class="notizia-excerpt">
+                                                <%= notizia.sottotitolo || (notizia.contenuto ? notizia.contenuto.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : '') %>
+                                            </p>
+                                        <% } %>
+                                        
+                                        <!-- Footer -->
+                                        <div class="notizia-footer">
+                                            <div class="notizia-author">
+                                                <div class="author-avatar">
+                                                    <%= notizia.autore_nome ? notizia.autore_nome.charAt(0).toUpperCase() : 'A' %>
+                                                </div>
+                                                <span class="author-name">
+                                                    <%= notizia.autore_nome || 'Admin' %> <%= notizia.autore_cognome || '' %>
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="notizia-actions">
+                                                <a 
+                                                    href="/notizia/<%= notizia.id %>" 
+                                                    class="btn-icon-only btn-view"
+                                                    title="Visualizza"
+                                                    aria-label="Visualizza notizia"
+                                                >
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button 
+                                                    class="btn-icon-only btn-edit"
+                                                    onclick="modificaNotizia('<%= notizia.id %>')"
+                                                    title="Modifica"
+                                                    aria-label="Modifica notizia"
+                                                >
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button 
+                                                    class="btn-icon-only btn-delete delete-notizia-btn"
+                                                    data-notizia-id="<%= notizia.id %>"
+                                                    title="Elimina"
+                                                    aria-label="Elimina notizia"
+                                                >
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        
-                                        <!-- Filtro stato -->
-                                        <div class="col-md-3">
-                                            <select class="form-select" id="statusFilter">
-                                                <option value="all">Tutti gli stati</option>
-                                                <option value="published">Pubblicate</option>
-                                                <option value="draft">Bozze</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <!-- Filtro data -->
-                                        <div class="col-md-3">
-                                            <select class="form-select" id="dateFilter">
-                                                <option value="all">Tutte le date</option>
-                                                <option value="today">Oggi</option>
-                                                <option value="week">Questa settimana</option>
-                                                <option value="month">Questo mese</option>
-                                                <option value="year">Quest'anno</option>
-                                            </select>
-                                        </div>
                                     </div>
-                                    
-                                    <!-- Statistiche filtrate -->
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <small class="text-muted">
-                                                <span id="totalCount"><%= notizie ? notizie.length : 0 %></span> notizie totali
-                                                <span id="filteredCount" class="ms-3">(<%= notizie ? notizie.length : 0 %> filtrate)</span>
-                                            </small>
-                                        </div>
-                                    </div>
+                                </article>
+                            <% }) %>
+                        <% } else { %>
+                            <!-- Empty State -->
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-newspaper"></i>
                                 </div>
+                                <h2 class="empty-title">Nessuna notizia trovata</h2>
+                                <p class="empty-text">
+                                    Non ci sono ancora notizie. Inizia creando la tua prima notizia!
+                                </p>
+                                <a href="/crea-notizie" class="btn btn-primary">
+                                    <i class="fas fa-plus btn-icon"></i>
+                                    Crea la tua prima notizia
+                                </a>
                             </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Titolo</th>
-                                                    <th>Autore</th>
-                                                    <th>Data Pubblicazione</th>
-                                                    <th>Stato</th>
-                                                    <th>Visualizzazioni</th>
-                                                    <th>Azioni</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="notizieTableBody">
-                                                <% if (notizie && notizie.length > 0) { %>
-                                                    <% notizie.forEach(notizia => { %>
-                                                        <tr data-notizia-id="<%= notizia.id %>" 
-                                                            data-titolo="<%= notizia.titolo.toLowerCase() %>"
-                                                            data-contenuto="<%= (notizia.contenuto || '').toLowerCase() %>"
-                                                            data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
-                                                            data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">
-                                                            <td><%= notizia.id %></td>
-                                                            <td>
-                                                                <strong><%= notizia.titolo %></strong>
-                                                                <% if (notizia.sottotitolo) { %>
-                                                                    <br><small class="text-muted"><%= notizia.sottotitolo %></small>
-                                                                <% } %>
-                                                            </td>
-                                                            <td><%= notizia.autore_nome %> <%= notizia.autore_cognome %></td>
-                                                            <td><%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') : 'Non pubblicata' %></td>
-                                                            <td>
-                                                                <% if (notizia.pubblicata) { %>
-                                                                    <span class="badge bg-success">Pubblicata</span>
-                                                                <% } else { %>
-                                                                    <span class="badge bg-warning">Bozza</span>
-                                                                <% } %>
-                                                            </td>
-                                                            <td><%= notizia.visualizzazioni || 0 %></td>
-                                                            <td>
-                                                                <div class="btn-group" role="group">
-                                                                    <a href="/notizia/<%= notizia.id %>" class="btn btn-sm btn-outline-primary" title="Visualizza">
-                                                                        <i class="bi bi-eye"></i>
-                                                                    </a>
-                                                                    <button class="btn btn-sm btn-outline-warning" title="Modifica" onclick="modificaNotizia('<%= notizia.id %>')">
-                                                                        <i class="bi bi-pencil"></i>
-                                                                    </button>
-                                                                    <button class="btn btn-sm btn-outline-danger delete-notizia-btn" title="Elimina" data-notizia-id="<%= notizia.id %>">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    <% }); %>
-                                                    <!-- Riga per nessun risultato dai filtri (inizialmente nascosta) -->
-                                                    <tr id="noResultsRow" style="display: none;">
-                                                        <td colspan="7" class="text-center text-muted py-4">
-                                                            <i class="bi bi-search display-4 mb-3"></i>
-                                                            <p>Nessuna notizia corrisponde ai filtri selezionati.</p>
-                                                            <button class="btn btn-outline-secondary" onclick="clearAllFilters()">Rimuovi filtri</button>
-                                                        </td>
-                                                    </tr>
-                                                <% } else { %>
-                                                    <tr id="noResultsRow">
-                                                        <td colspan="7" class="text-center text-muted py-4">
-                                                            <i class="bi bi-info-circle display-4 mb-3"></i>
-                                                            <p>Nessuna notizia presente nel sistema.</p>
-                                                            <a href="/crea-notizie" class="btn btn-primary">Crea la prima notizia</a>
-                                                        </td>
-                                                    </tr>
-                                                <% } %>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const notizieCards = document.querySelectorAll('.notizia-card');
+
+        function filterNotizie() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const status = statusFilter.value;
+            const date = dateFilter.value;
+            
+            let visibleCount = 0;
+            const now = new Date();
+
+            notizieCards.forEach(card => {
+                const titolo = card.dataset.titolo;
+                const contenuto = card.dataset.contenuto;
+                const autore = card.dataset.autore.toLowerCase();
+                const stato = card.dataset.stato;
+                const dataStr = card.dataset.data;
+                
+                // Search filter
+                const matchesSearch = titolo.includes(searchTerm) || 
+                                    contenuto.includes(searchTerm) || 
+                                    autore.includes(searchTerm);
+                
+                // Status filter
+                const matchesStatus = status === 'all' || stato === status;
+                
+                // Date filter
+                let matchesDate = true;
+                if (date !== 'all' && dataStr) {
+                    const cardDate = new Date(dataStr);
+                    const diffTime = now - cardDate;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (date === 'today') matchesDate = diffDays < 1;
+                    else if (date === 'week') matchesDate = diffDays < 7;
+                    else if (date === 'month') matchesDate = diffDays < 30;
+                    else if (date === 'year') matchesDate = diffDays < 365;
+                }
+                
+                if (matchesSearch && matchesStatus && matchesDate) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            updateEmptyState(visibleCount);
+        }
+
+        function updateEmptyState(visibleCount) {
+            const notizieList = document.getElementById('notizieList');
+            let emptyState = document.querySelector('.empty-state');
+            
+            if (visibleCount === 0 && notizieCards.length > 0) {
+                if (!emptyState) {
+                    emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h2 class="empty-title">Nessun risultato trovato</h2>
+                        <p class="empty-text">
+                            Prova a modificare i filtri di ricerca.
+                        </p>
+                    `;
+                    notizieList.appendChild(emptyState);
+                }
+                emptyState.style.display = 'block';
+            } else if (emptyState && visibleCount > 0 && notizieCards.length > 0) {
+                emptyState.style.display = 'none';
+            }
+            
+            // Update stats
+            document.getElementById('totalCount').textContent = notizieCards.length;
+        }
+
+        function sortNotizie() {
+            const sortValue = sortFilter.value;
+            const notizieList = document.getElementById('notizieList');
+            const cards = Array.from(notizieCards);
+
+            cards.sort((a, b) => {
+                if (sortValue === 'data-desc' || sortValue === 'data-asc') {
+                    const dateA = new Date(a.dataset.data || 0);
+                    const dateB = new Date(b.dataset.data || 0);
+                    return sortValue === 'data-desc' ? dateB - dateA : dateA - dateB;
+                } else if (sortValue === 'titolo-asc' || sortValue === 'titolo-desc') {
+                    const titleA = a.dataset.titolo;
+                    const titleB = b.dataset.titolo;
+                    return sortValue === 'titolo-asc' ? 
+                        titleA.localeCompare(titleB) : 
+                        titleB.localeCompare(titleA);
+                }
+                return 0;
+            });
+
+            cards.forEach(card => notizieList.appendChild(card));
+        }
+
+        // Event listeners
+        if (searchInput) searchInput.addEventListener('input', filterNotizie);
+        if (statusFilter) statusFilter.addEventListener('change', filterNotizie);
+        if (dateFilter) dateFilter.addEventListener('change', filterNotizie);
+        if (sortFilter) sortFilter.addEventListener('change', sortNotizie);
+
+        // Clear filters
+        function clearAllFilters() {
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = 'all';
+            if (dateFilter) dateFilter.value = 'all';
+            filterNotizie();
+        }
+    </script>
 
     <div id="page"></div>
 

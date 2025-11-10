@@ -80,8 +80,10 @@ router.put('/prenotazioni/:id', async (req, res) => {
     }
 });
 
-// 7. Elimina prenotazione
-router.delete('/prenotazioni/:id', async (req, res) => {
+// 7. Elimina prenotazione (id numerico)
+// Restringiamo :id a valori numerici per evitare che percorsi come
+// '/prenotazioni/scadute' vengano intercettati dalla route generica.
+router.delete('/prenotazioni/:id(\\d+)', async (req, res) => {
     const id = req.params.id;
     try {
         const result = await daoPrenotazione.deletePrenotazione(id);
@@ -104,29 +106,42 @@ router.post('/prenotazioni/check-scadute', async (req, res) => {
 // 9. Elimina tutte le scadute
 router.delete('/prenotazioni/scadute', async (req, res) => {
     try {
-        console.error('[route prenotazioni] DELETE /prenotazioni/scadute invoked');
-        // Prima di cancellare, assicurati di marcare come 'scaduta' tutte le prenotazioni già passate
+        console.error('[route prenotazioni] DELETE /prenotazioni/scadute invoked (route PID:', process.pid, ')');
+
+        // helper to run db.get with Promise
+        const getCount = (sql) => new Promise((resolve, reject) => {
+            db.get(sql, [], (err, row) => {
+                if (err) return reject(err);
+                resolve((row && row.cnt) || 0);
+            });
+        });
+
+        const before = await getCount("SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'");
+        console.error(`[route:${process.pid}] count scadute before route action: ${before}`);
+
+        // Ensure scadute are marked first
         try {
             await daoPrenotazione.checkAndUpdateScadute();
         } catch (e) {
-            // Se fallisce il controllo, logga ma procedi con la cancellazione comunque
-            console.error('Errore durante il check delle scadute prima della cancellazione:', e);
+            console.error('[route] checkAndUpdateScadute error', e);
         }
-        
-    // call DAO to delete scadute and normalize the response so the front-end
-    // can read either `deleted`, `changes` or `actualChanges` depending on
-    // historical variations.
-        // Attempt deletion directly here to avoid any DAO/connection issues and
-        // to return the exact number of deleted rows to the client.
-        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = ?`, ['scaduta'], function (err) {
-            if (err) {
-                console.error('[route prenotazioni] direct delete error', err);
-                return res.status(500).json({ success: false, error: err.message });
-            }
-            const count = this.changes || 0;
-            console.error(`[route prenotazioni] direct delete removed ${count} rows`);
-            return res.json({ success: true, deleted: count, changes: count });
-        });
+
+        // Call DAO deletion (DAO logs internal before/after)
+        let result;
+        try {
+            result = await daoPrenotazione.deleteScadute();
+        } catch (e) {
+            console.error('[route] dao.deleteScadute error', e);
+            return res.status(500).json({ success: false, error: e.message });
+        }
+
+        console.error(`[route:${process.pid}] dao.deleteScadute returned: ${JSON.stringify(result)}`);
+
+        const after = await getCount("SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'");
+        console.error(`[route:${process.pid}] count scadute after dao action: ${after}`);
+
+        const count = result && (result.deleted || result.changes || 0);
+        return res.json({ success: !!(result && result.success), deleted: count, changes: count, before, after });
     } catch (err) {
         console.error('[route prenotazioni] Error in DELETE /prenotazioni/scadute:', err);
         res.status(500).json({ error: err.message });

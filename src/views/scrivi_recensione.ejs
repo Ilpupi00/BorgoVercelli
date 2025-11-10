@@ -56,6 +56,18 @@
                                 <div class="form-text text-end" id="charCount">0/500</div>
                             </div>
 
+                            <div class="mb-4">
+                                <div class="d-flex align-items-start">
+                                    <input class="form-check-input me-2 mt-1" type="checkbox" id="recensione_privacy_accept" name="privacy_accept" required style="width: 20px; height: 20px; cursor: pointer;">
+                                    <label class="form-label mb-0" for="recensione_privacy_accept" style="cursor: pointer; line-height: 1.5;">
+                                        Accetto la <a href="/privacy" target="_blank" class="fw-bold text-decoration-underline">Privacy Policy</a> <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <div class="invalid-feedback" id="privacy_error_recensione" style="display: none;">
+                                    Devi accettare la Privacy Policy per inviare la recensione.
+                                </div>
+                            </div>
+
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                                     <i class="fas fa-paper-plane me-2"></i>Invia Recensione

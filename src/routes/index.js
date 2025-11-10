@@ -264,6 +264,28 @@ router.get('/contatti', (req, res) => {
     }
 });
 
+// Pagina Privacy Policy
+router.get('/privacy', (req, res) => {
+    try {
+        const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
+        res.render('privacy', { isLoggedIn: isLoggedIn });
+    } catch (error) {
+        console.error('Errore nel rendering della pagina privacy:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Pagina Regolamento
+router.get('/regolamento', (req, res) => {
+    try {
+        const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
+        res.render('regolamento', { isLoggedIn: isLoggedIn });
+    } catch (error) {
+        console.error('Errore nel rendering della pagina regolamento:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Endpoint POST per invio contatti (API)
 router.post('/contatti', async (req, res) => {
     try {

@@ -32,13 +32,13 @@ class Homepage {
                         window.location.href = '/scrivi/recensione';
                     } else {
                         // Mostra modal
-                        const { default: showModal } = await import('../utils/showModal.js');
-                        showModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
+                        const { default: ShowModal } = await import('../utils/showModal.js');
+                        ShowModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
                     }
                 } catch (err) {
                     // Errore, mostra modal
-                    const { default: showModal } = await import('../utils/showModal.js');
-                    showModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
+                    const { default: ShowModal } = await import('../utils/showModal.js');
+                    ShowModal.showLoginRequiredModal('Devi essere loggato per scrivere una recensione');
                 }
             });
         }

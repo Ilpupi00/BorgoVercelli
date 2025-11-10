@@ -11,7 +11,16 @@
     <link rel="stylesheet" href="/stylesheets/Login.css">
 </head>
 <body class="login-page">
-    <main class="container d-flex justify-content-center align-items-center vh-100">
+    <!-- Privacy Policy Overlay -->
+    <div id="privacyOverlay" class="privacy-overlay">
+        <div class="privacy-modal">
+            <h2>📋 Privacy Policy</h2>
+            <p>Prima di registrarti, devi accettare la nostra Privacy Policy per continuare.</p>
+            <p class="mb-4">La tua privacy è importante per noi. Leggi i nostri termini e condizioni.</p>
+            <button id="acceptPrivacyBtn" class="btn btn-accept">Accetto la Privacy Policy</button>
+        </div>
+    </div>
+    <main class="container d-flex justify-content-center align-items-start py-4">
         <div class="card p-4 shadow-lg login-card position-relative">
             <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeRegister" aria-label="Chiudi"></button>
             <h1 class="text-center mb-4 title">Registrati</h1>
@@ -60,6 +69,12 @@
                 </div>
                 <div id="passwordError" class="alert alert-danger" style="display: none;" role="alert">
                     Le password non corrispondono. Riprova.
+                </div>
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" id="privacy_accept" name="privacy_accept" required>
+                    <label class="form-check-label" for="privacy_accept">
+                        <span class="text-danger">*</span> Accetto la <a href="/privacy" target="_blank" class="text-decoration-underline">Privacy Policy</a> e il <a href="/regolamento" target="_blank" class="text-decoration-underline">Regolamento</a>
+                    </label>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Registrati</button>
             </form>
