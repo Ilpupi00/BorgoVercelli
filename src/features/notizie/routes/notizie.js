@@ -84,7 +84,7 @@ router.get('/notizia/:id', async (req, res) => {
     if (!notizia) {
       return res.status(404).render('error', { message: 'Notizia non trovata', error: { status: 404 } });
     }
-    res.render('Notizie/visualizza_notizia', { notizia });
+    res.render('visualizza_notizia', { notizia });
   } catch (error) {
     console.error('Errore nel caricamento della notizia:', error);
     res.status(500).render('error', { message: 'Errore nel caricamento della notizia', error: { status: 500 } });
@@ -120,10 +120,10 @@ router.get('/crea-notizie', isAdminOrDirigente, async (req, res) => {
     const id = req.query.id;
     let notizia = null;
     if (id) notizia = await dao.getNotiziaById(id);
-    res.render('Notizie/notizia', { user: req.user, notizia, error: null });
+    res.render('notizia', { user: req.user, notizia, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form notizia:', error);
-    res.render('Notizie/notizia', { user: req.user, notizia: null, error: 'Errore nel caricamento della notizia' });
+    res.render('notizia', { user: req.user, notizia: null, error: 'Errore nel caricamento della notizia' });
   }
 });
 

@@ -238,6 +238,34 @@ body {
     box-shadow: var(--shadow-light);
 }
 
+/* Fix: i nomi dei giocatori usano la classe .gradient-text che rende il testo trasparente
+   (background-clip con gradiente). Su sfondi chiari risultano poco visibili.
+   Qui forziamo il colore nero solo per i nomi all'interno delle player-card. */
+.player-card .card-title.gradient-text {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
+}
+
+/* Fallback: titolo giocatore senza la classe gradient-text ma dentro player-card */
+.player-card .card-title {
+    color: #000 !important;
+}
+
+/* Anche i dirigenti devono essere visibili: forziamo il colore nero sulle manager-card */
+.manager-card .card-title.gradient-text {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
+}
+.manager-card .card-title {
+    color: #000 !important;
+}
+
 .btn-success {
     background: var(--secondary-color);
     color: white;

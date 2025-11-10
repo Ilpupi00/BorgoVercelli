@@ -244,7 +244,8 @@ router.get('/search', async (req, res) => {
 
 router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
     try{
-        res.render('Notizie/notizia.ejs',{
+        // render the notizia form view
+        res.render('notizia',{ 
             user:req.user,
             notizia: null
         })

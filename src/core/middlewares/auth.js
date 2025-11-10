@@ -1,16 +1,31 @@
 /**
- * Middleware per controllare se l'utente è loggato
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns 
+ * @fileoverview Middleware di autenticazione e autorizzazione
+ * @module core/middlewares/auth
+ * @description Fornisce middleware per verificare autenticazione e autorizzazioni utente.
+ * Gestisce controlli per login, ruoli admin/dirigente, e stato account (sospeso/bannato).
  */
+
 const dao = require('../../features/notizie/services/dao-notizie');
 
+/**
+ * Middleware per verificare se l'utente è autenticato
+ * Controlla anche lo stato dell'account (attivo, sospeso, bannato)
+ * 
+ * @function isLoggedIn
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ * 
+ * @example
+ * router.get('/profilo', isLoggedIn, (req, res) => {
+ *   res.render('profilo');
+ * });
+ */
 const isLoggedIn = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
         // Verifica stato utente (sospeso/bannato)
-        if (req.user.stato === 'bannato') {
+        if (req.user.isBannato && req.user.isBannato()) {
             req.logout(function(err) {
                 if (err) { console.error('Errore logout:', err); }
             });
@@ -27,10 +42,9 @@ const isLoggedIn = function(req, res, next) {
             }
         }
         
-        if (req.user.stato === 'sospeso') {
+        if (req.user.isSospeso && req.user.isSospeso()) {
             // Verifica se la sospensione è scaduta
-            const moment = require('moment');
-            if (req.user.data_fine_sospensione && moment(req.user.data_fine_sospensione).isBefore(moment())) {
+            if (req.user.isSospensioneScaduta && req.user.isSospensioneScaduta()) {
                 // Sospensione scaduta, riattiva automaticamente
                 const userDao = require('../../features/users/services/dao-user');
                 userDao.revocaSospensioneBan(req.user.id).catch(err => {
@@ -69,17 +83,22 @@ const isLoggedIn = function(req, res, next) {
         res.status(401).render('error', { message: 'Accesso negato: devi essere loggato', error: { status: 401 } });
     }
 };
+
 /**
- * Middleware per controllare se l'utente è un admin
- * @param {Context} req 
- * @param {*} res 
- * @param {*} next 
- * @returns 
+ * Middleware per verificare se l'utente è amministratore
+ * Controlla che l'utente sia autenticato e abbia tipo_utente_id === 1
+ * 
+ * @function isAdmin
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
  */
 const isAdmin = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && req.user.tipo_utente_id === 1) {
         return next();
     }
+    // Risposta di errore 403 Forbidden
     if (req.headers.accept && req.headers.accept.includes('application/json')) {
         res.status(403).json({ error: 'Forbidden' });
     } else {
@@ -87,10 +106,21 @@ const isAdmin = function(req, res, next) {
     }
 };
 
-const isDirigente = function(req,res,next){
+/**
+ * Middleware per verificare se l'utente è dirigente
+ * Controlla che l'utente sia autenticato e abbia tipo_utente_id === 2
+ * 
+ * @function isDirigente
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ */
+const isDirigente = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 2)) {
         return next();
     }
+    // Risposta di errore 403 Forbidden
     if (req.headers.accept && req.headers.accept.includes('application/json')) {
         res.status(403).json({ error: 'Forbidden' });
     } else {
@@ -98,7 +128,16 @@ const isDirigente = function(req,res,next){
     }
 }
 
-// Middleware che autorizza sia Admin che Dirigente
+/**
+ * Middleware che autorizza sia amministratori che dirigenti
+ * Permette l'accesso agli utenti con tipo_utente_id === 1 O tipo_utente_id === 2
+ * 
+ * @function isAdminOrDirigente
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ */
 const isAdminOrDirigente = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated() && (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2)) {
         return next();

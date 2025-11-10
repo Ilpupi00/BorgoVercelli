@@ -1,9 +1,35 @@
-'use strict';
-const db = require('../../../core/config/database');
-const Campo=require('../../../core/models/campo.js');
-const Immagine = require('../../../core/models/immagine.js');
-const Prenotazione=require('../../../core/models/prenotazione.js');
+/**
+ * @fileoverview Data Access Object per la gestione delle prenotazioni campi
+ * @module features/prenotazioni/services/dao-prenotazione
+ * @description Fornisce metodi per creare, leggere, aggiornare ed eliminare prenotazioni.
+ * Gestisce anche la disponibilità dei campi, orari, e stati delle prenotazioni
+ * (in attesa, accettata, rifiutata, scaduta).
+ */
 
+'use strict';
+
+const db = require('../../../core/config/database');
+// Wrapper di compatibilità: alcune parti del codice chiamavano nomi vecchi
+// Esponiamo comunque funzioni con quei nomi per evitare regressioni.
+exports.confermaPrenotazione = async (id) => {
+    return exports.updateStatoPrenotazione(id, 'confermata');
+};
+
+exports.deletePrenotazioneById = async (id) => {
+    return exports.deletePrenotazione(id);
+};
+
+const Campo = require('../../../core/models/campo.js');
+const Immagine = require('../../../core/models/immagine.js');
+const Prenotazione = require('../../../core/models/prenotazione.js');
+
+// ==================== FACTORY FUNCTIONS ====================
+
+/**
+ * Crea un oggetto Campo da una riga del database
+ * @param {Object} row - Riga dal database
+ * @returns {Campo} Oggetto Campo instanziato
+ */
 const makeCampo = (row) => {
        return new Campo(
 	       row.id,
@@ -23,35 +49,45 @@ const makeCampo = (row) => {
        );
 }
 
-const makePrenotazione=(row)=>{
-	return new Prenotazione(
-		row.id,
-		row.campo_id,
-		row.utente_id,
-		row.squadra_id,
-		row.data_prenotazione,
-		row.ora_inizio,
-		row.ora_fine,
-		row.tipo_attivita,
-		row.note,
-		row.stato,
-		row.created_at,
-		row.updated_at
-	);
+/**
+ * Factory: crea un'istanza di Prenotazione da una riga DB
+ * @param {Object} row - Riga del DB contenente campi della prenotazione
+ * @returns {Prenotazione}
+ */
+const makePrenotazione = (row) => {
+    return new Prenotazione(
+        row.id,
+        row.campo_id,
+        row.utente_id,
+        row.squadra_id,
+        row.data_prenotazione,
+        row.ora_inizio,
+        row.ora_fine,
+        row.tipo_attivita,
+        row.note,
+        row.stato,
+        row.created_at,
+        row.updated_at
+    );
 }
 
-const makeImmagini=(row)=>{
-	return new Immagine(
-		row.id,
-		row.descrizione,
-		row.url,
-		row.tipo,
-		row.entita_riferimento,
-		row.entita_id,
-		row.ordine,
-		row.created_at,
-		row.updated_at
-	);
+/**
+ * Factory: crea un'istanza di Immagine da una riga DB
+ * @param {Object} row - Riga del DB contenente i campi immagine
+ * @returns {Immagine}
+ */
+const makeImmagini = (row) => {
+    return new Immagine(
+        row.id,
+        row.descrizione,
+        row.url,
+        row.tipo,
+        row.entita_riferimento,
+        row.entita_id,
+        row.ordine,
+        row.created_at,
+        row.updated_at
+    );
 }
 
 const normalizeDate = (dateStr) => {
@@ -89,6 +125,17 @@ exports.getCampiAttivi = async () =>{
 
 
 
+/**
+ * Restituisce gli orari disponibili per un campo in una data specifica
+ * Filtra orari basandosi su orari base del campo e prenotazioni esistenti.
+ * Se la data richiesta è oggi, rimuove slot nelle prossime 2 ore.
+ *
+ * @async
+ * @param {number} campoId - ID del campo
+ * @param {string|Date} data - Data richiesta (YYYY-MM-DD o Date)
+ * @returns {Promise<Array<Object>>} Array di oggetti { inizio, fine } rappresentanti gli slot disponibili
+ * @throws {Error} In caso di errore DB
+ */
 // Restituisce orari disponibili per un campo in una data
 exports.getDisponibilitaCampo=async (campoId, data) => {
     const dataNorm = normalizeDate(data);
@@ -158,6 +205,23 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
     });
 }
 
+/**
+ * Crea una nuova prenotazione per un campo se lo slot è libero
+ * Inserisce la prenotazione con stato iniziale 'in_attesa'.
+ *
+ * @async
+ * @param {Object} params - Oggetto con i dati della prenotazione
+ * @param {number} params.campo_id
+ * @param {number|null} [params.utente_id]
+ * @param {number|null} [params.squadra_id]
+ * @param {string|Date} params.data_prenotazione
+ * @param {string} params.ora_inizio - formato HH:mm
+ * @param {string} params.ora_fine - formato HH:mm
+ * @param {string|null} [params.tipo_attivita]
+ * @param {string|null} [params.note]
+ * @returns {Promise<Object>} { success: true, id } oppure { error: '...' }
+ * @throws {Error} In caso di errore DB
+ */
 // Prenota un campo
 exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
     const dataNorm = normalizeDate(data_prenotazione);
@@ -176,6 +240,14 @@ exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazio
     });
 }
 
+/**
+ * Recupera tutte le prenotazioni con dati correlati (campo, utente, squadra)
+ * Ordinamento: data_prenotazione desc, ora_inizio desc
+ *
+ * @async
+ * @returns {Promise<Array<Object>>} Array di prenotazioni
+ * @throws {Object} { error: '...' } in caso di errore
+ */
 exports.getAllPrenotazioni = async () => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -198,6 +270,13 @@ exports.getAllPrenotazioni = async () => {
     });
 }
 
+/**
+ * Recupera una prenotazione per ID (inclusi campo, utente, squadra)
+ * @async
+ * @param {number} id - ID della prenotazione
+ * @returns {Promise<Object|null>} Prenotazione o null se non trovata
+ * @throws {Object} { error: '...' } in caso di errore
+ */
 exports.getPrenotazioneById = async (id) => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -220,6 +299,14 @@ exports.getPrenotazioneById = async (id) => {
     });
 }
 
+/**
+ * Aggiorna lo stato di una prenotazione (es: in_attesa, confermata, rifiutata, scaduta)
+ * @async
+ * @param {number} id - ID della prenotazione
+ * @param {string} stato - Nuovo stato
+ * @returns {Promise<Object>} { success: true, changes }
+ * @throws {Error} In caso di errore DB
+ */
 exports.updateStatoPrenotazione = async (id, stato) => {
     return new Promise((resolve, reject) => {
         console.log(`[DAO] updateStatoPrenotazione: id=${id}, stato=${stato}`);
@@ -234,6 +321,14 @@ exports.updateStatoPrenotazione = async (id, stato) => {
     });
 }
 
+/**
+ * Aggiorna i dettagli di una prenotazione esistente
+ * @async
+ * @param {number} id - ID della prenotazione
+ * @param {Object} data - Campi aggiornati
+ * @returns {Promise<Object>} { success: true, changes }
+ * @throws {Error} In caso di errore DB
+ */
 exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
@@ -245,6 +340,13 @@ exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_
     });
 }
 
+/**
+ * Elimina una prenotazione per ID
+ * @async
+ * @param {number} id - ID della prenotazione
+ * @returns {Promise<Object>} { success: true, changes }
+ * @throws {Error} In caso di errore DB
+ */
 exports.deletePrenotazione = async (id) => {
     return new Promise((resolve, reject) => {
         db.run(`DELETE FROM PRENOTAZIONI WHERE id = ?`, [id], function (err) {
@@ -254,6 +356,13 @@ exports.deletePrenotazione = async (id) => {
     });
 }
 
+/**
+ * Marca come 'scaduta' le prenotazioni confermate la cui data+ora fine è passata
+ * Utilizza confronti datetime lato SQLite per evitare problemi di timezone
+ * @async
+ * @returns {Promise<Object>} { success: true, updated }
+ * @throws {Error} In caso di errore DB
+ */
 exports.checkAndUpdateScadute = async () => {
     // Use SQLite datetime comparison to avoid timezone/format issues and be
     // tolerant to small variations in the stored `stato` (trim + lowercase).
@@ -284,6 +393,13 @@ exports.checkAndUpdateScadute = async () => {
     });
 }
 
+/**
+ * Elimina dal DB le prenotazioni con stato 'scaduta'
+ * Effettua log dei conteggi prima e dopo l'operazione
+ * @async
+ * @returns {Promise<Object>} { success: true, deleted, changes }
+ * @throws {Error} In caso di errore DB
+ */
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
         // Log count before delete
@@ -310,6 +426,13 @@ exports.deleteScadute = async () => {
     });
 }
 
+/**
+ * Recupera tutte le prenotazioni di un utente
+ * @async
+ * @param {number} userId - ID utente
+ * @returns {Promise<Array<Object>>} Array di prenotazioni
+ * @throws {Object} { error: '...' } in caso di errore
+ */
 exports.getPrenotazioniByUserId = async (userId) => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -334,6 +457,13 @@ exports.getPrenotazioniByUserId = async (userId) => {
 }
 
 // Accetta automaticamente le prenotazioni in attesa da più di 3 giorni (tacito consenso)
+/**
+ * Accetta automaticamente prenotazioni in attesa da più di 3 giorni
+ * Implementa il cosiddetto "tacito consenso" per prenotazioni non gestite
+ * @async
+ * @returns {Promise<Object>} { success: true, accepted }
+ * @throws {Error} In caso di errore DB
+ */
 exports.autoAcceptPendingBookings = async () => {
     return new Promise((resolve, reject) => {
         // Calcola la data di 3 giorni fa
@@ -371,6 +501,12 @@ exports.autoAcceptPendingBookings = async () => {
         });
     });
 }
+
+
+
+
+// Esporta l'oggetto exports per compatibilità e chiarezza
+module.exports = exports;
 
 
 

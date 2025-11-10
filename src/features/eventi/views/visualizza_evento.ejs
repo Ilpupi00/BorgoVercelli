@@ -16,17 +16,17 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="<%= evento.titolo %> - Asd BorgoVercelli 2022">
     <meta property="og:description" content="<%= evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Scopri questo evento organizzato da Asd BorgoVercelli 2022' %>">
-    <meta property="og:image" content="<%= evento.immagine_url || '/images/Campo.png' %>">
+    <meta property="og:image" content="<%= evento.immagine_url || '/assets/images/Campo.png' %>">
     <meta property="og:url" content="/evento/<%= evento.id %>">
     <meta property="og:type" content="article">
 </head>
 <body>
-    <%- include('../partials/navbar') %>
+    <%- include('partials/navbar') %>
 
     <!-- Hero Section with Event Image -->
     <section class="event-hero-section position-relative">
         <div class="hero-overlay"></div>
-        <div class="hero-image" style="background-image: url(&quot;<%= evento.immagine_url || '/images/Campo.png' %>&quot;);"></div>
+        <div class="hero-image" style="background-image: url(&quot;<%= evento.immagine_url || '/assets/images/Campo.png' %>&quot;);"></div>
         <div class="container-fluid px-4 position-relative" style="z-index: 2;">
             <div class="row justify-content-center min-vh-50">
                 <div class="col-12 col-md-10 col-lg-8 text-center text-white">
@@ -175,7 +175,7 @@
         </div>
     </section>
 
-    <%- include('../partials/footer') %>
+    <%- include('partials/footer') %>
 
     <script type="module">
         import EventoView from '/assets/scripts/components/EventoView.js';

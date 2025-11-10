@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * @fileoverview DAO per la gestione degli eventi
+ * Fornisce CRUD e ricerche per eventi
+ * @module features/eventi/services/dao-eventi
+ */
+
 const sqlite = require('../../../core/config/database');
 const Evento = require('../../../core/models/evento.js');
 
@@ -23,6 +29,11 @@ const makeEvento=(row)=>{
     );
 }
 
+/**
+ * Recupera tutti gli eventi
+ * @async
+ * @returns {Promise<Array<Evento>>} Array di eventi
+ */
 exports.getEventi = function(){
     return new Promise((resolve, reject) => {
         const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI;';
@@ -37,6 +48,11 @@ exports.getEventi = function(){
     });
 }
 
+/**
+ * Recupera solo gli eventi pubblicati
+ * @async
+ * @returns {Promise<Array<Evento>>}
+ */
 exports.getEventiPubblicati = function(){
     return new Promise((resolve, reject) => {
         const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI WHERE pubblicato = 1;';
@@ -51,6 +67,12 @@ exports.getEventiPubblicati = function(){
     });
 }
 
+/**
+ * Recupera un evento per ID
+ * @async
+ * @param {number} id - ID evento
+ * @returns {Promise<Evento>} Istanza Evento
+ */
 exports.getEventoById = function(id) {
     const sql = 'SELECT * FROM EVENTI WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -67,6 +89,12 @@ exports.getEventoById = function(id) {
     });
 }
 
+/**
+ * Crea un nuovo evento
+ * @async
+ * @param {Object} eventoData - Dati evento
+ * @returns {Promise<Object>} { id, success }
+ */
 exports.createEvento = function(eventoData) {
     const sql = `INSERT INTO EVENTI (
         titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento,
@@ -96,6 +124,13 @@ exports.createEvento = function(eventoData) {
     });
 }
 
+/**
+ * Aggiorna un evento esistente
+ * @async
+ * @param {number} id - ID evento
+ * @param {Object} eventoData - Campi aggiornati
+ * @returns {Promise<Object>} { success }
+ */
 exports.updateEvento = function(id, eventoData) {
     const sql = `UPDATE EVENTI SET
         titolo = ?, descrizione = ?, data_inizio = ?, data_fine = ?,
@@ -130,6 +165,12 @@ exports.updateEvento = function(id, eventoData) {
     });
 }
 
+/**
+ * Elimina un evento per ID
+ * @async
+ * @param {number} id - ID evento
+ * @returns {Promise<Object>} { success }
+ */
 exports.deleteEventoById = function(id) {
     const sql = 'DELETE FROM EVENTI WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -138,6 +179,7 @@ exports.deleteEventoById = function(id) {
                 console.error('Errore SQL delete evento:', err);
                 return reject({ error: 'Error deleting event: ' + err.message });
             }
+            console.log('[DAO:eventi] deleteEventoById called with id=', id, 'changes=', this.changes);
             if (this.changes === 0) {
                 return reject({ error: 'Event not found' });
             }
@@ -146,6 +188,12 @@ exports.deleteEventoById = function(id) {
     });
 }
 
+/**
+ * Attiva/disattiva la pubblicazione di un evento
+ * @async
+ * @param {number} id - ID evento
+ * @returns {Promise<Object>} { success }
+ */
 exports.togglePubblicazioneEvento = function(id) {
     const sql = 'UPDATE EVENTI SET pubblicato = CASE WHEN pubblicato = 1 THEN 0 ELSE 1 END, updated_at = datetime(\'now\') WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -154,6 +202,7 @@ exports.togglePubblicazioneEvento = function(id) {
                 console.error('Errore SQL toggle pubblicazione evento:', err);
                 return reject({ error: 'Error toggling event publication: ' + err.message });
             }
+            console.log('[DAO:eventi] togglePubblicazioneEvento called with id=', id, 'changes=', this.changes);
             if (this.changes === 0) {
                 return reject({ error: 'Event not found' });
             }
@@ -162,6 +211,12 @@ exports.togglePubblicazioneEvento = function(id) {
     });
 }
 
+/**
+ * Cerca eventi pubblicati per titolo/descrizione/luogo
+ * @async
+ * @param {string} searchTerm - Term per LIKE
+ * @returns {Promise<Array<Evento>>}
+ */
 exports.searchEventi = async function(searchTerm) {
     const sql = `
         SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id
@@ -181,6 +236,12 @@ exports.searchEventi = async function(searchTerm) {
     });
 }
 
+/**
+ * Recupera gli eventi creati da un utente
+ * @async
+ * @param {number} utenteId - ID autore
+ * @returns {Promise<Array<Evento>>}
+ */
 exports.getEventiPersonali= async function(utenteId){
     const sql = `SELECT * FROM EVENTI WHERE autore_id = ?`;
     return new Promise((resolve, reject) => {

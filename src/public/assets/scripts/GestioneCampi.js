@@ -150,7 +150,8 @@ class CampoManager {
                 const alert = document.createElement('div');
                 alert.className = 'alert alert-success mt-3';
                 alert.textContent = result.updated ? 'Campo aggiornato con successo' : 'Nessuna modifica apportata';
-                document.querySelector('.admin-content').prepend(alert);
+                const contentContainer = document.querySelector('.admin-content') || document.querySelector('main') || document.body;
+                contentContainer.prepend(alert);
                 setTimeout(() => alert.remove(), 3000);
             } else {
                 alert('Errore durante l\'aggiornamento');

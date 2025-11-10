@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
         header.addEventListener('click', function() {
             // Trova il nav-item padre
             const navItem = this.closest('.nav-item');
+            if (!navItem) return;
+            
             // Trova tutti i submenu successivi fino al prossimo header
             const submenuItems = [];
             let nextElement = navItem.nextElementSibling;

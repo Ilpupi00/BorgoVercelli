@@ -1,6 +1,20 @@
+/**
+ * @fileoverview DAO per i membri della società (ruoli interni/dirigenziali)
+ * Fornisce metodi per recuperare membri e singoli dettagli
+ * @module features/squadre/services/dao-membri-societa
+ */
+
 const sqlite = require('../../../core/config/database');
 
+/**
+ * Classe helper per operazioni sui membri della società
+ */
 class MembriSocietaDAO {
+    /**
+     * Recupera tutti i membri della società con ruolo e immagine profilo
+     * @async
+     * @returns {Promise<Array<Object>>}
+     */
     static async getMembriSocieta() {
         try {
             const sql = `
@@ -30,6 +44,12 @@ class MembriSocietaDAO {
         }
     }
 
+    /**
+     * Recupera il dettaglio di un membro della società dato ID
+     * @async
+     * @param {number} id
+     * @returns {Promise<Object|null>}
+     */
     static async getMembroById(id) {
         try {
             const sql = `

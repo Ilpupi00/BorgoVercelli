@@ -1,6 +1,7 @@
 class GestioneNotizie {
     constructor() {
         this.notizieCards = [];
+        this.originalNotizie = [];
         this.initialize();
     }
 
@@ -17,8 +18,16 @@ class GestioneNotizie {
         
         if (cards.length > 0) {
             this.notizieCards = Array.from(cards);
+            this.originalNotizie = this.notizieCards.map(card => ({
+                id: parseInt(card.dataset.notiziaId),
+                element: card
+            }));
         } else if (rows.length > 0) {
             this.notizieCards = Array.from(rows);
+            this.originalNotizie = this.notizieCards.map(row => ({
+                id: parseInt(row.dataset.notiziaId),
+                element: row
+            }));
         }
     }
 

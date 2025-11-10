@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * @fileoverview DAO per la gestione dei dirigenti di squadra e societari
+ * Espone metodi per CRUD e restore dei dirigenti
+ * @module features/squadre/services/dao-dirigenti-squadre
+ */
+
 const sqlite = require('../../../core/config/database');
 const DirigenteSquadra = require('../../../core/models/dirigenteSquadra.js');
 const moment = require('moment');
@@ -18,7 +24,12 @@ const makeDirigenteSquadra = (row) => {
     );
 };
 
-// Ottieni tutti i dirigenti per una squadra
+/**
+ * Ottiene tutti i dirigenti per una squadra
+ * @async
+ * @param {number} squadraId
+ * @returns {Promise<Array<DirigenteSquadra>>}
+ */
 exports.getDirigentiBySquadra = function(squadraId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -37,7 +48,11 @@ exports.getDirigentiBySquadra = function(squadraId) {
     });
 };
 
-// Ottieni tutti i dirigenti societari (squadra_id NULL)
+/**
+ * Ottieni tutti i dirigenti societari (squadra_id NULL)
+ * @async
+ * @returns {Promise<Array<DirigenteSquadra>>}
+ */
 exports.getDirigentiSocietari = function() {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -56,7 +71,12 @@ exports.getDirigentiSocietari = function() {
     });
 };
 
-// Aggiungi un dirigente a una squadra
+/**
+ * Aggiunge un dirigente (associa utente a squadra o societa')
+ * @async
+ * @param {Object} dirigente - { utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo }
+ * @returns {Promise<Object>} { id, message }
+ */
 exports.addDirigente = function(dirigente) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO DIRIGENTI_SQUADRE
@@ -82,7 +102,12 @@ exports.addDirigente = function(dirigente) {
     });
 };
 
-// Rimuovi un dirigente (imposta attivo = 0)
+/**
+ * Rimuove (soft-delete) un dirigente impostando attivo = 0
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { message }
+ */
 exports.removeDirigente = function(id) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 0, updated_at = ? WHERE id = ?`;
@@ -97,7 +122,12 @@ exports.removeDirigente = function(id) {
     });
 };
 
-// Ottieni le informazioni del dirigente associato all'utente
+/**
+ * Ottieni le informazioni del dirigente associato ad un utente
+ * @async
+ * @param {number} userId
+ * @returns {Promise<Object|null>} Oggetto dirigente o null
+ */
 exports.getDirigenteByUserId = function (userId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -115,6 +145,12 @@ exports.getDirigenteByUserId = function (userId) {
     });
 };
 
+/**
+ * Crea un nuovo record dirigente
+ * @async
+ * @param {Object} dirigenteData
+ * @returns {Promise<Object>} { id, ...dirigenteData }
+ */
 exports.createDirigente = async (dirigenteData) => {
     const sql = `INSERT INTO DIRIGENTI_SQUADRE (utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at)
                  VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`;
@@ -134,6 +170,13 @@ exports.createDirigente = async (dirigenteData) => {
     });
 }
 
+/**
+ * Aggiorna un dirigente
+ * @async
+ * @param {number} id
+ * @param {Object} dirigenteData
+ * @returns {Promise<Object>} { message }
+ */
 exports.updateDirigente = async (id, dirigenteData) => {
     let sql = `UPDATE DIRIGENTI_SQUADRE SET ruolo = ?, data_nomina = ?, data_scadenza = ?, updated_at = datetime('now')`;
     const params = [dirigenteData.ruolo, dirigenteData.data_nomina, dirigenteData.data_scadenza];
@@ -156,6 +199,12 @@ exports.updateDirigente = async (id, dirigenteData) => {
     });
 }
 
+/**
+ * Disattiva un dirigente (soft-delete)
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { message }
+ */
 exports.deleteDirigente = async (id) => {
     const sql = 'UPDATE DIRIGENTI_SQUADRE SET attivo = 0 WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -171,7 +220,12 @@ exports.deleteDirigente = async (id) => {
     });
 }
 
-// Ripristina un dirigente impostando attivo = 1
+/**
+ * Ripristina un dirigente (setta attivo = 1)
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { message }
+ */
 exports.restoreDirigente = function(id) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE id = ?`;
@@ -188,7 +242,11 @@ exports.restoreDirigente = function(id) {
     });
 }
 
-// Ripristina tutti i dirigenti (setta attivo = 1 per tutte le righe con attivo = 0)
+/**
+ * Ripristina tutti i dirigenti (setta attivo = 1 per tutte le righe con attivo = 0)
+ * @async
+ * @returns {Promise<Object>} { message, changes }
+ */
 exports.restoreAllDirigenti = function() {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE attivo = 0`;

@@ -108,7 +108,7 @@ body {
     min-height: 150px;
 }
 
-.card-img[src="/images/default-news.jpg"] {
+.card-img[src="/assets/images/default-news.jpg"] {
     object-fit: contain; /* Centra l'immagine di default se è più piccola */
     background: #f8f9fa; /* Sfondo chiaro per l'immagine di default */
 }
@@ -515,7 +515,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.image-preview[src="/images/default-news.jpg"] {
+.image-preview[src="/assets/images/default-news.jpg"] {
     object-fit: contain;
     background: #fff;
     border: 1px solid #dee2e6;

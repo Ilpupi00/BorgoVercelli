@@ -690,6 +690,17 @@ class ManagerManager {
 
         // Abilita il pulsante salva
         document.getElementById('salvaDirigente').disabled = false;
+        // Popola e disabilita i campi nome/cognome aggiunti nella UI
+        const nomeInput = document.getElementById('dirigenteNome');
+        const cognomeInput = document.getElementById('dirigenteCognome');
+        if (nomeInput) {
+            nomeInput.value = user.nome || '';
+            nomeInput.disabled = true;
+        }
+        if (cognomeInput) {
+            cognomeInput.value = user.cognome || '';
+            cognomeInput.disabled = true;
+        }
     }
 
     openEditModal(managerId) {
@@ -712,6 +723,18 @@ class ManagerManager {
         if (this.managerSearch) {
             this.managerSearch.value = `${nome} ${cognome}`;
             this.managerSearch.disabled = true;
+        }
+
+        // Populate nome/cognome fields and disable them
+        const nomeInput = document.getElementById('dirigenteNome');
+        const cognomeInput = document.getElementById('dirigenteCognome');
+        if (nomeInput) {
+            nomeInput.value = nome || '';
+            nomeInput.disabled = true;
+        }
+        if (cognomeInput) {
+            cognomeInput.value = cognome || '';
+            cognomeInput.disabled = true;
         }
         
         const ruoloSelect = document.getElementById('dirigenteRuolo');
@@ -813,6 +836,17 @@ class ManagerManager {
         document.getElementById('dirigenteRuolo').value = '';
         document.getElementById('dataNomina').value = '';
         document.getElementById('dataScadenza').value = '';
+        // reset name fields
+        const nomeInput = document.getElementById('dirigenteNome');
+        const cognomeInput = document.getElementById('dirigenteCognome');
+        if (nomeInput) {
+            nomeInput.value = '';
+            nomeInput.disabled = false;
+        }
+        if (cognomeInput) {
+            cognomeInput.value = '';
+            cognomeInput.disabled = false;
+        }
         
         const salvaBtn = document.getElementById('salvaDirigente');
         if (salvaBtn) {

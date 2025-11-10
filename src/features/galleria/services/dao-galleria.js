@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * @fileoverview DAO per la galleria immagini
+ * Fornisce funzioni per upload, recupero, update e cancellazione immagini
+ * @module features/galleria/services/dao-galleria
+ */
+
 const db= require('../../../core/config/database');
 const Immagine = require('../../../core/models/immagine.js');
 
@@ -29,6 +35,11 @@ const makeImmagine=(row)=>{
     );
 }
 
+/**
+ * Recupera le immagini di tipo 'upload della Galleria'
+ * @async
+ * @returns {Promise<Array<Immagine>>}
+ */
 exports.getImmagini = function() {
     const sql = "SELECT * FROM IMMAGINI WHERE tipo = 'upload della Galleria';";
     return new Promise((resolve, reject) => {
@@ -42,6 +53,12 @@ exports.getImmagini = function() {
     });
 }
 
+/**
+ * Recupera un'immagine per ID
+ * @async
+ * @param {number} id
+ * @returns {Promise<Immagine|null>}
+ */
 exports.getImmagineById = function(id) {
     const sql = 'SELECT * FROM IMMAGINI WHERE id = ? LIMIT 1;';
     return new Promise((resolve, reject) => {
@@ -56,6 +73,15 @@ exports.getImmagineById = function(id) {
     });
 }
 
+/**
+ * Inserisce un record immagine (usato per upload esterni)
+ * @async
+ * @param {string} url
+ * @param {string} created_at
+ * @param {string} updated_at
+ * @param {string} [descrizione]
+ * @returns {Promise<Object>} { id }
+ */
 exports.insertImmagine = function( url, created_at, updated_at, descrizione = '') {
     const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
     return new Promise((resolve, reject) => {
@@ -69,6 +95,13 @@ exports.insertImmagine = function( url, created_at, updated_at, descrizione = ''
     });
 }
 
+/**
+ * Aggiorna la descrizione di un'immagine
+ * @async
+ * @param {number} id
+ * @param {string} descrizione
+ * @returns {Promise<Object>} { message }
+ */
 exports.updateImmagine = function(id, descrizione) {
     const sql = 'UPDATE IMMAGINI SET descrizione = ?, updated_at = ? WHERE id = ?;';
     return new Promise((resolve, reject) => {
@@ -86,6 +119,12 @@ exports.updateImmagine = function(id, descrizione) {
     });
 }
 
+/**
+ * Elimina un'immagine: rimuove file fisico (se presente) e cancella record DB
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { message }
+ */
 exports.deleteImmagine = function(id) {
     return new Promise((resolve, reject) => {
         // Prima recupero l'URL dell'immagine
@@ -131,7 +170,20 @@ exports.deleteImmagine = function(id) {
     });
 }
 
+/**
+ * Inserisce un'immagine a seguito di upload (riceve oggetto file di multer)
+ * Restituisce il nuovo ID immagine
+ * @async
+ * @param {Object} file - Oggetto file (es. multer) con proprietà filename
+ * @param {string} tipo - Tipo di immagine
+ * @returns {Promise<number>} ID nuovo record
+ */
 exports.uploadImmagine = function(file, tipo) {
+
+// Compatibilità: alcuni punti del codice chiamavano il vecchio nome getAllImmagini
+exports.getAllImmagini = function() {
+    return exports.getImmagini();
+};
     return new Promise((resolve, reject) => {
         const fs = require('fs');
         const path = require('path');
@@ -151,6 +203,13 @@ exports.uploadImmagine = function(file, tipo) {
     });
 }
 
+/**
+ * Aggiorna il campo entita_id di un'immagine (collegamento a notizia/evento/utente)
+ * @async
+ * @param {number} id - ID immagine
+ * @param {number} entita_id - ID entità di riferimento
+ * @returns {Promise<Object>} { success: true }
+ */
 exports.updateImmagineEntitaId = function(id, entita_id) {
     const sql = 'UPDATE IMMAGINI SET entita_id = ? WHERE id = ?;';
     return new Promise((resolve, reject) => {
@@ -164,6 +223,14 @@ exports.updateImmagineEntitaId = function(id, entita_id) {
     });
 }
 
+/**
+ * Inserisce un'immagine associata a una notizia
+ * @async
+ * @param {string} url
+ * @param {number} entita_id - ID notizia
+ * @param {number} ordine - Ordine immagine nella notizia
+ * @returns {Promise<Object>} { id }
+ */
 exports.insertImmagineNotizia = function(url, entita_id, ordine) {
     const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);';
     return new Promise((resolve, reject) => {

@@ -1,16 +1,48 @@
+/**
+ * @fileoverview Data Access Object per la gestione degli utenti
+ * @module features/users/services/dao-user
+ * @description Fornisce metodi per operazioni CRUD sugli utenti, autenticazione,
+ * gestione profili, reset password, sospensioni e ban.
+ */
+
 'use strict';
 
-const sqlite=require('../../../core/config/database');
-const bcrypt=require('bcrypt');
-const moment=require('moment');
+const sqlite = require('../../../core/config/database');
+const bcrypt = require('bcrypt');
+const moment = require('moment');
+const User = require('../../../core/models/user');
 
+// ==================== CREAZIONE E AUTENTICAZIONE ====================
 
-
+/**
+ * Crea un nuovo utente nel database
+ * 
+ * @function createUser
+ * @param {Object} user - Dati dell'utente da creare
+ * @param {string} user.email - Email dell'utente
+ * @param {string} user.password - Password in chiaro (verrà hashata)
+ * @param {string} user.nome - Nome dell'utente
+ * @param {string} user.cognome - Cognome dell'utente
+ * @param {string} [user.telefono] - Numero di telefono (opzionale)
+ * @returns {Promise<Object>} Messaggio di successo
+ * @throws {Error} Se email già esistente o errore nel database
+ * 
+ * @example
+ * createUser({
+ *   email: 'mario.rossi@example.com',
+ *   password: 'Password123!',
+ *   nome: 'Mario',
+ *   cognome: 'Rossi',
+ *   telefono: '3331234567'
+ * });
+ */
 exports.createUser = function(user) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO UTENTI 
             (email, password_hash, nome, cognome, telefono, tipo_utente_id, data_registrazione, created_at, updated_at) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+        // Hash della password con bcrypt
         bcrypt.hash(user.password, 10).then((hash) => {
             const now = moment().format('YYYY-MM-DD HH:mm:ss');
             sqlite.run(sql, [  
@@ -40,6 +72,18 @@ exports.createUser = function(user) {
     });
 }
 
+/**
+ * Recupera un utente dal database tramite ID
+ * Include anche il nome del tipo utente dalla tabella TIPI_UTENTE
+ * 
+ * @function getUserById
+ * @param {number} id - ID univoco dell'utente
+ * @returns {Promise<Object>} Dati completi dell'utente con tipo_utente_nome
+ * @throws {Error} Se utente non trovato o errore database
+ * 
+ * @example
+ * getUserById(123).then(user => console.log(user.nome));
+ */
 exports.getUserById = function (id) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -55,11 +99,25 @@ exports.getUserById = function (id) {
             if (!user) {
                 return reject({ error: 'User not found' });
             }
-            resolve(user);
+            resolve(User.from(user));
         });
     });
 };
 
+/**
+ * Autentica un utente tramite email e password
+ * Confronta la password fornita con l'hash salvato nel database
+ * 
+ * @function getUser
+ * @param {string} email - Email dell'utente (case insensitive)
+ * @param {string} password - Password in chiaro da verificare
+ * @returns {Promise<Object>} Dati completi dell'utente se autenticazione riuscita
+ * @throws {Error} Se utente non trovato, password errata o errore database
+ * 
+ * @example
+ * getUser('mario@example.com', 'password123')
+ *   .then(user => console.log('Login riuscito:', user.nome));
+ */
 exports.getUser = function(email, password) {
     return new Promise((resolve, reject) => {
         email = email.toLowerCase();
@@ -83,7 +141,7 @@ exports.getUser = function(email, password) {
                     console.log('Hash salvato:', user.password_hash);
                     console.log('Password match:', isMatch);
                     if (isMatch) {
-                        resolve(user);
+                        resolve(User.from(user));
                     } else {
                         reject({ error: 'Invalid password' });
                     }
@@ -95,6 +153,13 @@ exports.getUser = function(email, password) {
     });
 }
 
+/**
+ * Recupera un utente per email (case-insensitive)
+ * @function getUserByEmail
+ * @param {string} email - Email da cercare
+ * @returns {Promise<Object|null>} Oggetto utente o null se non esiste
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.getUserByEmail = function(email) {
     return new Promise((resolve, reject) => {
         email = email.toLowerCase();
@@ -108,21 +173,34 @@ exports.getUserByEmail = function(email) {
             if (err) {
                 return reject({ error: 'Error retrieving user: ' + err.message });
             }
-            resolve(user || null);
+            resolve(user ? User.from(user) : null);
         });
     });
 }
 
+/**
+ * Recupera l'URL dell'immagine profilo per un dato utente
+ * @function getImmagineProfiloByUserId
+ * @param {number} userId - ID dell'utente
+ * @returns {Promise<string|null>} URL dell'immagine o null se non presente
+ */
 exports.getImmagineProfiloByUserId = async (userId) => {
-  const sql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ? ORDER BY ordine LIMIT 1`;
-  return new Promise((resolve, reject) => {
-    sqlite.get(sql, [userId], (err, row) => {
-      if (err) return reject(err);
-      resolve(row ? row.url : null);
+    const sql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ? ORDER BY ordine LIMIT 1`;
+    return new Promise((resolve, reject) => {
+        sqlite.get(sql, [userId], (err, row) => {
+            if (err) return reject(err);
+            resolve(row ? row.url : null);
+        });
     });
-  });
 };
 
+/**
+ * Aggiorna campi del profilo utente forniti in `fields`
+ * @function updateUser
+ * @param {number} userId - ID dell'utente da aggiornare
+ * @param {Object} fields - Campi da aggiornare (nome, cognome, email, telefono, tipo_utente_id, ruolo_preferito, piede_preferito)
+ * @returns {Promise<boolean>} true se aggiornato correttamente, false altrimenti
+ */
 exports.updateUser=async (userId, fields) =>{
     if (!userId || !fields || Object.keys(fields).length === 0) return false;
     const updates = [];
@@ -172,6 +250,13 @@ exports.updateUser=async (userId, fields) =>{
     });
 }
 
+/**
+ * Aggiorna l'immagine profilo di un utente: elimina i record esistenti e inserisce il nuovo
+ * @function updateProfilePicture
+ * @param {number} userId - ID dell'utente
+ * @param {string} imageUrl - URL dell'immagine da salvare
+ * @returns {Promise<boolean>} true se operazione riuscita
+ */
 exports.updateProfilePicture = async (userId, imageUrl) => {
     console.log('updateProfilePicture chiamato con userId:', userId, 'imageUrl:', imageUrl);
     if (!userId || !imageUrl) return false;
@@ -210,6 +295,12 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     });
 }
 
+/**
+ * Recupera il record giocatore associato a un utente
+ * @function getGiocatoreByUserId
+ * @param {number} userId - ID utente
+ * @returns {Promise<Object|null>} Oggetto giocatore o null
+ */
 exports.getGiocatoreByUserId = function (userId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -227,6 +318,11 @@ exports.getGiocatoreByUserId = function (userId) {
     });
 }
 
+/**
+ * Recupera tutti gli utenti con info di base e immagine profilo
+ * @function getAllUsers
+ * @returns {Promise<Array<Object>>} Array di utenti
+ */
 exports.getAllUsers = function() {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -241,11 +337,17 @@ exports.getAllUsers = function() {
             if (err) {
                 return reject({ error: 'Error retrieving users: ' + err.message });
             }
-            resolve(users);
+            resolve(users.map(user => User.from(user)));
         });
     });
 }
 
+/**
+ * Ottiene statistiche aggregate per un utente (prenotazioni, recensioni, ultimi 30 giorni)
+ * @function getUserStats
+ * @param {number} userId - ID utente
+ * @returns {Promise<Object>} Oggetto con statistiche
+ */
 exports.getUserStats = function(userId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -264,6 +366,12 @@ exports.getUserStats = function(userId) {
     });
 }
 
+/**
+ * Recupera attività recenti dell'utente: ultime prenotazioni e recensioni
+ * @function getUserRecentActivity
+ * @param {number} userId - ID utente
+ * @returns {Promise<Object>} Oggetto con array 'prenotazioni' e 'recensioni'
+ */
 exports.getUserRecentActivity = function(userId) {
     return new Promise((resolve, reject) => {
         const activity = {};
@@ -309,6 +417,15 @@ exports.getUserRecentActivity = function(userId) {
     });
 }
 
+/**
+ * Cambia la password di un utente verificando la password corrente
+ * @function changePassword
+ * @param {number} userId - ID utente
+ * @param {string} currentPassword - Password corrente in chiaro
+ * @param {string} newPassword - Nuova password in chiaro
+ * @returns {Promise<Object>} Messaggio di successo
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.changePassword = function(userId, currentPassword, newPassword) {
     return new Promise((resolve, reject) => {
         // Prima ottieni l'utente per verificare la password attuale
@@ -350,6 +467,12 @@ exports.changePassword = function(userId, currentPassword, newPassword) {
     });
 };
 
+/**
+ * Elimina un utente dal database
+ * @function deleteUser
+ * @param {number} userId - ID utente
+ * @returns {Promise<Object>} Messaggio di successo
+ */
 exports.deleteUser = function(userId) {
     return new Promise((resolve, reject) => {
         const sql = 'DELETE FROM UTENTI WHERE id = ?';
@@ -363,6 +486,12 @@ exports.deleteUser = function(userId) {
     });
 };
 
+/**
+ * Recupera statistiche di sistema (utenti totali, notizie pubblicate, eventi attivi, ecc.)
+ * Utilizzato per dashboard/admin
+ * @function getStatistiche
+ * @returns {Promise<Object>} Oggetto con molteplici metriche
+ */
 exports.getStatistiche = async () => {
     try {
         const statistiche = {};
@@ -524,6 +653,13 @@ exports.getStatistiche = async () => {
     }
 }
 
+/**
+ * Ricerca utenti per nome/cognome/email. Può limitare la ricerca solo ai dirigenti.
+ * @function searchUsers
+ * @param {string} query - Termine di ricerca
+ * @param {boolean} [onlyDirigenti=false] - true per cercare solo dirigenti
+ * @returns {Promise<Array<Object>>} Array di utenti trovati (max 10)
+ */
 exports.searchUsers = function(query, onlyDirigenti = false) {
     return new Promise((resolve, reject) => {
         const searchTerm = `%${query}%`;
@@ -540,7 +676,7 @@ exports.searchUsers = function(query, onlyDirigenti = false) {
             `;
             sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
                 if (err) return reject({ error: 'Error searching users: ' + err.message });
-                resolve(users || []);
+                resolve((users || []).map(user => User.from(user)));
             });
         } else {
             const sql = `
@@ -558,12 +694,20 @@ exports.searchUsers = function(query, onlyDirigenti = false) {
             `;
             sqlite.all(sql, [searchTerm, searchTerm, searchTerm], (err, users) => {
                 if (err) return reject({ error: 'Error searching users: ' + err.message });
-                resolve(users || []);
+                resolve((users || []).map(user => User.from(user)));
             });
         }
     });
 }
 
+/**
+ * Salva il token di reset password con scadenza per un utente
+ * @function saveResetToken
+ * @param {number} userId - ID utente
+ * @param {string} token - Token generato
+ * @param {Date} expiresAt - Data di scadenza del token
+ * @returns {Promise<Object>} Messaggio di successo
+ */
 exports.saveResetToken = function(userId, token, expiresAt) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE UTENTI SET reset_token = ?, reset_expires = ? WHERE id = ?`;
@@ -577,6 +721,12 @@ exports.saveResetToken = function(userId, token, expiresAt) {
     });
 }
 
+/**
+ * Recupera l'utente dato un token di reset valido
+ * @function getUserByResetToken
+ * @param {string} token - Token di reset
+ * @returns {Promise<Object|null>} Utente o null
+ */
 exports.getUserByResetToken = function(token) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -589,11 +739,17 @@ exports.getUserByResetToken = function(token) {
             if (err) {
                 return reject({ error: 'Error retrieving user by reset token: ' + err.message });
             }
-            resolve(user);
+            resolve(user ? User.from(user) : null);
         });
     });
 }
 
+/**
+ * Invalida il token di reset per un utente (imposta a NULL)
+ * @function invalidateResetToken
+ * @param {number} userId - ID utente
+ * @returns {Promise<Object>} Messaggio di successo
+ */
 exports.invalidateResetToken = function(userId) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE UTENTI SET reset_token = NULL, reset_expires = NULL WHERE id = ?`;
@@ -607,6 +763,13 @@ exports.invalidateResetToken = function(userId) {
     });
 }
 
+/**
+ * Aggiorna l'hash della password e invalida i token di reset
+ * @function updatePassword
+ * @param {number} userId - ID utente
+ * @param {string} newPasswordHash - Nuovo hash della password
+ * @returns {Promise<Object>} Messaggio di successo
+ */
 exports.updatePassword = function(userId, newPasswordHash) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE UTENTI SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?`;
@@ -622,6 +785,16 @@ exports.updatePassword = function(userId, newPasswordHash) {
 
 // Funzioni per gestione stato utente (sospensione/ban)
 
+/**
+ * Sospende temporaneamente un utente
+ * @function sospendiUtente
+ * @param {number} userId - ID dell'utente da sospendere
+ * @param {number} adminId - ID dell'admin che effettua la sospensione
+ * @param {string} motivo - Motivo della sospensione
+ * @param {string|null} dataFine - Data fine sospensione (ISO string) o null per sospensione senza termine
+ * @returns {Promise<Object>} Oggetto con messaggio e dettagli della sospensione
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.sospendiUtente = function(userId, adminId, motivo, dataFine) {
     return new Promise((resolve, reject) => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -634,12 +807,17 @@ exports.sospendiUtente = function(userId, adminId, motivo, dataFine) {
                          updated_at = ?
                      WHERE id = ?`;
         
+        console.log('[DAO] sospendiUtente - Parametri:', { userId, adminId, motivo, dataFine, now });
+        
         sqlite.run(sql, [motivo, now, dataFine, adminId, now, userId], function(err) {
             if (err) {
+                console.error('[DAO] sospendiUtente - Errore SQL:', err);
                 reject({ error: 'Errore nella sospensione dell\'utente: ' + err.message });
             } else if (this.changes === 0) {
+                console.warn('[DAO] sospendiUtente - Nessuna riga aggiornata per userId:', userId);
                 reject({ error: 'Utente non trovato' });
             } else {
+                console.log('[DAO] sospendiUtente - Successo, righe aggiornate:', this.changes);
                 resolve({ 
                     message: 'Utente sospeso con successo',
                     userId: userId,
@@ -650,6 +828,15 @@ exports.sospendiUtente = function(userId, adminId, motivo, dataFine) {
     });
 }
 
+/**
+ * Banna permanentemente un utente
+ * @function bannaUtente
+ * @param {number} userId - ID dell'utente da bannare
+ * @param {number} adminId - ID dell'admin che effettua il ban
+ * @param {string} motivo - Motivo del ban
+ * @returns {Promise<Object>} Oggetto con messaggio e dettagli
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.bannaUtente = function(userId, adminId, motivo) {
     return new Promise((resolve, reject) => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -662,12 +849,17 @@ exports.bannaUtente = function(userId, adminId, motivo) {
                          updated_at = ?
                      WHERE id = ?`;
         
+        console.log('[DAO] bannaUtente - Parametri:', { userId, adminId, motivo, now });
+        
         sqlite.run(sql, [motivo, now, adminId, now, userId], function(err) {
             if (err) {
+                console.error('[DAO] bannaUtente - Errore SQL:', err);
                 reject({ error: 'Errore nel ban dell\'utente: ' + err.message });
             } else if (this.changes === 0) {
+                console.warn('[DAO] bannaUtente - Nessuna riga aggiornata per userId:', userId);
                 reject({ error: 'Utente non trovato' });
             } else {
+                console.log('[DAO] bannaUtente - Successo, righe aggiornate:', this.changes);
                 resolve({ 
                     message: 'Utente bannato con successo',
                     userId: userId
@@ -677,6 +869,13 @@ exports.bannaUtente = function(userId, adminId, motivo) {
     });
 }
 
+/**
+ * Revoca sospensione o ban per un utente riportandolo ad 'attivo'
+ * @function revocaSospensioneBan
+ * @param {number} userId - ID dell'utente
+ * @returns {Promise<Object>} Oggetto con messaggio di successo
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.revocaSospensioneBan = function(userId) {
     return new Promise((resolve, reject) => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -689,10 +888,14 @@ exports.revocaSospensioneBan = function(userId) {
                          updated_at = ?
                      WHERE id = ?`;
         
+        console.log('[DAO] revocaSospensioneBan - Parametri:', { userId, now });
+        
         sqlite.run(sql, [now, userId], function(err) {
             if (err) {
+                console.error('[DAO] revocaSospensioneBan - Errore SQL:', err);
                 reject({ error: 'Errore nella revoca: ' + err.message });
             } else if (this.changes === 0) {
+                console.warn('[DAO] revocaSospensioneBan - Nessuna riga aggiornata per userId:', userId);
                 reject({ error: 'Utente non trovato' });
             } else {
                 resolve({ 
@@ -704,6 +907,13 @@ exports.revocaSospensioneBan = function(userId) {
     });
 }
 
+/**
+ * Verifica e riattiva automaticamente le sospensioni scadute
+ * Cerca utenti con stato 'sospeso' e data_fine_sospensione passata e li imposta ad 'attivo'
+ * @function verificaSospensioniScadute
+ * @returns {Promise<Object>} Oggetto con messaggio e numero di record aggiornati
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.verificaSospensioniScadute = function() {
     return new Promise((resolve, reject) => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -730,6 +940,13 @@ exports.verificaSospensioniScadute = function() {
     });
 }
 
+/**
+ * Recupera lo stato corrente di un utente (attivo/sospeso/bannato) e i dettagli della sospensione
+ * @function getStatoUtente
+ * @param {number} userId - ID dell'utente
+ * @returns {Promise<Object>} Oggetto con campi: stato, motivo_sospensione, data_inizio_sospensione, data_fine_sospensione, admin_sospensione_id
+ * @throws {Object} Oggetto errore con proprietà error
+ */
 exports.getStatoUtente = function(userId) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT stato, motivo_sospensione, data_inizio_sospensione, 

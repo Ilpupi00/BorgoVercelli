@@ -31,10 +31,10 @@ router.get('/evento/crea-evento', isLoggedIn, isAdminOrDirigente, async (req, re
     const squadre = await daoSquadre.getSquadre();
     const campi = await daoCampi.getCampi();
     
-    res.render('Eventi/evento', { user: req.user, evento: null, squadre, campi, error: null });
+  res.render('evento', { user: req.user, evento: null, squadre, campi, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form evento:', error);
-    res.render('Eventi/evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
+  res.render('evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
   }
 });
 
@@ -45,7 +45,7 @@ router.get('/evento/crea-evento/:id', isLoggedIn, isAdminOrDirigente, async (req
         const squadre = await daoSquadre.getSquadre();
         const campi = await daoCampi.getCampi();
         
-        res.render('Eventi/evento', {
+        res.render('evento', {
             user: req.user,
             evento: evento,
             squadre,
@@ -100,7 +100,7 @@ router.get('/evento/:id', async (req, res) => {
       });
     }
     
-    res.render('Eventi/visualizza_evento', { evento: evento });
+    res.render('visualizza_evento', { evento: evento });
   } catch (error) {
     console.error('Errore nel recupero dell\'evento:', error);
     res.status(500).render('error', { 
@@ -116,10 +116,10 @@ router.get('/evento/crea-evento', isLoggedIn, isAdminOrDirigente, async (req, re
     const squadre = await daoSquadre.getSquadre();
     const campi = await daoCampi.getCampi();
     
-    res.render('Eventi/evento', { user: req.user, evento: null, squadre, campi, error: null });
+  res.render('evento', { user: req.user, evento: null, squadre, campi, error: null });
   } catch (error) {
     console.error('Errore nel caricamento del form evento:', error);
-    res.render('Eventi/evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
+  res.render('evento', { user: req.user, evento: null, squadre: [], campi: [], error: 'Errore nel caricamento dell\'evento' });
   }
 });
 

@@ -1,7 +1,19 @@
+/**
+ * @fileoverview DAO per le recensioni
+ * Fornisce metodi per creare, leggere, aggiornare e rimuovere recensioni.
+ * Espone anche funzioni utili per statistiche e moderazione.
+ * @module features/recensioni/services/dao-recensioni
+ */
+
 'use strict';
 
 const sqlite = require('../../../core/config/database');
 
+/**
+ * Recupera le recensioni visibili più recenti
+ * @async
+ * @returns {Promise<Array<Object>>} Array di recensioni con informazioni utente
+ */
 exports.getRecensioni = async () => {
     const sql = `SELECT
     RECENSIONI.id,
@@ -32,6 +44,11 @@ exports.getRecensioni = async () => {
     });
 }
 
+/**
+ * Calcola la valutazione media delle recensioni visibili
+ * @async
+ * @returns {Promise<number|null>} Valore medio (float) o null se non esistono recensioni
+ */
 exports.getValutaMediaRecensioni = async () => {
     const sql = 'SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = 1';
     
@@ -45,6 +62,18 @@ exports.getValutaMediaRecensioni = async () => {
     });
 }
 
+/**
+ * Inserisce una nuova recensione collegata ad una entità (es. evento)
+ * @async
+ * @param {Object} recensione - Dati della recensione
+ * @param {number} recensione.utente_id - ID utente autore
+ * @param {string} recensione.entita_tipo - Tipo entità recensita (es: 'evento')
+ * @param {number} recensione.entita_id - ID entità recensita
+ * @param {number} recensione.valutazione - Voto numerico
+ * @param {string} [recensione.titolo]
+ * @param {string} [recensione.contenuto]
+ * @returns {Promise<Object>} { success: true, id } o { success: false, error }
+ */
 exports.inserisciRecensione=async(recensione)=>{
     // Estraggo i dati
     const { valutazione, titolo, contenuto, entita_tipo, entita_id, utente_id } = recensione;
@@ -59,6 +88,12 @@ exports.inserisciRecensione=async(recensione)=>{
     });
 }
 
+/**
+ * Recupera le recensioni visibili scritte da uno specifico utente
+ * @async
+ * @param {number} userId - ID dell'utente
+ * @returns {Promise<Array<Object>>} Array di recensioni
+ */
 exports.getRecensioniByUserId = async (userId) => {
     const sql = `SELECT
     RECENSIONI.id,
@@ -86,6 +121,14 @@ exports.getRecensioniByUserId = async (userId) => {
     });
 }
 
+/**
+ * Aggiorna una recensione (solo se appartiene all'utente)
+ * @async
+ * @param {number} recensioneId - ID recensione
+ * @param {number} userId - ID utente che tenta l'aggiornamento
+ * @param {Object} dati - Campi aggiornati { valutazione, titolo, contenuto }
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.updateRecensione = async (recensioneId, userId, dati) => {
     const { valutazione, titolo, contenuto } = dati;
     const sql = `UPDATE RECENSIONI SET valutazione = ?, titolo = ?, contenuto = ?, data_recensione = datetime('now') 
@@ -101,6 +144,13 @@ exports.updateRecensione = async (recensioneId, userId, dati) => {
     });
 }
 
+/**
+ * Segna una recensione come non visibile (soft-delete) se appartiene all'utente
+ * @async
+ * @param {number} recensioneId
+ * @param {number} userId
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.deleteRecensione = async (recensioneId, userId) => {
     const sql = `UPDATE RECENSIONI SET visibile = 0 WHERE id = ? AND utente_id = ?`;
     
@@ -114,6 +164,11 @@ exports.deleteRecensione = async (recensioneId, userId) => {
     });
 }
 
+/**
+ * Recupera tutte le recensioni (admin view) con immagini utente se presenti
+ * @async
+ * @returns {Promise<Array<Object>>} Array di recensioni complete
+ */
 exports.getAllRecensioni = async () => {
     const sql = `SELECT
     RECENSIONI.id,
@@ -146,6 +201,12 @@ exports.getAllRecensioni = async () => {
     });
 }
 
+/**
+ * Recupera una recensione per ID
+ * @async
+ * @param {number} id - ID recensione
+ * @returns {Promise<Object|null>} Oggetto recensione o null
+ */
 exports.getRecensioneById = async (id) => {
     const sql = `SELECT
     RECENSIONI.id,
@@ -173,6 +234,13 @@ exports.getRecensioneById = async (id) => {
     });
 }
 
+/**
+ * Aggiorna il flag di visibilità di una recensione (usato per moderazione)
+ * @async
+ * @param {number} id - ID recensione
+ * @param {boolean} visibile - true per visibile, false per nascondere
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.updateRecensioneVisibile = async (id, visibile) => {
     const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
     
@@ -186,6 +254,12 @@ exports.updateRecensioneVisibile = async (id, visibile) => {
     });
 }
 
+/**
+ * Elimina permanentemente una recensione (uso admin)
+ * @async
+ * @param {number} id - ID recensione
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.deleteRecensioneAdmin = async (id) => {
     const sql = `DELETE FROM RECENSIONI WHERE id = ?`;
     

@@ -142,7 +142,14 @@ class ShowModal{
       `;
 
       document.body.appendChild(modal);
-      const bsModal = new bootstrap.Modal(modal);
+      const bsModal = new bootstrap.Modal(modal, { focus: true });
+      
+      // Fix aria-hidden focus issue
+      modal.addEventListener('shown.bs.modal', () => {
+        const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+        if (confirmBtn) confirmBtn.focus();
+      });
+      
       bsModal.show();
 
       const confirmBtn = modal.querySelector('#confirmDeleteBtn');
@@ -189,7 +196,18 @@ class ShowModal{
         </div>
       `;
       document.body.appendChild(modal);
-      const bsModal = new bootstrap.Modal(modal);
+      const bsModal = new bootstrap.Modal(modal, { focus: true });
+      
+      // Fix aria-hidden focus issue
+      modal.addEventListener('shown.bs.modal', () => {
+        const confirmBtn = modal.querySelector('#confirmActionBtn');
+        if (confirmBtn) confirmBtn.focus();
+      });
+      
+      modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+      });
+      
       bsModal.show();
 
       const confirmBtn = modal.querySelector('#confirmActionBtn');

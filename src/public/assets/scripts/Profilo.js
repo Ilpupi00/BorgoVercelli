@@ -150,6 +150,15 @@ class Profilo {
         const container = document.getElementById('userNewsEventsContainer');
         const countBadge = document.getElementById('contentCount');
 
+        // Se il container non esiste (pagina diversa) evitiamo di lanciare eccezioni
+        if (!container) {
+            console.warn('Profilo.caricaNotizieEventiUtente: #userNewsEventsContainer non trovato, skip.');
+            if (countBadge) {
+                countBadge.textContent = 'N/D';
+            }
+            return;
+        }
+
         // Show loading state
         if (countBadge) {
             countBadge.textContent = 'Caricamento...';
@@ -200,6 +209,15 @@ class Profilo {
     mostraNotizieEventiUtente(notizie, eventi) {
         const container = document.getElementById('userNewsEventsContainer');
         const countBadge = document.getElementById('contentCount');
+
+        if (!container) {
+            console.warn('Profilo.mostraNotizieEventiUtente: #userNewsEventsContainer non trovato, skip rendering.');
+            if (countBadge) {
+                const totalItems = (notizie ? notizie.length : 0) + (eventi ? eventi.length : 0);
+                countBadge.textContent = `${totalItems} elemento${totalItems !== 1 ? 'i' : ''}`;
+            }
+            return;
+        }
 
         const totalItems = notizie.length + eventi.length;
 

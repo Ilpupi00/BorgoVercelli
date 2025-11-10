@@ -23,7 +23,7 @@ class EventoView {
         images.forEach(img => {
             img.addEventListener('error', () => {
                 if (!img.src.includes('Campo.png')) {
-                    img.src = '/images/Campo.png';
+                    img.src = '/assets/images/Campo.png';
                 }
             });
         });

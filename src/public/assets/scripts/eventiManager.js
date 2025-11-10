@@ -298,7 +298,7 @@ class EventiManager {
 
         // Image
         const img = card.querySelector('img');
-        img.src = event.immagine_url || '/images/Campo.png';
+        img.src = event.immagine_url || '/assets/images/Campo.png';
         img.alt = event.titolo;
 
         // Event type badge

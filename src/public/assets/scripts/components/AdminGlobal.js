@@ -164,8 +164,21 @@ class ModalManager {
     initModalListeners() {
         // Click fuori dal modal per chiuderlo
         document.addEventListener('click', (e) => {
+            // Click su sfondo modal (elemento con classe .modal)
             if (e.target.classList.contains('modal')) {
                 this.hide(e.target.id);
+                return;
+            }
+
+            // Supporto per bottoni con data-bs-dismiss (Bootstrap 5) o data-dismiss (fallback)
+            const btn = e.target.closest('[data-bs-dismiss="modal"], [data-dismiss="modal"]');
+            if (btn) {
+                const modalEl = btn.closest('.modal');
+                const modalId = modalEl ? modalEl.id : (this.activeModal ? this.activeModal.id : null);
+                if (modalId) {
+                    this.hide(modalId);
+                }
+                return;
             }
         });
 
@@ -176,6 +189,8 @@ class ModalManager {
             }
         });
     }
+
+
 }
 
 // Istanza globale
@@ -668,6 +683,24 @@ window.AdminGlobal.ModalManager = modalManager;
 window.AdminGlobal.ToastManager = toastManager;
 // For backward compatibility expose modalManager under different name
 window.AdminGlobal.Modal = modalManager;
+
+// Global helper to open the 'add campo' modal used by several admin pages
+window.showAddCampoModal = function() {
+    try {
+        if (window.AdminGlobal && window.AdminGlobal.modalManager) {
+            window.AdminGlobal.modalManager.show('addCampoModal');
+            return;
+        }
+        // fallback: directly use modalManager if available
+        if (typeof modalManager !== 'undefined') {
+            modalManager.show('addCampoModal');
+            return;
+        }
+        console.warn('Modal manager non disponibile: impossibile aprire addCampoModal');
+    } catch (e) {
+        console.error('Errore in showAddCampoModal:', e);
+    }
+};
 
 // ==================== INIT ON DOM READY ====================
 

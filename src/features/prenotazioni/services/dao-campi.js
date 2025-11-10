@@ -1,3 +1,9 @@
+/**
+ * @fileoverview DAO per la gestione dei campi e dei relativi orari
+ * Fornisce funzioni per recupero campi, orari, creazione/aggiornamento e ricerca
+ * @module features/prenotazioni/services/dao-campi
+ */
+
 'use strict';
 
 const sqlite = require('../../../core/config/database');
@@ -25,13 +31,14 @@ const makeCampo = (row) => {
         row.updated_at ? require('moment')(row.updated_at).format('YYYY-MM-DD HH:mm:ss') : null,
         row.descrizione,
         row.Docce,
-        row.immagine_url || '/images/campo-default.jpg'
+        row.immagine_url || '/assets/images/Campo.png'
     );
 }
 
 /**
- * Funzione per recuperare tutti i campi attivi
- * @returns {Promise} Risolve con un array di oggetti Campo o rifiuta con un errore
+ * Recupera tutti i campi attivi (con immagine principale se presente)
+ * @async
+ * @returns {Promise<Array<Campo>>}
  */
 exports.getCampi = function(){
     const sql = `
@@ -52,9 +59,10 @@ exports.getCampi = function(){
 }
 
 /**
- * azione per recuperare un campo tramite id
- * @param {*} id id del campo 
- * @returns {Promise} Risolve con un oggetto Campo o rifiuta con un errore
+ * Recupera un campo per ID
+ * @async
+ * @param {number} id
+ * @returns {Promise<Campo>} Istanza Campo
  */
 exports.getCampoById = function(id) {
     const sql = `
@@ -78,10 +86,12 @@ exports.getCampoById = function(id) {
 }
 
 /**
- * Funzione per recuperare gli orari di un campo
- * @param {*} campoId id del campo
- * @param {*} giornoSettimana giorno della settimana
- * @returns {Promise} Risolve con un array di orari o rifiuta con un errore
+ * Recupera gli orari di un campo. Se `giornoSettimana` è fornito cerca orari specifici,
+ * altrimenti restituisce la schedule default (giorno_settimana IS NULL)
+ * @async
+ * @param {number} campoId
+ * @param {number|null} [giornoSettimana]
+ * @returns {Promise<Array<Object>>} Array di righe ORARI_CAMPI
  */
 exports.getOrariCampo = function(campoId, giornoSettimana = null) {
     let sql;
@@ -113,12 +123,13 @@ exports.getOrariCampo = function(campoId, giornoSettimana = null) {
 }
 
 /**
- * Funzione per aggiungere un orario a un campo
- * @param {*} campoId campo a cui aggiungere l'orario
- * @param {*} giornoSettimana giorno della settimana
- * @param {*} oraInizio ora di inizio
- * @param {*} oraFine ora di fine
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Aggiunge un orario per un campo
+ * @async
+ * @param {number} campoId
+ * @param {number|null} giornoSettimana
+ * @param {string} oraInizio - HH:mm
+ * @param {string} oraFine - HH:mm
+ * @returns {Promise<Object>} { success: true, id }
  */
 exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) {
     const sql = 'INSERT INTO ORARI_CAMPI (campo_id, giorno_settimana, ora_inizio, ora_fine, attivo, created_at, updated_at) VALUES (?, ?, ?, ?, 1, datetime("now"), datetime("now"))';
@@ -126,7 +137,7 @@ exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) 
         sqlite.run(sql, [campoId, giornoSettimana, oraInizio, oraFine], function(err) {
             if (err) {
                 console.error('Errore SQL add orario campo:', err);
-                return reject({ error: 'Error adding orario: ' + err.message });
+                return reject(new Error('Error adding orario: ' + err.message));
             }
             resolve({ success: true, id: this.lastID });
         });
@@ -135,12 +146,13 @@ exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) 
 
 
 /**
- * Funzione per aggiornare un orario di un campo
- * @param {*} id id dell'orario del campo da aggiornare
- * @param {*} oraInizio nuova ora di inizio
- * @param {*} oraFine nuova ora di fine
- * @param {*} attivo stato attivo/inattivo
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Aggiorna un orario campo
+ * @async
+ * @param {number} id
+ * @param {string} oraInizio
+ * @param {string} oraFine
+ * @param {number|boolean} attivo
+ * @returns {Promise<Object>} { success: true, changes }
  */
 exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
     const sql = 'UPDATE ORARI_CAMPI SET ora_inizio = ?, ora_fine = ?, attivo = ?, updated_at = datetime("now") WHERE id = ?';
@@ -156,9 +168,10 @@ exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
 }
 
 /**
- * Funzione per eliminare un orario di un campo
- * @param {*} id id dell'orario del campo da eliminare
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Elimina un orario di campo per ID
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { success: true, changes }
  */
 exports.deleteOrarioCampo = function(id) {
     const sql = 'DELETE FROM ORARI_CAMPI WHERE id = ?';
@@ -174,9 +187,10 @@ exports.deleteOrarioCampo = function(id) {
 }
 
 /**
- * Funzione per creare un nuovo campo
- * @param {*} campoData dati del campo da creare
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Crea un nuovo campo
+ * @async
+ * @param {Object} campoData
+ * @returns {Promise<Object>} { success: true, id }
  */
 exports.createCampo = function(campoData) {
     const sql = `INSERT INTO CAMPI (
@@ -207,10 +221,11 @@ exports.createCampo = function(campoData) {
 }
 
 /**
- * funzione per aggiornare un campo
- * @param {*} id id del campo da aggiornare
- * @param {*} campoData Informazioni aggiornate del campo (solo i campi da aggiornare)
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Aggiorna i campi forniti di un campo (patch-like)
+ * @async
+ * @param {number} id
+ * @param {Object} campoData
+ * @returns {Promise<Object>} { success: true, changes }
  */
 exports.updateCampo = function(id, campoData) {
     const fields = Object.keys(campoData);
@@ -240,9 +255,10 @@ exports.updateCampo = function(id, campoData) {
 }
 
 /**
- * Funzione per eliminare un campo
- * @param {*} id id del campo da eliminare
- * @returns {Promise} Risolve con un oggetto di successo o rifiuta con un errore
+ * Elimina un campo per ID
+ * @async
+ * @param {number} id
+ * @returns {Promise<Object>} { success: true, changes }
  */
 exports.deleteCampo=function(id){
     const sql='DELETE FROM CAMPI WHERE id=?';
@@ -258,9 +274,10 @@ exports.deleteCampo=function(id){
 }
 
 /**
- * Funzione per cercare campi
- * @param {*} searchTerm termine di ricerca
- * @returns {Promise} Risolve con un array di oggetti Campo o rifiuta con un errore
+ * Cerca campi attivi per nome/indirizzo/descrizione (autocomplete)
+ * @async
+ * @param {string} searchTerm - Term con % per LIKE
+ * @returns {Promise<Array<Campo>>}
  */
 exports.searchCampi = async function(searchTerm) {
     const sql = `

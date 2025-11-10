@@ -1,12 +1,36 @@
+/**
+ * @fileoverview Gestione autenticazione JWT per "Ricordami"
+ * @module core/middlewares/jwt
+ * @description Fornisce funzionalità per generare, verificare e gestire token JWT.
+ * Permette agli utenti di rimanere autenticati tra sessioni diverse tramite cookie.
+ */
+
 const jwt = require('jsonwebtoken');
 const userDao = require('../../features/users/services/dao-user');
 
-// Secret per JWT (dovrebbe essere in .env in produzione)
+/**
+ * Chiave segreta per firmare i JWT
+ * In produzione dovrebbe essere caricata da variabile d'ambiente
+ * @constant {string}
+ */
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+
+/**
+ * Durata di validità del token JWT
+ * @constant {string}
+ */
 const JWT_EXPIRY = '7d'; // Token valido per 7 giorni
 
 /**
- * Genera un JWT token per l'utente
+ * Genera un token JWT per l'utente
+ * Codifica informazioni base dell'utente nel payload
+ * 
+ * @function generateToken
+ * @param {Object} user - Oggetto utente con id, email e tipo_utente_id
+ * @returns {string} Token JWT firmato
+ * 
+ * @example
+ * const token = generateToken({ id: 1, email: 'user@example.com', tipo_utente_id: 3 });
  */
 function generateToken(user) {
     return jwt.sign(
@@ -21,7 +45,11 @@ function generateToken(user) {
 }
 
 /**
- * Verifica e decodifica un JWT token
+ * Verifica e decodifica un token JWT
+ * 
+ * @function verifyToken
+ * @param {string} token - Token JWT da verificare
+ * @returns {Object|null} Payload decodificato o null se token invalido
  */
 function verifyToken(token) {
     try {
@@ -32,7 +60,15 @@ function verifyToken(token) {
 }
 
 /**
- * Middleware per verificare il JWT e ripristinare la sessione
+ * Middleware Express per autenticazione automatica tramite JWT
+ * Se l'utente non è autenticato ma ha un token JWT valido, ripristina la sessione
+ * 
+ * @async
+ * @function jwtAuth
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {Promise<void>}
  */
 async function jwtAuth(req, res, next) {
     // Se l'utente è già autenticato tramite sessione, continua

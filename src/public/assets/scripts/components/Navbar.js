@@ -52,7 +52,7 @@ class Navbar {
     brandLink.className = 'navbar-brand';
     brandLink.href = '/homepage';
     const logoImg = document.createElement('img');
-    logoImg.src = '/images/Logo.png';
+    logoImg.src = '/assets/images/Logo.png';
     logoImg.alt = 'Logo';
     logoImg.width = 60;
     logoImg.height = 60;

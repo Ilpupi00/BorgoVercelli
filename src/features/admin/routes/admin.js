@@ -40,7 +40,7 @@ router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
         // Temporaneamente disabilitato per evitare errori di recupero squadra
         // const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
         const imageUrl = req.user.immagine_profilo || null;
-        res.render('Admin/admin.ejs', { user: req.user, imageUrl });
+        res.render('admin.ejs', { user: req.user, imageUrl });
     } catch (err) {
         console.error('Errore nel caricamento della pagina admin:', err);
         res.status(500).send('Errore interno del server');
@@ -51,9 +51,9 @@ router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
  * Routes per aprire la pagina di gestione notizie
  */
 router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
-    try {
+    try{
         const notizie = await notizieDao.getNotizie();
-        res.render('Admin/Contenuti/Gestione_Notizie.ejs', { user: req.user, notizie });
+        res.render('Contenuti/Gestione_Notizie.ejs', { user: req.user, notizie });
     } catch (err) {
         console.error('Errore nel caricamento delle notizie:', err);
         res.status(500).send('Errore interno del server');
@@ -64,9 +64,9 @@ router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
  * Routes per aprire la pagina di gestione eventi
  */
 router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
-    try {
+    try{
         const eventi = await eventiDao.getEventi();
-        res.render('Admin/Contenuti/Gestione_Eventi.ejs', { user: req.user, eventi });
+        res.render('Contenuti/Gestione_Eventi.ejs', { user: req.user, eventi });
     } catch (err) {
         console.error('Errore nel caricamento degli eventi:', err);
         res.status(500).send('Errore interno del server');
@@ -139,7 +139,7 @@ router.put('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/galleria', isLoggedIn, isAdmin, async (req, res) => {
     try{
         const immagini = await galleriDao.getImmagini();
-        res.render('Admin/Contenuti/Gestione_Galleria.ejs', { user: req.user, immagini });
+        res.render('Contenuti/Gestione_Galleria.ejs', { user: req.user, immagini });
     } catch (err) {
         console.error('Errore nel caricamento della galleria:', err);
         res.status(500).send('Errore interno del server');
@@ -149,7 +149,7 @@ router.get('/admin/galleria', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/squadre', isLoggedIn, isAdmin, async (req, res) => {
     try{
         const squadre = await squadreDao.getSquadre();
-        res.render('Admin/Contenuti/Gestione_Squadre.ejs', { user: req.user, squadre });
+        res.render('Contenuti/Gestione_Squadre.ejs', { user: req.user, squadre });
     } catch (err) {
         console.error('Errore nel caricamento delle squadre:', err);
         res.status(500).send('Errore interno del server');
@@ -159,7 +159,7 @@ router.get('/admin/squadre', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const utenti = await userDao.getAllUsers();
-        res.render('Admin/Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
+        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
     } catch (err) {
         console.error('Errore nel caricamento degli utenti:', err);
         res.status(500).send('Errore interno del server');
@@ -169,7 +169,7 @@ router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/recensioni', isLoggedIn, isAdmin, async (req, res) => {
     try{
         const recensioni = await recensioniDao.getAllRecensioni();
-        res.render('Admin/Contenuti/Gestione_Recensioni.ejs', { user: req.user, recensioni });
+        res.render('Contenuti/Gestione_Recensioni.ejs', { user: req.user, recensioni });
     } catch (err) {
         console.error('Errore nel caricamento delle recensioni:', err);
         res.status(500).send('Errore interno del server');
@@ -267,9 +267,9 @@ router.delete('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
-    try{
+    try {
         const statistiche = await userDao.getStatistiche();
-        res.render('Admin/Contenuti/Statistiche.ejs', { user: req.user, statistiche });
+        res.render('Contenuti/Statistiche.ejs', { user: req.user, statistiche });
     } catch (err) {
         console.error('Errore nel caricamento delle statistiche:', err);
         res.status(500).send('Errore interno del server');
@@ -280,10 +280,84 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
-        res.render('Admin/Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
+        res.render('Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
     } catch (err) {
         console.error('Errore nel caricamento delle prenotazioni:', err);
         res.status(500).send('Errore interno del server');
+    }
+});
+
+// Route per confermare una prenotazione
+router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        // usa l'API esistente del DAO per aggiornare lo stato
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'confermata');
+        if (result && result.success) {
+            return res.json({ success: true, message: 'Prenotazione confermata con successo' });
+        }
+        res.status(500).json({ success: false, error: 'Impossibile confermare la prenotazione' });
+    } catch (err) {
+        console.error('Errore nella conferma della prenotazione:', err);
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
+    }
+});
+
+// Route per eliminare una prenotazione
+router.delete('/admin/prenotazioni/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await prenotazioniDao.deletePrenotazione(id);
+        if (result && result.success) {
+            return res.json({ success: true, message: 'Prenotazione eliminata con successo' });
+        }
+        res.status(500).json({ success: false, error: 'Impossibile eliminare la prenotazione' });
+    } catch (err) {
+        console.error('Errore nell\'eliminazione della prenotazione:', err);
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
+    }
+});
+
+// Route per annullare una prenotazione
+router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'annullata');
+        if (result && result.success) {
+            return res.json({ success: true, message: 'Prenotazione annullata con successo' });
+        }
+        res.status(500).json({ success: false, error: 'Impossibile annullare la prenotazione' });
+    } catch (err) {
+        console.error('Errore nell\'annullamento della prenotazione:', err);
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
+    }
+});
+
+// Route per riattivare una prenotazione (es. da annullata -> in_attesa)
+router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'in_attesa');
+        if (result && result.success) {
+            return res.json({ success: true, message: 'Prenotazione riattivata con successo' });
+        }
+        res.status(500).json({ success: false, error: 'Impossibile riattivare la prenotazione' });
+    } catch (err) {
+        console.error('Errore nella riattivazione della prenotazione:', err);
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
+    }
+});
+
+// Route per eliminare le prenotazioni scadute (admin)
+router.delete('/admin/prenotazioni/elimina-scadute', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        // Assicura che le prenotazioni scadute siano marcate
+        try { await prenotazioniDao.checkAndUpdateScadute(); } catch (e) { console.error('checkAndUpdateScadute error', e); }
+        const result = await prenotazioniDao.deleteScadute();
+        return res.json({ success: true, deleted: result.deleted || result.changes || 0 });
+    } catch (err) {
+        console.error('Errore nell\'eliminazione delle prenotazioni scadute:', err);
+        res.status(500).json({ success: false, error: 'Errore interno del server' });
     }
 });
 
@@ -313,7 +387,7 @@ router.get('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
             });
         }
         const campo = await campiDao.getCampoById(campoId);
-        res.render('Admin/Contenuti/Gestione_Orari_Campi.ejs', { 
+        res.render('Contenuti/Gestione_Orari_Campi.ejs', { 
             user: req.user, 
             campo, 
             orariDefault, 
@@ -330,10 +404,20 @@ router.post('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
         const campoId = req.params.id;
         const { giorno_settimana, ora_inizio, ora_fine } = req.body;
         await campiDao.addOrarioCampo(campoId, giorno_settimana || null, ora_inizio, ora_fine);
+        // Se la richiesta è AJAX (fetch dal frontend) rispondiamo con JSON anziché redirect
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.json({ success: true });
+        }
+
         res.redirect(`/admin/campi/${campoId}/orari`);
     } catch (err) {
-        console.error('Errore nell\'aggiunta orario:', err);
-        res.status(500).send('Errore interno del server');
+        console.error('Errore nell\'aggiunta orario:', err && err.stack ? err.stack : err);
+        console.error('Request body:', req.body);
+        const errMsg = (err && err.message) ? err.message : 'Errore interno del server';
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.status(500).json({ error: errMsg });
+        }
+        res.status(500).send(errMsg);
     }
 });
 
@@ -364,7 +448,7 @@ router.delete('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) =>
 router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const campi = await campiDao.getCampi();
-        res.render('Admin/Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
+        res.render('Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
     } catch (err) {
         console.error('Errore nel caricamento dei campi:', err);
         res.status(500).send('Errore interno del server');
@@ -573,7 +657,7 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const campionati = await campionatiDao.getAllCampionati();
-        res.render('Admin/Contenuti/Gestione_Campionati.ejs', { user: req.user, campionati });
+        res.render('Contenuti/Gestione_Campionati.ejs', { user: req.user, campionati });
     } catch (err) {
         console.error('Errore nel caricamento dei campionati:', err);
         res.status(500).send('Errore interno del server');
@@ -584,7 +668,7 @@ router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/campionati/nuovo', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const squadre = await squadreDao.getSquadre();
-        res.render('Admin/Contenuti/Crea_Campionato.ejs', {
+        res.render('Contenuti/Crea_Campionato.ejs', {
             user: req.user,
             squadre: squadre
         });
@@ -613,7 +697,7 @@ router.get('/admin/campionati/:id/modifica', isLoggedIn, isAdmin, async (req, re
         // Carica tutte le squadre disponibili per il dropdown
         const squadre = await squadreDao.getSquadre();
 
-        res.render('Admin/Contenuti/Modifica_Campionato.ejs', { 
+        res.render('Contenuti/Modifica_Campionato.ejs', { 
             user: req.user, 
             campionato: campionato,
             squadre: squadre
@@ -934,7 +1018,7 @@ router.get('/api/admin/utenti/:id/stato', isLoggedIn, isAdmin, async (req, res) 
 router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const utenti = await userDao.getAllUsers();
-        res.render('Admin/Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
+        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
     } catch (err) {
         console.error('Errore nel caricamento degli utenti:', err);
         res.status(500).send('Errore interno del server');

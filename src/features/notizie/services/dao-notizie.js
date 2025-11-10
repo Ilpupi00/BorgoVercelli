@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * @fileoverview DAO per la gestione delle notizie
+ * Fornisce funzioni per creare, leggere, aggiornare, filtrare e cancellare notizie
+ * @module features/notizie/services/dao-notizie
+ */
+
 const sqlite = require('../../../core/config/database');
 const Notizie= require('../../../core/models/notizia.js');
 
@@ -17,7 +23,7 @@ const makeNotizie = (row) => {
         row.N_titolo || row.titolo,
         row.N_sottotitolo || row.sottotitolo,
         {
-            url: row.immagine_url || '/images/default-news.jpg',
+            url: row.immagine_url || '/assets/images/default-news.jpg',
             id: row.N_immagine || row.immagine_principale_id
         },
         row.N_contenuto || row.contenuto,
@@ -30,6 +36,11 @@ const makeNotizie = (row) => {
         row.N_updated_at || row.updated_at || null
     );
 }
+/**
+ * Recupera tutte le notizie (anche bozza) con autore e immagine
+ * @async
+ * @returns {Promise<Array<Notizie>>}
+ */
 exports.getNotizie = async function(){
     const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
@@ -55,6 +66,13 @@ exports.getNotizie = async function(){
     });
 }
 
+/**
+ * Recupera le notizie pubblicate paginando il risultato
+ * @async
+ * @param {number} offset - Offset per la paginazione
+ * @param {number} limit - Numero di record per pagina
+ * @returns {Promise<Array<Notizie>>}
+ */
 exports.getNotiziePaginated = async function(offset = 0, limit = 6){
     const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
@@ -82,6 +100,12 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
     });
 }
 
+/**
+ * Recupera una notizia per ID
+ * @async
+ * @param {number} id - ID della notizia
+ * @returns {Promise<Notizie>} Istanza Notizie
+ */
 exports.getNotiziaById = async function(id) {
     const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
@@ -103,6 +127,12 @@ exports.getNotiziaById = async function(id) {
     });
 }
 
+/**
+ * Elimina una notizia per ID
+ * @async
+ * @param {number} id - ID della notizia
+ * @returns {Promise<Object>} { success: true }
+ */
 exports.deleteNotiziaById = async function(id) {
     const sql = 'DELETE FROM NOTIZIE WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -115,6 +145,12 @@ exports.deleteNotiziaById = async function(id) {
     });
 }
 
+/**
+ * Crea una nuova notizia. Se `pubblicata` è true imposta data_pubblicazione a now
+ * @async
+ * @param {Object} notiziaData - Dati della notizia
+ * @returns {Promise<Object>} { success: true, id }
+ */
 exports.createNotizia = async function(notiziaData) {
     const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
                  VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END, 0, datetime('now'), datetime('now'))`;
@@ -137,6 +173,13 @@ exports.createNotizia = async function(notiziaData) {
     });
 }
 
+/**
+ * Aggiorna una notizia esistente
+ * @async
+ * @param {number} id - ID della notizia
+ * @param {Object} notiziaData - Campi aggiornati
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.updateNotizia = async function(id, notiziaData) {
     const sql = `UPDATE NOTIZIE SET
                  titolo = ?, sottotitolo = ?, contenuto = ?, immagine_principale_id = ?,
@@ -161,6 +204,12 @@ exports.updateNotizia = async function(id, notiziaData) {
     });
 }
 
+/**
+ * Attiva/disattiva la pubblicazione di una notizia
+ * @async
+ * @param {number} id - ID della notizia
+ * @returns {Promise<Object>} { success: true, changes }
+ */
 exports.togglePubblicazioneNotizia = async function(id) {
     const sql = `UPDATE NOTIZIE SET
                  pubblicata = CASE WHEN pubblicata = 1 THEN 0 ELSE 1 END,
@@ -178,6 +227,12 @@ exports.togglePubblicazioneNotizia = async function(id) {
     });
 }
 
+/**
+ * Cerca notizie pubblicate per titolo/sottotitolo
+ * @async
+ * @param {string} searchTerm - Term con % per LIKE
+ * @returns {Promise<Array<Notizie>>}
+ */
 exports.searchNotizie = async function(searchTerm) {
     const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
@@ -206,6 +261,14 @@ exports.searchNotizie = async function(searchTerm) {
     });
 }
 
+/**
+ * Recupera notizie applicando filtri (testo, autore, date) con paginazione
+ * @async
+ * @param {Object} filters - Filtri: search, author, dateFrom, dateTo
+ * @param {number} offset
+ * @param {number} limit
+ * @returns {Promise<Array<Notizie>>}
+ */
 exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12) {
     let sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
@@ -262,6 +325,11 @@ exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12
     });
 }
 
+/**
+ * Recupera gli autori distinti delle notizie pubblicate (nome completo)
+ * @async
+ * @returns {Promise<Array<string>>} Array di nomi autori
+ */
 exports.getNotizieAuthors = async function() {
     const sql = `
         SELECT DISTINCT (U.nome || ' ' || U.cognome) as nome_completo
@@ -282,6 +350,12 @@ exports.getNotizieAuthors = async function() {
     });
 }
 
+/**
+ * Recupera le notizie create da un utente specifico (area personale)
+ * @async
+ * @param {number} userId - ID utente autore
+ * @returns {Promise<Array<Notizie>>}
+ */
 exports.getNotiziePersonali = async function(userId) {
     const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url

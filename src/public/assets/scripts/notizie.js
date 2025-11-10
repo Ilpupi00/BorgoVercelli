@@ -373,7 +373,7 @@ class NotizieManager {
 
         const imageUrl = notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' 
             ? notizia.immagine.url 
-            : '/images/default-news.jpg';
+            : '/assets/images/default-news.jpg';
         const dateStr = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', {
             year: 'numeric',
             month: 'long',

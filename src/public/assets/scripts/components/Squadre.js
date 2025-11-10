@@ -89,12 +89,12 @@ class Squadre {
         if (squadreAnno.length > 0) {
             const squadra = squadreAnno[0];
             title.textContent = squadra.nome;
-            img.src = squadra.id_immagine || '/images/Logo.png';
+            img.src = squadra.id_immagine || '/assets/images/Logo.png';
             img.alt = squadra.nome;
             if (rosterTitle) rosterTitle.textContent = `Roster ${squadra.nome}`;
         } else {
             title.textContent = 'Nessuna squadra selezionata';
-            img.src = '/images/Logo.png';
+            img.src = '/assets/images/Logo.png';
             img.alt = 'Logo';
             if (rosterTitle) rosterTitle.textContent = 'Roster';
         }

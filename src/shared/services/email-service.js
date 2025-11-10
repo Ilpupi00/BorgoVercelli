@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Percorso al logo (verifica che il file esista in questo path)
-const logoPath = path.resolve(__dirname, '../public/images/Logo.png');
+const logoPath = path.resolve(__dirname, '../../public/assets/images/Logo.png');
 
 exports.sendEmail = async function({ fromName, fromEmail, subject, message, to = 'lucalupi03@gmail.com' }) {
     try {
@@ -60,7 +60,7 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
                 }
                 .header {
                     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-                    color: white;
+                    color: var(--text-primary);
                     padding: 40px 30px;
                     text-align: center;
                     position: relative;
@@ -306,9 +306,9 @@ exports.sendResetEmail = async function(toEmail, resetLink) {
                 <meta charset="UTF-8">
                 <style>
                     body { font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px; }
-                    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; }
                     .header { text-align: center; padding: 20px 0; }
-                    .button { display: inline-block; padding: 10px 20px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; }
+                    .button { display: inline-block; padding: 10px 20px; background-color: #0d6efd; color: black; text-decoration: none; border-radius: 5px; }
                     .footer { text-align: center; padding: 20px 0; font-size: 12px; color: #666; }
                 </style>
             </head>

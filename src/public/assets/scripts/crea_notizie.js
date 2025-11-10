@@ -197,7 +197,7 @@ class NewsEditor {
             if (url) {
                 imagePreview.src = url;
             } else {
-                imagePreview.src = '/images/default-news.jpg';
+                imagePreview.src = '/assets/images/default-news.jpg';
             }
         };
 

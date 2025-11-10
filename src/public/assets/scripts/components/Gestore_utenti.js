@@ -116,7 +116,7 @@ class GestoreUtente {
                         <p><strong>Data Registrazione:</strong> ${new Date(utente.data_registrazione).toLocaleDateString('it-IT')}</p>
                     </div>
                     <div class="col-md-4 text-center">
-                        <img src="${utente.immagine_profilo || '/images/default-news.jpg'}" alt="Foto profilo" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                        <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" alt="Foto profilo" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                 </div>
             `;

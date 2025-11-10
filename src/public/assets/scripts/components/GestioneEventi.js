@@ -220,62 +220,57 @@ class GestioneEventi {
     async eliminaEvento(id) {
         // Se è disponibile ShowModal, apri il modal di conferma personalizzato
         if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
-            await ShowModal.modalDelete('Sei sicuro di voler eliminare questo evento? Questa azione non può essere annullata.', 'Conferma eliminazione');
+            // ShowModal.modalDelete returns a Promise<boolean> that resolves when user confirms/cancels.
+            // Instead of awaiting and then trying to attach handlers to a modal that ShowModal removes,
+            // use the resolved value to perform the delete action.
+            ShowModal.modalDelete('Sei sicuro di voler eliminare questo evento? Questa azione non può essere annullata.', 'Conferma eliminazione')
+                .then(async (confirmed) => {
+                    if (!confirmed) return;
+                    try {
+                        const response = await fetch('/evento/' + id, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include'
+                        });
 
-            const modal = document.getElementById('modalDelete');
-            if (!modal) return;
-            const bsModal = bootstrap.Modal.getInstance(modal);
-            const confirmBtn = modal.querySelector('#confirmDeleteBtn');
-            if (!confirmBtn) return;
+                        const result = await response.json().catch(() => ({}));
 
-            const onConfirm = async () => {
-                // nascondi il modal
-                if (bsModal) bsModal.hide();
+                        if (response.ok && result.success) {
+                            // Rimuovi l'evento dall'array originale
+                            this.originalEventi = this.originalEventi.filter(e => e.id !== id);
 
-                try {
-                    const response = await fetch('/evento/' + id, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                            // Rimuovi la riga dalla tabella
+                            const row = document.querySelector(`tr[data-evento-id="${id}"]`);
+                            if (row) row.remove();
 
-                    const result = await response.json();
+                            // Aggiorna i contatori
+                            this.updateCounters(this.originalEventi.filter(e => e.element.style.display !== 'none').length);
 
-                    if (response.ok && result.success) {
-                        // Rimuovi l'evento dall'array originale
-                        this.originalEventi = this.originalEventi.filter(e => e.id !== id);
-
-                        // Rimuovi la riga dalla tabella
-                        const row = document.querySelector(`tr[data-evento-id="${id}"]`);
-                        if (row) row.remove();
-
-                        // Aggiorna i contatori
-                        this.updateCounters(this.originalEventi.filter(e => e.element.style.display !== 'none').length);
-
-                        if (typeof ShowModal !== 'undefined') {
-                            await ShowModal.showModalSuccess('Eliminazione completata', 'Evento eliminato con successo!');
+                            if (typeof ShowModal !== 'undefined') {
+                                await ShowModal.showModalSuccess('Eliminazione completata', 'Evento eliminato con successo!');
+                            } else {
+                                this.showAlert('Evento eliminato con successo!', 'success');
+                            }
                         } else {
-                            this.showAlert('Evento eliminato con successo!', 'success');
+                            if (typeof ShowModal !== 'undefined') {
+                                await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore durante l\'eliminazione');
+                            } else {
+                                this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                            }
                         }
-                    } else {
+                    } catch (error) {
+                        console.error('Errore:', error);
                         if (typeof ShowModal !== 'undefined') {
-                            await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore durante l\'eliminazione');
+                            await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
                         } else {
-                            this.showAlert('Errore nell\'eliminazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                            this.showAlert('Errore di connessione', 'danger');
                         }
                     }
-                } catch (error) {
-                    console.error('Errore:', error);
-                    if (typeof ShowModal !== 'undefined') {
-                        await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
-                    } else {
-                        this.showAlert('Errore di connessione', 'danger');
-                    }
-                }
-            };
-
-            confirmBtn.addEventListener('click', onConfirm, { once: true });
+                }).catch(err => {
+                    console.error('Errore modalDelete promise:', err);
+                });
             return;
         }
 
@@ -322,79 +317,72 @@ class GestioneEventi {
         const action = currentStatus ? 'sospendere' : 'pubblicare';
 
         if (typeof ShowModal !== 'undefined' && typeof bootstrap !== 'undefined') {
-            // Use a dedicated confirmation modal (non-delete)
-            await ShowModal.modalConfirm(`Sei sicuro di voler ${action} questo evento?`, 'Conferma', currentStatus ? 'Sospendi' : 'Pubblica', currentStatus ? 'btn-warning' : 'btn-success', currentStatus ? 'bi-eye-slash' : 'bi-eye');
+            ShowModal.modalConfirm(`Sei sicuro di voler ${action} questo evento?`, 'Conferma', currentStatus ? 'Sospendi' : 'Pubblica', currentStatus ? 'btn-warning' : 'btn-success', currentStatus ? 'bi-eye-slash' : 'bi-eye')
+                .then(async (confirmed) => {
+                    if (!confirmed) return;
+                    try {
+                        const response = await fetch('/evento/' + id + '/publish', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({ pubblicato: !currentStatus })
+                        });
 
-            const modal = document.getElementById('modalConfirmAction');
-            if (!modal) return;
-            const bsModal = bootstrap.Modal.getInstance(modal);
-            const confirmBtn = modal.querySelector('#confirmActionBtn');
-            if (!confirmBtn) return;
+                        const result = await response.json().catch(() => ({}));
 
-            const onConfirm = async () => {
-                if (bsModal) bsModal.hide();
-                try {
-                    const response = await fetch('/evento/' + id + '/publish', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ pubblicato: !currentStatus })
-                    });
+                        if (response.ok && result.success) {
+                            if (typeof ShowModal !== 'undefined') {
+                                await ShowModal.showModalSuccess(result.message || 'Operazione completata', 'Successo');
+                            } else {
+                                this.showAlert(result.message || 'Operazione completata', 'success');
+                            }
 
-                    const result = await response.json();
+                            // Aggiorna il badge nella tabella
+                            const badge = document.querySelector(`tr[data-evento-id="${id}"] .badge`);
+                            if (badge) {
+                                badge.className = !currentStatus ? 'badge bg-success' : 'badge bg-warning';
+                                badge.textContent = !currentStatus ? 'Pubblicato' : 'Bozza';
 
-                    if (response.ok && result.success) {
-                        if (typeof ShowModal !== 'undefined') {
-                            await ShowModal.showModalSuccess(result.message || 'Operazione completata', 'Successo');
+                                // Aggiorna anche i dati per il filtraggio
+                                const evento = this.originalEventi.find(e => e.id === id);
+                                if (evento) {
+                                    evento.stato = !currentStatus ? 'published' : 'draft';
+                                }
+                            }
+
+                            // Aggiorna l'icona e l'attributo data-current-status del bottone
+                            const toggleBtn = document.querySelector(`tr[data-evento-id="${id}"] .toggle-pubblicazione`);
+                            if (toggleBtn) {
+                                // Aggiorna l'icona: eye <-> eye-slash
+                                const icon = toggleBtn.querySelector('i');
+                                if (icon) {
+                                    icon.className = `bi bi-${!currentStatus ? 'eye-slash' : 'eye'}`;
+                                }
+                                // Aggiorna il titolo e il data-current-status
+                                toggleBtn.setAttribute('data-current-status', !currentStatus ? '1' : '0');
+                                toggleBtn.title = !currentStatus ? 'Sospendi' : 'Pubblica';
+                            }
+
                         } else {
-                            this.showAlert(result.message || 'Operazione completata', 'success');
-                        }
-
-                        // Aggiorna il badge nella tabella
-                        const badge = document.querySelector(`tr[data-evento-id="${id}"] .badge`);
-                        if (badge) {
-                            badge.className = !currentStatus ? 'badge bg-success' : 'badge bg-warning';
-                            badge.textContent = !currentStatus ? 'Pubblicato' : 'Bozza';
-
-                            // Aggiorna anche i dati per il filtraggio
-                            const evento = this.originalEventi.find(e => e.id === id);
-                            if (evento) {
-                                evento.stato = !currentStatus ? 'published' : 'draft';
+                            if (typeof ShowModal !== 'undefined') {
+                                await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore');
+                            } else {
+                                this.showAlert('Errore nell\'operazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
                             }
                         }
-
-                        // Aggiorna l'icona e l'attributo data-current-status del bottone
-                        const toggleBtn = document.querySelector(`tr[data-evento-id="${id}"] .toggle-pubblicazione`);
-                        if (toggleBtn) {
-                            // Aggiorna l'icona: eye <-> eye-slash
-                            const icon = toggleBtn.querySelector('i');
-                            if (icon) {
-                                icon.className = `bi bi-${!currentStatus ? 'eye-slash' : 'eye'}`;
-                            }
-                            // Aggiorna il titolo e il data-current-status
-                            toggleBtn.setAttribute('data-current-status', !currentStatus ? '1' : '0');
-                            toggleBtn.title = !currentStatus ? 'Sospendi' : 'Pubblica';
-                        }
-
-                    } else {
+                    } catch (error) {
+                        console.error('Errore:', error);
                         if (typeof ShowModal !== 'undefined') {
-                            await ShowModal.showModalError(result.error || 'Errore sconosciuto', 'Errore');
+                            await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
                         } else {
-                            this.showAlert('Errore nell\'operazione: ' + (result.error || 'Errore sconosciuto'), 'danger');
+                            this.showAlert('Errore di connessione', 'danger');
                         }
                     }
-                } catch (error) {
-                    console.error('Errore:', error);
-                    if (typeof ShowModal !== 'undefined') {
-                        await ShowModal.showModalError('Impossibile contattare il server', 'Errore di connessione');
-                    } else {
-                        this.showAlert('Errore di connessione', 'danger');
-                    }
-                }
-            };
-
-            confirmBtn.addEventListener('click', onConfirm, { once: true });
+                }).catch(err => {
+                    console.error('Errore modalConfirm promise:', err);
+                });
             return;
         }
 
@@ -405,12 +393,13 @@ class GestioneEventi {
 
         try {
             const response = await fetch('/evento/' + id + '/publish', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ pubblicato: !currentStatus })
-            });
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ pubblicato: !currentStatus })
+                });
 
             const result = await response.json();
 

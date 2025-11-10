@@ -1,12 +1,38 @@
+/**
+ * @fileoverview Model per l'entità Notizia
+ * Gestisce le notizie del sito con parsing avanzato delle date
+ * @module core/models/notizia
+ */
+
 'use strict';
 
 const moment = require('moment');
 
-
-'use strict';
-
+/**
+ * Classe Notizia
+ * Rappresenta un articolo/notizia pubblicabile sul sito
+ * 
+ * @class Notizia
+ */
 class Notizia{
-        constructor(id,titolo,sottotitolo,immagine,contenuto,autore,autore_id,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
+    /**
+     * Crea un'istanza di Notizia
+     * 
+     * @constructor
+     * @param {number} id - ID univoco della notizia
+     * @param {string} titolo - Titolo principale della notizia
+     * @param {string} sottotitolo - Sottotitolo/sommario
+     * @param {string} immagine - URL dell'immagine di copertina
+     * @param {string} contenuto - Contenuto completo in HTML/testo
+     * @param {string} autore - Nome dell'autore
+     * @param {number} autore_id - ID dell'utente autore
+     * @param {boolean} pubblicata - true se pubblicata, false se bozza
+     * @param {string|Date} data_pubblicazione - Data di pubblicazione
+     * @param {number} visualizzazioni - Contatore visualizzazioni
+     * @param {string|Date} created_at - Data creazione
+     * @param {string|Date} updated_at - Data ultimo aggiornamento
+     */
+    constructor(id,titolo,sottotitolo,immagine,contenuto,autore,autore_id,pubblicata,data_pubblicazione,visualizzazioni,created_at,updated_at){
         this.id = id;
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
@@ -15,12 +41,26 @@ class Notizia{
         this.autore = autore;
         this.autore_id = autore_id;
         this.pubblicata = pubblicata;
+        // Parse delle date con metodo personalizzato
         this.data_pubblicazione = data_pubblicazione ? Notizia.parseDate(data_pubblicazione) : null;
         this.visualizzazioni=visualizzazioni;
         this.created_at=created_at ? Notizia.parseDate(created_at) : null;
         this.updated_at=updated_at ? Notizia.parseDate(updated_at) : null;
     }
 
+    // ==================== METODI STATICI ====================
+
+    /**
+     * Parse avanzato di stringhe data in vari formati
+     * Supporta formati italiani (DD/MM/YYYY) e internazionali (YYYY-MM-DD, ISO)
+     * 
+     * @static
+     * @param {string} dateStr - Stringa data da parsare
+     * @returns {string|null} Data formattata 'YYYY-MM-DD HH:mm:ss' o null se parsing fallisce
+     * @example
+     * Notizia.parseDate('25/12/2024');  // '2024-12-25 00:00:00'
+     * Notizia.parseDate('2024-12-25');  // '2024-12-25 00:00:00'
+     */
     static parseDate(dateStr) {
         if (!dateStr || typeof dateStr !== 'string') return null;
         
@@ -33,6 +73,7 @@ class Notizia{
             
             // Se moment.js fallisce, prova con logica custom per formati italiani
             let d = dateStr.replace(/\//g, '-');
+            
             // Se formato DD-MM-YYYY (italiano)
             if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(d)) {
                 const parts = d.split('-');
@@ -55,6 +96,16 @@ class Notizia{
         }
     }
 
+    /**
+     * Crea un'istanza Notizia da un oggetto JSON
+     * Converte automaticamente data_pubblicazione in formato moment
+     * 
+     * @static
+     * @param {Object} json - Oggetto con proprietà notizia
+     * @returns {Notizia|null} Istanza Notizia o null se json è vuoto
+     * @example
+     * const notizia = Notizia.from({ id: 1, titolo: 'Titolo', ... });
+     */
     static from(json){
         if (!json) {
             return null;
@@ -65,6 +116,16 @@ class Notizia{
         return notizia;
     }   
 
+    /**
+     * Converte un'istanza Notizia in oggetto JSON
+     * Formatta la data nel formato standard YYYY-MM-DD HH:mm:ss
+     * 
+     * @static
+     * @param {Notizia} notizia - Istanza Notizia da convertire
+     * @returns {Object|null} Oggetto JSON o null se notizia è vuoto
+     * @example
+     * const json = Notizia.to(notiziaInstance);
+     */
     static to(notizia){
         if (!notizia) {
             return null;
@@ -74,5 +135,7 @@ class Notizia{
         return json;
     }
 }
+
+// ==================== EXPORT ====================
 
 module.exports = Notizia;

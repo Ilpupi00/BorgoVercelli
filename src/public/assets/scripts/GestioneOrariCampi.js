@@ -58,6 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const orarioId = deleteBtn.dataset.orarioId;
         deleteOrario(orarioId);
     });
+
+    // Assicuriamoci che il pulsante 'Annulla' chiuda sempre il modal (robustezza contro possibili conflitti JS)
+    const cancelBtn = document.querySelector('#addOrarioModal [data-bs-dismiss="modal"]');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            const modalEl = document.getElementById('addOrarioModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modalInstance.hide();
+        });
+    }
 });
 
 // Funzioni CRUD
@@ -80,7 +90,12 @@ async function addOrario() {
     try {
         const response = await fetch(`/admin/campi/${campoId}/orari`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                // segnaliamo che è una chiamata AJAX e che vogliamo JSON
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
             body: new URLSearchParams({
                 giorno_settimana: giornoSettimana || '',
                 ora_inizio: oraInizio,
@@ -88,13 +103,23 @@ async function addOrario() {
             })
         });
 
-        const data = await response.json();
+        // Non dare per scontato che il server risponda sempre JSON (può restituire HTML di redirect o testo di errore)
+        const contentType = response.headers.get('content-type') || '';
+        let data = null;
+        if (contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // se non è JSON, leggiamo come testo (es. pagina HTML di redirect o messaggio di errore)
+            data = await response.text();
+        }
 
         if (response.ok) {
             window.AdminGlobal.ToastManager.show('Orario aggiunto con successo', 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            window.AdminGlobal.ToastManager.show(data.error || 'Errore nell\'aggiunta dell\'orario', 'error');
+            // se abbiamo un oggetto JSON con campo error usiamolo, altrimenti mostriamo il testo grezzo
+            const msg = (data && typeof data === 'object') ? (data.error || data.message) : data;
+            window.AdminGlobal.ToastManager.show(msg || 'Errore nell\'aggiunta dell\'orario', 'error');
         }
     } catch (error) {
         console.error('Errore:', error);

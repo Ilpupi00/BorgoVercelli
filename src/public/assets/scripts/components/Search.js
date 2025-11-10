@@ -234,23 +234,23 @@ class Search {
     switch (type) {
       case 'notizia':
         // Prima controlla se c'è un'immagine nel database
-        if (item.immagine?.url && item.immagine.url !== '/images/default-news.jpg') {
+        if (item.immagine?.url && item.immagine.url !== '/assets/images/default-news.jpg') {
           return item.immagine.url;
         }
-        return '/images/Campo.png';
+        return '/assets/images/Campo.png';
       case 'evento':
         // Gli eventi potrebbero avere immagini in futuro
-        return '/images/Campo.png';
+        return '/assets/images/Campo.png';
       case 'squadra':
         // Le squadre potrebbero avere immagini in futuro
-        return '/images/Logo.png';
+        return '/assets/images/Logo.png';
       case 'campo':
         // Controlla se c'è un'immagine nel database
-        if (item.immagine && item.immagine !== '/images/campo-default.jpg') {
+        if (item.immagine && item.immagine !== '/assets/images/Campo.png') {
           return item.immagine;
         }
-        return '/images/campo-default.jpg';
-      default: return '/images/Campo.jpg';
+        return '/assets/images/Campo.png';
+      default: return '/assets/images/Campo.png';
     }
   }
 

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview DAO per la gestione delle squadre e giocatori
+ * Fornisce metodi per CRUD di squadre, giocatori e dirigenti
+ * @module features/squadre/services/dao-squadre
+ */
+
 'use strict';
 
 const sqlite = require('../../../core/config/database');
@@ -5,6 +11,11 @@ const Giocatore = require('../../../core/models/giocatore.js');
 const Squadra = require('../../../core/models/squadra.js');
 const daoDirigenti = require('./dao-dirigenti-squadre.js');
 
+/**
+ * Factory: crea un'istanza di Squadra da una riga DB
+ * @param {Object} row - Riga del DB contenente i campi squadra
+ * @returns {Squadra}
+ */
 const makeSquadra = (row) => {
     return new Squadra(
         row.id,
@@ -17,6 +28,11 @@ const makeSquadra = (row) => {
     );
 }
 
+/**
+ * Factory: crea un'istanza di Giocatore da una riga DB
+ * @param {Object} row - Riga DB con campi giocatore
+ * @returns {Giocatore}
+ */
 const makeGiocatore = (row) => {
     return new Giocatore({
         id: row.id,
@@ -39,6 +55,12 @@ const makeGiocatore = (row) => {
 
 
 
+/**
+ * Recupera tutte le squadre con immagine e conteggio giocatori
+ * Per ogni squadra recupera anche i dirigenti associati
+ * @async
+ * @returns {Promise<Array<Squadra>>} Array di istanze Squadra
+ */
 exports.getSquadre = async () => {
     const sql = `
         SELECT 
@@ -63,6 +85,11 @@ exports.getSquadre = async () => {
     });
 }
 
+/**
+ * Recupera tutti i giocatori attivi con i campi principali e immagine
+ * @async
+ * @returns {Promise<Array<Giocatore>>} Array di istanze Giocatore
+ */
 exports.getGiocatori =async ()=>{
     const sql = `SELECT 
         g.id,
@@ -94,6 +121,12 @@ exports.getGiocatori =async ()=>{
     });
 }
 
+/**
+ * Crea una nuova squadra
+ * @param {string} nome - Nome della squadra
+ * @param {number} annoFondazione - Anno di fondazione
+ * @returns {Promise<Object>} { id, message }
+ */
 exports.createSquadra = function(nome, annoFondazione) {
     const sql = 'INSERT INTO SQUADRE (nome, Anno) VALUES (?, ?)';
     return new Promise((resolve, reject) => {
@@ -107,6 +140,14 @@ exports.createSquadra = function(nome, annoFondazione) {
     });
 }
 
+/**
+ * Aggiorna i dati di una squadra
+ * @param {number} id - ID della squadra
+ * @param {string} nome - Nuovo nome
+ * @param {number} anno - Anno
+ * @param {number|null} [id_immagine] - ID immagine logo (opzionale)
+ * @returns {Promise<Object>} { message }
+ */
 exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
     let sql = 'UPDATE SQUADRE SET nome = ?, Anno = ?';
     let params = [nome, anno,];
@@ -130,6 +171,11 @@ exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
     });
 }
 
+/**
+ * Elimina una squadra (hard delete)
+ * @param {number} id - ID squadra
+ * @returns {Promise<Object>} { message }
+ */
 exports.deleteSquadra = function(id) {
     const sql = 'DELETE FROM SQUADRE WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -146,6 +192,11 @@ exports.deleteSquadra = function(id) {
     });
 }
 
+/**
+ * Recupera una squadra per ID (include dirigenti e giocatori)
+ * @param {number} id - ID squadra
+ * @returns {Promise<Object|null>} Oggetto squadra esteso o null
+ */
 exports.getSquadraById = function(id) {
     const sql = 'SELECT * FROM SQUADRE WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -166,6 +217,12 @@ exports.getSquadraById = function(id) {
     });
 }
 
+/**
+ * Cerca squadre per termine (autocomplete)
+ * @async
+ * @param {string} searchTerm - Term for LIKE query
+ * @returns {Promise<Array<Squadra>>} Array di squadre (limit 10)
+ */
 exports.searchSquadre = async function(searchTerm) {
     const sql = `
         SELECT id, nome, id_immagine, Anno
@@ -190,6 +247,11 @@ exports.searchSquadre = async function(searchTerm) {
     });
 }
 
+/**
+ * Recupera i giocatori attivi di una specifica squadra
+ * @param {number} squadraId - ID della squadra
+ * @returns {Promise<Array<Giocatore>>} Array di giocatori
+ */
 exports.getGiocatoriBySquadra = function(squadraId) {
     const sql = `SELECT 
         id,
@@ -221,6 +283,11 @@ exports.getGiocatoriBySquadra = function(squadraId) {
     });
 }
 
+/**
+ * Crea un nuovo giocatore
+ * @param {Object} giocatoreData - Dati del giocatore
+ * @returns {Promise<Object>} { id, message }
+ */
 exports.createGiocatore = function(giocatoreData) {
     const sql = `INSERT INTO GIOCATORI
         (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, immagini_id, attivo, data_inizio_tesseramento)
@@ -248,6 +315,11 @@ exports.createGiocatore = function(giocatoreData) {
 
 // NOTE: updateGiocatore implemented later using COALESCE to preserve existing immagini_id when not provided
 
+/**
+ * Rimuove (soft-delete) un giocatore impostando attivo = 0
+ * @param {number} id - ID giocatore
+ * @returns {Promise<Object>} { message }
+ */
 exports.deleteGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = 0, data_fine_tesseramento = datetime(\'now\') WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -264,6 +336,11 @@ exports.deleteGiocatore = function(id) {
     });
 }
 
+/**
+ * Recupera un giocatore attivo per ID
+ * @param {number} id - ID giocatore
+ * @returns {Promise<Giocatore>} Istanza Giocatore
+ */
 exports.getGiocatoreById = function(id) {
     const sql = `SELECT
         id,
@@ -296,6 +373,12 @@ exports.getGiocatoreById = function(id) {
     });
 }
 
+/**
+ * Aggiunge un giocatore a una squadra e restituisce l'oggetto appena creato
+ * @param {number} squadraId - ID squadra
+ * @param {Object} giocatoreData - Dati giocatore
+ * @returns {Promise<Giocatore>} Giocatore creato
+ */
 exports.addGiocatore = function(squadraId, giocatoreData) {
     const sql = `INSERT INTO GIOCATORI (
         squadra_id, numero_maglia, ruolo, piede_preferito, Nazionalita, Nome, Cognome, id_immagine,
@@ -324,6 +407,11 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
     });
 }
 
+/**
+ * Rimuove un giocatore (soft) aggiornando il flag attivo
+ * @param {number} id - ID giocatore
+ * @returns {Promise<Object>} { message }
+ */
 exports.removeGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = 0, updated_at = datetime(\'now\') WHERE id = ?';
     return new Promise((resolve, reject) => {
@@ -339,6 +427,12 @@ exports.removeGiocatore = function(id) {
     });
 }
 
+/**
+ * Aggiunge un dirigente a una squadra dato l'email dell'utente
+ * @param {number} squadraId - ID squadra
+ * @param {string} email - Email utente
+ * @returns {Promise<Object>} Oggetto dirigente appena creato
+ */
 exports.addDirigente = function(squadraId, email) {
     // Prima recupera l'utente dall'email
     const sqlGetUser = 'SELECT id FROM UTENTI WHERE email = ?';
@@ -387,6 +481,12 @@ exports.addDirigente = function(squadraId, email) {
     });
 }
 
+/**
+ * Rimuove un dirigente da una squadra
+ * @param {number} squadraId
+ * @param {number} dirigenteId - ID record dirigente nella tabella DIRIGENTI_SQUADRE
+ * @returns {Promise<Object>} { message }
+ */
 exports.removeDirigente = function(squadraId, dirigenteId) {
     const sql = 'DELETE FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND id = ?';
     return new Promise((resolve, reject) => {
@@ -405,6 +505,12 @@ exports.removeDirigente = function(squadraId, dirigenteId) {
 // Nota: la funzione `exports.getSquadraById` è definita più sopra e restituisce squadra con dirigenti e giocatori.
 // Qui non sovrascriviamo quella implementazione.
 
+/**
+ * Aggiorna i dati di un giocatore (mantiene immagini_id se non fornito)
+ * @param {number} id - ID giocatore
+ * @param {Object} giocatoreData - Dati aggiornati
+ * @returns {Promise<Object>} { message }
+ */
 exports.updateGiocatore = async (id, giocatoreData) => {
     const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = datetime('now')
                  WHERE id = ?`;
@@ -432,3 +538,5 @@ exports.updateGiocatore = async (id, giocatoreData) => {
 }
 
 // NOTE: removal of giocatore handled above via soft-delete (set attivo = 0) to preserve history
+// Esporta l'oggetto exports per compatibilità
+module.exports = exports;
