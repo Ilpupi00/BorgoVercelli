@@ -255,16 +255,25 @@ exports.deletePrenotazione = async (id) => {
 }
 
 exports.checkAndUpdateScadute = async () => {
-    const now = new Date();
-    const currentDate = now.toISOString().slice(0, 10);
-    const currentTime = now.toTimeString().slice(0, 5); // HH:MM
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM PRENOTAZIONI WHERE stato = 'confermata' AND (data_prenotazione < ? OR (data_prenotazione = ? AND ora_fine <= ?))`, [currentDate, currentDate, currentTime], (err, rows) => {
+        // Find all bookings where the date and end time have passed
+        // Use SQLite datetime comparison for accurate results
+        const sql = `
+            SELECT id FROM PRENOTAZIONI 
+            WHERE stato IN ('confermata', 'in_attesa')
+            AND (
+                data_prenotazione < date('now')
+                OR (data_prenotazione = date('now') AND time(ora_fine) <= time('now'))
+            )
+        `;
+        
+        db.all(sql, [], (err, rows) => {
             if (err) return reject(err);
             const ids = rows.map(row => row.id);
             if (ids.length > 0) {
                 db.run(`UPDATE PRENOTAZIONI SET stato = 'scaduta', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`, ids, function (err) {
                     if (err) return reject(err);
+                    console.log(`[DAO] checkAndUpdateScadute: marked ${this.changes} bookings as expired`);
                     resolve({ success: true, updated: this.changes });
                 });
             } else {
@@ -276,14 +285,13 @@ exports.checkAndUpdateScadute = async () => {
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
-        process.stdout.write('[DAO] deleteScadute: starting...\n');
-        db.run(`UPDATE PRENOTAZIONI SET stato = 'test2'`, function (err) {
-            process.stdout.write(`[DAO] deleteScadute: callback called, err: ${err}, changes: ${this.changes}\n`);
+        console.log('[DAO] deleteScadute: starting...');
+        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err) {
             if (err) {
-                console.error('[DAO] deleteScadute: update error', err);
+                console.error('[DAO] deleteScadute: delete error', err);
                 return reject(err);
             }
-            process.stdout.write(`[DAO] deleteScadute: updated ${this.changes} rows\n`);
+            console.log(`[DAO] deleteScadute: deleted ${this.changes} expired bookings`);
             resolve({ success: true, deleted: this.changes });
         });
     });
