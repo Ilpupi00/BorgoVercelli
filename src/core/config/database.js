@@ -7,44 +7,85 @@
 
 'use strict';
 
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-/**
- * Path assoluto al file del database SQLite
- * Il database si trova nella directory database/ alla root del progetto
- * @type {string}
- */
-const dbPath = path.join(__dirname, '../../../database/database.db');
-console.log('[database] opening sqlite db at', dbPath);
+// Supporta due modalità di connessione:
+// - Se è presente process.env.DATABASE_URL => usa Postgres (pg Pool)
+// - Altrimenti mantiene il fallback su SQLite per sviluppo locale
 
-/**
- * Istanza della connessione al database SQLite
- * Utilizzata da tutti i DAO per eseguire query
- * @type {sqlite3.Database}
- */
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database ' + err.message);
-    } else {
-        console.log('Connected to the SQLite database at', dbPath);
-    }
-});
+if (process.env.DATABASE_URL) {
+    // Postgres / Railway
+    const { Pool } = require('pg');
+    const connectionString = process.env.DATABASE_URL;
 
-// Query di test per verificare la connessione (opzionale)
-// db.get("SELECT 1 as test", [], (err, row) => {
-//     if (err) console.error('Test query error:', err);
-//     else console.log('Test query success:', row);
-// });
+    // Railway Postgres spesso richiede SSL in produzione
+    const useSSL = process.env.NODE_ENV === 'production' || process.env.PGSSLMODE === 'require';
 
-// Chiusura del database quando l'applicazione termina
-// process.on('exit', () => {
-//     console.log('Closing database');
-//     db.close();
-// });
+    const pool = new Pool({
+        connectionString,
+        ssl: useSSL ? { rejectUnauthorized: false } : false
+    });
 
-/**
- * Esporta l'istanza del database per l'uso nei DAO
- * @exports db
- */
-module.exports = db;
+    console.log('[database] using Postgres via DATABASE_URL');
+
+    // Wrapper che emula l'API minima usata dal progetto (sqlite3):
+    // db.get(sql, params, cb), db.all(sql, params, cb), db.run(sql, params, cb)
+    const db = {
+        get: (sql, params, cb) => {
+            if (typeof params === 'function') { cb = params; params = []; }
+            pool.query(sql, params)
+                .then(res => cb && cb(null, res.rows && res.rows[0] ? res.rows[0] : undefined))
+                .catch(err => cb && cb(err));
+        },
+        all: (sql, params, cb) => {
+            if (typeof params === 'function') { cb = params; params = []; }
+            pool.query(sql, params)
+                .then(res => cb && cb(null, res.rows))
+                .catch(err => cb && cb(err));
+        },
+        run: (sql, params, cb) => {
+            if (typeof params === 'function') { cb = params; params = []; }
+            pool.query(sql, params)
+                .then(res => {
+                    if (cb) cb(null, { rowCount: res.rowCount, rows: res.rows });
+                })
+                .catch(err => cb && cb(err));
+        },
+        close: () => pool.end()
+    };
+
+    module.exports = db;
+
+} else {
+    // Fallback: SQLite (sviluppo locale)
+    const sqlite3 = require('sqlite3').verbose();
+
+    /**
+     * Path assoluto al file del database SQLite
+     * Il database si trova nella directory database/ alla root del progetto
+     * @type {string}
+     */
+    const dbPath = path.join(__dirname, '../../../database/database.db');
+    console.log('[database] opening sqlite db at', dbPath);
+
+    /**
+     * Istanza della connessione al database SQLite
+     * Utilizzata da tutti i DAO per eseguire query
+     * @type {sqlite3.Database}
+     */
+    const db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('Error opening database ' + err.message);
+        } else {
+            console.log('Connected to the SQLite database at', dbPath);
+        }
+    });
+
+    // Chiusura del database quando l'applicazione termina (opzionale)
+    // process.on('exit', () => {
+    //     console.log('Closing database');
+    //     db.close();
+    // });
+
+    module.exports = db;
+}
