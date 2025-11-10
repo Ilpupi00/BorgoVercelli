@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati Ricerca - Asd BorgoVercelli 2022</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/Navbar.css">
+    <link rel="stylesheet" href="/assets/styles/Search.css">
+    <link rel="stylesheet" href="/assets/styles/Footer.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <!-- Search Header -->
+    <section class="search-header bg-light text-dark py-5">
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6">
+                    <div class="text-center">
+                        <h1 class="display-4 fw-bold mb-4">
+                            <i class="fas fa-search me-3"></i>Risultati Ricerca
+                        </h1>
+                        <% if (query) { %>
+                            <p class="lead fs-5 mb-4">
+                                Risultati per: "<strong><%= query %></strong>"
+                            </p>
+                        <% } %>
+                        <div class="search-form-container">
+                            <form role="search" action="/search" method="GET" class="d-flex justify-content-center">
+                                <div class="input-group input-group-lg" style="max-width: 500px;">
+                                    <input type="text" class="form-control" id="searchQuery" placeholder="Cerca notizie, eventi, squadre, campi..." 
+                                           name="q" value="<%= query %>" aria-label="Cerca">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="search-results py-5">
+        <div class="container-fluid px-4">
+            <div id="results-container">
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4"></i>
+                        <h3 class="text-danger">Errore nella ricerca</h3>
+                        <p class="text-muted"><%= error %></p>
+                    </div>
+                <% } else if (typeof searchResults !== 'undefined' && searchResults) { %>
+                    <% if (searchResults.notizie && searchResults.notizie.length > 0) { %>
+                        <div class="results-section">
+                            <h2><i class="fas fa-newspaper me-2"></i>Notizie</h2>
+                            <div class="row">
+                                <% searchResults.notizie.forEach(notizia => { %>
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="result-card">
+                                            <div class="card-img-container">
+                                                <img src="<%= notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/images/Campo.png' %>" alt="<%= notizia.titolo %>" loading="lazy">
+                                                <div class="result-category">
+                                                    <i class="fas fa-tag me-1"></i>notizia
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%
+                                                    const escapedTitle = notizia.titolo.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
+                                                %><%- highlightedTitle %></h5>
+                                                <p class="card-text"><%
+                                                    const desc = notizia.sottotitolo || notizia.titolo || 'Nessuna descrizione';
+                                                    const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
+                                                %><%- highlightedDesc %></p>
+                                                <div class="result-meta">
+                                                    <i class="fas fa-user"></i> <%= notizia.autore || 'Redazione' %> <i class="fas fa-calendar ms-3"></i> <%= new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') %>
+                                                </div>
+                                                <a href="/notizia/<%= notizia.id %>" class="btn btn-primary btn-sm mt-3">
+                                                    <i class="fas fa-eye me-1"></i>Vedi dettagli
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (searchResults.eventi && searchResults.eventi.length > 0) { %>
+                        <div class="results-section">
+                            <h2><i class="fas fa-calendar-alt me-2"></i>Eventi</h2>
+                            <div class="row">
+                                <% searchResults.eventi.forEach(evento => { %>
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="result-card">
+                                            <div class="card-img-container">
+                                                <img src="/assets/images/Campo.png" alt="<%= evento.titolo %>" loading="lazy">
+                                                <div class="result-category">
+                                                    <i class="fas fa-tag me-1"></i>evento
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%
+                                                    const escapedTitle = evento.titolo.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
+                                                %><%- highlightedTitle %></h5>
+                                                <p class="card-text"><%
+                                                    const desc = evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Nessuna descrizione';
+                                                    const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
+                                                %><%- highlightedDesc %></p>
+                                                <div class="result-meta">
+                                                    <i class="fas fa-map-marker-alt"></i> <%= evento.luogo || 'Luogo non specificato' %> <i class="fas fa-calendar ms-3"></i> <%= new Date(evento.data_inizio).toLocaleDateString('it-IT') %>
+                                                </div>
+                                                <a href="/evento/<%= evento.id %>" class="btn btn-primary btn-sm mt-3">
+                                                    <i class="fas fa-eye me-1"></i>Vedi dettagli
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (searchResults.squadre && searchResults.squadre.length > 0) { %>
+                        <div class="results-section">
+                            <h2><i class="fas fa-users me-2"></i>Squadre</h2>
+                            <div class="row">
+                                <% searchResults.squadre.forEach(squadra => { %>
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="result-card">
+                                            <div class="card-img-container">
+                                                <img src="/assets/images/Logo.png" alt="<%= squadra.nome %>" loading="lazy">
+                                                <div class="result-category">
+                                                    <i class="fas fa-tag me-1"></i>squadra
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%
+                                                    const escapedTitle = squadra.nome.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
+                                                %><%- highlightedTitle %></h5>
+                                                <p class="card-text"><%
+                                                    const desc = 'Squadra dell\'anno ' + (squadra.Anno || 'N/A');
+                                                    const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
+                                                %><%- highlightedDesc %></p>
+                                                <div class="result-meta">
+                                                    <i class="fas fa-calendar"></i> Anno <%= squadra.Anno || 'N/A' %>
+                                                </div>
+                                                <a href="/squadre" class="btn btn-primary btn-sm mt-3">
+                                                    <i class="fas fa-eye me-1"></i>Vedi dettagli
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (searchResults.campi && searchResults.campi.length > 0) { %>
+                        <div class="results-section">
+                            <h2><i class="fas fa-map-marker-alt me-2"></i>Campi</h2>
+                            <div class="row">
+                                <% searchResults.campi.forEach(campo => { %>
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="result-card">
+                                            <div class="card-img-container">
+                                                <img src="<%= campo.immagine && campo.immagine !== '/images/campo-default.jpg' ? campo.immagine : '/images/campo-default.jpg' %>" alt="<%= campo.nome %>" loading="lazy">
+                                                <div class="result-category">
+                                                    <i class="fas fa-tag me-1"></i>campo
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%
+                                                    const escapedTitle = campo.nome.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
+                                                %><%- highlightedTitle %></h5>
+                                                <p class="card-text"><%
+                                                    const desc = campo.descrizione || campo.indirizzo || 'Nessuna descrizione';
+                                                    const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
+                                                %><%- highlightedDesc %></p>
+                                                <div class="result-meta">
+                                                    <i class="fas fa-map-marker-alt"></i> <%= campo.indirizzo || 'Indirizzo non disponibile' %>
+                                                </div>
+                                                <a href="/prenotazione" class="btn btn-primary btn-sm mt-3">
+                                                    <i class="fas fa-eye me-1"></i>Vedi dettagli
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (!searchResults.notizie.length && !searchResults.eventi.length && !searchResults.squadre.length && !searchResults.campi.length) { %>
+                        <div id="no-results" class="text-center py-5">
+                            <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                            <h3 class="text-muted">Nessun risultato trovato</h3>
+                            <p class="text-muted">Non abbiamo trovato risultati per "<strong><%= query %></strong>"</p>
+                            <p class="text-muted">Prova con termini di ricerca diversi o più generici</p>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <!-- Loading state -->
+                    <div id="loading-state" class="text-center py-5 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Caricamento...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Ricerca in corso...</p>
+                    </div>
+
+                    <!-- No results -->
+                    <div id="no-results" class="text-center py-5 d-none">
+                        <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                        <h3 class="text-muted">Nessun risultato trovato</h3>
+                        <p class="text-muted">Prova con termini di ricerca diversi</p>
+                    </div>
+
+                    <!-- Results will be loaded here by JavaScript -->
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+
+
+    <%- include('partials/footer') %>
+</body>
+</html>

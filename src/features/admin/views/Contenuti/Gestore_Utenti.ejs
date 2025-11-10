@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestore Utenti - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Contenuti_Global.css">
+    <link rel="stylesheet" href="/assets/styles/Gestore_Utenti.css">
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('../../partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <main class="col-lg-9 col-xl-10 px-4 py-5" role="main">
+                <div class="admin-container">
+
+                    <!-- Header con profilo -->
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-people-fill"></i> Gestore Utenti</h1>
+                            <p class="admin-page-subtitle">Gestisci e monitora tutti gli utenti del sistema</p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Pannello</span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <!-- Contenuto principale -->
+                    <article class="content-card fade-in">
+                        <div class="section-header">
+                            <h2 class="section-title mb-0"><i class="bi bi-list-ul me-2"></i>Tutti gli Utenti</h2>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end align-items-center mb-4">
+                            <button class="btn btn-primary" onclick="creaUtente()">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Crea Nuovo Utente
+                            </button>
+                        </div>
+
+                            <!-- Barra di ricerca -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-search"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="searchInput" placeholder="Cerca per ID, nome, cognome, email...">
+                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">
+                                                <span id="totalCount"><%= utenti ? utenti.length : 0 %></span> utenti totali
+                                                <span id="filteredCount" class="ms-3">(<%= utenti ? utenti.length : 0 %> filtrate)</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="utentiTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>Cognome</th>
+                                        <th>Email</th>
+                                        <th>Telefono</th>
+                                        <th>Tipo</th>
+                                        <th>Stato</th>
+                                        <th class="text-center">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="utentiTableBody">
+                                                    <% if (utenti && utenti.length > 0) { %>
+                                        <% utenti.forEach(utente => { %>
+                                            <tr data-utente-id="<%= utente.id %>" 
+                                                data-nome="<%= (utente.nome || '').toLowerCase() %>"
+                                                data-cognome="<%= (utente.cognome || '').toLowerCase() %>"
+                                                data-email="<%= (utente.email || '').toLowerCase() %>"
+                                                data-telefono="<%= (utente.telefono || '').toLowerCase() %>"
+                                                data-tipo="<%= utente.tipo_utente_id %>">
+                                                <td class="truncate-col maxw-120"><%= utente.id %></td>
+                                                <td class="truncate-col maxw-140"><%= utente.nome %></td>
+                                                <td class="truncate-col maxw-140"><%= utente.cognome %></td>
+                                                <td class="truncate-col maxw-220"><%= utente.email %></td>
+                                                <td class="truncate-col maxw-120"><%= utente.telefono || '-' %></td>
+                                                <td>
+                                                    <% if (utente.tipo_utente_id === 1) { %>
+                                                        <span class="badge bg-danger">Admin</span>
+                                                    <% } else if (utente.tipo_utente_id === 2) { %>
+                                                        <span class="badge bg-warning text-dark">Dirigente</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-info">Utente</span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (utente.status === 'banned') { %>
+                                                        <span class="badge bg-danger">Bannato</span>
+                                                    <% } else if (utente.status === 'suspended' && utente.suspended_until && new Date(utente.suspended_until) > new Date()) { %>
+                                                        <span class="badge bg-warning text-dark">Sospeso</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-success">Attivo</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button class="btn btn-sm btn-info" onclick="visualizzaUtente('<%= utente.id %>')" title="Visualizza">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-primary" onclick="modificaUtente('<%= utente.id %>')" title="Modifica">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <% if (utente.status === 'banned' || (utente.status === 'suspended' && utente.suspended_until && new Date(utente.suspended_until) > new Date())) { %>
+                                                            <button class="btn btn-sm btn-success" onclick="revocaSospensioneBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')" title="Revoca">
+                                                                <i class="bi bi-arrow-clockwise"></i>
+                                                            </button>
+                                                        <% } else { %>
+                                                            <button class="btn btn-sm btn-warning" onclick="mostraSospendiBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')" title="Sospendi/Banna">
+                                                                <i class="bi bi-ban"></i>
+                                                            </button>
+                                                        <% } %>
+                                                        <button class="btn btn-sm btn-danger" onclick="eliminaUtente('<%= utente.id %>')" title="Elimina">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-5">
+                                                <i class="bi bi-inbox display-3 d-block mb-3 text-secondary"></i>
+                                                <h5>Nessun utente presente</h5>
+                                                <p class="mb-3">Crea il primo utente per iniziare</p>
+                                                <button class="btn btn-primary" onclick="creaUtente()">
+                                                    <i class="bi bi-person-plus me-2"></i>Crea Utente
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3 text-muted">
+                            <strong>Totale utenti:</strong> <span id="totalCount"><%= utenti ? utenti.length : 0 %></span>
+                            <span id="filteredCount"></span>
+                        </div>
+                    </article>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Visualizza Utente -->
+    <div class="modal fade" id="visualizzaModal" tabindex="-1" aria-labelledby="visualizzaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="visualizzaModalLabel">Dettagli Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="visualizzaContent">
+                    <!-- Contenuto caricato dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crea Utente -->
+    <div class="modal fade" id="creaModal" tabindex="-1" aria-labelledby="creaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="creaModalLabel">Crea Nuovo Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="creaForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cognome" class="form-label">Cognome *</label>
+                                <input type="text" class="form-control" id="cognome" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="telefono">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_utente_id" class="form-label">Tipo Utente</label>
+                            <select class="form-select" id="tipo_utente_id">
+                                <option value="3">Utente</option>
+                                <option value="2">Dirigente</option>
+                                <option value="1">Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="salvaCrea()">Crea Utente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Utente -->
+    <div class="modal fade" id="modificaModal" tabindex="-1" aria-labelledby="modificaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modificaModalLabel">Modifica Utente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modificaForm">
+                        <input type="hidden" id="modificaId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modificaNome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="modificaNome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modificaCognome" class="form-label">Cognome *</label>
+                                <input type="text" class="form-control" id="modificaCognome" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaEmail" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="modificaEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaTelefono" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="modificaTelefono">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modificaTipo" class="form-label">Tipo Utente</label>
+                            <select class="form-select" id="modificaTipo">
+                                <option value="3">Utente</option>
+                                <option value="2">Dirigente</option>
+                                <option value="1">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="salvaModifica()">Salva Modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Sospendi/Banna Scelta -->
+    <div class="modal fade" id="sceltaSospendiBanModal" tabindex="-1" aria-labelledby="sceltaSospendiBanLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="sceltaSospendiBanLabel">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Gestione Utente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="lead mb-4">Cosa vuoi fare con l'utente <strong id="utenteNomeScelta"></strong>?</p>
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-warning btn-lg" onclick="mostraSospensione()">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Sospendi Temporaneamente
+                        </button>
+                        <button type="button" class="btn btn-danger btn-lg" onclick="mostraBan()">
+                            <i class="bi bi-ban me-2"></i>
+                            Banna Permanentemente
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Annulla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sospensione -->
+    <div class="modal fade" id="sospensioneModal" tabindex="-1" aria-labelledby="sospensioneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="sospensioneModalLabel">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Sospendi Utente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="sospensioneUtenteId">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Stai per sospendere <strong id="sospensioneUtenteNome"></strong>. L'utente riceverà una email di notifica.
+                    </div>
+                    <form id="sospensioneForm">
+                        <div class="mb-3">
+                            <label for="suspensionMotivo" class="form-label">Motivo della sospensione *</label>
+                            <textarea class="form-control" id="suspensionMotivo" rows="3" required 
+                                placeholder="Es: Violazione delle regole della community..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="suspensionDurata" class="form-label">Durata sospensione (giorni) *</label>
+                            <select class="form-select" id="suspensionDurata" required>
+                                <option value="">Seleziona durata...</option>
+                                <option value="1">1 giorno</option>
+                                <option value="3">3 giorni</option>
+                                <option value="7">7 giorni (1 settimana)</option>
+                                <option value="14">14 giorni (2 settimane)</option>
+                                <option value="30">30 giorni (1 mese)</option>
+                                <option value="90">90 giorni (3 mesi)</option>
+                                <option value="180">180 giorni (6 mesi)</option>
+                                <option value="365">365 giorni (1 anno)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="tornaScelta()">
+                        <i class="bi bi-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="confermaSubmit()">
+                        <i class="bi bi-check-circle me-2"></i>Conferma Sospensione
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ban -->
+    <div class="modal fade" id="banModal" tabindex="-1" aria-labelledby="banModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="banModalLabel">
+                        <i class="bi bi-ban me-2"></i>
+                        Banna Utente Permanentemente
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="banUtenteId">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Attenzione!</strong> Stai per bannare permanentemente <strong id="banUtenteNome"></strong>. 
+                        L'utente non potrà più accedere al sito e riceverà una email di notifica.
+                    </div>
+                    <form id="banForm">
+                        <div class="mb-3">
+                            <label for="banMotivo" class="form-label">Motivo del ban *</label>
+                            <textarea class="form-control" id="banMotivo" rows="4" required 
+                                placeholder="Es: Comportamento gravemente scorretto, violazioni ripetute..."></textarea>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            L'utente potrà richiedere lo sblocco contattando l'amministrazione via email.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="tornaScelta()">
+                        <i class="bi bi-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confermaBan()">
+                        <i class="bi bi-ban me-2"></i>Conferma Ban
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Revoca -->
+    <div class="modal fade" id="revocaModal" tabindex="-1" aria-labelledby="revocaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="revocaModalLabel">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Revoca Sospensione/Ban
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <input type="hidden" id="revocaUtenteId">
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <p class="lead mt-3">Vuoi riattivare l'account di <strong id="revocaUtenteNome"></strong>?</p>
+                    <p class="text-muted">L'utente potrà nuovamente accedere al sito e riceverà una email di notifica.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-success" onclick="confermaRevoca()">
+                        <i class="bi bi-check-circle me-2"></i>Conferma Riattivazione
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notifica -->
+    <div class="modal fade" id="notificaModal" tabindex="-1" aria-labelledby="notificaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" id="notificaHeader">
+                    <h5 class="modal-title" id="notificaModalLabel">Notifica</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="notificaBody">
+                    Messaggio di notifica
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/components/AdminSidebar.js"></script>
+    <script type="module" src="/assets/scripts/utils/showModal.js"></script>
+    <script src="/assets/scripts/components/Admin.js"></script>
+    <script src="/assets/scripts/components/Gestore_utenti.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrivi Recensione - Asd BorgoVercelli 2022</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/Navbar.css">
+    <link rel="stylesheet" href="/assets/styles/Footer.css">
+    <link rel="stylesheet" href="/assets/styles/ScriviRecensioni.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <main class="container-fluid px-4 py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="review-form-card">
+                    <div class="card-header text-center">
+                        <h1 class="h3 mb-0">Scrivi una Recensione</h1>
+                        <p class="text-muted mt-2">Condividi la tua esperienza con noi</p>
+                    </div>
+                    <div class="card-body">
+                        <% if (error) { %>
+                            <div class="alert alert-danger" role="alert">
+                                <%= error %>
+                            </div>
+                        <% } %>
+                        <form id="reviewForm">
+                            <div class="mb-4">
+                                <label for="valutazione" class="form-label fw-semibold">Valutazione</label>
+                                <div class="rating-stars" id="ratingStars">
+                                    <i class="far fa-star" data-rating="1"></i>
+                                    <i class="far fa-star" data-rating="2"></i>
+                                    <i class="far fa-star" data-rating="3"></i>
+                                    <i class="far fa-star" data-rating="4"></i>
+                                    <i class="far fa-star" data-rating="5"></i>
+                                </div>
+                                <input type="hidden" id="valutazione" name="valutazione" required>
+                                <div class="invalid-feedback">Seleziona una valutazione.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="titolo" class="form-label fw-semibold">Titolo</label>
+                                <input type="text" class="form-control" id="titolo" name="titolo" placeholder="Dai un titolo alla tua recensione" required maxlength="100">
+                                <div class="invalid-feedback">Inserisci un titolo.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="contenuto" class="form-label fw-semibold">Recensione</label>
+                                <textarea class="form-control" id="contenuto" name="contenuto" rows="5" placeholder="Descrivi la tua esperienza..." required maxlength="500"></textarea>
+                                <div class="invalid-feedback">Scrivi la tua recensione.</div>
+                                <div class="form-text text-end" id="charCount">0/500</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex align-items-start">
+                                    <input class="form-check-input me-2 mt-1" type="checkbox" id="recensione_privacy_accept" name="privacy_accept" required style="width: 20px; height: 20px; cursor: pointer;">
+                                    <label class="form-label mb-0" for="recensione_privacy_accept" style="cursor: pointer; line-height: 1.5;">
+                                        Accetto la <a href="/privacy" target="_blank" class="fw-bold text-decoration-underline">Privacy Policy</a> <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <div class="invalid-feedback" id="privacy_error_recensione" style="display: none;">
+                                    Devi accettare la Privacy Policy per inviare la recensione.
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-paper-plane me-2"></i>Invia Recensione
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script type="module">
+        import ScriviRecensione from '/assets/scripts/components/ScriviRecensione.js';
+
+        new ScriviRecensione(document.body);
+    </script>
+</body>
+</html>

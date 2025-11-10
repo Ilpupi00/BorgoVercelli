@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Campionato - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/Modifica_Campionato.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('../../partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header slide-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-pencil-square"></i> Modifica Campionato</h1>
+                            <p class="admin-page-subtitle">Modifica informazioni e gestisci squadre del campionato</p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin/campionati" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Indietro</span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <section class="content-card form-card fade-in">
+                        <form id="editChampionshipForm">
+                            <input type="hidden" id="campionatoId" value="<%= campionato.id %>">
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-info-circle me-2"></i>Informazioni Generali
+                                </h3>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="nome" name="nome" 
+                                                       value="<%= campionato.nome %>" placeholder="Nome del campionato" required>
+                                                <label for="nome">
+                                                    <i class="bi bi-trophy me-2"></i>Nome Campionato *
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="stagione" name="stagione" 
+                                                       value="<%= campionato.stagione %>" placeholder="2023-2024" required>
+                                                <label for="stagione">
+                                                    <i class="bi bi-calendar-event me-2"></i>Stagione *
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-floating">
+                                                <select class="form-select" id="categoria" name="categoria" required>
+                                                    <option value="">Seleziona categoria</option>
+                                                    <option value="Juniores" <%= campionato.categoria === 'Juniores' ? 'selected' : '' %>>Juniores</option>
+                                                    <option value="Allievi" <%= campionato.categoria === 'Allievi' ? 'selected' : '' %>>Allievi</option>
+                                                    <option value="Giovanissimi" <%= campionato.categoria === 'Giovanissimi' ? 'selected' : '' %>>Giovanissimi</option>
+                                                    <option value="Esordienti" <%= campionato.categoria === 'Esordienti' ? 'selected' : '' %>>Esordienti</option>
+                                                    <option value="Pulcini" <%= campionato.categoria === 'Pulcini' ? 'selected' : '' %>>Pulcini</option>
+                                                    <option value="Prima Squadra" <%= campionato.categoria === 'Prima Squadra' ? 'selected' : '' %>>Prima Squadra</option>
+                                                </select>
+                                                <label for="categoria">
+                                                    <i class="bi bi-tag me-2"></i>Categoria *
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check form-switch mt-4 ms-3">
+                                                <input class="form-check-input" type="checkbox" id="attivo" name="attivo" 
+                                                       <%= campionato.attivo ? 'checked' : '' %> style="width: 3rem; height: 1.5rem;">
+                                                <label class="form-check-label ms-2 fw-semibold" for="attivo">
+                                                    <i class="bi bi-toggle-on me-2"></i>Campionato attivo
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-link-45deg me-2"></i>Collegamenti Esterni
+                                </h3>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="fonte_esterna_id" name="fonte_esterna_id" 
+                                                       value="<%= campionato.fonte_esterna_id || '' %>" placeholder="ID fonte esterna">
+                                                <label for="fonte_esterna_id">
+                                                    <i class="bi bi-hash me-2"></i>ID Fonte Esterna
+                                                </label>
+                                                <div class="form-text">ID del campionato su piattaforme esterne</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-floating">
+                                                <input type="url" class="form-control" id="url_fonte" name="url_fonte" 
+                                                       value="<%= campionato.url_fonte || '' %>" placeholder="https://...">
+                                                <label for="url_fonte">
+                                                    <i class="bi bi-globe me-2"></i>URL Fonte
+                                                </label>
+                                                <div class="form-text">Link alla pagina del campionato</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-sliders me-2"></i>Configurazione Classifica
+                                </h3>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="promozione_diretta" name="promozione_diretta" 
+                                                       value="<%= campionato.promozione_diretta || 2 %>" min="0" max="10">
+                                                <label for="promozione_diretta">
+                                                    <i class="bi bi-arrow-up-circle me-2"></i>Promozione Diretta
+                                                </label>
+                                                <div class="form-text">Numero di squadre</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="playoff_start" name="playoff_start" 
+                                                       value="<%= campionato.playoff_start || 3 %>" min="1" max="20">
+                                                <label for="playoff_start">
+                                                    <i class="bi bi-arrow-up me-2"></i>Playoff - Inizio
+                                                </label>
+                                                <div class="form-text">Posizione iniziale</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="playoff_end" name="playoff_end" 
+                                                       value="<%= campionato.playoff_end || 6 %>" min="1" max="20">
+                                                <label for="playoff_end">
+                                                    <i class="bi bi-arrow-up me-2"></i>Playoff - Fine
+                                                </label>
+                                                <div class="form-text">Posizione finale</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="playout_start" name="playout_start" 
+                                                       value="<%= campionato.playout_start || 11 %>" min="1" max="20">
+                                                <label for="playout_start">
+                                                    <i class="bi bi-arrow-down me-2"></i>Playout - Inizio
+                                                </label>
+                                                <div class="form-text">Posizione iniziale</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="playout_end" name="playout_end" 
+                                                       value="<%= campionato.playout_end || 14 %>" min="1" max="20">
+                                                <label for="playout_end">
+                                                    <i class="bi bi-arrow-down me-2"></i>Playout - Fine
+                                                </label>
+                                                <div class="form-text">Posizione finale</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="retrocessione_diretta" name="retrocessione_diretta" 
+                                                       value="<%= campionato.retrocessione_diretta || 2 %>" min="0" max="10">
+                                                <label for="retrocessione_diretta">
+                                                    <i class="bi bi-arrow-down-circle me-2"></i>Retrocessione Diretta
+                                                </label>
+                                                <div class="form-text">Numero di squadre</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <!-- Sezione Gestione Squadre -->
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-people-fill me-2"></i>Gestione Squadre
+                                </h3>
+                                <div class="table-responsive">
+                                    <table class="table admin-table" id="teamTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Pos</th>
+                                                <th>Squadra</th>
+                                                <th>Punti</th>
+                                                <th>V</th>
+                                                <th>P</th>
+                                                <th>N</th>
+                                                <th>GF</th>
+                                                <th>GS</th>
+                                                <th class="text-end">Azioni</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="teamTableBody">
+                                            <!-- Le squadre verranno caricate dinamicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary mt-3" id="addTeamBtn">
+                                    <i class="bi bi-plus-circle me-2"></i>Aggiungi Squadra
+                                </button>
+                            </div>
+
+                            <div class="form-footer">
+                                <div class="form-footer-info">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        I campi contrassegnati con * sono obbligatori
+                                    </small>
+                                </div>
+                                <div class="form-footer-actions">
+                                    <a href="/admin/campionati" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-2"></i>Annulla
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Salva Modifiche
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Aggiungi Squadra -->
+    <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addTeamModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>Aggiungi Squadra al Campionato
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="squadraSelect" class="form-label">Seleziona Squadra</label>
+                        <select class="form-select" id="squadraSelect">
+                            <option value="">Scegli una squadra...</option>
+                            <% if (squadre && squadre.length > 0) { %>
+                                <% squadre.forEach(squadra => { %>
+                                    <option value="<%= squadra.nome %>"><%= squadra.nome %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="posizioneInput" class="form-label">Posizione</label>
+                            <input type="number" class="form-control" id="posizioneInput" value="1" min="1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="puntiInput" class="form-label">Punti</label>
+                            <input type="number" class="form-control" id="puntiInput" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="vinteInput" class="form-label">Vinte</label>
+                            <input type="number" class="form-control" id="vinteInput" value="0" min="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="pareggiteInput" class="form-label">Pareggiate</label>
+                            <input type="number" class="form-control" id="pareggiteInput" value="0" min="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="perseInput" class="form-label">Perse</label>
+                            <input type="number" class="form-control" id="perseInput" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="golFattiInput" class="form-label">Gol Fatti</label>
+                            <input type="number" class="form-control" id="golFattiInput" value="0" min="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="golSubitiInput" class="form-label">Gol Subiti</label>
+                            <input type="number" class="form-control" id="golSubitiInput" value="0" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddTeamBtn">
+                        <i class="bi bi-check-circle me-2"></i>Aggiungi Squadra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/components/AdminGlobal.js"></script>
+    <script src="/assets/scripts/components/Admin.js"></script>
+    <script src="/assets/scripts/components/AdminSidebar.js"></script>
+    <script src="/assets/scripts/ModificaCampionato.js"></script>
+</body>
+</html>

@@ -8,25 +8,25 @@ const morgan = require('morgan');
 const path = require('path');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
-const userDao = require('./services/dao-user');
+const userDao = require('./features/users/services/dao-user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 
 // Importa le route
-const routes = require('./routes/index');
-const routesNotizie = require('./routes/notizie');
-const routesEventi = require('./routes/routes-eventi');
-const routesRegistrazione = require('./routes/login_register');
-const routesSession = require('./routes/session');
-const routesRecensioni = require('./routes/recensioni');
-const routesSendEmail = require('./routes/email');
-const routesSquadre = require('./routes/squadre');
-const routesGalleria = require('./routes/galleria');
-const routesPrenotazione = require('./routes/prenotazione');
-const routesAdmin = require('./routes/admin');
-const routesCampionati = require('./routes/campionati');
-const routesUsers = require('./routes/users');
+const routes = require('./shared/routes/index');
+const routesNotizie = require('./features/notizie/routes/notizie');
+const routesEventi = require('./features/eventi/routes/eventi');
+const routesRegistrazione = require('./features/auth/routes/login_register');
+const routesSession = require('./shared/routes/session');
+const routesRecensioni = require('./features/recensioni/routes/recensioni');
+const routesSendEmail = require('./shared/routes/email');
+const routesSquadre = require('./features/squadre/routes/squadre');
+const routesGalleria = require('./features/galleria/routes/galleria');
+const routesPrenotazione = require('./features/prenotazioni/routes/prenotazione');
+const routesAdmin = require('./features/admin/routes/admin');
+const routesCampionati = require('./features/campionati/routes/campionati');
+const routesUsers = require('./features/users/routes/users');
 
 //configura passport
 passport.use(new LocalStrategy(
@@ -75,7 +75,7 @@ app.use(methodOverride(function (req, res) {
 // Provide a favicon to avoid 404 in browser console. Serve the logo as PNG for favicon.
 app.get('/favicon.ico', function(req, res) {
   console.log('Serving /favicon.ico -> Logo.png');
-  res.sendFile(path.join(__dirname, 'public', 'images', 'Logo.png'));
+  res.sendFile(path.join(__dirname, 'public', 'assets', 'images', 'Logo.png'));
 });
 
 // Serve i file statici dalla cartella "public"
@@ -96,11 +96,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Middleware JWT per "Ricordami"
-const { jwtAuth } = require('./middlewares/jwt');
+const { jwtAuth } = require('./core/middlewares/jwt');
 app.use(jwtAuth);
 
 // Middleware per gestione automatica prenotazioni (scadute e accettazione tacita) e sospensioni
-const daoPrenotazione = require('./services/dao-prenotazione');
+const daoPrenotazione = require('./features/prenotazioni/services/dao-prenotazione');
 let lastAutoCheck = null;
 
 app.use(async function(req, res, next) {
@@ -186,7 +186,19 @@ app.use('/src/public/uploads', (req, res, next) => {
 
 // Configura il motore di template EJS
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+// Configura multiple directory per le views
+app.set('views', [
+  path.join(__dirname, 'shared/views'),
+  path.join(__dirname, 'features/admin/views'),
+  path.join(__dirname, 'features/auth/views'),
+  path.join(__dirname, 'features/campionati/views'),
+  path.join(__dirname, 'features/eventi/views'),
+  path.join(__dirname, 'features/galleria/views'),
+  path.join(__dirname, 'features/notizie/views'),
+  path.join(__dirname, 'features/prenotazioni/views'),
+  path.join(__dirname, 'features/recensioni/views'),
+  path.join(__dirname, 'features/squadre/views')
+]);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,0 +1,90 @@
+<nav class="navbar sticky-top navbar-expand-lg bg-primary navbar-dark" id="navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/homepage">
+      <img src="/assets/images/Logo.png" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
+    </a>
+
+    <form class="d-flex me-auto mb-2 mb-lg-0 ms-4" role="search" action="/search" method="GET">
+      <div class="input-group">
+        <input class="form-control" type="search" id="searchInput" placeholder="Cerca notizie, eventi, squadre..." aria-label="Search" name="q">
+        <button class="btn btn-outline-light" type="submit">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </form>
+
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mb-3 mb-lg-0 ms-auto align-items-center">
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/homepage' ? 'active' : '' %>" href="/homepage">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/squadre' ? 'active' : '' %>" href="/squadre">Squadre</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/campionato' ? 'active' : '' %>" href="/campionato">Campionato</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/galleria' ? 'active' : '' %>" href="/galleria">Galleria</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/societa' ? 'active' : '' %>" href="/societa">Società</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/prenotazione' ? 'active' : '' %>" href="/prenotazione">Prenotazione</a>
+        </li>
+        <li class="nav-item dropdown">
+          <button class="nav-link dropdown-toggle text-align-center" id="navbarDropdownProfile" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Altro
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProfile" style="z-index: 1050;">
+            <li><a class="dropdown-item" href="/notizie/all">Notizie</a></li>
+            <li><a class="dropdown-item" href="/eventi">Eventi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/contatti">Contatti</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <form class="d-flex ms-auto mt-3 mt-lg-0">
+        <% if (typeof isLogged !== 'undefined' && isLogged) { %>
+          <a href="/profilo" class="text-light d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
+            <% if (typeof imageUrl !== 'undefined' && imageUrl) { %>
+              <img src="/<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+            <% } else { %>
+              <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
+            <% } %>
+          </a>
+        <% } else { %>
+          <a href="/login" class="btn btn-outline-light border-white d-flex align-items-center gap-2" id="Login">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Login</span>
+          </a>
+        <% } %>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Ensure dropdown visual state resets when the menu is closed
+  (function () {
+    if (typeof bootstrap === 'undefined') return;
+    document.querySelectorAll('.navbar .dropdown').forEach(function (dd) {
+      dd.addEventListener('hidden.bs.dropdown', function (e) {
+        // Remove focus from toggle button
+        var toggle = dd.querySelector('[data-bs-toggle="dropdown"]');
+        if (toggle && typeof toggle.blur === 'function') toggle.blur();
+        // Remove focus/active classes from dropdown items
+        dd.querySelectorAll('.dropdown-item').forEach(function (it) {
+          it.classList.remove('active');
+          if (it.blur) it.blur();
+        });
+      });
+    });
+  })();
+</script>

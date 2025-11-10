@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= evento ? 'Modifica Evento' : 'Crea Evento' %> - Borgo Vercelli</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/Navbar.css">
+    <link rel="stylesheet" href="/assets/styles/Footer.css">
+    <!-- Quill CSS & JS CDN -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/crea_evento.js" defer></script>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card animate__animated animate__fadeInUp">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="card-title mb-0">
+                            <i class="bi bi-<%= evento ? 'pencil' : 'plus-circle' %> me-2"></i>
+                            <%= evento ? 'Modifica Evento' : 'Crea un Nuovo Evento' %>
+                        </h1>
+                    </div>
+                    <div class="card-body">
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger animate__animated animate__shakeX" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+                            </div>
+                        <% } %>
+
+                        <form id="eventoForm" data-evento-id="<%= evento ? evento.id : '' %>">
+                            <input type="hidden" name="_method" id="_method" value="<%= evento ? 'PUT' : 'POST' %>">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="titolo" class="form-label">Titolo <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="titolo" name="titolo" placeholder="Inserisci il titolo dell'evento"
+                                               value="<%= evento ? evento.titolo : '' %>" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="tipo_evento" class="form-label">Tipo Evento</label>
+                                        <select class="form-select" id="tipo_evento" name="tipo_evento">
+                                            <option value="">Seleziona tipo</option>
+                                            <option value="Torneo" <%= evento && evento.tipo_evento === 'Torneo' ? 'selected' : '' %>>Torneo</option>
+                                            <option value="Partita" <%= evento && evento.tipo_evento === 'Partita' ? 'selected' : '' %>>Partita</option>
+                                            <option value="Allenamento" <%= evento && evento.tipo_evento === 'Allenamento' ? 'selected' : '' %>>Allenamento</option>
+                                            <option value="Evento Sociale" <%= evento && evento.tipo_evento === 'Evento Sociale' ? 'selected' : '' %>>Evento Sociale</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="data_inizio" class="form-label">Data e Ora Inizio <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" class="form-control" id="data_inizio" name="data_inizio"
+                                               value="<%= evento && evento.data_inizio ? new Date(evento.data_inizio).toISOString().slice(0, 16) : '' %>" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="data_fine" class="form-label">Data e Ora Fine</label>
+                                        <input type="datetime-local" class="form-control" id="data_fine" name="data_fine"
+                                               value="<%= evento && evento.data_fine ? new Date(evento.data_fine).toISOString().slice(0, 16) : '' %>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="luogo" class="form-label">Luogo <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="luogo" name="luogo" placeholder="Inserisci il luogo dell'evento"
+                                               value="<%= evento ? evento.luogo : '' %>" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="max_partecipanti" class="form-label">Max Partecipanti</label>
+                                        <input type="number" class="form-control" id="max_partecipanti" name="max_partecipanti" placeholder="0 = illimitato"
+                                               value="<%= evento ? evento.max_partecipanti : '' %>" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="squadra_id" class="form-label">Squadra</label>
+                                        <select class="form-select" id="squadra_id" name="squadra_id">
+                                            <option value="">Nessuna squadra</option>
+                                            <% if (squadre && squadre.length > 0) { %>
+                                                <% squadre.forEach(squadra => { %>
+                                                    <option value="<%= squadra.id %>" <%= evento && evento.squadra_id == squadra.id ? 'selected' : '' %>>
+                                                        <%= squadra.nome %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="campo_id" class="form-label">Campo</label>
+                                        <select class="form-select" id="campo_id" name="campo_id">
+                                            <option value="">Nessun campo</option>
+                                            <% if (campi && campi.length > 0) { %>
+                                                <% campi.forEach(campo => { %>
+                                                    <option value="<%= campo.id %>" <%= evento && evento.campo_id == campo.id ? 'selected' : '' %>>
+                                                        <%= campo.nome %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="descrizione" class="form-label">Descrizione</label>
+                                <div id="editor-container" style="height: 200px;" data-initial-content="<%= evento ? evento.descrizione.replace(/\"/g, '&quot;').replace(/\'/g, '&#39;') : '' %>">
+                                </div>
+                                <textarea name="descrizione" id="descrizione" style="display: none;"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="pubblicato" name="pubblicato" value="true"
+                                           <%= evento && evento.pubblicato ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="pubblicato">
+                                        Pubblica immediatamente
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="<%= user.tipo_utente_id === 1 ? '/admin/notizie' : '/profilo' %>" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Annulla
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-<%= evento ? 'check' : 'plus-circle' %> me-2"></i>
+                                    <%= evento ? 'Salva Modifiche' : 'Crea Evento' %>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+</body>
+</html>
