@@ -1,4 +1,10 @@
-[dotenv@17.2.3] injecting env (4) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
-routesGalleria loaded: function
+
+> sito-borgovercelli@0.0.0 start
+> node ./src/bin/www
+
+[dotenv@17.2.3] injecting env (4) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[database] opening sqlite db at /workspaces/Sito_BorgoVercelli/database/database.db
 Server is running on http://localhost:3000
-Connected to the SQLite database.
+Connected to the SQLite database at /workspaces/Sito_BorgoVercelli/database/database.db
+Test query success: { test: 1 }
+DELETE /prenotazione/prenotazioni/scadute 200 28 - 10.591 ms

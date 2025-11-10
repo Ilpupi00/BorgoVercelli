@@ -255,46 +255,32 @@ exports.deletePrenotazione = async (id) => {
 }
 
 exports.checkAndUpdateScadute = async () => {
-    const now = new Date();
-    const currentDate = now.toISOString().slice(0, 10);
-    const currentTime = now.toTimeString().slice(0, 5); // HH:MM
+    // Use SQLite datetime comparison to avoid timezone/format issues and be
+    // tolerant to small variations in the stored `stato` (trim + lowercase).
+    // Build a datetime string from data_prenotazione and ora_fine (add seconds
+    // if missing) and compare with the current DB datetime.
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM PRENOTAZIONI WHERE stato = 'confermata' AND (data_prenotazione < ? OR (data_prenotazione = ? AND ora_fine <= ?))`, [currentDate, currentDate, currentTime], (err, rows) => {
+        const updateSql = `
+            UPDATE PRENOTAZIONI
+            SET stato = 'scaduta', updated_at = datetime('now')
+            WHERE lower(trim(coalesce(stato, ''))) = 'confermata'
+              AND datetime(data_prenotazione || ' ' || substr( (ora_fine || ':00'), 1, 8)) <= datetime('now')
+        `;
+        db.run(updateSql, [], function (err) {
             if (err) return reject(err);
-            const ids = rows.map(row => row.id);
-            if (ids.length > 0) {
-                db.run(`UPDATE PRENOTAZIONI SET stato = 'scaduta', updated_at = datetime('now') WHERE id IN (${ids.map(() => '?').join(',')})`, ids, function (err) {
-                    if (err) return reject(err);
-                    resolve({ success: true, updated: this.changes });
-                });
-            } else {
-                resolve({ success: true, updated: 0 });
-            }
+            resolve({ success: true, updated: this.changes });
         });
     });
 }
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
-        console.log('[DAO] deleteScadute: starting...');
-        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err, before) => {
+        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err) {
             if (err) {
-                console.error('[DAO] deleteScadute: count before error', err);
+                console.error('[DAO] deleteScadute: delete error', err);
                 return reject(err);
             }
-            const toDelete = before && before.cnt ? before.cnt : 0;
-            console.log('[DAO] deleteScadute: found', toDelete, 'scadute to delete');
-            if (toDelete === 0) return resolve({ success: true, deleted: 0 });
-            
-            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
-                if (err) {
-                    console.error('[DAO] deleteScadute: delete error', err);
-                    return reject(err);
-                }
-                console.log('[DAO] deleteScadute: deleted', this.changes, 'rows');
-                // Return the count we measured before the delete as the number deleted
-                resolve({ success: true, deleted: toDelete, actualChanges: this.changes });
-            });
+            resolve({ success: true, deleted: this.changes });
         });
     });
 }

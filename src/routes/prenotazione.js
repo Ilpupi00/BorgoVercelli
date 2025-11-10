@@ -104,7 +104,7 @@ router.post('/prenotazioni/check-scadute', async (req, res) => {
 // 9. Elimina tutte le scadute
 router.delete('/prenotazioni/scadute', async (req, res) => {
     try {
-        console.log('[route prenotazioni] DELETE /prenotazioni/scadute invoked');
+        console.error('[route prenotazioni] DELETE /prenotazioni/scadute invoked');
         // Prima di cancellare, assicurati di marcare come 'scaduta' tutte le prenotazioni già passate
         try {
             await daoPrenotazione.checkAndUpdateScadute();
@@ -113,8 +113,9 @@ router.delete('/prenotazioni/scadute', async (req, res) => {
             console.error('Errore durante il check delle scadute prima della cancellazione:', e);
         }
         
+        console.error('[route prenotazioni] calling dao.deleteScadute');
         const result = await daoPrenotazione.deleteScadute();
-        console.log('[route prenotazioni] deleteScadute dao result:', result);
+        console.error(`[route prenotazioni] deleteScadute dao result: ${JSON.stringify(result)}`);
         res.json(result);
     } catch (err) {
         console.error('[route prenotazioni] Error in DELETE /prenotazioni/scadute:', err);
