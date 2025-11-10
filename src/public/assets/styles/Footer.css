@@ -246,6 +246,12 @@ footer#footer .bi-twitter-x:hover {
   text-shadow: 0 0 10px #1DA1F2;
 }
 
+/* GitHub icon hover: use GitHub dark color and subtle glow */
+footer#footer .bi-github:hover {
+  color: #111 !important;
+  text-shadow: 0 0 10px rgba(17,17,17,0.6);
+}
+
 footer#footer .row {
   display: flex;
   flex-direction: column;

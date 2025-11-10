@@ -16,37 +16,37 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/notizie">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/notizie')) ? 'active' : '' %>" href="/admin/notizie">
                         📰
                         Gestisci Notizie
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/eventi">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/eventi')) ? 'active' : '' %>" href="/admin/eventi">
                         📅
                         Gestisci Eventi
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/galleria">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/galleria')) ? 'active' : '' %>" href="/admin/galleria">
                         🖼️
                         Gestisci Galleria
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/squadre">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/squadre')) ? 'active' : '' %>" href="/admin/squadre">
                         👥
                         Gestisci Squadre
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/campi">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/campi')) ? 'active' : '' %>" href="/admin/campi">
                         ⚽
                         Gestisci Campi
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/campionati">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/campionati')) ? 'active' : '' %>" href="/admin/campionati">
                         🏆
                         Gestisci Campionati
                     </a>
@@ -60,13 +60,13 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/utenti">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/utenti')) ? 'active' : '' %>" href="/admin/utenti">
                         👤
-                        Visualizza Utenti
+                        Gestore Utenti
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/recensioni">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/recensioni')) ? 'active' : '' %>" href="/admin/recensioni">
                         ⭐
                         Gestisci Recensioni
                     </a>
@@ -80,19 +80,19 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/prenotazioni">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/prenotazioni')) ? 'active' : '' %>" href="/admin/prenotazioni">
                         📋
                         Prenotazioni
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu" href="/admin/statistiche">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/statistiche')) ? 'active' : '' %>" href="/admin/statistiche">
                         📊
                         Statistiche
                     </a>
                 </li>
                 <li class="nav-item mt-3">
-                    <a class="nav-link text-warning site-link" href="/Homepage">
+                    <a class="nav-link text-warning site-link <%= (currentPath && currentPath.toLowerCase().startsWith('/homepage')) ? 'active' : '' %>" href="/Homepage">
                         🏠
                         Torna al Sito
                     </a>
