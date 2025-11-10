@@ -266,23 +266,46 @@ exports.checkAndUpdateScadute = async () => {
             WHERE lower(trim(coalesce(stato, ''))) = 'confermata'
               AND datetime(data_prenotazione || ' ' || substr( (ora_fine || ':00'), 1, 8)) <= datetime('now')
         `;
-        db.run(updateSql, [], function (err) {
-            if (err) return reject(err);
-            resolve({ success: true, updated: this.changes });
+
+        // Log current state before update
+        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE lower(trim(coalesce(stato, ''))) = 'confermata' AND datetime(data_prenotazione || ' ' || substr( (ora_fine || ':00'), 1, 8)) <= datetime('now')`, [], (errBefore, rowBefore) => {
+            const beforeCount = (rowBefore && rowBefore.cnt) || 0;
+            console.error(`[DAO:${process.pid}] checkAndUpdateScadute - will update approx ${beforeCount} rows`);
+
+            db.run(updateSql, [], function (err) {
+                if (err) {
+                    console.error(`[DAO:${process.pid}] checkAndUpdateScadute - ERROR:`, err);
+                    return reject(err);
+                }
+                console.error(`[DAO:${process.pid}] checkAndUpdateScadute - updated ${this.changes} rows`);
+                resolve({ success: true, updated: this.changes });
+            });
         });
     });
 }
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err) {
-            if (err) {
-                console.error('[DAO] deleteScadute: delete error', err);
-                return reject(err);
-            }
-            // normalize response: include both `deleted` and `changes` so callers
-            // and older front-ends can read either property.
-            resolve({ success: true, deleted: this.changes, changes: this.changes });
+        // Log count before delete
+        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (errBefore, rowBefore) => {
+            const before = (rowBefore && rowBefore.cnt) || 0;
+            console.error(`[DAO:${process.pid}] deleteScadute - count before delete: ${before}`);
+
+            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err) {
+                if (err) {
+                    console.error(`[DAO:${process.pid}] deleteScadute: delete error`, err);
+                    return reject(err);
+                }
+                const deleted = this.changes || 0;
+                console.error(`[DAO:${process.pid}] deleteScadute - deleted ${deleted} rows`);
+
+                // Log count after delete
+                db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (errAfter, rowAfter) => {
+                    const after = (rowAfter && rowAfter.cnt) || 0;
+                    console.error(`[DAO:${process.pid}] deleteScadute - count after delete: ${after}`);
+                    resolve({ success: true, deleted: deleted, changes: deleted });
+                });
+            });
         });
     });
 }
