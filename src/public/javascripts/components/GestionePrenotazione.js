@@ -362,7 +362,7 @@ class GestionePrenotazione {
                 
                 if (result && result.success) {
                     // Gestisce sia 'deleted' che 'actualChanges' per compatibilità
-                    const deletedCount = result.deleted || result.actualChanges || result.countBefore || 0;
+                    const deletedCount = result.deleted || result.actualChanges || result.changes || result.countBefore || 0;
                     if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
                         window.ShowModal.showModalSuccess('Eliminazione completata', `Eliminate ${deletedCount} prenotazioni scadute`);
                     } else {
@@ -392,7 +392,8 @@ class GestionePrenotazione {
                     const response = await fetch('/prenotazione/prenotazioni/scadute', { method: 'DELETE' });
                     const result = await response.json();
                     if (result.success) {
-                        alert(`Eliminate ${result.deleted} prenotazioni scadute`);
+                        const deletedCount = result.deleted || result.actualChanges || result.changes || result.countBefore || 0;
+                        alert(`Eliminate ${deletedCount} prenotazioni scadute`);
                         this.refreshTable();
                     }
                 } catch (error) {
