@@ -16,11 +16,21 @@ CREATE TABLE UTENTI (
     nome VARCHAR(255) NOT NULL,
     cognome VARCHAR(255) NOT NULL,
     telefono VARCHAR(255),
+    ruolo_preferito VARCHAR(255),
+    piede_preferito VARCHAR(255),
     tipo_utente_id INTEGER,
     data_registrazione TIMESTAMP,
+    reset_token VARCHAR(255),
+    reset_expires TIMESTAMP,
+    stato VARCHAR(255),
+    motivo_sospensione TEXT,
+    data_inizio_sospensione TIMESTAMP,
+    data_fine_sospensione TIMESTAMP,
+    admin_sospensione_id INTEGER,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    FOREIGN KEY (tipo_utente_id) REFERENCES TIPI_UTENTE(id)
+    FOREIGN KEY (tipo_utente_id) REFERENCES TIPI_UTENTE(id),
+    FOREIGN KEY (admin_sospensione_id) REFERENCES UTENTI(id)
 );
 
 CREATE TABLE SQUADRE (
