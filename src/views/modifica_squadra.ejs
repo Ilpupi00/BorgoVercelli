@@ -194,7 +194,15 @@
                                 <div id="dirigentiList" class="row g-4">
                                     <% squadra.dirigenti.forEach((dirigente, index) => { %>
                                         <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                                            <div class="card h-100 hover-lift animate__animated animate__fadeInUp">
+                                            <div class="card h-100 hover-lift animate__animated animate__fadeInUp manager-card" 
+                                                data-manager-id="<%= dirigente.id %>"
+                                                data-utente-id="<%= dirigente.utente_id %>"
+                                                data-nome="<%= dirigente.nome %>"
+                                                data-cognome="<%= dirigente.cognome %>"
+                                                data-ruolo="<%= dirigente.ruolo %>"
+                                                data-data-nomina="<%= dirigente.data_nomina || '' %>"
+                                                data-data-scadenza="<%= dirigente.data_scadenza || '' %>"
+                                                data-img="<%= dirigente.immagine ? dirigente.immagine.url : '' %>">
                                                 <div class="card-body text-center p-4">
                                                     <div class="position-relative mb-3">
                                                         <% if (dirigente.immagine) { %>
@@ -489,6 +497,7 @@
         </div>
     </div>
 
+    <script src="/javascripts/utils/showModal.js"></script>
     <script src="/javascripts/modifica_squadra.js"></script>
     <script>
         window.userType = <%= user.tipo_utente_id %>;

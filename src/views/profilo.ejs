@@ -117,6 +117,9 @@
                         <button class="btn btn-outline-primary w-100 mb-2" onclick="modificaPreferenze()">
                             <i class="bi bi-pencil me-2"></i>Modifica Profilo
                         </button>
+                        <a href="/users/mie-prenotazioni" class="btn btn-outline-info w-100 mb-2">
+                            <i class="bi bi-calendar-check me-2"></i>Le Mie Prenotazioni
+                        </a>
                         <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
                             <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
                         </a>
@@ -303,7 +306,7 @@
                         <div class="row justify-content-center align-center">
                           <div class="col-md-6 text-center text-white mt-3 gestione_bottone">
                             <% if (dirigente && dirigente.squadra_id) { %>
-                              <a href="/squadra/gestione/<%= dirigente.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
+                              <a href="/squadre/gestione/<%= dirigente.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
                             <% } else { %>
                               <span class="text-muted">Nessuna squadra assegnata</span>
                             <% } %>

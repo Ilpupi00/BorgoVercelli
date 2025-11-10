@@ -44,10 +44,6 @@
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownProfile" style="z-index: 1050;">
             <li><a class="dropdown-item" href="/notizie/all">Notizie</a></li>
             <li><a class="dropdown-item" href="/eventi">Eventi</a></li>
-            <% if (typeof isLogged !== 'undefined' && isLogged && typeof user !== 'undefined' && user && user.tipo_utente_id === 2) { %>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/mie-squadre">Gestione Squadra</a></li>
-            <% } %>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="/contatti">Contatti</a></li>
           </ul>

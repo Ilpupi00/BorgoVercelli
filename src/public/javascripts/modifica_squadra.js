@@ -344,9 +344,12 @@ class PlayerManager {
     }
 
     async removePlayer(playerId) {
-        if (!confirm('Sei sicuro di voler rimuovere questo giocatore dalla squadra?')) {
-            return;
-        }
+        // usa il modal custom se disponibile, altrimenti fallback a confirm()
+        const ok = window.ShowModal
+            ? await ShowModal.modalDelete('Sei sicuro di voler rimuovere questo giocatore dalla squadra? Questa operazione è irreversibile.', 'Conferma eliminazione')
+            : confirm('Sei sicuro di voler rimuovere questo giocatore dalla squadra?');
+
+        if (!ok) return;
 
         this.loadingManager.show();
 
@@ -361,7 +364,8 @@ class PlayerManager {
 
             if (response.ok && result.success) {
                 this.notificationManager.showSuccess('Giocatore rimosso con successo!');
-                document.querySelector(`[data-player-id="${playerId}"]`).remove();
+                const el = document.querySelector(`[data-player-id="${playerId}"]`);
+                if (el) el.remove();
             } else {
                 throw new Error(result.error || 'Errore durante la rimozione del giocatore');
             }
@@ -415,7 +419,15 @@ class PlayerManager {
         const playerId = this.playerIdInput && this.playerIdInput.value ? this.playerIdInput.value : null;
         if (!playerId) return;
 
-        if (!confirm('Sei sicuro di voler eliminare questo giocatore?')) return;
+        // Usa il modal custom se disponibile, altrimenti fallback a confirm()
+        const ok = window.ShowModal
+            ? await ShowModal.modalDelete('Sei sicuro di voler eliminare questo giocatore?', 'Conferma eliminazione')
+            : confirm('Sei sicuro di voler eliminare questo giocatore?');
+
+        if (!ok) return;
+
+        // Chiudi immediatamente il modal del giocatore per dare feedback all'utente
+        if (this.playerModal) this.playerModal.hide();
 
         this.loadingManager.show();
         try {
@@ -471,6 +483,10 @@ class ManagerManager {
         const salvaDirigenteBtn = document.getElementById('salvaDirigente');
         if (salvaDirigenteBtn) {
             salvaDirigenteBtn.addEventListener('click', () => this.addManager());
+        }
+        const deleteDirigenteBtn = document.getElementById('eliminaDirigente');
+        if (deleteDirigenteBtn) {
+            deleteDirigenteBtn.addEventListener('click', () => this.deleteManagerFromModal());
         }
         const nuovoDirigenteBtn = document.getElementById('nuovoDirigenteBtn');
         if (nuovoDirigenteBtn) {
@@ -565,8 +581,16 @@ class ManagerManager {
             if (parentWithId) managerId = parentWithId.dataset.id || parentWithId.dataset.managerId || null;
         }
 
+        // If the clicked button is a modify/edit button, call openEditModal
+        if (target.classList.contains('modifica-dirigente') || target.classList.contains('edit-manager')) {
+            if (!managerId) {
+                console.warn('editManager: managerId not found for target', target);
+                return;
+            }
+            this.openEditModal(managerId);
+        }
         // If the clicked button is a remove/delete button (supporting different class names), call remove
-        if (target.classList.contains('remove-manager-btn') || target.classList.contains('elimina-dirigente') || target.classList.contains('remove-manager') ) {
+        else if (target.classList.contains('remove-manager-btn') || target.classList.contains('elimina-dirigente') || target.classList.contains('remove-manager') ) {
             if (!managerId) {
                 console.warn('removeManager: managerId not found for target', target);
                 return;
@@ -668,6 +692,63 @@ class ManagerManager {
         document.getElementById('salvaDirigente').disabled = false;
     }
 
+    openEditModal(managerId) {
+        // Get manager card data from data-attributes
+        const managerCard = document.querySelector(`[data-manager-id="${managerId}"]`);
+        if (!managerCard) {
+            console.warn('Manager card not found for id:', managerId);
+            return;
+        }
+
+        const nome = managerCard.dataset.nome || '';
+        const cognome = managerCard.dataset.cognome || '';
+        const ruolo = managerCard.dataset.ruolo || '';
+        const dataNomina = managerCard.dataset.dataNomina || '';
+        const dataScadenza = managerCard.dataset.dataScadenza || '';
+        const utenteId = managerCard.dataset.utenteId || '';
+
+        // Populate the form fields
+        this.selectedUserId = utenteId;
+        if (this.managerSearch) {
+            this.managerSearch.value = `${nome} ${cognome}`;
+            this.managerSearch.disabled = true;
+        }
+        
+        const ruoloSelect = document.getElementById('dirigenteRuolo');
+        if (ruoloSelect) ruoloSelect.value = ruolo;
+        
+        const nominaInput = document.getElementById('dataNomina');
+        if (nominaInput) nominaInput.value = dataNomina;
+        
+        const scadenzaInput = document.getElementById('dataScadenza');
+        if (scadenzaInput) scadenzaInput.value = dataScadenza;
+
+        const sel = document.getElementById('selectedUtenteId');
+        if (sel) sel.value = utenteId;
+
+        // Store the managerId for update
+        const dirigenteIdInput = document.getElementById('dirigenteId');
+        if (dirigenteIdInput) dirigenteIdInput.value = managerId;
+
+        // Enable save button and show delete button
+        const salvaBtn = document.getElementById('salvaDirigente');
+        if (salvaBtn) {
+            salvaBtn.disabled = false;
+            salvaBtn.textContent = 'Aggiorna Dirigente';
+            salvaBtn.innerHTML = '<i class="fas fa-save"></i> Aggiorna Dirigente';
+        }
+
+        const deleteBtn = document.getElementById('eliminaDirigente');
+        if (deleteBtn) deleteBtn.style.display = 'inline-block';
+
+        // Change modal title
+        const modalTitle = document.getElementById('modalDirigenteTitle');
+        if (modalTitle) modalTitle.textContent = 'Modifica Dirigente';
+
+        // Show the modal
+        if (this.addManagerModal) this.addManagerModal.show();
+    }
+
     async addManager() {
         if (!this.selectedUserId) {
             this.notificationManager.showError('Seleziona un utente prima di aggiungere');
@@ -680,11 +761,18 @@ class ManagerManager {
             return;
         }
 
+        const dirigenteIdInput = document.getElementById('dirigenteId');
+        const managerId = dirigenteIdInput ? dirigenteIdInput.value : null;
+        const isUpdate = !!managerId;
+
         this.loadingManager.show();
 
         try {
-            const response = await fetch(`/squadre/${this.teamId}/dirigenti`, {
-                method: 'POST',
+            const url = isUpdate ? `/squadre/${this.teamId}/dirigenti/${managerId}` : `/squadre/${this.teamId}/dirigenti`;
+            const method = isUpdate ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -701,16 +789,17 @@ class ManagerManager {
             const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
 
             if (response.ok && result.success) {
-                this.notificationManager.showSuccess('Dirigente aggiunto con successo!');
+                const msg = isUpdate ? 'Dirigente aggiornato con successo!' : 'Dirigente aggiunto con successo!';
+                this.notificationManager.showSuccess(msg);
                 if (this.addManagerModal) this.addManagerModal.hide();
                 this.resetManagerForm();
                 setTimeout(() => location.reload(), 1500);
             } else {
-                throw new Error(result.error || 'Errore durante l\'aggiunta del dirigente');
+                throw new Error(result.error || `Errore durante ${isUpdate ? 'l\'aggiornamento' : 'l\'aggiunta'} del dirigente`);
             }
         } catch (error) {
             console.error('Errore:', error);
-            this.notificationManager.showError(error.message || 'Errore durante l\'aggiunta del dirigente');
+            this.notificationManager.showError(error.message || `Errore durante ${isUpdate ? 'l\'aggiornamento' : 'l\'aggiunta'} del dirigente`);
             if (this.addManagerModal) this.addManagerModal.hide();
         } finally {
             this.loadingManager.hide();
@@ -724,7 +813,22 @@ class ManagerManager {
         document.getElementById('dirigenteRuolo').value = '';
         document.getElementById('dataNomina').value = '';
         document.getElementById('dataScadenza').value = '';
-        document.getElementById('salvaDirigente').disabled = true;
+        
+        const salvaBtn = document.getElementById('salvaDirigente');
+        if (salvaBtn) {
+            salvaBtn.disabled = true;
+            salvaBtn.innerHTML = '<i class="fas fa-save"></i> Salva Dirigente';
+        }
+        
+        const deleteBtn = document.getElementById('eliminaDirigente');
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        
+        const dirigenteIdInput = document.getElementById('dirigenteId');
+        if (dirigenteIdInput) dirigenteIdInput.value = '';
+        
+        const modalTitle = document.getElementById('modalDirigenteTitle');
+        if (modalTitle) modalTitle.textContent = 'Aggiungi / Modifica Dirigente';
+        
         const sel = document.getElementById('selectedUtenteId');
         if (sel) sel.value = '';
     }
@@ -832,6 +936,49 @@ class ManagerManager {
                 }
             }
         });
+    }
+
+    async deleteManagerFromModal() {
+        const dirigenteIdInput = document.getElementById('dirigenteId');
+        const managerId = dirigenteIdInput ? dirigenteIdInput.value : null;
+        if (!managerId) {
+            this.notificationManager.showError('Nessun dirigente selezionato');
+            return;
+        }
+
+        // Usa il modal custom se disponibile, altrimenti fallback a confirm()
+        const ok = window.ShowModal
+            ? await ShowModal.modalDelete('Sei sicuro di voler eliminare questo dirigente?', 'Conferma eliminazione')
+            : confirm('Sei sicuro di voler eliminare questo dirigente?');
+
+        if (!ok) return;
+
+        // Chiudi immediatamente il modal del dirigente per dare feedback all'utente
+        if (this.addManagerModal) this.addManagerModal.hide();
+
+        this.loadingManager.show();
+        try {
+            const response = await fetch(`/squadre/${this.teamId}/dirigenti/${managerId}`, { 
+                method: 'DELETE', 
+                credentials: 'same-origin' 
+            });
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json') ? await response.json() : { success: false, error: await response.text() };
+
+            if (response.ok && result.success) {
+                this.notificationManager.showSuccess('Dirigente eliminato con successo');
+                const el = document.querySelector(`[data-manager-id="${managerId}"]`);
+                if (el) el.remove();
+                this.resetManagerForm();
+            } else {
+                throw new Error(result.error || 'Errore durante l\'eliminazione');
+            }
+        } catch (err) {
+            console.error(err);
+            this.notificationManager.showError(err.message || 'Errore durante l\'eliminazione del dirigente');
+        } finally {
+            this.loadingManager.hide();
+        }
     }
 }
 

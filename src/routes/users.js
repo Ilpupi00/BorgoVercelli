@@ -3,11 +3,6 @@ var router = express.Router();
 const daoUser = require('../services/dao-user');
 const { isLoggedIn } = require('../middlewares/auth');
 
-/* GET users listing. */
-router.get('/homepage', function(req, res, next) {
-  res.send('Welcome to the Homepage');
-});
-
 // PUT /update - Update user profile
 router.put('/update', isLoggedIn, async (req, res) => {
   try {
@@ -27,6 +22,18 @@ router.put('/update', isLoggedIn, async (req, res) => {
   } catch (error) {
     console.error('Errore aggiornamento profilo:', error);
     res.status(500).json({ success: false, error: 'Errore nell\'aggiornamento del profilo' });
+  }
+});
+
+// GET /mie-prenotazioni - View user's bookings page
+router.get('/mie-prenotazioni', isLoggedIn, async (req, res) => {
+  try {
+    res.render('mie_prenotazioni', {
+      user: req.user
+    });
+  } catch (error) {
+    console.error('Errore caricamento pagina prenotazioni:', error);
+    res.status(500).render('error', { message: 'Errore nel caricamento della pagina' });
   }
 });
 

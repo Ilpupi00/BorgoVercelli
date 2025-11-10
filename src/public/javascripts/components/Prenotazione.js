@@ -1,4 +1,3 @@
-import showModal from '../utils/showModal.js';
 import { setupEmailFormListener } from './send_email.js';
 
 class Prenotazione {
@@ -120,7 +119,9 @@ class Prenotazione {
                         body: JSON.stringify({ ...datiPrenotazione, utente_id: utenteId })
                     });
                     if (res.status === 401) {
-                        showModal.showLoginRequiredModal('Devi essere loggato per prenotare');
+                        if (window.ShowModal && typeof window.ShowModal.showLoginRequiredModal === 'function') {
+                            window.ShowModal.showLoginRequiredModal('Devi essere loggato per prenotare');
+                        }
                         return;
                     }
                     if (!res.ok) {
@@ -129,20 +130,28 @@ class Prenotazione {
                             const errJson = await res.json();
                             msg = errJson.error || msg;
                         } catch(e) {}
-                        showModal.showModalError(msg,'Errore nella prenotazione');
+                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                            window.ShowModal.showModalError(msg, 'Errore nella prenotazione');
+                        }
                         return;
                     }
                     const result = await res.json();
                     if (result && result.success) {
-                        showModal.showModalSuccess('Prenotazione avvenuta con successo');
+                        if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
+                            window.ShowModal.showModalSuccess('Prenotazione avvenuta con successo');
+                        }
                         // Update orari after booking
                         const data = this.page.querySelector(`.input-orari-campo[data-campo-id='${campoId}']`)?.value || new Date().toISOString().slice(0,10);
                         await this.updateOrariDisponibili(campoId, data);
                     } else {
-                        showModal.showModalError(result.error || 'Errore nella prenotazione');
+                        if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                            window.ShowModal.showModalError(result.error || 'Errore nella prenotazione');
+                        }
                     }
                 } catch (err) {
-                    showModal.showModalError('Errore di rete nella prenotazione');
+                    if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                        window.ShowModal.showModalError('Errore di rete nella prenotazione');
+                    }
                 }
             });
         } catch (e) {

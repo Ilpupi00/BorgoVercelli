@@ -8,15 +8,18 @@
 .campo-img {
   overflow: hidden;
   border-radius: 16px;
-  height: 100%;
+  height: 400px; /* Altezza fissa per uniformità */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .campo-img img {
   transition: transform 0.3s ease;
-  object-fit: cover;
+  object-fit: cover; /* Mantiene le proporzioni coprendo l'area */
+  width: 100%;
   height: 100%;
-  min-height: 200px;
+  min-height: 400px;
+  max-height: 400px;
 }
 .campo-overlay {
   position: absolute;
@@ -205,4 +208,27 @@
 
 .btn-cancel:hover::before {
   left: 100%;
+}
+
+/* Responsive: dimensioni immagini per dispositivi mobili */
+@media (max-width: 768px) {
+  .campo-img {
+    height: 300px;
+  }
+  
+  .campo-img img {
+    min-height: 300px;
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .campo-img {
+    height: 250px;
+  }
+  
+  .campo-img img {
+    min-height: 250px;
+    max-height: 250px;
+  }
 }

@@ -189,16 +189,12 @@ class Galleria{
                 const imageUrl = button.dataset.imageUrl;
                 const imageAlt = button.dataset.imageAlt;
 
-                // Apri modal con l'immagine
-                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-                const modalImage = document.getElementById('modalImage');
-                const modalDescription = document.getElementById('modalDescription');
-
-                modalImage.src = imageUrl;
-                modalImage.alt = imageAlt;
-                modalDescription.textContent = imageAlt;
-
-                modal.show();
+                // Cambia l'immagine nell'header
+                const headerImage = this.page.querySelector('.centered-image');
+                if (headerImage) {
+                    headerImage.src = imageUrl;
+                    headerImage.alt = imageAlt;
+                }
             });
         });
     }

@@ -165,7 +165,8 @@ exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazio
         db.get(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ? AND ora_inizio = ? AND ora_fine = ?`, [campo_id, dataNorm, ora_inizio, ora_fine], (err, row) => {
             if (err) return reject(err);
             if (row) return resolve({ error: 'Orario già prenotato' });
-            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confermata', datetime('now'), datetime('now'))`,
+            // Nuove prenotazioni iniziano con stato 'in_attesa' e devono essere accettate dall'admin
+            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', datetime('now'), datetime('now'))`,
                 [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null], function (err) {
                     if (err) return reject(err);
                     resolve({ success: true, id: this.lastID });
@@ -221,8 +222,13 @@ exports.getPrenotazioneById = async (id) => {
 
 exports.updateStatoPrenotazione = async (id, stato) => {
     return new Promise((resolve, reject) => {
+        console.log(`[DAO] updateStatoPrenotazione: id=${id}, stato=${stato}`);
         db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = datetime('now') WHERE id = ?`, [stato, id], function (err) {
-            if (err) return reject(err);
+            if (err) {
+                console.error('[DAO] updateStatoPrenotazione: error', err);
+                return reject(err);
+            }
+            console.log(`[DAO] updateStatoPrenotazione: changes=${this.changes}`);
             resolve({ success: true, changes: this.changes });
         });
     });
@@ -270,20 +276,86 @@ exports.checkAndUpdateScadute = async () => {
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
+        console.log('[DAO] deleteScadute: starting...');
         db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err, before) => {
             if (err) {
-                console.error('deleteScadute: count before error', err);
+                console.error('[DAO] deleteScadute: count before error', err);
                 return reject(err);
             }
             const toDelete = before && before.cnt ? before.cnt : 0;
+            console.log('[DAO] deleteScadute: found', toDelete, 'scadute to delete');
             if (toDelete === 0) return resolve({ success: true, deleted: 0 });
+            
             db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
                 if (err) {
-                    console.error('deleteScadute: delete error', err);
+                    console.error('[DAO] deleteScadute: delete error', err);
                     return reject(err);
                 }
+                console.log('[DAO] deleteScadute: deleted', this.changes, 'rows');
                 // Return the count we measured before the delete as the number deleted
-                resolve({ success: true, deleted: toDelete });
+                resolve({ success: true, deleted: toDelete, actualChanges: this.changes });
+            });
+        });
+    });
+}
+
+exports.getPrenotazioniByUserId = async (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT p.*, 
+                   c.nome as campo_nome,
+                   u.nome as utente_nome, u.cognome as utente_cognome,
+                   s.nome as squadra_nome
+            FROM PRENOTAZIONI p
+            LEFT JOIN CAMPI c ON p.campo_id = c.id
+            LEFT JOIN UTENTI u ON p.utente_id = u.id
+            LEFT JOIN SQUADRE s ON p.squadra_id = s.id
+            WHERE p.utente_id = ?
+            ORDER BY p.data_prenotazione DESC, p.ora_inizio DESC
+        `;
+        db.all(sql, [userId], (err, prenotazioni) => {
+            if (err) {
+                return reject({ error: 'Error retrieving user prenotazioni: ' + err.message });
+            }
+            resolve(prenotazioni || []);
+        });
+    });
+}
+
+// Accetta automaticamente le prenotazioni in attesa da più di 3 giorni (tacito consenso)
+exports.autoAcceptPendingBookings = async () => {
+    return new Promise((resolve, reject) => {
+        // Calcola la data di 3 giorni fa
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+        const threeDaysAgoStr = threeDaysAgo.toISOString().slice(0, 19).replace('T', ' ');
+
+        // Query per trovare prenotazioni in attesa da più di 3 giorni
+        const sql = `
+            SELECT id FROM PRENOTAZIONI 
+            WHERE stato = 'in_attesa' 
+            AND created_at <= ?
+        `;
+        
+        db.all(sql, [threeDaysAgoStr], (err, rows) => {
+            if (err) return reject(err);
+            
+            const ids = rows.map(row => row.id);
+            if (ids.length === 0) {
+                return resolve({ success: true, accepted: 0 });
+            }
+
+            // Aggiorna lo stato a 'confermata' per tacito consenso
+            const updateSql = `
+                UPDATE PRENOTAZIONI 
+                SET stato = 'confermata', updated_at = datetime('now') 
+                WHERE id IN (${ids.map(() => '?').join(',')})
+            `;
+            
+            db.run(updateSql, ids, function (err) {
+                if (err) return reject(err);
+                console.log(`[AUTO-ACCEPT] ${this.changes} prenotazioni accettate automaticamente per tacito consenso`);
+                resolve({ success: true, accepted: this.changes });
             });
         });
     });

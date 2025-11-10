@@ -131,22 +131,29 @@
                                                             </td>
                                                             <td>
                                                                 <div class="btn-group" role="group">
-                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza">
+                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza" data-id="<%= prenotazione.id %>">
                                                                         <i class="bi bi-eye"></i>
                                                                     </button>
                                                                     <% if (prenotazione.stato === 'in_attesa') { %>
-                                                                        <button class="btn btn-sm btn-outline-success" title="Conferma">
+                                                                        <button class="btn btn-sm btn-outline-success" title="Conferma" data-id="<%= prenotazione.id %>">
                                                                             <i class="bi bi-check"></i>
                                                                         </button>
-                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla">
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla" data-id="<%= prenotazione.id %>">
                                                                             <i class="bi bi-x"></i>
                                                                         </button>
                                                                     <% } else if (prenotazione.stato === 'confermata') { %>
-                                                                        <button class="btn btn-sm btn-outline-warning" title="Modifica">
+                                                                        <button class="btn btn-sm btn-outline-warning" title="Modifica" data-id="<%= prenotazione.id %>">
                                                                             <i class="bi bi-pencil"></i>
                                                                         </button>
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-x"></i>
+                                                                        </button>
+                                                                    <% } else if (prenotazione.stato === 'annullata') { %>
+                                                                        <button class="btn btn-sm btn-outline-success" title="Riattiva" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                                                        </button>
                                                                     <% } %>
-                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina">
+                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" data-id="<%= prenotazione.id %>">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </div>

@@ -54,17 +54,15 @@
                         <!-- Contenuto principale -->
                         <div class="admin-content animate__animated animate__fadeInUp animate__delay-1s">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="mb-0">
-                                    <i class="bi bi-trophy-fill text-primary me-2"></i>
-                                    Campionati
-                                </h2>
-                                <button type="button" class="btn btn-primary btn-modern" data-bs-toggle="modal" data-bs-target="#createChampionshipModal">
-                                    <i class="bi bi-plus-circle me-2"></i>
-                                    Nuovo Campionato
-                                </button>
-                            </div>
-
-                <!-- Stats Cards -->
+                            <h2 class="mb-0">
+                                <i class="bi bi-trophy-fill text-primary me-2"></i>
+                                Campionati
+                            </h2>
+                            <a href="/admin/campionati/nuovo" class="btn btn-primary btn-modern">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nuovo Campionato
+                            </a>
+                        </div>                <!-- Stats Cards -->
                 <div class="row mb-4 g-3">
                     <div class="col-md-3 mb-3">
                         <div class="card stats-card h-100">
@@ -178,163 +176,9 @@
         </div>
     </div>
 
-    <!-- Create Championship Modal -->
-    <div class="modal fade modal-modern" id="createChampionshipModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-plus-circle me-2"></i>
-                        Crea Nuovo Campionato
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="createChampionshipForm">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome del campionato" required>
-                                    <label for="nome">Nome Campionato *</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="stagione" name="stagione" placeholder="2023-2024" value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>" required>
-                                    <label for="stagione">Stagione *</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <select class="form-select" id="categoria" name="categoria" required>
-                                        <option value="">Seleziona categoria</option>
-                                        <option value="Juniores">Juniores</option>
-                                        <option value="Allievi">Allievi</option>
-                                        <option value="Giovanissimi">Giovanissimi</option>
-                                        <option value="Esordienti">Esordienti</option>
-                                        <option value="Pulcini">Pulcini</option>
-                                        <option value="Prima Squadra">Prima Squadra</option>
-                                    </select>
-                                    <label for="categoria">Categoria *</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="fonte_esterna_id" name="fonte_esterna_id" placeholder="ID fonte esterna">
-                                    <label for="fonte_esterna_id">ID Fonte Esterna</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-floating">
-                                <input type="url" class="form-control" id="url_fonte" name="url_fonte" placeholder="https://...">
-                                <label for="url_fonte">URL Fonte</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
-                                <label class="form-check-label" for="is_active">
-                                    Campionato attivo
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>
-                        Annulla
-                    </button>
-                    <button type="submit" form="createChampionshipForm" class="btn btn-primary btn-modern">
-                        <i class="bi bi-check-circle me-2"></i>
-                        Crea Campionato
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Edit Championship Modal -->
-    <div class="modal fade modal-modern" id="editChampionshipModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-pencil me-2"></i>
-                        Modifica Campionato
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editChampionshipForm">
-                        <input type="hidden" id="editId" name="id">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="editNome" name="nome" placeholder="Nome del campionato" required>
-                                    <label for="editNome">Nome Campionato *</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="editStagione" name="stagione" placeholder="2023-2024" required>
-                                    <label for="editStagione">Stagione *</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <select class="form-select" id="editCategoria" name="categoria" required>
-                                        <option value="Juniores">Juniores</option>
-                                        <option value="Allievi">Allievi</option>
-                                        <option value="Giovanissimi">Giovanissimi</option>
-                                        <option value="Esordienti">Esordienti</option>
-                                        <option value="Pulcini">Pulcini</option>
-                                        <option value="Prima Squadra">Prima Squadra</option>
-                                    </select>
-                                    <label for="editCategoria">Categoria *</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="editFonteEsternaId" name="fonte_esterna_id" placeholder="ID fonte esterna">
-                                    <label for="editFonteEsternaId">ID Fonte Esterna</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-floating">
-                                <input type="url" class="form-control" id="editUrlFonte" name="url_fonte" placeholder="https://...">
-                                <label for="editUrlFonte">URL Fonte</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="editIsActive" name="is_active">
-                                <label class="form-check-label" for="editIsActive">
-                                    Campionato attivo
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>
-                        Annulla
-                    </button>
-                    <button type="submit" form="editChampionshipForm" class="btn btn-warning btn-modern">
-                        <i class="bi bi-check-circle me-2"></i>
-                        Salva Modifiche
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade modal-modern" id="deleteChampionshipModal" tabindex="-1">
@@ -363,6 +207,13 @@
                 </div>
             </div>
         </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Caricamento...</span>
         </div>
     </div>
 </body>

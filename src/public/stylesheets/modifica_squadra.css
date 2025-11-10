@@ -249,12 +249,48 @@ body {
 .btn-danger {
     background: #dc3545;
     color: white;
+    /* bordo rosso per pulsanti di eliminazione */
+    border: 2px solid #dc3545;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 .btn-danger:hover {
     background: #c82333;
     transform: translateY(-2px);
     box-shadow: var(--shadow-light);
+    border: 2px solid #b02a37;
+}
+
+/* Hover specifico per i pulsanti elimina (card/modal) */
+.elimina-giocatore:hover,
+.elimina-dirigente:hover,
+#eliminaGiocatore:hover,
+#eliminaDirigente:hover,
+#confirmDeleteEntityBtn:hover,
+.remove-manager-btn:hover,
+.elimina-btn:hover {
+    border-color: #b02a37 !important;
+    background-color: #c82333 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(176,42,55,0.12);
+}
+
+/* Forza bordi ben visibili per i pulsanti specifici di eliminazione (card/modal) */
+.elimina-giocatore,
+.elimina-dirigente,
+#eliminaGiocatore,
+#eliminaDirigente,
+#confirmDeleteEntityBtn,
+.remove-manager-btn,
+.elimina-btn {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Focus / Accessibility: rendi il bordo evidente anche a tastiera */
+.btn-danger:focus, .elimina-giocatore:focus, .elimina-dirigente:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(220,53,69,0.12), 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .btn-outline-primary {
@@ -314,7 +350,8 @@ body {
 .card .card-body .card {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* bordo sottile e neutro per le card (non sovrapporre al bordo dei pulsanti) */
+    border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: var(--shadow-md);
     border-radius: var(--radius-lg);
     transition: var(--transition-normal);

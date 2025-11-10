@@ -554,7 +554,7 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
 // Route per la gestione campionati
 router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        const campionati = await campionatiDao.getCampionati();
+        const campionati = await campionatiDao.getAllCampionati();
         res.render('Admin/Contenuti/Gestione_Campionati.ejs', { user: req.user, campionati });
     } catch (err) {
         console.error('Errore nel caricamento dei campionati:', err);
@@ -562,28 +562,92 @@ router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+// Route per la pagina di creazione campionato
+router.get('/admin/campionati/nuovo', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const squadre = await squadreDao.getSquadre();
+        res.render('Admin/Contenuti/Crea_Campionato.ejs', {
+            user: req.user,
+            squadre: squadre
+        });
+    } catch (err) {
+        console.error('Errore nel caricamento della pagina:', err);
+        res.status(500).render('error', {
+            message: 'Errore nel caricamento della pagina',
+            error: { status: 500 }
+        });
+    }
+});
+
+// Route per la pagina di modifica campionato
+router.get('/admin/campionati/:id/modifica', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const campionato = await campionatiDao.getCampionatoById(id);
+        
+        if (!campionato) {
+            return res.status(404).render('error', { 
+                message: 'Campionato non trovato',
+                error: { status: 404 }
+            });
+        }
+
+        // Carica tutte le squadre disponibili per il dropdown
+        const squadre = await squadreDao.getSquadre();
+
+        res.render('Admin/Contenuti/Modifica_Campionato.ejs', { 
+            user: req.user, 
+            campionato: campionato,
+            squadre: squadre
+        });
+    } catch (err) {
+        console.error('Errore nel caricamento del campionato:', err);
+        res.status(500).render('error', { 
+            message: 'Errore nel caricamento del campionato',
+            error: { status: 500 }
+        });
+    }
+});
+
 // API Routes per campionati
 router.get('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        const campionati = await campionatiDao.getCampionati();
-        // Trasforma i dati per il frontend
-        const campionatiFormatted = campionati.map(c => ({
-            id: c.id,
-            nome: c.nome,
-            stagione: c.stagione,
-            categoria: c.categoria,
-            fonte_esterna_id: c.fonte_esterna_id,
-            url_fonte: c.url_fonte,
-            is_active: c.attivo === 1,
-            stato: c.attivo === 1 ? 'attivo' : 'inattivo',
-            tipo: c.categoria || 'generico',
-            numero_squadre: 0, // Placeholder, da implementare se necessario
-            partite_programmate: 0, // Placeholder, da implementare se necessario
-            data_inizio: c.created_at,
-            created_at: c.created_at,
-            updated_at: c.updated_at
+        const campionati = await campionatiDao.getAllCampionati();
+        
+        // Conta squadre per ogni campionato
+        const campionatiWithStats = await Promise.all(campionati.map(async (c) => {
+            // Query per contare squadre nel campionato
+            const squadreCount = await new Promise((resolve) => {
+                db.get('SELECT COUNT(*) as count FROM CLASSIFICA WHERE campionato_id = ?', [c.id], (err, row) => {
+                    resolve(err ? 0 : (row.count || 0));
+                });
+            });
+
+            return {
+                id: c.id,
+                nome: c.nome,
+                stagione: c.stagione,
+                categoria: c.categoria,
+                fonte_esterna_id: c.fonte_esterna_id,
+                url_fonte: c.url_fonte,
+                is_active: c.attivo === 1,
+                stato: c.attivo === 1 ? 'attivo' : 'inattivo',
+                tipo: c.categoria || 'generico',
+                numero_squadre: squadreCount,
+                partite_programmate: 0, // Placeholder
+                data_inizio: c.created_at,
+                created_at: c.created_at,
+                updated_at: c.updated_at,
+                promozione_diretta: c.promozione_diretta,
+                playoff_start: c.playoff_start,
+                playoff_end: c.playoff_end,
+                playout_start: c.playout_start,
+                playout_end: c.playout_end,
+                retrocessione_diretta: c.retrocessione_diretta
+            };
         }));
-        res.json({ campionati: campionatiFormatted });
+
+        res.json({ championships: campionatiWithStats });
     } catch (err) {
         console.error('Errore nel recupero dei campionati:', err);
         res.status(500).json({ error: 'Errore nel recupero dei campionati' });
@@ -649,6 +713,55 @@ router.patch('/api/admin/campionati/:id/toggle', isLoggedIn, isAdmin, async (req
     } catch (err) {
         console.error('Errore nel toggle dello stato del campionato:', err);
         res.status(500).json({ error: err.error || 'Errore nel toggle dello stato del campionato' });
+    }
+});
+
+// API Routes per gestione squadre campionato
+router.get('/api/admin/campionati/:id/squadre', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const squadre = await campionatiDao.getSquadreByCampionatoId(id);
+        res.json({ squadre });
+    } catch (err) {
+        console.error('Errore nel recupero delle squadre:', err);
+        res.status(500).json({ error: err.error || 'Errore nel recupero delle squadre' });
+    }
+});
+
+router.post('/api/admin/campionati/:id/squadre', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const squadraData = req.body;
+        const result = await campionatiDao.addSquadraCampionato(id, squadraData);
+        res.status(201).json(result);
+    } catch (err) {
+        console.error('Errore nell\'aggiunta della squadra:', err);
+        res.status(500).json({ error: err.error || 'Errore nell\'aggiunta della squadra' });
+    }
+});
+
+router.delete('/api/admin/campionati/:id/squadre/:nome', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const nome = decodeURIComponent(req.params.nome);
+        const result = await campionatiDao.removeSquadraCampionato(id, nome);
+        res.json(result);
+    } catch (err) {
+        console.error('Errore nella rimozione della squadra:', err);
+        res.status(500).json({ error: err.error || 'Errore nella rimozione della squadra' });
+    }
+});
+
+router.put('/api/admin/campionati/:id/squadre/:nome', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const nome = decodeURIComponent(req.params.nome);
+        const squadraData = req.body;
+        const result = await campionatiDao.updateSquadraCampionato(id, nome, squadraData);
+        res.json(result);
+    } catch (err) {
+        console.error('Errore nell\'aggiornamento della squadra:', err);
+        res.status(500).json({ error: err.error || 'Errore nell\'aggiornamento della squadra' });
     }
 });
 

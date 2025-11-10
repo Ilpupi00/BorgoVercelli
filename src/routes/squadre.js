@@ -239,19 +239,60 @@ router.get('/getsquadra/:id', async (req, res) => {
 router.get('/squadre/gestione/:id', isAdminOrDirigente, async (req, res) => {
     try {
         const squadra = await daoSquadre.getSquadraById(req.params.id);
+        if (!squadra) {
+            return res.status(404).render('error', { 
+                message: 'Squadra non trovata', 
+                error: { status: 404 } 
+            });
+        }
+
         // Verifica che l'utente sia admin o dirigente della squadra
         if (req.user.tipo_utente_id === 2) { // dirigente
-            const daoDirigenti = require('../services/dao-dirigenti-squadre');
             const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
             if (!dirigente || dirigente.squadra_id != req.params.id) {
-                return res.status(403).render('error', { message: 'Accesso negato: non sei dirigente di questa squadra', error: { status: 403 } });
+                return res.status(403).render('error', { 
+                    message: 'Accesso negato: non sei dirigente di questa squadra', 
+                    error: { status: 403 } 
+                });
             }
         }
-        res.render('modifica_squadra', {
-            isLogged: true,
-            user: req.user,
-            squadra: squadra
-        });
+
+        // Carica giocatori e dirigenti
+        try {
+            squadra.giocatori = await daoSquadre.getGiocatoriBySquadra(req.params.id);
+        } catch (err) {
+            console.error('Errore caricamento giocatori:', err);
+            squadra.giocatori = [];
+        }
+        
+        try {
+            squadra.dirigenti = await daoDirigenti.getDirigentiBySquadra(req.params.id);
+        } catch (err) {
+            console.error('Errore caricamento dirigenti:', err);
+            squadra.dirigenti = [];
+        }
+
+        // Carica immagini se presenti
+        if (squadra.id_immagine) {
+            squadra.immagine = await daoGalleria.getImmagineById(squadra.id_immagine);
+        }
+
+        // Carica immagini per giocatori
+        for (let giocatore of squadra.giocatori) {
+            if (giocatore.id_immagine) {
+                giocatore.immagine = await daoGalleria.getImmagineById(giocatore.id_immagine);
+            }
+        }
+
+        // Carica immagini per dirigenti
+        for (let dirigente of squadra.dirigenti) {
+            if (dirigente.immagine) {
+                dirigente.immagine = { url: dirigente.immagine };
+            }
+        }
+
+        const isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+        res.render('modifica_squadra', { squadra, isLoggedIn, user: req.user });
     } catch (error) {
         console.error('Errore nel caricamento della pagina modifica squadra:', error);
         res.status(500).render('error', {
@@ -286,6 +327,28 @@ router.post('/squadre/:id/dirigenti', isSquadraDirigente, async (req, res) => {
     } catch (err) {
         console.error('Errore aggiunta dirigente:', err);
         res.status(500).json({ error: err.error || 'Errore durante l\'aggiunta del dirigente' });
+    }
+});
+
+router.put('/squadre/:id/dirigenti/:managerId', isSquadraDirigente, async (req, res) => {
+    try {
+        const { managerId } = req.params;
+        const { ruolo, data_nomina, data_scadenza } = req.body;
+        
+        if (!ruolo) {
+            return res.status(400).json({ error: 'Il ruolo è obbligatorio' });
+        }
+
+        await daoDirigenti.updateDirigente(managerId, {
+            ruolo: ruolo,
+            data_nomina: data_nomina,
+            data_scadenza: data_scadenza
+        });
+        
+        res.json({ success: true, message: 'Dirigente aggiornato con successo' });
+    } catch (err) {
+        console.error('Errore aggiornamento dirigente:', err);
+        res.status(500).json({ error: err.error || 'Errore durante l\'aggiornamento del dirigente' });
     }
 });
 
@@ -462,8 +525,8 @@ router.get('/modifica_squadra', isLoggedIn, isAdmin, async (req, res) => {
         }
 
         for (let dirigente of squadra.dirigenti) {
-            if (dirigente.immagine_id) {
-                dirigente.immagine = await daoGalleria.getImmagineById(dirigente.immagine_id);
+            if (dirigente.immagine) {
+                dirigente.immagine = { url: dirigente.immagine };
             }
         }
 

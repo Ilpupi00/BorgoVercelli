@@ -398,7 +398,7 @@ class Profilo {
         const data = Object.fromEntries(formData);
 
         try {
-            const response = await fetch('/update', {
+            const response = await fetch('/users/update', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

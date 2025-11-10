@@ -1,4 +1,4 @@
-import showModal from '../utils/showModal.js';
+import ShowModal from '../utils/showModal.js';
 
 class ScriviRecensione {
     constructor(page) {
@@ -144,16 +144,16 @@ class ScriviRecensione {
                 const result = await response.json();
 
                 if (result.success) {
-                    showModal.showModalSuccess('Recensione inviata con successo!');
+                    ShowModal.showModalSuccess('Recensione inviata con successo!');
                     form.reset();
                     this.setRating(0);
                     this.page.querySelector('#charCount').textContent = '0/500';
                 } else {
-                    showModal.showModalError(result.error || 'Errore nell\'invio della recensione');
+                    ShowModal.showModalError(result.error || 'Errore nell\'invio della recensione');
                 }
             } catch (error) {
                 console.error('Errore invio recensione:', error);
-                showModal.showModalError('Errore di rete. Riprova più tardi.');
+                ShowModal.showModalError('Errore di rete. Riprova più tardi.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Invia Recensione';

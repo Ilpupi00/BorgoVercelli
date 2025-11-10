@@ -550,7 +550,7 @@ exports.searchUsers = function(query, onlyDirigenti = false) {
                 AND u.id NOT IN (
                     SELECT DISTINCT utente_id 
                     FROM DIRIGENTI_SQUADRE 
-                    WHERE utente_id IS NOT NULL
+                    WHERE utente_id IS NOT NULL AND attivo = 1
                 )
                 ORDER BY u.nome, u.cognome
                 LIMIT 10

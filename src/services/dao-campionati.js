@@ -24,7 +24,36 @@ const makeCampionato = (row) => {
 };
 
 /**
- * Ottiene tutti i campionati
+ * Ottiene tutti i campionati (senza filtro attivo per admin)
+ */
+exports.getAllCampionati = async function() {
+    const sql = `
+        SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
+               promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
+        FROM CAMPIONATI
+        ORDER BY created_at DESC, nome ASC
+    `;
+
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, (err, campionati) => {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Errore nel recupero dei campionati: ' + err.message });
+            }
+
+            try {
+                const result = campionati.map(makeCampionato) || [];
+                resolve(result);
+            } catch (e) {
+                console.error('Errore nella creazione degli oggetti Campionato:', e);
+                reject({ error: 'Errore nella creazione degli oggetti Campionato: ' + e.message });
+            }
+        });
+    });
+};
+
+/**
+ * Ottiene tutti i campionati attivi (per utenti normali)
  */
 exports.getCampionati = async function() {
     const sql = `
@@ -58,7 +87,8 @@ exports.getCampionati = async function() {
  */
 exports.getCampionatoById = async function(id) {
     const sql = `
-        SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at
+        SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
+               promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
         WHERE id = ?
     `;
@@ -86,8 +116,10 @@ exports.getCampionatoById = async function(id) {
  */
 exports.createCampionato = async function(campionatoData) {
     const sql = `
-        INSERT INTO CAMPIONATI (nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        INSERT INTO CAMPIONATI (nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, 
+                                promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, 
+                                retrocessione_diretta, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `;
 
     const values = [
@@ -96,7 +128,13 @@ exports.createCampionato = async function(campionatoData) {
         campionatoData.categoria || null,
         campionatoData.fonte_esterna_id || null,
         campionatoData.url_fonte || null,
-        campionatoData.attivo ? 1 : 0
+        campionatoData.attivo !== undefined ? (campionatoData.attivo ? 1 : 0) : 1,
+        campionatoData.promozione_diretta || 2,
+        campionatoData.playoff_start || 3,
+        campionatoData.playoff_end || 6,
+        campionatoData.playout_start || 11,
+        campionatoData.playout_end || 14,
+        campionatoData.retrocessione_diretta || 2
     ];
 
     return new Promise((resolve, reject) => {
@@ -118,7 +156,9 @@ exports.createCampionato = async function(campionatoData) {
 exports.updateCampionato = async function(id, campionatoData) {
     const sql = `
         UPDATE CAMPIONATI
-        SET nome = ?, stagione = ?, categoria = ?, fonte_esterna_id = ?, url_fonte = ?, attivo = ?, updated_at = datetime('now')
+        SET nome = ?, stagione = ?, categoria = ?, fonte_esterna_id = ?, url_fonte = ?, attivo = ?, 
+            promozione_diretta = ?, playoff_start = ?, playoff_end = ?, playout_start = ?, playout_end = ?, 
+            retrocessione_diretta = ?, updated_at = datetime('now')
         WHERE id = ?
     `;
 
@@ -128,7 +168,13 @@ exports.updateCampionato = async function(id, campionatoData) {
         campionatoData.categoria || null,
         campionatoData.fonte_esterna_id || null,
         campionatoData.url_fonte || null,
-        campionatoData.attivo ? 1 : 0,
+        campionatoData.attivo !== undefined ? (campionatoData.attivo ? 1 : 0) : 1,
+        campionatoData.promozione_diretta || 2,
+        campionatoData.playoff_start || 3,
+        campionatoData.playoff_end || 6,
+        campionatoData.playout_start || 11,
+        campionatoData.playout_end || 14,
+        campionatoData.retrocessione_diretta || 2,
         id
     ];
 
@@ -143,7 +189,7 @@ exports.updateCampionato = async function(id, campionatoData) {
                 return reject({ error: 'Campionato non trovato' });
             }
 
-            resolve({ message: 'Campionato aggiornato con successo' });
+            resolve({ message: 'Campionato aggiornato con successo', id: id });
         });
     });
 };
@@ -254,6 +300,130 @@ exports.getClassificaByCampionatoId = async function(campionatoId) {
                 console.error('Errore nella mappatura:', e);
                 reject({ error: 'Error mapping classifica: ' + e.message });
             }
+        });
+    });
+};
+
+/**
+ * Aggiunge una squadra al campionato
+ */
+exports.addSquadraCampionato = async function(campionatoId, squadraData) {
+    const sql = `
+        INSERT INTO CLASSIFICA (campionato_id, squadra_nome, nostra_squadra_id, posizione, punti, 
+                               partite_giocate, vittorie, pareggi, sconfitte, gol_fatti, gol_subiti, 
+                               differenza_reti, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `;
+
+    const values = [
+        campionatoId,
+        squadraData.squadra_nome || squadraData.nome,
+        squadraData.nostra_squadra_id || null,
+        squadraData.posizione || 0,
+        squadraData.punti || 0,
+        (squadraData.partite_giocate || 0),
+        squadraData.vittorie || squadraData.vinte || 0,
+        squadraData.pareggi || squadraData.pareggiate || 0,
+        squadraData.sconfitte || squadraData.perse || 0,
+        squadraData.gol_fatti || 0,
+        squadraData.gol_subiti || 0,
+        (squadraData.differenza_reti || ((squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0)))
+    ];
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, values, function(err) {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Errore nell\'aggiunta della squadra: ' + err.message });
+            }
+            resolve({ id: this.lastID, message: 'Squadra aggiunta con successo' });
+        });
+    });
+};
+
+/**
+ * Rimuove una squadra dal campionato
+ */
+exports.removeSquadraCampionato = async function(campionatoId, squadraNome) {
+    const sql = 'DELETE FROM CLASSIFICA WHERE campionato_id = ? AND squadra_nome = ?';
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [campionatoId, squadraNome], function(err) {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Errore nella rimozione della squadra: ' + err.message });
+            }
+
+            if (this.changes === 0) {
+                return reject({ error: 'Squadra non trovata' });
+            }
+
+            resolve({ message: 'Squadra rimossa con successo' });
+        });
+    });
+};
+
+/**
+ * Ottiene tutte le squadre di un campionato
+ */
+exports.getSquadreByCampionatoId = async function(campionatoId) {
+    const sql = `
+        SELECT id, squadra_nome as nome, nostra_squadra_id, posizione, punti, 
+               partite_giocate, vittorie, pareggi, sconfitte, gol_fatti, gol_subiti, differenza_reti
+        FROM CLASSIFICA
+        WHERE campionato_id = ?
+        ORDER BY posizione ASC
+    `;
+
+    return new Promise((resolve, reject) => {
+        sqlite.all(sql, [campionatoId], (err, squadre) => {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Errore nel recupero delle squadre: ' + err.message });
+            }
+            resolve(squadre || []);
+        });
+    });
+};
+
+/**
+ * Aggiorna i dati di una squadra nel campionato
+ */
+exports.updateSquadraCampionato = async function(campionatoId, squadraNome, squadraData) {
+    const sql = `
+        UPDATE CLASSIFICA
+        SET posizione = ?, punti = ?, partite_giocate = ?, vittorie = ?, pareggi = ?, 
+            sconfitte = ?, gol_fatti = ?, gol_subiti = ?, differenza_reti = ?, 
+            ultimo_aggiornamento = datetime('now'), updated_at = datetime('now')
+        WHERE campionato_id = ? AND squadra_nome = ?
+    `;
+
+    const values = [
+        squadraData.posizione || 0,
+        squadraData.punti || 0,
+        (squadraData.partite_giocate || ((squadraData.vittorie || squadraData.vinte || 0) + (squadraData.pareggi || squadraData.pareggiate || 0) + (squadraData.sconfitte || squadraData.perse || 0))),
+        squadraData.vittorie || squadraData.vinte || 0,
+        squadraData.pareggi || squadraData.pareggiate || 0,
+        squadraData.sconfitte || squadraData.perse || 0,
+        squadraData.gol_fatti || 0,
+        squadraData.gol_subiti || 0,
+        (squadraData.differenza_reti || ((squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0))),
+        campionatoId,
+        squadraNome
+    ];
+
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, values, function(err) {
+            if (err) {
+                console.error('Errore SQL:', err);
+                return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
+            }
+
+            if (this.changes === 0) {
+                return reject({ error: 'Squadra non trovata' });
+            }
+
+            resolve({ message: 'Squadra aggiornata con successo' });
         });
     });
 };

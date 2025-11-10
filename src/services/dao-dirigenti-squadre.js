@@ -22,9 +22,10 @@ const makeDirigenteSquadra = (row) => {
 exports.getDirigentiBySquadra = function(squadraId) {
     return new Promise((resolve, reject) => {
         const sql = `
-            SELECT ds.*, u.nome, u.cognome, u.email
+            SELECT ds.*, u.nome, u.cognome, u.email, i.url as immagine
             FROM DIRIGENTI_SQUADRE ds
             JOIN UTENTI u ON ds.utente_id = u.id
+            LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
             WHERE ds.squadra_id = ? AND ds.attivo = 1
         `;
         sqlite.all(sql, [squadraId], (err, rows) => {
@@ -40,9 +41,10 @@ exports.getDirigentiBySquadra = function(squadraId) {
 exports.getDirigentiSocietari = function() {
     return new Promise((resolve, reject) => {
         const sql = `
-            SELECT ds.*, u.nome, u.cognome, u.email
+            SELECT ds.*, u.nome, u.cognome, u.email, i.url as immagine
             FROM DIRIGENTI_SQUADRE ds
             JOIN UTENTI u ON ds.utente_id = u.id
+            LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
             WHERE ds.squadra_id IS NULL AND ds.attivo = 1
         `;
         sqlite.all(sql, [], (err, rows) => {

@@ -112,31 +112,26 @@ router.delete('/prenotazioni/scadute', async (req, res) => {
             // Se fallisce il controllo, logga ma procedi con la cancellazione comunque
             console.error('Errore durante il check delle scadute prima della cancellazione:', e);
         }
-        // Diagnostic: count rows before delete
-        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], async (err, rowBefore) => {
-            if (err) {
-                console.error('Errore nel conteggio scadute prima della delete:', err);
-            }
-            try {
-                const result = await daoPrenotazione.deleteScadute();
-                console.log('[route prenotazioni] deleteScadute dao result:', result);
-                // Count after
-                db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err2, rowAfter) => {
-                    if (err2) console.error('Errore nel conteggio scadute dopo la delete:', err2);
-                    console.log('[route prenotazioni] count before:', rowBefore ? rowBefore.cnt : null, 'after:', rowAfter ? rowAfter.cnt : null);
-                    res.json({ ...result, countBefore: rowBefore ? rowBefore.cnt : null, countAfter: rowAfter ? rowAfter.cnt : null });
-                });
-            } catch (e) {
-                console.error('Errore durante deleteScadute:', e);
-                res.status(500).json({ error: e.message });
-            }
-        });
+        
+        const result = await daoPrenotazione.deleteScadute();
+        console.log('[route prenotazioni] deleteScadute dao result:', result);
+        res.json(result);
     } catch (err) {
+        console.error('[route prenotazioni] Error in DELETE /prenotazioni/scadute:', err);
         res.status(500).json({ error: err.message });
     }
 });
 
-module.exports = router;
+// 10. Ottieni prenotazioni per utente
+router.get('/user/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const prenotazioni = await daoPrenotazione.getPrenotazioniByUserId(userId);
+        res.json(prenotazioni);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // DEBUG route (temporary) - list all prenotazioni
 router.get('/prenotazioni/debug-list', async (req, res) => {
@@ -145,3 +140,15 @@ router.get('/prenotazioni/debug-list', async (req, res) => {
         res.json(rows || []);
     });
 });
+
+// 11. Accetta automaticamente prenotazioni in attesa da più di 3 giorni
+router.post('/prenotazioni/auto-accept', async (req, res) => {
+    try {
+        const result = await daoPrenotazione.autoAcceptPendingBookings();
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+module.exports = router;

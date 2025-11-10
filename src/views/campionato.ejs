@@ -21,7 +21,7 @@
             <div class="select-container">
                 <select class="form-select form-select-sm custom-select" id="campionatoSelect" aria-label="Select menu">
                     <% campionati.forEach(campionato => { %>
-                        <option value="<%= campionato.id %>" <%= selectedCampionato === campionato.id ? 'selected' : '' %>><%= campionato.nome %> - <%= campionato.stagione %></option>
+                        <option value="<%= campionato.id %>" <%= selectedCampionato === campionato.id ? 'selected="selected"' : '' %>><%= campionato.nome %> - <%= campionato.stagione %></option>
                     <% }); %>
                 </select>
             </div>
@@ -72,6 +72,19 @@
         </section>
     </div>
     <%- include('partials/footer') %>
+    <!-- Script inline per forzare la selezione del campionato corretto -->
+    <script>
+        // Forza la selezione del campionato prima che altri script vengano caricati
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedId = <%= selectedCampionato %>;
+            const select = document.getElementById('campionatoSelect');
+            if (select && selectedId) {
+                console.log('Forzando selezione campionato ID:', selectedId);
+                select.value = selectedId;
+                console.log('Select.value dopo forzatura:', select.value);
+            }
+        });
+    </script>
     <script type="module">
         import Campionato from '/javascripts/components/Campionato.js';
         

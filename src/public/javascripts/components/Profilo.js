@@ -68,7 +68,7 @@ class Profilo{
                     profileCard.appendChild(d);
                     return d;
                 })();
-                fetch('/update', {
+                fetch('/users/update', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -136,7 +136,7 @@ class Profilo{
                     saveBtn.disabled = true;
                     saveBtn.textContent = 'Salvataggio...';
                 }
-                fetch('/update', {
+                fetch('/users/update', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',

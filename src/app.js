@@ -93,6 +93,32 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Middleware per gestione automatica prenotazioni (scadute e accettazione tacita)
+const daoPrenotazione = require('./services/dao-prenotazione');
+let lastAutoCheck = null;
+
+app.use(async function(req, res, next) {
+  // Esegui il controllo automatico una volta ogni 5 minuti
+  const now = Date.now();
+  if (!lastAutoCheck || (now - lastAutoCheck) > 5 * 60 * 1000) {
+    lastAutoCheck = now;
+    
+    // Esegui in background senza bloccare la richiesta
+    setImmediate(async () => {
+      try {
+        // 1. Marca come scadute le prenotazioni passate
+        await daoPrenotazione.checkAndUpdateScadute();
+        
+        // 2. Accetta automaticamente prenotazioni in attesa da più di 3 giorni
+        await daoPrenotazione.autoAcceptPendingBookings();
+      } catch (error) {
+        console.error('[AUTO-CHECK] Errore durante il controllo automatico prenotazioni:', error);
+      }
+    });
+  }
+  next();
+});
+
 // Middleware to set global locals for templates
 app.use(async function(req, res, next) {
   res.locals.isLogged = req.isAuthenticated ? req.isAuthenticated() : false;
@@ -123,7 +149,7 @@ app.use('/', routesGalleria);
 app.use('/prenotazione', routesPrenotazione);
 app.use('/', routesAdmin);
 app.use('/campionato', routesCampionati);
-app.use('/', routesUsers);
+app.use('/users', routesUsers);
 
 // Serve uploaded files at the canonical public path '/uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
