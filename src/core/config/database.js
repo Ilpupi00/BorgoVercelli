@@ -13,10 +13,22 @@ const path = require('path');
 // - Se è presente process.env.DATABASE_URL => usa Postgres (pg Pool)
 // - Altrimenti mantiene il fallback su SQLite per sviluppo locale
 
-if (process.env.DATABASE_URL) {
+// Costruisce una connection string da PG_* env vars se DATABASE_URL non è fornita
+const buildPgUrlFromParts = () => {
+    if (!process.env.PG_HOST && !process.env.PG_DATABASE && !process.env.PG_USER) return null;
+    const user = process.env.PG_USER || 'postgres';
+    const pass = process.env.PG_PASSWORD ? encodeURIComponent(process.env.PG_PASSWORD) : '';
+    const host = process.env.PG_HOST || 'localhost';
+    const port = process.env.PG_PORT || '5432';
+    const dbName = process.env.PG_DATABASE || 'postgres';
+    return `postgres://${user}:${pass}@${host}:${port}/${dbName}`;
+};
+
+const connectionString = process.env.DATABASE_URL || buildPgUrlFromParts();
+
+if (connectionString) {
     // Postgres / Railway
     const { Pool } = require('pg');
-    const connectionString = process.env.DATABASE_URL;
 
     // Railway Postgres spesso richiede SSL in produzione
     const useSSL = process.env.NODE_ENV === 'production' || process.env.PGSSLMODE === 'require';
