@@ -276,25 +276,15 @@ exports.checkAndUpdateScadute = async () => {
 
 exports.deleteScadute = async () => {
     return new Promise((resolve, reject) => {
-        console.log('[DAO] deleteScadute: starting...');
-        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], (err, before) => {
+        process.stdout.write('[DAO] deleteScadute: starting...\n');
+        db.run(`UPDATE PRENOTAZIONI SET stato = 'test2'`, function (err) {
+            process.stdout.write(`[DAO] deleteScadute: callback called, err: ${err}, changes: ${this.changes}\n`);
             if (err) {
-                console.error('[DAO] deleteScadute: count before error', err);
+                console.error('[DAO] deleteScadute: update error', err);
                 return reject(err);
             }
-            const toDelete = before && before.cnt ? before.cnt : 0;
-            console.log('[DAO] deleteScadute: found', toDelete, 'scadute to delete');
-            if (toDelete === 0) return resolve({ success: true, deleted: 0 });
-            
-            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, [], function (err) {
-                if (err) {
-                    console.error('[DAO] deleteScadute: delete error', err);
-                    return reject(err);
-                }
-                console.log('[DAO] deleteScadute: deleted', this.changes, 'rows');
-                // Return the count we measured before the delete as the number deleted
-                resolve({ success: true, deleted: toDelete, actualChanges: this.changes });
-            });
+            process.stdout.write(`[DAO] deleteScadute: updated ${this.changes} rows\n`);
+            resolve({ success: true, deleted: this.changes });
         });
     });
 }
