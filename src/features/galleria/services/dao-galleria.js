@@ -146,15 +146,30 @@ exports.deleteImmagine = function(id) {
             const path = require('path');
             // row.url may be stored with or without a leading slash. Normalize to a relative path
             const relativeUrl = row.url && row.url.startsWith('/') ? row.url.slice(1) : row.url;
-            const filePath = path.join(__dirname, '../public', relativeUrl);
-            if (fs.existsSync(filePath)) {
-                try {
-                    fs.unlinkSync(filePath);
-                    console.log('File eliminato:', filePath);
-                } catch (fileErr) {
-                    console.error('Errore nell\'eliminazione del file:', fileErr);
-                    // Non blocco l'eliminazione dal DB se fallisce l'eliminazione del file
+            // Try multiple candidate paths to be robust across environments
+            const candidates = [
+                // from services -> ../../.. -> src/public
+                path.join(__dirname, '../../../public', relativeUrl),
+                // from project root
+                path.join(process.cwd(), 'src', 'public', relativeUrl),
+                path.join(process.cwd(), 'public', relativeUrl)
+            ];
+            let fileFound = false;
+            for (const filePath of candidates) {
+                if (fs.existsSync(filePath)) {
+                    try {
+                        fs.unlinkSync(filePath);
+                        console.log('File eliminato:', filePath);
+                    } catch (fileErr) {
+                        console.error('Errore nell\'eliminazione del file:', fileErr);
+                        // don't block DB deletion if file removal fails
+                    }
+                    fileFound = true;
+                    break;
                 }
+            }
+            if (!fileFound) {
+                console.warn('Immagine fisica non trovata in nessuna posizione candidata per url=', row.url, 'candidates=', candidates);
             }
 
             // Poi elimino dal database
