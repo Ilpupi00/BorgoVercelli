@@ -32,7 +32,7 @@ class Campo{
      * @param {string|Date} created_at - Data creazione
      * @param {string|Date} updated_at - Data ultimo aggiornamento
      * @param {string} descrizione - Descrizione dettagliata del campo
-     * @param {boolean} Docce - true se presenti docce negli spogliatoi
+     * @param {boolean} docce - true se presenti docce negli spogliatoi
      * @param {string} immagine - URL immagine del campo
      */
     constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione,docce,immagine){

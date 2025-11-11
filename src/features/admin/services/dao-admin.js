@@ -96,8 +96,17 @@ function countSquadreByCampionato(campionatoId) {
  * @returns {Promise<number>} - Numero di notizie
  */
 function countNotiziePubblicate(dataInizio, dataFine) {
-    const sql = 'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?';
-    return getCount(sql, [dataInizio, dataFine]);
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?';
+        db.get(sql, [dataInizio, dataFine], (err, result) => {
+            if (err) {
+                console.error('Errore conteggio notizie pubblicate:', err);
+                return reject(err);
+            }
+            const row = result && result.rows && result.rows[0];
+            resolve(row ? (row.count || 0) : 0);
+        });
+    });
 }
 
 /**
@@ -107,8 +116,17 @@ function countNotiziePubblicate(dataInizio, dataFine) {
  * @returns {Promise<number>} - Numero di eventi
  */
 function countEventiPubblicati(dataInizio, dataFine) {
-    const sql = 'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?';
-    return getCount(sql, [dataInizio, dataFine]);
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?';
+        db.get(sql, [dataInizio, dataFine], (err, result) => {
+            if (err) {
+                console.error('Errore conteggio eventi pubblicati:', err);
+                return reject(err);
+            }
+            const row = result && result.rows && result.rows[0];
+            resolve(row ? (row.count || 0) : 0);
+        });
+    });
 }
 
 module.exports = {
