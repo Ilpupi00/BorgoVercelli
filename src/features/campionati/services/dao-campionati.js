@@ -181,7 +181,7 @@ exports.createCampionato = async function(campionatoData) {
         campionatoData.categoria || null,
         campionatoData.fonte_esterna_id || null,
         campionatoData.url_fonte || null,
-        campionatoData.attivo !== undefined ? (campionatoData.attivo ? 1 : 0) : 1,
+    campionatoData.attivo !== undefined ? (campionatoData.attivo ? true : false) : true,
         campionatoData.promozione_diretta || 2,
         campionatoData.playoff_start || 3,
         campionatoData.playoff_end || 6,
@@ -239,7 +239,7 @@ exports.updateCampionato = async function(id, campionatoData) {
         campionatoData.categoria || null,
         campionatoData.fonte_esterna_id || null,
         campionatoData.url_fonte || null,
-        campionatoData.attivo !== undefined ? (campionatoData.attivo ? 1 : 0) : 1,
+    campionatoData.attivo !== undefined ? (campionatoData.attivo ? true : false) : true,
         campionatoData.promozione_diretta || 2,
         campionatoData.playoff_start || 3,
         campionatoData.playoff_end || 6,
@@ -250,17 +250,18 @@ exports.updateCampionato = async function(id, campionatoData) {
     ];
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err) {
+        sqlite.run(sql, values, function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nell\'aggiornamento del campionato: ' + err.message });
             }
 
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Campionato non trovato' });
             }
 
-            resolve({ message: 'Campionato aggiornato con successo', id: id });
+            resolve({ message: 'Campionato aggiornato con successo', id: id, changes });
         });
     });
 };
@@ -279,17 +280,18 @@ exports.deleteCampionato = async function(id) {
     const sql = 'DELETE FROM CAMPIONATI WHERE id = ?';
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nell\'eliminazione del campionato: ' + err.message });
             }
 
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Campionato non trovato' });
             }
 
-            resolve({ message: 'Campionato eliminato con successo' });
+            resolve({ message: 'Campionato eliminato con successo', changes });
         });
     });
 };
@@ -313,17 +315,18 @@ exports.toggleCampionatoStatus = async function(id, attivo) {
     `;
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [attivo ? 1 : 0, id], function(err) {
+        sqlite.run(sql, [attivo ? true : false, id], function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nell\'aggiornamento dello stato del campionato: ' + err.message });
             }
 
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Campionato non trovato' });
             }
 
-            resolve({ message: 'Stato del campionato aggiornato con successo' });
+            resolve({ message: 'Stato del campionato aggiornato con successo', changes });
         });
     });
 };
@@ -468,17 +471,18 @@ exports.removeSquadraCampionato = async function(campionatoId, squadraNome) {
     const sql = 'DELETE FROM CLASSIFICA WHERE campionato_id = ? AND squadra_nome = ?';
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [campionatoId, squadraNome], function(err) {
+        sqlite.run(sql, [campionatoId, squadraNome], function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nella rimozione della squadra: ' + err.message });
             }
 
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Squadra non trovata' });
             }
 
-            resolve({ message: 'Squadra rimossa con successo' });
+            resolve({ message: 'Squadra rimossa con successo', changes });
         });
     });
 };
@@ -549,17 +553,18 @@ exports.updateSquadraCampionato = async function(campionatoId, squadraNome, squa
     ];
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err) {
+        sqlite.run(sql, values, function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
             }
 
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Squadra non trovata' });
             }
 
-            resolve({ message: 'Squadra aggiornata con successo' });
+            resolve({ message: 'Squadra aggiornata con successo', changes });
         });
     });
 };
