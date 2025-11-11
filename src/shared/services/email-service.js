@@ -2,6 +2,21 @@
 
 const nodemailer = require('nodemailer');
 const path = require('path');
+const fs = require('fs');
+
+// Optional SendGrid fallback
+let sgMail;
+const sendgridApiKey = process.env.SENDGRID_API_KEY;
+if (sendgridApiKey) {
+    try {
+        sgMail = require('@sendgrid/mail');
+        sgMail.setApiKey(sendgridApiKey);
+        if (process.env.EMAIL_DEBUG) console.log('SendGrid enabled as email provider');
+    } catch (e) {
+        console.warn('SendGrid package not installed or failed to initialize:', e && e.message);
+        sgMail = null;
+    }
+}
 
 // Configurazione del trasportatore SMTP (preferisce variabili d'ambiente)
 // NOTE: usare variabili d'ambiente in produzione: SMTP_HOST, SMTP_PORT, SMTP_SECURE,
@@ -53,6 +68,18 @@ async function verifyTransporter() {
 async function sendWithRetry(mailOptions, maxRetries = 3) {
     let attempt = 0;
     let lastErr;
+    // If SendGrid is configured, attempt to send via API first (more reliable on PaaS)
+    if (sgMail) {
+        try {
+            if (process.env.EMAIL_DEBUG) console.log('Attempting send via SendGrid API');
+            const sgResult = await sendViaSendGrid(mailOptions);
+            return sgResult;
+        } catch (sgErr) {
+            console.warn('SendGrid send failed, falling back to SMTP:', sgErr && sgErr.message);
+            // continue to SMTP attempts
+        }
+    }
+
     // try to verify first (best-effort)
     try {
         await verifyTransporter();
@@ -85,6 +112,51 @@ async function sendWithRetry(mailOptions, maxRetries = 3) {
     // exhausted retries
     const e = lastErr || new Error('Unknown error sending email');
     throw e;
+}
+
+// Send using SendGrid API (returns object similar to nodemailer result)
+async function sendViaSendGrid(mailOptions) {
+    if (!sgMail) throw new Error('SendGrid not configured');
+
+    const msg = {
+        to: mailOptions.to,
+        from: mailOptions.from || (process.env.DEFAULT_FROM || 'noreply@borgovercelli.it'),
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+    };
+
+    // Attachments: convert nodemailer-style attachments (path) to SendGrid format
+    if (Array.isArray(mailOptions.attachments) && mailOptions.attachments.length > 0) {
+        msg.attachments = [];
+        for (const att of mailOptions.attachments) {
+            if (att.path && fs.existsSync(att.path)) {
+                const data = fs.readFileSync(att.path);
+                msg.attachments.push({
+                    content: data.toString('base64'),
+                    filename: att.filename || path.basename(att.path),
+                    type: att.contentType || 'application/octet-stream',
+                    disposition: 'attachment',
+                    content_id: att.cid || undefined
+                });
+            } else if (att.content) {
+                // already in-memory
+                msg.attachments.push({
+                    content: Buffer.from(att.content).toString('base64'),
+                    filename: att.filename || 'attachment',
+                    type: att.contentType || 'application/octet-stream',
+                    disposition: 'attachment',
+                    content_id: att.cid || undefined
+                });
+            }
+        }
+    }
+
+    const result = await sgMail.send(msg);
+    // SendGrid returns an array with responses
+    if (Array.isArray(result) && result[0] && result[0].headers) {
+        return { messageId: result[0].headers['x-message-id'] || null, raw: result };
+    }
+    return { messageId: null, raw: result };
 }
 
 // Percorso al logo (verifica che il file esista in questo path)
