@@ -51,7 +51,7 @@ exports.createUser = function(user) {
                 user.nome,
                 user.cognome,
                 user.telefono || '',
-                5, // tipo_utente_id di default (5 = Utente normale)
+                0, // tipo_utente_id di default (5 = Utente normale)
                 now,
                 now,
                 now
@@ -265,13 +265,15 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     const deleteSql = `DELETE FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ?`;
     console.log('Eseguo DELETE per eliminare record esistenti');
     await new Promise((resolve, reject) => {
-        sqlite.run(deleteSql, [userId], function(err) {
+        // The DB wrapper for Postgres returns (err, result) where result.rowCount exists
+        sqlite.run(deleteSql, [userId], function(err, result) {
             if (err) {
                 console.log('Errore DELETE:', err);
                 reject({ error: 'Errore eliminazione immagine profilo esistente: ' + err.message });
             } else {
-                console.log('DELETE completato, righe eliminate:', this.changes);
-                resolve(this.changes);
+                const deleted = (result && (result.rowCount !== undefined ? result.rowCount : (result.changes || 0))) || 0;
+                console.log('DELETE completato, righe eliminate:', deleted);
+                resolve(deleted);
             }
         });
     });
@@ -280,17 +282,20 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     const insertSql = `
         INSERT INTO IMMAGINI (descrizione, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
         VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, ?, ?)
+        RETURNING id
     `;
     console.log('Eseguo INSERT per nuovo record');
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     return new Promise((resolve, reject) => {
-        // Use a regular function to access `this.lastID` and `this.changes`
-        sqlite.run(insertSql, [imageUrl, userId, now, now], function(err) {
+        // Our Postgres wrapper returns result.rows/rowCount in the callback
+        sqlite.run(insertSql, [imageUrl, userId, now, now], function(err, result) {
             if (err) {
                 console.log('Errore INSERT:', err);
                 reject({ error: 'Errore inserimento immagine profilo: ' + err.message });
             } else {
-                console.log('INSERT completato, lastID:', this.lastID, 'changes:', this.changes);
+                const newId = result && result.rows && result.rows[0] ? result.rows[0].id : null;
+                const changed = result && (result.rowCount !== undefined ? result.rowCount : (result.changes || 0));
+                console.log('INSERT completato, newId:', newId, 'rowCount:', changed);
                 resolve(true);
             }
         });
