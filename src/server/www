@@ -7,6 +7,7 @@
 const app = require('../app');
 const debug = require('debug')('sito-borgovercelli:server');
 const http = require('http');
+const db = require('../core/config/database');
 
 /**
  * Get port from environment and store in Express.
@@ -25,9 +26,20 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+// Create HTTP server but delay listening until DB is ready
+// Avvia il server solo quando la verifica del DB è andata a buon fine
+db.ready
+  .then(() => {
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+  })
+  .catch(err => {
+    console.error('[server] Impossibile avviare il server: connessione al database fallita.');
+    console.error('[server] Motivo:', err && err.message ? err.message : err);
+    // Esci con codice 1 in modo chiaro; la piattaforma vedrà l'exit code e i log
+    process.exit(1);
+  });
 
 /**
  * Normalize a port into a number, string, or false.

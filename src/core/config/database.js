@@ -43,14 +43,20 @@ pool.on('error', (err, client) => {
     // Non terminare il processo, lascia che l'app continui
 });
 
-// Test connessione al database
-pool.query('SELECT NOW()')
+// Test connessione al database e fornisce una Promise "ready" che può essere attesa
+// dall'app prima di mettersi in ascolto. Questo aiuta a fallire velocemente in caso
+// di problemi di rete/credenziali invece di lasciare il processo appeso e ricevere
+// un SIGTERM dalla piattaforma di hosting.
+const ready = pool.query('SELECT NOW()')
     .then(() => {
         console.log('[database] ✅ Connessione al database stabilita con successo');
+        return true;
     })
     .catch(err => {
         console.error('[database] ❌ Errore durante la connessione al database:', err.message);
         console.error('[database] Verifica che DATABASE_URL sia corretto e che il database sia accessibile');
+        // Rilancia l'errore in modo che il chiamante possa decidere cosa fare (es. exit)
+        throw err;
     });
 
 // Helper: convert SQL with '?' placeholders to Postgres $1, $2 ... placeholders
@@ -88,5 +94,8 @@ const db = {
     },
     close: () => pool.end()
 };
+
+// Esponiamo la Promise che indica quando la connessione iniziale è stata verificata
+db.ready = ready;
 
 module.exports = db;
