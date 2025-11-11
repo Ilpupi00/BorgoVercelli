@@ -310,13 +310,14 @@ exports.getPrenotazioneById = async (id) => {
 exports.updateStatoPrenotazione = async (id, stato) => {
     return new Promise((resolve, reject) => {
         console.log(`[DAO] updateStatoPrenotazione: id=${id}, stato=${stato}`);
-        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`, [stato, id], function (err) {
+        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`, [stato, id], function (err, result) {
             if (err) {
                 console.error('[DAO] updateStatoPrenotazione: error', err);
                 return reject(err);
             }
-            console.log(`[DAO] updateStatoPrenotazione: changes=${this.changes}`);
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            console.log(`[DAO] updateStatoPrenotazione: changes=${changes}`);
+            resolve({ success: true, changes });
         });
     });
 }
@@ -333,9 +334,10 @@ exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
         db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, updated_at = NOW() WHERE id = ?`,
-            [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, id], function (err) {
+            [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, id], function (err, result) {
                 if (err) return reject(err);
-                resolve({ success: true, changes: this.changes });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                resolve({ success: true, changes });
             });
     });
 }
@@ -349,9 +351,10 @@ exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_
  */
 exports.deletePrenotazione = async (id) => {
     return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM PRENOTAZIONI WHERE id = ?`, [id], function (err) {
+        db.run(`DELETE FROM PRENOTAZIONI WHERE id = ?`, [id], function (err, result) {
             if (err) return reject(err);
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -382,13 +385,14 @@ exports.checkAndUpdateScadute = async () => {
             const beforeCount = (rowBefore && rowBefore.cnt) || 0;
             console.error(`[DAO:${process.pid}] checkAndUpdateScadute - will update approx ${beforeCount} rows`);
 
-            db.run(updateSql, [], function (err) {
+            db.run(updateSql, [], function (err, result) {
                 if (err) {
                     console.error(`[DAO:${process.pid}] checkAndUpdateScadute - ERROR:`, err);
                     return reject(err);
                 }
-                console.error(`[DAO:${process.pid}] checkAndUpdateScadute - updated ${this.changes} rows`);
-                resolve({ success: true, updated: this.changes });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                console.error(`[DAO:${process.pid}] checkAndUpdateScadute - updated ${changes} rows`);
+                resolve({ success: true, updated: changes });
             });
         });
     });
@@ -408,12 +412,12 @@ exports.deleteScadute = async () => {
             const before = (rowBefore && rowBefore.cnt) || 0;
             console.error(`[DAO:${process.pid}] deleteScadute - count before delete: ${before}`);
 
-            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err) {
+            db.run(`DELETE FROM PRENOTAZIONI WHERE stato = 'scaduta'`, function (err, result) {
                 if (err) {
                     console.error(`[DAO:${process.pid}] deleteScadute: delete error`, err);
                     return reject(err);
                 }
-                const deleted = this.changes || 0;
+                const deleted = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
                 console.error(`[DAO:${process.pid}] deleteScadute - deleted ${deleted} rows`);
 
                 // Log count after delete
@@ -494,10 +498,11 @@ exports.autoAcceptPendingBookings = async () => {
                 WHERE id IN (${ids.map(() => '?').join(',')})
             `;
             
-            db.run(updateSql, ids, function (err) {
+            db.run(updateSql, ids, function (err, result) {
                 if (err) return reject(err);
-                console.log(`[AUTO-ACCEPT] ${this.changes} prenotazioni accettate automaticamente per tacito consenso`);
-                resolve({ success: true, accepted: this.changes });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                console.log(`[AUTO-ACCEPT] ${changes} prenotazioni accettate automaticamente per tacito consenso`);
+                resolve({ success: true, accepted: changes });
             });
         });
     });
