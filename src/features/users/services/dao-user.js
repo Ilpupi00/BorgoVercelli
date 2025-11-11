@@ -816,20 +816,23 @@ exports.sospendiUtente = function(userId, adminId, motivo, dataFine) {
         
         console.log('[DAO] sospendiUtente - Parametri:', { userId, adminId, motivo, dataFine, now });
         
-        sqlite.run(sql, [motivo, now, dataFine, adminId, now, userId], function(err) {
+        sqlite.run(sql, [motivo, now, dataFine, adminId, now, userId], function(err, result) {
             if (err) {
                 console.error('[DAO] sospendiUtente - Errore SQL:', err);
                 reject({ error: 'Errore nella sospensione dell\'utente: ' + err.message });
-            } else if (this.changes === 0) {
-                console.warn('[DAO] sospendiUtente - Nessuna riga aggiornata per userId:', userId);
-                reject({ error: 'Utente non trovato' });
             } else {
-                console.log('[DAO] sospendiUtente - Successo, righe aggiornate:', this.changes);
-                resolve({ 
-                    message: 'Utente sospeso con successo',
-                    userId: userId,
-                    dataFine: dataFine
-                });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                if (changes === 0) {
+                    console.warn('[DAO] sospendiUtente - Nessuna riga aggiornata per userId:', userId);
+                    reject({ error: 'Utente non trovato' });
+                } else {
+                    console.log('[DAO] sospendiUtente - Successo, righe aggiornate:', changes);
+                    resolve({ 
+                        message: 'Utente sospeso con successo',
+                        userId: userId,
+                        dataFine: dataFine
+                    });
+                }
             }
         });
     });
@@ -858,19 +861,22 @@ exports.bannaUtente = function(userId, adminId, motivo) {
         
         console.log('[DAO] bannaUtente - Parametri:', { userId, adminId, motivo, now });
         
-        sqlite.run(sql, [motivo, now, adminId, now, userId], function(err) {
+        sqlite.run(sql, [motivo, now, adminId, now, userId], function(err, result) {
             if (err) {
                 console.error('[DAO] bannaUtente - Errore SQL:', err);
                 reject({ error: 'Errore nel ban dell\'utente: ' + err.message });
-            } else if (this.changes === 0) {
-                console.warn('[DAO] bannaUtente - Nessuna riga aggiornata per userId:', userId);
-                reject({ error: 'Utente non trovato' });
             } else {
-                console.log('[DAO] bannaUtente - Successo, righe aggiornate:', this.changes);
-                resolve({ 
-                    message: 'Utente bannato con successo',
-                    userId: userId
-                });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                if (changes === 0) {
+                    console.warn('[DAO] bannaUtente - Nessuna riga aggiornata per userId:', userId);
+                    reject({ error: 'Utente non trovato' });
+                } else {
+                    console.log('[DAO] bannaUtente - Successo, righe aggiornate:', changes);
+                    resolve({ 
+                        message: 'Utente bannato con successo',
+                        userId: userId
+                    });
+                }
             }
         });
     });
@@ -897,18 +903,21 @@ exports.revocaSospensioneBan = function(userId) {
         
         console.log('[DAO] revocaSospensioneBan - Parametri:', { userId, now });
         
-        sqlite.run(sql, [now, userId], function(err) {
+        sqlite.run(sql, [now, userId], function(err, result) {
             if (err) {
                 console.error('[DAO] revocaSospensioneBan - Errore SQL:', err);
                 reject({ error: 'Errore nella revoca: ' + err.message });
-            } else if (this.changes === 0) {
-                console.warn('[DAO] revocaSospensioneBan - Nessuna riga aggiornata per userId:', userId);
-                reject({ error: 'Utente non trovato' });
             } else {
-                resolve({ 
-                    message: 'Sospensione/Ban revocato con successo',
-                    userId: userId
-                });
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                if (changes === 0) {
+                    console.warn('[DAO] revocaSospensioneBan - Nessuna riga aggiornata per userId:', userId);
+                    reject({ error: 'Utente non trovato' });
+                } else {
+                    resolve({ 
+                        message: 'Sospensione/Ban revocato con successo',
+                        userId: userId
+                    });
+                }
             }
         });
     });
@@ -934,13 +943,14 @@ exports.verificaSospensioniScadute = function() {
                      AND data_fine_sospensione IS NOT NULL 
                      AND data_fine_sospensione < ?`;
         
-        sqlite.run(sql, [now], function(err) {
+        sqlite.run(sql, [now], function(err, result) {
             if (err) {
                 reject({ error: 'Errore nella verifica sospensioni: ' + err.message });
             } else {
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
                 resolve({ 
                     message: 'Verifica completata',
-                    aggiornati: this.changes
+                    aggiornati: changes
                 });
             }
         });
