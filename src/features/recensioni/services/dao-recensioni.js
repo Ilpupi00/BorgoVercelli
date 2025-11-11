@@ -30,7 +30,7 @@ exports.getRecensioni = async () => {
     JOIN
         UTENTI ON RECENSIONI.utente_id = UTENTI.id
     WHERE
-        RECENSIONI.visibile = 1
+        RECENSIONI.visibile = true
     ORDER BY
         RECENSIONI.data_recensione DESC`;
         
@@ -50,7 +50,7 @@ exports.getRecensioni = async () => {
  * @returns {Promise<number|null>} Valore medio (float) o null se non esistono recensioni
  */
 exports.getValutaMediaRecensioni = async () => {
-    const sql = 'SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = 1';
+    const sql = 'SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = true';
     
     return new Promise((resolve, reject) => {
         sqlite.get(sql, (err, media) => {
@@ -77,7 +77,7 @@ exports.getValutaMediaRecensioni = async () => {
 exports.inserisciRecensione=async(recensione)=>{
     // Estraggo i dati
     const { valutazione, titolo, contenuto, entita_tipo, entita_id, utente_id } = recensione;
-    const sql = `INSERT INTO RECENSIONI (utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto, data_recensione, visibile) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 1)`;
+    const sql = `INSERT INTO RECENSIONI (utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto, data_recensione, visibile) VALUES (?, ?, ?, ?, ?, ?, NOW(), true)`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto], function(err) {
             if (err) {
@@ -107,7 +107,7 @@ exports.getRecensioniByUserId = async (userId) => {
     FROM
         RECENSIONI
     WHERE
-        RECENSIONI.utente_id = ? AND RECENSIONI.visibile = 1
+        RECENSIONI.utente_id = ? AND RECENSIONI.visibile = true
     ORDER BY
         RECENSIONI.data_recensione DESC`;
         
@@ -131,8 +131,8 @@ exports.getRecensioniByUserId = async (userId) => {
  */
 exports.updateRecensione = async (recensioneId, userId, dati) => {
     const { valutazione, titolo, contenuto } = dati;
-    const sql = `UPDATE RECENSIONI SET valutazione = ?, titolo = ?, contenuto = ?, data_recensione = datetime('now') 
-                 WHERE id = ? AND utente_id = ? AND visibile = 1`;
+    const sql = `UPDATE RECENSIONI SET valutazione = ?, titolo = ?, contenuto = ?, data_recensione = NOW() 
+                 WHERE id = ? AND utente_id = ? AND visibile = true`;
     
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [valutazione, titolo, contenuto, recensioneId, userId], function(err) {
@@ -152,7 +152,7 @@ exports.updateRecensione = async (recensioneId, userId, dati) => {
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.deleteRecensione = async (recensioneId, userId) => {
-    const sql = `UPDATE RECENSIONI SET visibile = 0 WHERE id = ? AND utente_id = ?`;
+    const sql = `UPDATE RECENSIONI SET visibile = false WHERE id = ? AND utente_id = ?`;
     
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [recensioneId, userId], function(err) {

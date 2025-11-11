@@ -79,7 +79,7 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
-        WHERE N.pubblicata = 1
+        WHERE N.pubblicata = true
         ORDER BY N.data_pubblicazione DESC
         LIMIT ? OFFSET ?
     `;
@@ -153,7 +153,7 @@ exports.deleteNotiziaById = async function(id) {
  */
 exports.createNotizia = async function(notiziaData) {
     const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END, 0, datetime('now'), datetime('now'))`;
+                 VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = true THEN NOW() ELSE NULL END, 0, NOW(), NOW())`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -183,7 +183,7 @@ exports.createNotizia = async function(notiziaData) {
 exports.updateNotizia = async function(id, notiziaData) {
     const sql = `UPDATE NOTIZIE SET
                  titolo = ?, sottotitolo = ?, contenuto = ?, immagine_principale_id = ?,
-                 pubblicata = ?, data_pubblicazione = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END, updated_at = datetime('now')
+                 pubblicata = ?, data_pubblicazione = CASE WHEN ? = true THEN NOW() ELSE NULL END, updated_at = NOW()
                  WHERE id = ?`;
 
     return new Promise((resolve, reject) => {
@@ -192,8 +192,8 @@ exports.updateNotizia = async function(id, notiziaData) {
             notiziaData.sottotitolo,
             notiziaData.contenuto,
             notiziaData.immagine_principale_id,
-            notiziaData.pubblicata ? 1 : 0,
-            notiziaData.pubblicata ? 1 : 0,
+            notiziaData.pubblicata ? true : false,
+            notiziaData.pubblicata ? true : false,
             id
         ], function(err) {
             if (err) {
@@ -212,9 +212,9 @@ exports.updateNotizia = async function(id, notiziaData) {
  */
 exports.togglePubblicazioneNotizia = async function(id) {
     const sql = `UPDATE NOTIZIE SET
-                 pubblicata = CASE WHEN pubblicata = 1 THEN 0 ELSE 1 END,
-                 data_pubblicazione = CASE WHEN pubblicata = 0 THEN datetime('now') WHEN pubblicata = 1 THEN NULL ELSE data_pubblicazione END,
-                 updated_at = datetime('now')
+                 pubblicata = CASE WHEN pubblicata = true THEN false ELSE true END,
+                 data_pubblicazione = CASE WHEN pubblicata = false THEN NOW() WHEN pubblicata = true THEN NULL ELSE data_pubblicazione END,
+                 updated_at = NOW()
                  WHERE id = ?`;
 
     return new Promise((resolve, reject) => {
@@ -239,7 +239,7 @@ exports.searchNotizie = async function(searchTerm) {
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
-        WHERE N.pubblicata = 1 AND (N.titolo LIKE ? OR N.sottotitolo LIKE ?)
+        WHERE N.pubblicata = true AND (N.titolo LIKE ? OR N.sottotitolo LIKE ?)
         ORDER BY N.data_pubblicazione DESC
         LIMIT 5
     `;
@@ -275,7 +275,7 @@ exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
-        WHERE N.pubblicata = 1
+        WHERE N.pubblicata = true
     `;
     
     const params = [];
@@ -335,7 +335,7 @@ exports.getNotizieAuthors = async function() {
         SELECT DISTINCT (U.nome || ' ' || U.cognome) as nome_completo
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
-        WHERE N.pubblicata = 1 AND U.nome IS NOT NULL AND U.cognome IS NOT NULL
+        WHERE N.pubblicata = true AND U.nome IS NOT NULL AND U.cognome IS NOT NULL
         ORDER BY nome_completo
     `;
     return new Promise((resolve, reject) => {

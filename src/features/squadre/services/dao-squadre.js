@@ -66,9 +66,10 @@ exports.getSquadre = async () => {
         SELECT 
             s.*, 
             i.url AS immagine_url,
-            (SELECT COUNT(*) FROM GIOCATORI g WHERE g.squadra_id = s.id AND g.attivo = 1) AS numero_giocatori
+            (SELECT COUNT(*) FROM GIOCATORI g WHERE g.squadra_id = s.id AND g.attivo = true) AS numero_giocatori
         FROM SQUADRE s 
-        LEFT JOIN IMMAGINI i ON s.id_immagine = i.id
+        -- In Postgres usiamo la tabella IMMAGINI con relazione tramite entita_riferimento/entita_id
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'squadra' AND i.entita_id = s.id AND i.ordine = 1
     `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, async (err, squadre) => {
@@ -270,7 +271,7 @@ exports.getGiocatoriBySquadra = function(squadraId) {
         Nome AS nome,
         Cognome AS cognome
     FROM GIOCATORI 
-    WHERE squadra_id = ? AND attivo = 1
+    WHERE squadra_id = ? AND attivo = true
     ORDER BY numero_maglia ASC`;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, [parseInt(squadraId)], (err, rows) => {
@@ -291,7 +292,7 @@ exports.getGiocatoriBySquadra = function(squadraId) {
 exports.createGiocatore = function(giocatoreData) {
     const sql = `INSERT INTO GIOCATORI
         (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, immagini_id, attivo, data_inizio_tesseramento)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))`;
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true, NOW())`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             giocatoreData.nome,
@@ -321,7 +322,7 @@ exports.createGiocatore = function(giocatoreData) {
  * @returns {Promise<Object>} { message }
  */
 exports.deleteGiocatore = function(id) {
-    const sql = 'UPDATE GIOCATORI SET attivo = 0, data_fine_tesseramento = datetime(\'now\') WHERE id = ?';
+    const sql = 'UPDATE GIOCATORI SET attivo = false, data_fine_tesseramento = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [parseInt(id)], function(err) {
             if (err) {
@@ -358,7 +359,7 @@ exports.getGiocatoreById = function(id) {
         Nazionalità AS nazionalita,
         Nome AS nome,
         Cognome AS cognome
-    FROM GIOCATORI WHERE id = ? AND attivo = 1`;
+    FROM GIOCATORI WHERE id = ? AND attivo = true`;
     return new Promise((resolve, reject) => {
         sqlite.get(sql, [parseInt(id)], (err, row) => {
             if (err) {
@@ -383,7 +384,7 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
     const sql = `INSERT INTO GIOCATORI (
         squadra_id, numero_maglia, ruolo, piede_preferito, Nazionalita, Nome, Cognome, id_immagine,
         data_inizio_tesseramento, attivo, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), 1, datetime('now'), datetime('now'))`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), true, NOW(), NOW())`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -413,7 +414,7 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
  * @returns {Promise<Object>} { message }
  */
 exports.removeGiocatore = function(id) {
-    const sql = 'UPDATE GIOCATORI SET attivo = 0, updated_at = datetime(\'now\') WHERE id = ?';
+    const sql = 'UPDATE GIOCATORI SET attivo = false, updated_at = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [parseInt(id)], function(err) {
             if (err) {
@@ -512,7 +513,7 @@ exports.removeDirigente = function(squadraId, dirigenteId) {
  * @returns {Promise<Object>} { message }
  */
 exports.updateGiocatore = async (id, giocatoreData) => {
-    const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = datetime('now')
+    const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = NOW()
                  WHERE id = ?`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [

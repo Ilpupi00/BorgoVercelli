@@ -37,7 +37,7 @@ exports.getDirigentiBySquadra = function(squadraId) {
             FROM DIRIGENTI_SQUADRE ds
             JOIN UTENTI u ON ds.utente_id = u.id
             LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
-            WHERE ds.squadra_id = ? AND ds.attivo = 1
+            WHERE ds.squadra_id = ? AND ds.attivo = true
         `;
         sqlite.all(sql, [squadraId], (err, rows) => {
             if (err) {
@@ -60,7 +60,7 @@ exports.getDirigentiSocietari = function() {
             FROM DIRIGENTI_SQUADRE ds
             JOIN UTENTI u ON ds.utente_id = u.id
             LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
-            WHERE ds.squadra_id IS NULL AND ds.attivo = 1
+            WHERE ds.squadra_id IS NULL AND ds.attivo = true
         `;
         sqlite.all(sql, [], (err, rows) => {
             if (err) {
@@ -110,9 +110,8 @@ exports.addDirigente = function(dirigente) {
  */
 exports.removeDirigente = function(id) {
     return new Promise((resolve, reject) => {
-        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 0, updated_at = ? WHERE id = ?`;
-        const now = moment().format('YYYY-MM-DD HH:mm:ss');
-        sqlite.run(sql, [now, id], function(err) {
+        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = false, updated_at = NOW() WHERE id = ?`;
+        sqlite.run(sql, [id], function(err) {
             if (err) {
                 reject({ error: 'Error removing dirigente: ' + err.message });
             } else {
@@ -134,7 +133,7 @@ exports.getDirigenteByUserId = function (userId) {
             SELECT ds.*, s.nome AS squadra_nome, s.id AS squadra_id
             FROM DIRIGENTI_SQUADRE ds
             LEFT JOIN SQUADRE s ON ds.squadra_id = s.id
-            WHERE ds.utente_id = ? AND ds.attivo = 1
+            WHERE ds.utente_id = ? AND ds.attivo = true
         `;
         sqlite.get(sql, [userId], (err, dirigente) => {
             if (err) {
@@ -153,7 +152,7 @@ exports.getDirigenteByUserId = function (userId) {
  */
 exports.createDirigente = async (dirigenteData) => {
     const sql = `INSERT INTO DIRIGENTI_SQUADRE (utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`;
+                 VALUES (?, ?, ?, ?, ?, true, NOW(), NOW())`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             dirigenteData.utente_id,
@@ -178,7 +177,7 @@ exports.createDirigente = async (dirigenteData) => {
  * @returns {Promise<Object>} { message }
  */
 exports.updateDirigente = async (id, dirigenteData) => {
-    let sql = `UPDATE DIRIGENTI_SQUADRE SET ruolo = ?, data_nomina = ?, data_scadenza = ?, updated_at = datetime('now')`;
+    let sql = `UPDATE DIRIGENTI_SQUADRE SET ruolo = ?, data_nomina = ?, data_scadenza = ?, updated_at = NOW()`;
     const params = [dirigenteData.ruolo, dirigenteData.data_nomina, dirigenteData.data_scadenza];
     if (dirigenteData.utente_id) {
         sql += `, utente_id = ?`;
@@ -206,7 +205,7 @@ exports.updateDirigente = async (id, dirigenteData) => {
  * @returns {Promise<Object>} { message }
  */
 exports.deleteDirigente = async (id) => {
-    const sql = 'UPDATE DIRIGENTI_SQUADRE SET attivo = 0 WHERE id = ?';
+    const sql = 'UPDATE DIRIGENTI_SQUADRE SET attivo = false WHERE id = ?';
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [id], function(err) {
             if (err) {
@@ -228,9 +227,8 @@ exports.deleteDirigente = async (id) => {
  */
 exports.restoreDirigente = function(id) {
     return new Promise((resolve, reject) => {
-        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE id = ?`;
-        const now = moment().format('YYYY-MM-DD HH:mm:ss');
-        sqlite.run(sql, [now, id], function(err) {
+        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = true, updated_at = NOW() WHERE id = ?`;
+        sqlite.run(sql, [id], function(err) {
             if (err) {
                 return reject({ error: 'Errore ripristino dirigente: ' + err.message });
             }
@@ -249,9 +247,8 @@ exports.restoreDirigente = function(id) {
  */
 exports.restoreAllDirigenti = function() {
     return new Promise((resolve, reject) => {
-        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = 1, updated_at = ? WHERE attivo = 0`;
-        const now = moment().format('YYYY-MM-DD HH:mm:ss');
-        sqlite.run(sql, [now], function(err) {
+        const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = true, updated_at = NOW() WHERE attivo = false`;
+        sqlite.run(sql, [], function(err) {
             if (err) {
                 return reject({ error: 'Errore ripristino massivo dirigenti: ' + err.message });
             }

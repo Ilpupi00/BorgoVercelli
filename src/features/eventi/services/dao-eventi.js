@@ -99,7 +99,7 @@ exports.createEvento = function(eventoData) {
     const sql = `INSERT INTO EVENTI (
         titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento,
         autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -135,7 +135,7 @@ exports.updateEvento = function(id, eventoData) {
     const sql = `UPDATE EVENTI SET
         titolo = ?, descrizione = ?, data_inizio = ?, data_fine = ?,
         luogo = ?, tipo_evento = ?, autore_id = ?, squadra_id = ?, campo_id = ?,
-        max_partecipanti = ?, pubblicato = ?, updated_at = datetime('now')
+        max_partecipanti = ?, pubblicato = ?, updated_at = NOW()
         WHERE id = ?`;
 
     return new Promise((resolve, reject) => {

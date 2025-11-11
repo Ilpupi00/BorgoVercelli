@@ -279,7 +279,7 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     // Poi inserisci il nuovo record
     const insertSql = `
         INSERT INTO IMMAGINI (descrizione, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
-        VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, datetime('now'), datetime('now'))
+        VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, NOW(), NOW())
     `;
     console.log('Eseguo INSERT per nuovo record');
     return new Promise((resolve, reject) => {
@@ -307,7 +307,7 @@ exports.getGiocatoreByUserId = function (userId) {
             SELECT g.*, s.nome AS squadra_nome
             FROM GIOCATORI g
             LEFT JOIN SQUADRE s ON g.squadra_id = s.id
-            WHERE g.utente_id = ? AND g.attivo = 1
+            WHERE g.utente_id = ? AND g.attivo = true
         `;
         sqlite.get(sql, [userId], (err, giocatore) => {
             if (err) {
@@ -507,7 +507,7 @@ exports.getStatistiche = async () => {
 
         // Notizie pubblicate
         const notiziePubblicate = await new Promise((resolve, reject) => {
-            sqlite.get('SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = 1', (err, row) => {
+            sqlite.get('SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true', (err, row) => {
                 if (err) reject(err);
                 else resolve(row.count);
             });
@@ -518,7 +518,7 @@ exports.getStatistiche = async () => {
         const eventiAttivi = await new Promise((resolve, reject) => {
             sqlite.get(`
                 SELECT COUNT(*) as count FROM EVENTI 
-                WHERE pubblicato = 1 AND (data_fine IS NULL OR data_fine >= date('now'))
+                WHERE pubblicato = true AND (data_fine IS NULL OR data_fine >= CURRENT_DATE)
             `, (err, row) => {
                 if (err) reject(err);
                 else resolve(row.count);
@@ -566,18 +566,18 @@ exports.getStatistiche = async () => {
                 SELECT 
                     'notizia' as tipo,
                     COUNT(*) as count,
-                    strftime('%Y-%m', data_pubblicazione) as periodo
+                    TO_CHAR(data_pubblicazione, 'YYYY-MM') as periodo
                 FROM NOTIZIE 
-                WHERE data_pubblicazione >= date('now', '-30 days') AND pubblicata = 1
-                GROUP BY strftime('%Y-%m', data_pubblicazione)
+                WHERE data_pubblicazione >= (CURRENT_DATE - INTERVAL '30 days') AND pubblicata = true
+                GROUP BY TO_CHAR(data_pubblicazione, 'YYYY-MM')
                 UNION ALL
                 SELECT 
                     'evento' as tipo,
                     COUNT(*) as count,
-                    strftime('%Y-%m', data_inizio) as periodo
+                    TO_CHAR(data_inizio, 'YYYY-MM') as periodo
                 FROM EVENTI 
-                WHERE data_inizio >= date('now', '-30 days') AND pubblicato = 1
-                GROUP BY strftime('%Y-%m', data_inizio)
+                WHERE data_inizio >= (CURRENT_DATE - INTERVAL '30 days') AND pubblicato = true
+                GROUP BY TO_CHAR(data_inizio, 'YYYY-MM')
                 ORDER BY periodo DESC
             `, (err, rows) => {
                 if (err) reject(err);
@@ -687,7 +687,7 @@ exports.searchUsers = function(query, onlyDirigenti = false) {
                 AND u.id NOT IN (
                     SELECT DISTINCT utente_id 
                     FROM DIRIGENTI_SQUADRE 
-                    WHERE utente_id IS NOT NULL AND attivo = 1
+                    WHERE utente_id IS NOT NULL AND attivo = true
                 )
                 ORDER BY u.nome, u.cognome
                 LIMIT 10

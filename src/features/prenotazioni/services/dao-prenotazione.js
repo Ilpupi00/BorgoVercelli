@@ -100,8 +100,8 @@ const normalizeDate = (dateStr) => {
 };
 
 exports.getCampiAttivi = async () =>{
-       return new Promise((resolve, reject) => {
-	       db.all('SELECT * FROM CAMPI WHERE attivo = 1', [], async (err, rows) => {
+    return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM CAMPI WHERE attivo = true', [], async (err, rows) => {
 		       if (err) return reject(err);
 		       // Per ogni campo, recupera le immagini associate
 		       const campi = await Promise.all(rows.map(async (row) => {
@@ -148,7 +148,7 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
         const sql = `
             SELECT ora_inizio, ora_fine 
             FROM ORARI_CAMPI 
-            WHERE campo_id = ? AND attivo = 1 
+            WHERE campo_id = ? AND attivo = true 
             AND (giorno_settimana = ? OR giorno_settimana IS NULL)
             ORDER BY ora_inizio
         `;
@@ -230,7 +230,7 @@ exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazio
             if (err) return reject(err);
             if (row) return resolve({ error: 'Orario già prenotato' });
             // Nuove prenotazioni iniziano con stato 'in_attesa' e devono essere accettate dall'admin
-            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', datetime('now'), datetime('now'))`,
+            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW())`,
                 [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null], function (err) {
                     if (err) return reject(err);
                     resolve({ success: true, id: this.lastID });
@@ -310,7 +310,7 @@ exports.getPrenotazioneById = async (id) => {
 exports.updateStatoPrenotazione = async (id, stato) => {
     return new Promise((resolve, reject) => {
         console.log(`[DAO] updateStatoPrenotazione: id=${id}, stato=${stato}`);
-        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = datetime('now') WHERE id = ?`, [stato, id], function (err) {
+        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`, [stato, id], function (err) {
             if (err) {
                 console.error('[DAO] updateStatoPrenotazione: error', err);
                 return reject(err);
@@ -332,7 +332,7 @@ exports.updateStatoPrenotazione = async (id, stato) => {
 exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
-        db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, updated_at = datetime('now') WHERE id = ?`,
+        db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, updated_at = NOW() WHERE id = ?`,
             [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, id], function (err) {
                 if (err) return reject(err);
                 resolve({ success: true, changes: this.changes });
@@ -369,15 +369,16 @@ exports.checkAndUpdateScadute = async () => {
     // Build a datetime string from data_prenotazione and ora_fine (add seconds
     // if missing) and compare with the current DB datetime.
     return new Promise((resolve, reject) => {
+        // In Postgres build a timestamp by adding the date and the time and compare to NOW()
         const updateSql = `
             UPDATE PRENOTAZIONI
-            SET stato = 'scaduta', updated_at = datetime('now')
+            SET stato = 'scaduta', updated_at = NOW()
             WHERE lower(trim(coalesce(stato, ''))) = 'confermata'
-              AND datetime(data_prenotazione || ' ' || substr( (ora_fine || ':00'), 1, 8)) <= datetime('now')
+              AND (data_prenotazione::timestamp + (COALESCE(ora_fine, '00:00')::time)) <= NOW()
         `;
 
         // Log current state before update
-        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE lower(trim(coalesce(stato, ''))) = 'confermata' AND datetime(data_prenotazione || ' ' || substr( (ora_fine || ':00'), 1, 8)) <= datetime('now')`, [], (errBefore, rowBefore) => {
+        db.get(`SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE lower(trim(coalesce(stato, ''))) = 'confermata' AND (data_prenotazione::timestamp + (COALESCE(ora_fine, '00:00')::time)) <= NOW()`, [], (errBefore, rowBefore) => {
             const beforeCount = (rowBefore && rowBefore.cnt) || 0;
             console.error(`[DAO:${process.pid}] checkAndUpdateScadute - will update approx ${beforeCount} rows`);
 
@@ -489,7 +490,7 @@ exports.autoAcceptPendingBookings = async () => {
             // Aggiorna lo stato a 'confermata' per tacito consenso
             const updateSql = `
                 UPDATE PRENOTAZIONI 
-                SET stato = 'confermata', updated_at = datetime('now') 
+                SET stato = 'confermata', updated_at = NOW() 
                 WHERE id IN (${ids.map(() => '?').join(',')})
             `;
             

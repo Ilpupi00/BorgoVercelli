@@ -45,7 +45,7 @@ exports.getCampi = function(){
         SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
-        WHERE C.attivo = 1
+        WHERE C.attivo = true
     `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, campi) => {
@@ -100,16 +100,16 @@ exports.getOrariCampo = function(campoId, giornoSettimana = null) {
         // Prima cerca orari specifici per il giorno, se non ci sono usa default
         sql = `
             SELECT * FROM ORARI_CAMPI 
-            WHERE campo_id = ? AND attivo = 1 
+            WHERE campo_id = ? AND attivo = true 
             AND (giorno_settimana = ? OR (giorno_settimana IS NULL AND NOT EXISTS (
                 SELECT 1 FROM ORARI_CAMPI 
-                WHERE campo_id = ? AND giorno_settimana = ? AND attivo = 1
+                WHERE campo_id = ? AND giorno_settimana = ? AND attivo = true
             )))
             ORDER BY ora_inizio
         `;
         params.push(giornoSettimana, campoId, giornoSettimana);
     } else {
-        sql = 'SELECT * FROM ORARI_CAMPI WHERE campo_id = ? AND giorno_settimana IS NULL AND attivo = 1 ORDER BY ora_inizio';
+        sql = 'SELECT * FROM ORARI_CAMPI WHERE campo_id = ? AND giorno_settimana IS NULL AND attivo = true ORDER BY ora_inizio';
     }
     return new Promise((resolve, reject) => {
         sqlite.all(sql, params, (err, orari) => {
@@ -196,18 +196,18 @@ exports.createCampo = function(campoData) {
     const sql = `INSERT INTO CAMPI (
         nome, indirizzo, tipo_superficie, dimensioni, illuminazione, coperto, 
         spogliatoi, capienza_pubblico, attivo, created_at, updated_at, descrizione, Docce
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             campoData.nome,
             campoData.indirizzo,
             campoData.tipo_superficie,
             campoData.dimensioni,
-            campoData.illuminazione ? 1 : 0,
-            campoData.coperto ? 1 : 0,
-            campoData.spogliatoi ? 1 : 0,
+            campoData.illuminazione ? true : false,
+            campoData.coperto ? true : false,
+            campoData.spogliatoi ? true : false,
             campoData.capienza_pubblico,
-            campoData.attivo ? 1 : 0,
+            campoData.attivo ? true : false,
             campoData.descrizione,
             campoData.Docce ? 1 : 0
         ], function(err) {
@@ -236,13 +236,13 @@ exports.updateCampo = function(id, campoData) {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     const values = fields.map(field => {
         if (typeof campoData[field] === 'boolean') {
-            return campoData[field] ? 1 : 0;
+            return campoData[field] ? true : false;
         }
         return campoData[field];
     });
     values.push(id);
     
-    const sql = `UPDATE CAMPI SET ${setClause}, updated_at = datetime('now') WHERE id = ?`;
+    const sql = `UPDATE CAMPI SET ${setClause}, updated_at = NOW() WHERE id = ?`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, values, function(err) {
             if (err) {
@@ -284,7 +284,7 @@ exports.searchCampi = async function(searchTerm) {
         SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
-        WHERE C.attivo = 1 AND (C.nome LIKE ? OR C.indirizzo LIKE ? OR C.descrizione LIKE ?)
+        WHERE C.attivo = true AND (C.nome LIKE ? OR C.indirizzo LIKE ? OR C.descrizione LIKE ?)
         ORDER BY C.nome ASC
         LIMIT 10
     `;
