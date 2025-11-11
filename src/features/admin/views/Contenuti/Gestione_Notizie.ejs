@@ -145,7 +145,7 @@
                                 <article class="notizia-card" 
                                     data-notizia-id="<%= notizia.id %>" 
                                     data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
-                                    data-titolo="<%= notizia.titolo.toLowerCase() %>"
+                                    data-titolo="<%= (notizia.titolo || '').toLowerCase() %>"
                                     data-contenuto="<%= (notizia.contenuto || '').toLowerCase() %>"
                                     data-autore="<%= notizia.autore_nome %> <%= notizia.autore_cognome %>"
                                     data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">

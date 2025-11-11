@@ -93,6 +93,20 @@ class Evento {
      * Evento.parseDate('15/01/2024'); // '2024-01-15 00:00:00'
      */
     static parseDate(dateStr) {
+        // Accetta sia stringhe che oggetti Date
+        if (dateStr instanceof Date) {
+            return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
+        }
+        // Se non è stringa, prova a convertirla in stringa tramite toString
+        if (typeof dateStr !== 'string') {
+            try {
+                dateStr = dateStr.toString();
+            } catch (e) {
+                // fallback: usa moment direttamente
+                return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
+            }
+        }
+
         // Se già ISO, usa direttamente
         if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
             return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
@@ -131,8 +145,8 @@ class Evento {
         if (!json) {
             return null;
         }
-        // BUG: dovrebbe essere Evento(), non Eventi()
-        const evento = Object.assign(new Eventi(), json);
+        // Crea correttamente una nuova istanza di Evento
+        const evento = Object.assign(new Evento(), json);
         return evento;
     }
 
