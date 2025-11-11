@@ -8,32 +8,7 @@ const daoDirigenti = require('../services/dao-dirigenti-squadre');
 const daoGalleria = require('../../galleria/services/dao-galleria');
 const multer = require('multer');
 const { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente } = require('../../../core/middlewares/auth');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-        cb(null, 'src/public/uploads/');
-  },
-  filename: (req, file, cb) => {
-        const uniqueName = 'squadra_' + Date.now() + '_' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
-    cb(null, uniqueName);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Solo file immagine sono permessi'), false);
-  }
-};
-
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max
-  }
-});
+const { uploadSquadra: upload } = require('../../../core/config/multer');
 
 router.get('/getsquadre', async (req, res) => {
     try {
