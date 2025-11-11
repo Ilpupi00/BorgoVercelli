@@ -114,6 +114,9 @@ app.get('/favicon.ico', function(req, res) {
  * Include immagini, CSS, JavaScript lato client
  */
 app.use(express.static(path.join(__dirname, 'public')));
+// Support legacy and shorthand image URLs: serve /images/* from public/assets/images
+// This makes URLs like /images/default-news.jpg resolve to src/public/assets/images/default-news.jpg
+app.use('/images', express.static(path.join(__dirname, 'public', 'assets', 'images')));
 
 // ==================== CONFIGURAZIONE SESSIONI ====================
 
