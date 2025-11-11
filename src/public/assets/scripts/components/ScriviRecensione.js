@@ -160,7 +160,7 @@ class ScriviRecensione {
                 const result = await response.json();
 
                 if (result.success) {
-                    ShowModal.showModalSuccess('Recensione inviata con successo!');
+                    ShowModal.showModalSuccess('Recensione inviata con successo!', 'Grazie per il tuo feedback, la tua recensione è stata salvata.');
                     form.reset();
                     this.setRating(0);
                     this.page.querySelector('#charCount').textContent = '0/500';
