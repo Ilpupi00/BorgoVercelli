@@ -150,17 +150,18 @@ exports.updateEvento = function(id, eventoData) {
             eventoData.squadra_id,
             eventoData.campo_id,
             eventoData.max_partecipanti,
-            eventoData.pubblicato ? 1 : 0,
+            eventoData.pubblicato ? true : false,
             id
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 console.error('Errore SQL update evento:', err);
                 return reject({ error: 'Error updating event: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Event not found' });
             }
-            resolve({ success: true });
+            resolve({ success: true, changes });
         });
     });
 }
@@ -179,11 +180,13 @@ exports.deleteEventoById = function(id) {
                 console.error('Errore SQL delete evento:', err);
                 return reject({ error: 'Error deleting event: ' + err.message });
             }
-            console.log('[DAO:eventi] deleteEventoById called with id=', id, 'changes=', this.changes);
-            if (this.changes === 0) {
+            // Postgres wrapper returns result with rowCount
+            const changes = (arguments[1] && typeof arguments[1].rowCount === 'number') ? arguments[1].rowCount : 0;
+            console.log('[DAO:eventi] deleteEventoById called with id=', id, 'changes=', changes);
+            if (changes === 0) {
                 return reject({ error: 'Event not found' });
             }
-            resolve({ success: true });
+            resolve({ success: true, changes });
         });
     });
 }
@@ -197,16 +200,17 @@ exports.deleteEventoById = function(id) {
 exports.togglePubblicazioneEvento = function(id) {
     const sql = 'UPDATE EVENTI SET pubblicato = CASE WHEN pubblicato = 1 THEN 0 ELSE 1 END, updated_at = datetime(\'now\') WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 console.error('Errore SQL toggle pubblicazione evento:', err);
                 return reject({ error: 'Error toggling event publication: ' + err.message });
             }
-            console.log('[DAO:eventi] togglePubblicazioneEvento called with id=', id, 'changes=', this.changes);
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            console.log('[DAO:eventi] togglePubblicazioneEvento called with id=', id, 'changes=', changes);
+            if (changes === 0) {
                 return reject({ error: 'Event not found' });
             }
-            resolve({ success: true });
+            resolve({ success: true, changes });
         });
     });
 }
