@@ -269,7 +269,79 @@ router.delete('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const statistiche = await userDao.getStatistiche();
-        res.render('Contenuti/Statistiche.ejs', { user: req.user, statistiche });
+        // Calcola variazioni reali per le metriche principali
+        const now = new Date();
+        const startCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+        const toIso = (d) => d.toISOString();
+
+        const getCount = (sql, params) => new Promise((resolve) => {
+            db.get(sql, params, (err, row) => {
+                if (err) {
+                    console.error('Error getting count for stats:', err);
+                    return resolve(0);
+                }
+                resolve(row && (row.count || 0) || 0);
+            });
+        });
+
+        // Notizie: pubblicate nel mese corrente vs mese precedente
+        const notizieCurrent = await getCount(
+            'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
+            [toIso(startCurrent), toIso(startNext)]
+        );
+        const notiziePrev = await getCount(
+            'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
+            [toIso(startPrev), toIso(startCurrent)]
+        );
+
+        // Eventi: pubblicati nel mese corrente vs mese precedente (usa data_pubblicazione)
+        const eventiCurrent = await getCount(
+            'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
+            [toIso(startCurrent), toIso(startNext)]
+        );
+        const eventiPrev = await getCount(
+            'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
+            [toIso(startPrev), toIso(startCurrent)]
+        );
+
+        // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
+        let utentiVar = null;
+        let prenotazioniVar = null;
+        if (statistiche && Array.isArray(statistiche.tendenzeMensili) && statistiche.tendenzeMensili.length >= 2) {
+            const arr = statistiche.tendenzeMensili;
+            const last = arr[arr.length - 1];
+            const prev = arr[arr.length - 2];
+            const calc = (cur, prv) => {
+                const delta = (cur || 0) - (prv || 0);
+                const pct = (prv && prv !== 0) ? Math.round((delta / prv) * 100) : null;
+                const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
+                return { delta, pct, direction };
+            };
+            utentiVar = calc(last.nuovi_utenti || 0, prev.nuovi_utenti || 0);
+            prenotazioniVar = calc(last.prenotazioni || 0, prev.prenotazioni || 0);
+        }
+
+        const calcSimpleVar = (cur, prev) => {
+            const delta = (cur || 0) - (prev || 0);
+            const pct = (prev && prev !== 0) ? Math.round((delta / prev) * 100) : null;
+            const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
+            return { delta, pct, direction };
+        };
+
+        const notizieVar = calcSimpleVar(notizieCurrent, notiziePrev);
+        const eventiVar = calcSimpleVar(eventiCurrent, eventiPrev);
+
+        const variazioni = {
+            utenti: utentiVar,
+            notizie: notizieVar,
+            eventi: eventiVar,
+            prenotazioni: prenotazioniVar
+        };
+
+        res.render('Contenuti/Statistiche.ejs', { user: req.user, statistiche, variazioni });
     } catch (err) {
         console.error('Errore nel caricamento delle statistiche:', err);
         res.status(500).send('Errore interno del server');

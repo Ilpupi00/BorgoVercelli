@@ -53,6 +53,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </p>
+                                        <p>
+                                            <% const vu = (typeof variazioni !== 'undefined' && variazioni && variazioni.utenti) ? variazioni.utenti : null; %>
+                                            <% if (vu) { %>
+                                                <% if (vu.pct !== null) { %>
+                                                    <span class="badge <%= vu.direction === 'up' ? 'badge-success' : (vu.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= vu.pct %>% </span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vu.direction === 'up' ? 'badge-success' : (vu.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= (vu.delta >= 0 ? '+' : '') + vu.delta %> </span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -67,6 +79,18 @@
                                         <p class="stats-card-value">
                                             <% if (statistiche && statistiche.notiziePubblicate !== undefined) { %>
                                                 <%= statistiche.notiziePubblicate %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p>
+                                            <% const vn = (typeof variazioni !== 'undefined' && variazioni && variazioni.notizie) ? variazioni.notizie : null; %>
+                                            <% if (vn) { %>
+                                                <% if (vn.pct !== null) { %>
+                                                    <span class="badge <%= vn.direction === 'up' ? 'badge-success' : (vn.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= vn.pct %>% </span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vn.direction === 'up' ? 'badge-success' : (vn.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= (vn.delta >= 0 ? '+' : '') + vn.delta %> </span>
+                                                <% } %>
                                             <% } else { %>
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
@@ -89,6 +113,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </p>
+                                        <p>
+                                            <% const ve = (typeof variazioni !== 'undefined' && variazioni && variazioni.eventi) ? variazioni.eventi : null; %>
+                                            <% if (ve) { %>
+                                                <% if (ve.pct !== null) { %>
+                                                    <span class="badge <%= ve.direction === 'up' ? 'badge-success' : (ve.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= ve.pct %>% </span>
+                                                <% } else { %>
+                                                    <span class="badge <%= ve.direction === 'up' ? 'badge-success' : (ve.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= (ve.delta >= 0 ? '+' : '') + ve.delta %> </span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -103,6 +139,18 @@
                                         <p class="stats-card-value">
                                             <% if (statistiche && statistiche.prenotazioniAttive !== undefined) { %>
                                                 <%= statistiche.prenotazioniAttive %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p>
+                                            <% const vp = (typeof variazioni !== 'undefined' && variazioni && variazioni.prenotazioni) ? variazioni.prenotazioni : null; %>
+                                            <% if (vp) { %>
+                                                <% if (vp.pct !== null) { %>
+                                                    <span class="badge <%= vp.direction === 'up' ? 'badge-success' : (vp.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= vp.pct %>% </span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vp.direction === 'up' ? 'badge-success' : (vp.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"> <%= (vp.delta >= 0 ? '+' : '') + vp.delta %> </span>
+                                                <% } %>
                                             <% } else { %>
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
@@ -178,7 +226,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td><span class="badge badge-success">+5%</span></td>
+                                        <td>
+                                            <% const vu2 = (typeof variazioni !== 'undefined' && variazioni && variazioni.utenti) ? variazioni.utenti : null; %>
+                                            <% if (vu2) { %>
+                                                <% if (vu2.pct !== null) { %>
+                                                    <span class="badge <%= vu2.direction === 'up' ? 'badge-success' : (vu2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vu2.pct>0?'+':'') + vu2.pct %>%</span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vu2.direction === 'up' ? 'badge-success' : (vu2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vu2.delta>=0?'+':'') + vu2.delta %></span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
                                         <td>Questo mese</td>
                                     </tr>
                                     <tr>
@@ -190,7 +249,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td><span class="badge badge-success">+12%</span></td>
+                                        <td>
+                                            <% const vn2 = (typeof variazioni !== 'undefined' && variazioni && variazioni.notizie) ? variazioni.notizie : null; %>
+                                            <% if (vn2) { %>
+                                                <% if (vn2.pct !== null) { %>
+                                                    <span class="badge <%= vn2.direction === 'up' ? 'badge-success' : (vn2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vn2.pct>0?'+':'') + vn2.pct %>%</span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vn2.direction === 'up' ? 'badge-success' : (vn2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vn2.delta>=0?'+':'') + vn2.delta %></span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
                                         <td>Questo mese</td>
                                     </tr>
                                     <tr>
@@ -202,7 +272,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td><span class="badge badge-warning">-2%</span></td>
+                                        <td>
+                                            <% const ve2 = (typeof variazioni !== 'undefined' && variazioni && variazioni.eventi) ? variazioni.eventi : null; %>
+                                            <% if (ve2) { %>
+                                                <% if (ve2.pct !== null) { %>
+                                                    <span class="badge <%= ve2.direction === 'up' ? 'badge-success' : (ve2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (ve2.pct>0?'+':'') + ve2.pct %>%</span>
+                                                <% } else { %>
+                                                    <span class="badge <%= ve2.direction === 'up' ? 'badge-success' : (ve2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (ve2.delta>=0?'+':'') + ve2.delta %></span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
                                         <td>Questo mese</td>
                                     </tr>
                                     <tr>
@@ -214,7 +295,18 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td><span class="badge badge-success">+8%</span></td>
+                                        <td>
+                                            <% const vp2 = (typeof variazioni !== 'undefined' && variazioni && variazioni.prenotazioni) ? variazioni.prenotazioni : null; %>
+                                            <% if (vp2) { %>
+                                                <% if (vp2.pct !== null) { %>
+                                                    <span class="badge <%= vp2.direction === 'up' ? 'badge-success' : (vp2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vp2.pct>0?'+':'') + vp2.pct %>%</span>
+                                                <% } else { %>
+                                                    <span class="badge <%= vp2.direction === 'up' ? 'badge-success' : (vp2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vp2.delta>=0?'+':'') + vp2.delta %></span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
                                         <td>Questa settimana</td>
                                     </tr>
                                 </tbody>
