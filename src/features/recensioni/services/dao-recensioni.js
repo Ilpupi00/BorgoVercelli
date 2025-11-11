@@ -134,11 +134,12 @@ exports.updateRecensione = async (recensioneId, userId, dati) => {
                  WHERE id = ? AND utente_id = ? AND visibile = true`;
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [valutazione, titolo, contenuto, recensioneId, userId], function(err) {
+        sqlite.run(sql, [valutazione, titolo, contenuto, recensioneId, userId], function(err, result) {
             if (err) {
                 return reject({ error: 'Error updating review: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -154,11 +155,12 @@ exports.deleteRecensione = async (recensioneId, userId) => {
     const sql = `UPDATE RECENSIONI SET visibile = false WHERE id = ? AND utente_id = ?`;
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [recensioneId, userId], function(err) {
+        sqlite.run(sql, [recensioneId, userId], function(err, result) {
             if (err) {
                 return reject({ error: 'Error deleting review: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -244,11 +246,12 @@ exports.updateRecensioneVisibile = async (id, visibile) => {
     const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [visibile ? 1 : 0, id], function(err) {
+        sqlite.run(sql, [visibile ? 1 : 0, id], function(err, result) {
             if (err) {
                 return reject({ error: 'Error updating review visibility: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -263,11 +266,12 @@ exports.deleteRecensioneAdmin = async (id) => {
     const sql = `DELETE FROM RECENSIONI WHERE id = ?`;
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 return reject({ error: 'Error deleting review: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
