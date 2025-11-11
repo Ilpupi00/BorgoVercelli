@@ -9,8 +9,14 @@ const path = require('path');
 const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
 const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
 const smtpSecure = (process.env.SMTP_SECURE === 'true') || (smtpPort === 465);
-const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
-const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+// Normalize credentials: trim and remove spaces from app passwords (Google shows them with spaces)
+const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').toString().trim() || undefined;
+const _smtpPassRaw = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '').toString();
+// Google App Passwords are often displayed with spaces for readability. Remove whitespace for real use.
+const smtpPass = _smtpPassRaw.replace(/\s+/g, '').trim() || undefined;
+if (_smtpPassRaw && _smtpPassRaw !== smtpPass) {
+    console.warn('SMTP password contained whitespace; it was stripped automatically for the connection.');
+}
 
 const transporter = nodemailer.createTransport({
     host: smtpHost,
