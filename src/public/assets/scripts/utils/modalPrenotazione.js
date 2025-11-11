@@ -124,9 +124,13 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
     }
     // Filtro solo orari validi (inizio < fine, formato HH:MM, non prenotati, non entro 2 ore)
     const now = new Date();
+    // Accept both HH:MM and HH:MM:SS formats for stored times
     orari = Array.isArray(orari) ? orari.filter(o => {
       if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
-      if (!o.inizio || !o.fine || !o.inizio.match(/^\d{2}:\d{2}$/) || !o.fine.match(/^\d{2}:\d{2}$/) || o.inizio >= o.fine) return false;
+      if (!o.inizio || !o.fine) return false;
+      // allow HH:MM or HH:MM:SS
+      const timeRe = /^\d{2}:\d{2}(:\d{2})?$/;
+      if (!timeRe.test(o.inizio) || !timeRe.test(o.fine) || o.inizio >= o.fine) return false;
       // Filtro orari entro 2 ore solo se la data è oggi
       if (data === now.toISOString().slice(0,10)) {
         const [h, m] = o.inizio.split(":");
