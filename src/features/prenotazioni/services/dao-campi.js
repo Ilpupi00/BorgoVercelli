@@ -157,7 +157,7 @@ exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) 
 exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
     const sql = 'UPDATE ORARI_CAMPI SET ora_inizio = ?, ora_fine = ?, attivo = ?, updated_at = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [oraInizio, oraFine, attivo, id], function(err, result) {
+        sqlite.run(sql, [oraInizio, oraFine, attivo ? true : false, id], function(err, result) {
             if (err) {
                 console.error('Errore SQL update orario campo:', err);
                 return reject({ error: 'Error updating orario: ' + err.message });
