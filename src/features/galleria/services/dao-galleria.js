@@ -108,12 +108,13 @@ exports.updateImmagine = function(id, descrizione) {
     const sql = 'UPDATE IMMAGINI SET descrizione = ?, updated_at = ? WHERE id = ?;';
     return new Promise((resolve, reject) => {
         const now = new Date().toISOString();
-        db.run(sql, [descrizione, now, parseInt(id)], function(err) {
+        db.run(sql, [descrizione, now, parseInt(id)], function(err, result) {
             if (err) {
                 console.error('Errore SQL update:', err);
                 return reject({ error: 'Errore nell\'aggiornamento dell\'immagine: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Immagine non trovata' });
             }
             resolve({ message: 'Immagine aggiornata con successo' });
@@ -158,12 +159,13 @@ exports.deleteImmagine = function(id) {
 
             // Poi elimino dal database
             const deleteSql = 'DELETE FROM IMMAGINI WHERE id = ?;';
-            db.run(deleteSql, [parseInt(id)], function(err) {
+            db.run(deleteSql, [parseInt(id)], function(err, result) {
                 if (err) {
                     console.error('Errore SQL delete:', err);
                     return reject({ error: 'Errore nella cancellazione dell\'immagine: ' + err.message });
                 }
-                if (this.changes === 0) {
+                const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+                if (changes === 0) {
                     return reject({ error: 'Immagine non trovata' });
                 }
                 resolve({ message: 'Immagine cancellata con successo' });
