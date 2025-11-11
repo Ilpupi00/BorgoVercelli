@@ -169,7 +169,8 @@ exports.createNotizia = async function(notiziaData) {
             if (err) {
                 return reject({ error: 'Error creating news: ' + err.message });
             }
-            resolve({ success: true, id: result.rows[0].id });
+            const id = result && result.rows && result.rows[0] ? result.rows[0].id : null;
+            resolve({ success: true, id });
         });
     });
 }
@@ -196,11 +197,12 @@ exports.updateNotizia = async function(id, notiziaData) {
             notiziaData.pubblicata ? true : false,
             notiziaData.pubblicata ? true : false,
             id
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 return reject({ error: 'Error updating news: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -219,11 +221,12 @@ exports.togglePubblicazioneNotizia = async function(id) {
                  WHERE id = ?`;
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 return reject({ error: 'Error toggling news publication: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
