@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Optional SendGrid fallback
-let sgMail;
+/*let sgMail;
 const sendgridApiKey = process.env.SENDGRID_API_KEY;
 if (sendgridApiKey) {
     try {
@@ -15,6 +15,22 @@ if (sendgridApiKey) {
     } catch (e) {
         console.warn('SendGrid package not installed or failed to initialize:', e && e.message);
         sgMail = null;
+    }
+}*/
+
+// Optional Resend provider (https://resend.com)
+let resendClient;
+const resendApiKey = process.env.RESEND_API_KEY;
+if (resendApiKey) {
+    try {
+        // Support both package export shapes
+        const resendPkg = require('resend');
+        const ResendClass = (resendPkg && (resendPkg.Resend || resendPkg.default)) || resendPkg;
+        resendClient = new ResendClass(resendApiKey);
+        if (process.env.EMAIL_DEBUG) console.log('Resend enabled as email provider');
+    } catch (e) {
+        console.warn('Resend package not installed or failed to initialize:', e && e.message);
+        resendClient = null;
     }
 }
 
@@ -68,7 +84,26 @@ async function verifyTransporter() {
 async function sendWithRetry(mailOptions, maxRetries = 3) {
     let attempt = 0;
     let lastErr;
-    // If SendGrid is configured, attempt to send via API first (more reliable on PaaS)
+    // If FORCE_RESEND is set, use Resend exclusively and fail fast if it's not configured.
+    if (process.env.FORCE_RESEND === 'true') {
+        if (!resendClient) {
+            throw new Error('Resend is not configured (RESEND_API_KEY missing) but FORCE_RESEND=true');
+        }
+        if (process.env.EMAIL_DEBUG) console.log('FORCE_RESEND=true: sending only via Resend API');
+        return await sendViaResend(mailOptions);
+    }
+
+    // Prefer Resend (if configured), then SendGrid as API fallbacks — both are more reliable on PaaS
+    if (resendClient) {
+        try {
+            if (process.env.EMAIL_DEBUG) console.log('Attempting send via Resend API');
+            const r = await sendViaResend(mailOptions);
+            return r;
+        } catch (errResend) {
+            console.warn('Resend send failed, falling back to other providers:', errResend && errResend.message);
+        }
+    }
+
     if (sgMail) {
         try {
             if (process.env.EMAIL_DEBUG) console.log('Attempting send via SendGrid API');
@@ -157,6 +192,45 @@ async function sendViaSendGrid(mailOptions) {
         return { messageId: result[0].headers['x-message-id'] || null, raw: result };
     }
     return { messageId: null, raw: result };
+}
+
+// Send using Resend API
+async function sendViaResend(mailOptions) {
+    if (!resendClient) throw new Error('Resend not configured');
+
+    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@borgovercelli.it';
+    const to = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
+
+    const payload = {
+        from,
+        to,
+        subject: mailOptions.subject,
+        html: mailOptions.html
+    };
+
+    if (Array.isArray(mailOptions.attachments) && mailOptions.attachments.length > 0) {
+        payload.attachments = [];
+        for (const att of mailOptions.attachments) {
+            if (att.path && fs.existsSync(att.path)) {
+                const data = fs.readFileSync(att.path);
+                payload.attachments.push({
+                    name: att.filename || path.basename(att.path),
+                    type: att.contentType || 'application/octet-stream',
+                    data: data.toString('base64')
+                });
+            } else if (att.content) {
+                payload.attachments.push({
+                    name: att.filename || 'attachment',
+                    type: att.contentType || 'application/octet-stream',
+                    data: Buffer.from(att.content).toString('base64')
+                });
+            }
+        }
+    }
+
+    const res = await resendClient.emails.send(payload);
+    // Resend returns an object with id
+    return { messageId: res.id || null, raw: res };
 }
 
 // Percorso al logo (verifica che il file esista in questo path)
@@ -859,3 +933,15 @@ exports.sendRevocaEmail = async function(toEmail, userName) {
 // Export helpers for diagnostics/tests
 exports.verifyTransporter = verifyTransporter;
 exports.sendWithRetry = sendWithRetry;
+
+// Convenience helper: send a simple test email via Resend to any address.
+exports.sendTestViaResend = async function(toEmail) {
+    if (!resendClient) throw new Error('Resend not configured (set RESEND_API_KEY)');
+    const mailOptions = {
+        from: process.env.DEFAULT_FROM || 'noreply@borgovercelli.it',
+        to: toEmail,
+        subject: 'Test email da Borgo Vercelli (via Resend)',
+        html: `<p>Questa è una email di test inviata tramite Resend da Borgo Vercelli.</p><p>Se la ricevi su Gmail, la configurazione è corretta.</p>`
+    };
+    return await sendViaResend(mailOptions);
+};

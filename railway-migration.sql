@@ -58,7 +58,8 @@ ON CONFLICT (id) DO NOTHING;
 -- This fixes any existing users that were created with the old default value
 UPDATE UTENTI SET tipo_utente_id = 5 WHERE tipo_utente_id = 0;
 
--- ========================================
+-- ======
+==================================
 -- Migration Complete!
 -- ========================================
 -- After running this script:

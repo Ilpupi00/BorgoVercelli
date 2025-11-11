@@ -271,7 +271,7 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
                 reject({ error: 'Errore eliminazione immagine profilo esistente: ' + err.message });
             } else {
                 console.log('DELETE completato, righe eliminate:', this.changes);
-                resolve();
+                resolve(this.changes);
             }
         });
     });
@@ -279,17 +279,18 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     // Poi inserisci il nuovo record
     const insertSql = `
         INSERT INTO IMMAGINI (descrizione, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
-        VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, NOW(), NOW())
-        RETURNING id
+        VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, ?, ?)
     `;
     console.log('Eseguo INSERT per nuovo record');
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
     return new Promise((resolve, reject) => {
-        sqlite.run(insertSql, [imageUrl, userId], function(err, result) {
+        // Use a regular function to access `this.lastID` and `this.changes`
+        sqlite.run(insertSql, [imageUrl, userId, now, now], function(err) {
             if (err) {
                 console.log('Errore INSERT:', err);
                 reject({ error: 'Errore inserimento immagine profilo: ' + err.message });
             } else {
-                console.log('INSERT completato, nuovo ID:', result.rows[0].id);
+                console.log('INSERT completato, lastID:', this.lastID, 'changes:', this.changes);
                 resolve(true);
             }
         });

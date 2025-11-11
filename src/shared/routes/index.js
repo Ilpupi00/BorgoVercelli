@@ -12,6 +12,28 @@ const { isLoggedIn,isDirigente } = require('../../core/middlewares/auth');
 const emailService = require('../services/email-service');
 const daoCampionati = require('../../features/campionati/services/dao-campionati');
 
+// Admin-only endpoint to verify SMTP connectivity from the running environment.
+// Protected by ADMIN_VERIFY_TOKEN env var. Use either query ?token=... or header 'x-admin-token'.
+router.get('/admin/verify-smtp', async (req, res) => {
+    const token = req.query.token || req.get('x-admin-token');
+    const expected = process.env.ADMIN_VERIFY_TOKEN;
+    if (!expected) return res.status(400).json({ error: 'ADMIN_VERIFY_TOKEN not configured on server' });
+    if (!token || token !== expected) return res.status(403).json({ error: 'Forbidden' });
+
+    try {
+        const ok = await emailService.verifyTransporter();
+        return res.json({ ok: !!ok, message: 'SMTP verify succeeded' });
+    } catch (err) {
+        // Return sanitized error info
+        const safe = {
+            message: err && err.message ? err.message : 'Unknown error',
+            code: err && err.code ? err.code : undefined,
+            responseCode: err && err.responseCode ? err.responseCode : undefined
+        };
+        return res.status(500).json({ ok: false, error: safe });
+    }
+});
+
 
 router.get('/homepage', async (req, res) => {
     try {
