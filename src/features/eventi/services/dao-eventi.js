@@ -198,7 +198,8 @@ exports.deleteEventoById = function(id) {
  * @returns {Promise<Object>} { success }
  */
 exports.togglePubblicazioneEvento = function(id) {
-    const sql = 'UPDATE EVENTI SET pubblicato = CASE WHEN pubblicato = 1 THEN 0 ELSE 1 END, updated_at = datetime(\'now\') WHERE id = ?';
+    // Use boolean inversion and Postgres NOW() to avoid boolean=int comparisons
+    const sql = 'UPDATE EVENTI SET pubblicato = NOT pubblicato, updated_at = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [id], function(err, result) {
             if (err) {
@@ -225,7 +226,7 @@ exports.searchEventi = async function(searchTerm) {
     const sql = `
         SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
         FROM EVENTI
-        WHERE pubblicato = 1 AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
+        WHERE pubblicato = true AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
         ORDER BY data_inizio DESC
         LIMIT 10
     `;
