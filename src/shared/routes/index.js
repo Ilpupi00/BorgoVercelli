@@ -8,7 +8,7 @@ const daoRecensioni = require('../../features/recensioni/services/dao-recensioni
 const daoMembriSocieta = require('../../features/squadre/services/dao-membri-societa');
 const daoSquadre = require('../../features/squadre/services/dao-squadre');
 const daoCampi = require('../../features/prenotazioni/services/dao-campi');
-const { isLoggedIn,isDirigente } = require('../../core/middlewares/auth');
+const { isLoggedIn,isDirigente, isAdminOrDirigente } = require('../../core/middlewares/auth');
 const emailService = require('../services/email-service');
 const daoCampionati = require('../../features/campionati/services/dao-campionati');
 
@@ -264,7 +264,7 @@ router.get('/search', async (req, res) => {
     }
 });
 
-router.get('/notizie/crea_notizie',isLoggedIn,isDirigente,(req,res)=>{
+router.get('/notizie/crea_notizie',isLoggedIn,isAdminOrDirigente,(req,res)=>{
     try{
         // render the notizia form view
         res.render('notizia',{ 
