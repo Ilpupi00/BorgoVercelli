@@ -30,7 +30,7 @@ const makeCampo = (row) => {
         row.created_at ? require('moment')(row.created_at).format('YYYY-MM-DD HH:mm:ss') : null,
         row.updated_at ? require('moment')(row.updated_at).format('YYYY-MM-DD HH:mm:ss') : null,
         row.descrizione,
-        row.Docce,
+        row.docce,
         row.immagine_url || '/assets/images/Campo.png'
     );
 }
@@ -42,7 +42,7 @@ const makeCampo = (row) => {
  */
 exports.getCampi = function(){
     const sql = `
-        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
         WHERE C.attivo = true
@@ -66,9 +66,9 @@ exports.getCampi = function(){
  */
 exports.getCampoById = function(id) {
     const sql = `
-        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
-        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
+        LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id
         WHERE C.id = ?
     `;
     return new Promise((resolve, reject) => {
@@ -198,7 +198,7 @@ exports.deleteOrarioCampo = function(id) {
 exports.createCampo = function(campoData) {
     const sql = `INSERT INTO CAMPI (
         nome, indirizzo, tipo_superficie, dimensioni, illuminazione, coperto, 
-        spogliatoi, capienza_pubblico, attivo, created_at, updated_at, descrizione, Docce
+        spogliatoi, capienza_pubblico, attivo, created_at, updated_at, descrizione, docce
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
     RETURNING id`;
     return new Promise((resolve, reject) => {
@@ -213,7 +213,7 @@ exports.createCampo = function(campoData) {
             campoData.capienza_pubblico,
             campoData.attivo ? true : false,
             campoData.descrizione,
-            campoData.Docce ? true : false
+            campoData.docce ? true : false
         ], function(err, result) {
             if (err) {
                 console.error('Errore SQL create campo:', err);
@@ -287,7 +287,7 @@ exports.deleteCampo=function(id){
  */
 exports.searchCampi = async function(searchTerm) {
     const sql = `
-        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.Docce, I.url as immagine_url, I.id as immagine_id
+        SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
         WHERE C.attivo = true AND (C.nome LIKE ? OR C.indirizzo LIKE ? OR C.descrizione LIKE ?)

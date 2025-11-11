@@ -35,7 +35,7 @@ class Campo{
      * @param {boolean} Docce - true se presenti docce negli spogliatoi
      * @param {string} immagine - URL immagine del campo
      */
-    constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione,Docce,immagine){
+    constructor(id,nome,indirizzo,tipo_superficie,dimensioni,illuminazione,coperto,spogliatoi,capienza_pubblico,attivo,created_at,updated_at,descrizione,docce,immagine){
         this.id = id;
         this.nome = nome;
         this.indirizzo = indirizzo;
@@ -50,7 +50,7 @@ class Campo{
         this.created_at = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.updated_at = updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm:ss') : null;
         this.descrizione = descrizione;
-        this.Docce = Docce;
+        this.docce = docce;
         this.immagine = immagine;
     }
 

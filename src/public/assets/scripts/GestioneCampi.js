@@ -103,7 +103,7 @@ class CampoManager {
         document.getElementById('edit_illuminazione').checked = !!campo.illuminazione;
         document.getElementById('edit_coperto').checked = !!campo.coperto;
         document.getElementById('edit_spogliatoi').checked = !!campo.spogliatoi;
-        document.getElementById('edit_Docce').checked = !!campo.Docce;
+        document.getElementById('edit_docce').checked = !!campo.docce;
         document.getElementById('edit_attivo').checked = !!campo.attivo;
     }
 
@@ -125,7 +125,7 @@ class CampoManager {
         formData.append('illuminazione', document.getElementById('edit_illuminazione').checked ? 1 : 0);
         formData.append('coperto', document.getElementById('edit_coperto').checked ? 1 : 0);
         formData.append('spogliatoi', document.getElementById('edit_spogliatoi').checked ? 1 : 0);
-        formData.append('Docce', document.getElementById('edit_Docce').checked ? 1 : 0);
+        formData.append('docce', document.getElementById('edit_docce').checked ? 1 : 0);
         formData.append('attivo', document.getElementById('edit_attivo').checked ? 1 : 0);
         const immagineInput = document.getElementById('edit_immagine');
         if (immagineInput.files[0]) {

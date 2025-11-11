@@ -582,7 +582,7 @@ router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('imma
         if (campoData.illuminazione !== currentCampo.illuminazione) updateData.illuminazione = campoData.illuminazione;
         if (campoData.coperto !== currentCampo.coperto) updateData.coperto = campoData.coperto;
         if (campoData.spogliatoi !== currentCampo.spogliatoi) updateData.spogliatoi = campoData.spogliatoi;
-        if (campoData.Docce !== currentCampo.Docce) updateData.Docce = campoData.Docce;
+        if (campoData.docce !== currentCampo.docce) updateData.docce = campoData.docce;
         if (campoData.attivo !== currentCampo.attivo) updateData.attivo = campoData.attivo;
         
         // Only update if there are changes

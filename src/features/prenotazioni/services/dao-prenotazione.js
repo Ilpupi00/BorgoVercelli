@@ -45,7 +45,7 @@ const makeCampo = (row) => {
 	       row.created_at,
 	       row.updated_at,
 	       row.descrizione,
-	       row.Docce
+	       row.docce
        );
 }
 
