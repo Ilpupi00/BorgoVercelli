@@ -278,11 +278,12 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
         const toIso = (d) => d.toISOString();
 
         const getCount = (sql, params) => new Promise((resolve) => {
-            db.get(sql, params, (err, row) => {
+            db.get(sql, params, (err, result) => {
                 if (err) {
                     console.error('Error getting count for stats:', err);
                     return resolve(0);
                 }
+                const row = result && result.rows && result.rows[0];
                 resolve(row && (row.count || 0) || 0);
             });
         });
@@ -539,7 +540,7 @@ router.post('/admin/campi', isLoggedIn, isAdmin, upload.single('immagine'), asyn
             const now = new Date().toISOString();
             const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
             await new Promise((resolve, reject) => {
-                db.run(sql, [imageUrl, 'Campo', 'Campo', result.id, 1, now, now], function(err) {
+                db.run(sql, [imageUrl, 'Campo', 'Campo', result.id, 1, now, now], (err, result) => {
                     if (err) reject(err);
                     else resolve();
                 });
@@ -606,7 +607,7 @@ router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('imma
         campoData.illuminazione = campoData.illuminazione == '1' ? 1 : 0;
         campoData.coperto = campoData.coperto == '1' ? 1 : 0;
         campoData.spogliatoi = campoData.spogliatoi == '1' ? 1 : 0;
-        campoData.Docce = campoData.Docce == '1' ? 1 : 0;
+        campoData.docce = campoData.docce == '1' ? 1 : 0;
         campoData.attivo = campoData.attivo == '1' ? 1 : 0;
         
         // Get current campo to compare
@@ -639,7 +640,7 @@ router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('imma
             
             // Prima, elimina eventuali immagini esistenti per questo campo
             await new Promise((resolve, reject) => {
-                db.run('DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?', ['Campo', campoId], function(err) {
+                db.run('DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?', ['Campo', campoId], (err, result) => {
                     if (err) reject(err);
                     else resolve();
                 });
@@ -648,7 +649,7 @@ router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('imma
             // Poi inserisci la nuova immagine
             await new Promise((resolve, reject) => {
                 db.run('INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                    [imageUrl, 'Campo', 'Campo', campoId, 1, now, now], function(err) {
+                    [imageUrl, 'Campo', 'Campo', campoId, 1, now, now], (err, result) => {
                     if (err) reject(err);
                     else resolve();
                 });
@@ -792,8 +793,10 @@ router.get('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
         const campionatiWithStats = await Promise.all(campionati.map(async (c) => {
             // Query per contare squadre nel campionato
             const squadreCount = await new Promise((resolve) => {
-                db.get('SELECT COUNT(*) as count FROM CLASSIFICA WHERE campionato_id = ?', [c.id], (err, row) => {
-                    resolve(err ? 0 : (row.count || 0));
+                db.get('SELECT COUNT(*) as count FROM CLASSIFICA WHERE campionato_id = ?', [c.id], (err, result) => {
+                    if (err) return resolve(0);
+                    const row = result && result.rows && result.rows[0];
+                    resolve(row ? (row.count || 0) : 0);
                 });
             });
 
