@@ -153,7 +153,8 @@ exports.deleteNotiziaById = async function(id) {
  */
 exports.createNotizia = async function(notiziaData) {
     const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = true THEN NOW() ELSE NULL END, 0, NOW(), NOW())`;
+                 VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = true THEN NOW() ELSE NULL END, 0, NOW(), NOW())
+                 RETURNING id`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -164,11 +165,11 @@ exports.createNotizia = async function(notiziaData) {
             notiziaData.autore_id,
             notiziaData.pubblicata,
             notiziaData.pubblicata
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 return reject({ error: 'Error creating news: ' + err.message });
             }
-            resolve({ success: true, id: this.lastID });
+            resolve({ success: true, id: result.rows[0].id });
         });
     });
 }

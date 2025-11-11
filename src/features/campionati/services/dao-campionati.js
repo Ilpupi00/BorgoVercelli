@@ -93,7 +93,7 @@ exports.getCampionati = async function() {
         SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
                promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
-        WHERE attivo = 1
+        WHERE attivo = true
         ORDER BY nome ASC
     `;
 
@@ -190,15 +190,16 @@ exports.createCampionato = async function(campionatoData) {
         campionatoData.retrocessione_diretta || 2
     ];
 
+    const sqlWithReturning = sql + ' RETURNING id';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err) {
+        sqlite.run(sqlWithReturning, values, function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nella creazione del campionato: ' + err.message });
             }
 
             // Ritorna l'ID del nuovo campionato
-            resolve({ id: this.lastID, message: 'Campionato creato con successo' });
+            resolve({ id: result.rows[0].id, message: 'Campionato creato con successo' });
         });
     });
 };
@@ -440,13 +441,14 @@ exports.addSquadraCampionato = async function(campionatoId, squadraData) {
         (squadraData.differenza_reti || ((squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0)))
     ];
 
+    const sqlWithReturning = sql + ' RETURNING id';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err) {
+        sqlite.run(sqlWithReturning, values, function(err, result) {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Errore nell\'aggiunta della squadra: ' + err.message });
             }
-            resolve({ id: this.lastID, message: 'Squadra aggiunta con successo' });
+            resolve({ id: result.rows[0].id, message: 'Squadra aggiunta con successo' });
         });
     });
 };

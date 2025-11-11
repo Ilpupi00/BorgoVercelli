@@ -51,7 +51,7 @@ exports.createUser = function(user) {
                 user.nome,
                 user.cognome,
                 user.telefono || '',
-                0, // tipo_utente_id di default
+                5, // tipo_utente_id di default (5 = Utente normale)
                 now,
                 now,
                 now
@@ -280,15 +280,16 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     const insertSql = `
         INSERT INTO IMMAGINI (descrizione, url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at)
         VALUES ('Foto profilo utente', ?, 'profilo', 'utente', ?, 1, NOW(), NOW())
+        RETURNING id
     `;
     console.log('Eseguo INSERT per nuovo record');
     return new Promise((resolve, reject) => {
-        sqlite.run(insertSql, [imageUrl, userId], function(err) {
+        sqlite.run(insertSql, [imageUrl, userId], function(err, result) {
             if (err) {
                 console.log('Errore INSERT:', err);
                 reject({ error: 'Errore inserimento immagine profilo: ' + err.message });
             } else {
-                console.log('INSERT completato, nuovo ID:', this.lastID);
+                console.log('INSERT completato, nuovo ID:', result.rows[0].id);
                 resolve(true);
             }
         });

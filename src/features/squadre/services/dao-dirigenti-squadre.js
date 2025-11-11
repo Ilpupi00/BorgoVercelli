@@ -83,7 +83,8 @@ exports.addDirigente = function(dirigente) {
             (utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
         const now = moment().format('YYYY-MM-DD HH:mm:ss');
-        sqlite.run(sql, [
+        const sqlWithReturning = sql + ' RETURNING id';
+        sqlite.run(sqlWithReturning, [
             dirigente.utente_id,
             dirigente.squadra_id || null,
             dirigente.ruolo,
@@ -92,11 +93,11 @@ exports.addDirigente = function(dirigente) {
             dirigente.attivo || 1,
             now,
             now
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 reject({ error: 'Error adding dirigente: ' + err.message });
             } else {
-                resolve({ id: this.lastID, message: 'Dirigente added successfully' });
+                resolve({ id: result.rows[0].id, message: 'Dirigente added successfully' });
             }
         });
     });
@@ -152,7 +153,8 @@ exports.getDirigenteByUserId = function (userId) {
  */
 exports.createDirigente = async (dirigenteData) => {
     const sql = `INSERT INTO DIRIGENTI_SQUADRE (utente_id, squadra_id, ruolo, data_nomina, data_scadenza, attivo, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, true, NOW(), NOW())`;
+                 VALUES (?, ?, ?, ?, ?, true, NOW(), NOW())
+                 RETURNING id`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             dirigenteData.utente_id,
@@ -160,11 +162,11 @@ exports.createDirigente = async (dirigenteData) => {
             dirigenteData.ruolo,
             dirigenteData.data_nomina,
             dirigenteData.data_scadenza
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore creazione dirigente: ' + err.message });
             }
-            resolve({ id: this.lastID, ...dirigenteData });
+            resolve({ id: result.rows[0].id, ...dirigenteData });
         });
     });
 }

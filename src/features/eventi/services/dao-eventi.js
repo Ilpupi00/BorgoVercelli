@@ -36,7 +36,7 @@ const makeEvento=(row)=>{
  */
 exports.getEventi = function(){
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI;';
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -55,7 +55,7 @@ exports.getEventi = function(){
  */
 exports.getEventiPubblicati = function(){
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id FROM EVENTI WHERE pubblicato = 1;';
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -99,7 +99,8 @@ exports.createEvento = function(eventoData) {
     const sql = `INSERT INTO EVENTI (
         titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento,
         autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    RETURNING id`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -113,13 +114,13 @@ exports.createEvento = function(eventoData) {
             eventoData.squadra_id,
             eventoData.campo_id,
             eventoData.max_partecipanti,
-            eventoData.pubblicato ? 1 : 0
-        ], function(err) {
+            eventoData.pubblicato ? true : false
+        ], function(err, result) {
             if (err) {
                 console.error('Errore SQL create evento:', err);
                 return reject({ error: 'Error creating event: ' + err.message });
             }
-            resolve({ id: this.lastID, success: true });
+            resolve({ id: result.rows[0].id, success: true });
         });
     });
 }

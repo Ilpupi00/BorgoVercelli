@@ -230,10 +230,10 @@ exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazio
             if (err) return reject(err);
             if (row) return resolve({ error: 'Orario già prenotato' });
             // Nuove prenotazioni iniziano con stato 'in_attesa' e devono essere accettate dall'admin
-            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW())`,
-                [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null], function (err) {
+            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW()) RETURNING id`,
+                [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null], function (err, result) {
                     if (err) return reject(err);
-                    resolve({ success: true, id: this.lastID });
+                    resolve({ success: true, id: result.rows[0].id });
                 }
             );
         });

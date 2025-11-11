@@ -132,14 +132,14 @@ exports.getOrariCampo = function(campoId, giornoSettimana = null) {
  * @returns {Promise<Object>} { success: true, id }
  */
 exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) {
-    const sql = 'INSERT INTO ORARI_CAMPI (campo_id, giorno_settimana, ora_inizio, ora_fine, attivo, created_at, updated_at) VALUES (?, ?, ?, ?, 1, datetime("now"), datetime("now"))';
+    const sql = 'INSERT INTO ORARI_CAMPI (campo_id, giorno_settimana, ora_inizio, ora_fine, attivo, created_at, updated_at) VALUES (?, ?, ?, ?, true, NOW(), NOW()) RETURNING id';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [campoId, giornoSettimana, oraInizio, oraFine], function(err) {
+        sqlite.run(sql, [campoId, giornoSettimana, oraInizio, oraFine], function(err, result) {
             if (err) {
                 console.error('Errore SQL add orario campo:', err);
                 return reject(new Error('Error adding orario: ' + err.message));
             }
-            resolve({ success: true, id: this.lastID });
+            resolve({ success: true, id: result.rows[0].id });
         });
     });
 }
@@ -196,7 +196,8 @@ exports.createCampo = function(campoData) {
     const sql = `INSERT INTO CAMPI (
         nome, indirizzo, tipo_superficie, dimensioni, illuminazione, coperto, 
         spogliatoi, capienza_pubblico, attivo, created_at, updated_at, descrizione, Docce
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
+    RETURNING id`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             campoData.nome,
@@ -209,13 +210,13 @@ exports.createCampo = function(campoData) {
             campoData.capienza_pubblico,
             campoData.attivo ? true : false,
             campoData.descrizione,
-            campoData.Docce ? 1 : 0
-        ], function(err) {
+            campoData.Docce ? true : false
+        ], function(err, result) {
             if (err) {
                 console.error('Errore SQL create campo:', err);
                 return reject({ error: 'Error creating campo: ' + err.message });
             }
-            resolve({ success: true, id: this.lastID });
+            resolve({ success: true, id: result.rows[0].id });
         });
     });
 }

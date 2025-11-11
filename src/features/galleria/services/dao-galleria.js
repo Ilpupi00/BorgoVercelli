@@ -83,14 +83,16 @@ exports.getImmagineById = function(id) {
  * @returns {Promise<Object>} { id }
  */
 exports.insertImmagine = function( url, created_at, updated_at, descrizione = '') {
-    const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
+    const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?) RETURNING id;';
     return new Promise((resolve, reject) => {
-        db.run(sql, [url, 'upload della Galleria', descrizione, created_at, updated_at], function(err) {
+        db.run(sql, [url, 'upload della Galleria', descrizione, created_at, updated_at], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert:', err);
                 return reject({ error: 'Errore nell\'inserimento dell\'immagine: ' + err.message });
             }
-            resolve({ id: this.lastID });
+            // In Postgres con RETURNING, il risultato è in result.rows[0]
+            const insertId = result && result.rows && result.rows[0] ? result.rows[0].id : null;
+            resolve({ id: insertId });
         });
     });
 }
@@ -192,13 +194,13 @@ exports.getAllImmagini = function() {
     // by stripping the leading '/'.
     const url = '/uploads/' + file.filename;
         const now = new Date().toISOString();
-        const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?);';
-        db.run(sql, [url, tipo, '', now, now], function(err) {
+        const sql = 'INSERT INTO IMMAGINI (url, tipo, descrizione, created_at, updated_at) VALUES (?, ?, ?, ?, ?) RETURNING id';
+        db.run(sql, [url, tipo, '', now, now], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert immagine:', err);
                 return reject({ error: 'Errore nell\'inserimento dell\'immagine: ' + err.message });
             }
-            resolve(this.lastID);
+            resolve(result.rows[0].id);
         });
     });
 }
@@ -232,15 +234,15 @@ exports.updateImmagineEntitaId = function(id, entita_id) {
  * @returns {Promise<Object>} { id }
  */
 exports.insertImmagineNotizia = function(url, entita_id, ordine) {
-    const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);';
+    const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id';
     return new Promise((resolve, reject) => {
         const now = new Date().toISOString();
-        db.run(sql, [url, 'notizia', 'notizia', entita_id, ordine, now, now], function(err) {
+        db.run(sql, [url, 'notizia', 'notizia', entita_id, ordine, now, now], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert immagine notizia:', err);
                 return reject({ error: 'Errore nell\'inserimento dell\'immagine notizia: ' + err.message });
             }
-            resolve({ id: this.lastID });
+            resolve({ id: result.rows[0].id });
         });
     });
 }

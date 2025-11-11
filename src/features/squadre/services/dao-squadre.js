@@ -129,14 +129,14 @@ exports.getGiocatori =async ()=>{
  * @returns {Promise<Object>} { id, message }
  */
 exports.createSquadra = function(nome, annoFondazione) {
-    const sql = 'INSERT INTO SQUADRE (nome, Anno) VALUES (?, ?)';
+    const sql = 'INSERT INTO SQUADRE (nome, Anno) VALUES (?, ?) RETURNING id';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [nome, annoFondazione], function(err) {
+        sqlite.run(sql, [nome, annoFondazione], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert squadra:', err);
                 return reject({ error: 'Errore nella creazione della squadra: ' + err.message });
             }
-            resolve({ id: this.lastID, message: 'Squadra creata con successo' });
+            resolve({ id: result.rows[0].id, message: 'Squadra creata con successo' });
         });
     });
 }
@@ -292,7 +292,8 @@ exports.getGiocatoriBySquadra = function(squadraId) {
 exports.createGiocatore = function(giocatoreData) {
     const sql = `INSERT INTO GIOCATORI
         (Nome, Cognome, numero_maglia, ruolo, data_nascita, piede_preferito, Nazionalità, squadra_id, immagini_id, attivo, data_inizio_tesseramento)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true, NOW())`;
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true, NOW())
+        RETURNING id`;
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
             giocatoreData.nome,
@@ -304,12 +305,12 @@ exports.createGiocatore = function(giocatoreData) {
             giocatoreData.nazionalita || null,
             giocatoreData.squadra_id,
             giocatoreData.immagini_id || null
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert giocatore:', err);
                 return reject({ error: 'Errore nella creazione del giocatore: ' + err.message });
             }
-            resolve({ id: this.lastID, message: 'Giocatore creato con successo' });
+            resolve({ id: result.rows[0].id, message: 'Giocatore creato con successo' });
         });
     });
 }
@@ -382,9 +383,10 @@ exports.getGiocatoreById = function(id) {
  */
 exports.addGiocatore = function(squadraId, giocatoreData) {
     const sql = `INSERT INTO GIOCATORI (
-        squadra_id, numero_maglia, ruolo, piede_preferito, Nazionalita, Nome, Cognome, id_immagine,
+        squadra_id, numero_maglia, ruolo, piede_preferito, Nazionalità, Nome, Cognome, immagini_id,
         data_inizio_tesseramento, attivo, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), true, NOW(), NOW())`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), true, NOW(), NOW())
+    RETURNING id`;
 
     return new Promise((resolve, reject) => {
         sqlite.run(sql, [
@@ -396,12 +398,12 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
             giocatoreData.nome,
             giocatoreData.cognome,
             giocatoreData.foto
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore nell\'aggiunta del giocatore: ' + err.message });
             }
             // Recupera il giocatore appena creato
-            exports.getGiocatoreById(this.lastID)
+            exports.getGiocatoreById(result.rows[0].id)
                 .then(giocatore => resolve(giocatore))
                 .catch(err => reject(err));
         });
@@ -459,7 +461,8 @@ exports.addDirigente = function(squadraId, email) {
                 }
 
                 // Aggiungi il dirigente
-                sqlite.run(sqlInsertDirigente, [parseInt(squadraId), user.id], function(err) {
+                const sqlInsertWithReturning = sqlInsertDirigente + ' RETURNING id';
+                sqlite.run(sqlInsertWithReturning, [parseInt(squadraId), user.id], function(err, result) {
                     if (err) {
                         return reject({ error: 'Errore nell\'aggiunta del dirigente: ' + err.message });
                     }
@@ -470,7 +473,7 @@ exports.addDirigente = function(squadraId, email) {
                         JOIN UTENTI u ON ds.utente_id = u.id
                         WHERE ds.id = ?
                     `;
-                    sqlite.get(sqlGetDirigente, [this.lastID], (err, dirigente) => {
+                    sqlite.get(sqlGetDirigente, [result.rows[0].id], (err, dirigente) => {
                         if (err) {
                             return reject({ error: 'Errore nel recupero del dirigente: ' + err.message });
                         }
