@@ -159,12 +159,13 @@ exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
     sql += ' WHERE id = ?';
     params.push(parseInt(id));
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, params, function(err) {
+        sqlite.run(sql, params, function(err, result) {
             if (err) {
                 console.error('Errore SQL update squadra:', err);
                 return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Squadra non trovata' });
             }
             resolve({ message: 'Squadra aggiornata con successo' });
@@ -180,12 +181,13 @@ exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
 exports.deleteSquadra = function(id) {
     const sql = 'DELETE FROM SQUADRE WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(id)], function(err) {
+        sqlite.run(sql, [parseInt(id)], function(err, result) {
             if (err) {
                 console.error('Errore SQL delete squadra:', err);
                 return reject({ error: 'Errore nella cancellazione della squadra: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Squadra non trovata' });
             }
             resolve({ message: 'Squadra cancellata con successo' });
@@ -325,12 +327,13 @@ exports.createGiocatore = function(giocatoreData) {
 exports.deleteGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = false, data_fine_tesseramento = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(id)], function(err) {
+        sqlite.run(sql, [parseInt(id)], function(err, result) {
             if (err) {
                 console.error('Errore SQL delete giocatore:', err);
                 return reject({ error: 'Errore nella rimozione del giocatore: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Giocatore non trovato' });
             }
             resolve({ message: 'Giocatore rimosso con successo' });
@@ -494,11 +497,12 @@ exports.addDirigente = function(squadraId, email) {
 exports.removeDirigente = function(squadraId, dirigenteId) {
     const sql = 'DELETE FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(squadraId), parseInt(dirigenteId)], function(err) {
+        sqlite.run(sql, [parseInt(squadraId), parseInt(dirigenteId)], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore nella rimozione del dirigente: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Dirigente non trovato in questa squadra' });
             }
             resolve({ message: 'Dirigente rimosso con successo' });
@@ -529,11 +533,12 @@ exports.updateGiocatore = async (id, giocatoreData) => {
             giocatoreData.nazionalita,
             giocatoreData.immagini_id,
             id
-        ], function(err) {
+        ], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore aggiornamento giocatore: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Giocatore non trovato' });
             }
             resolve({ message: 'Giocatore aggiornato' });
