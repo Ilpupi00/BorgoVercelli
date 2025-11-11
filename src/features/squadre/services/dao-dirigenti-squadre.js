@@ -90,7 +90,7 @@ exports.addDirigente = function(dirigente) {
             dirigente.ruolo,
             dirigente.data_nomina || now,
             dirigente.data_scadenza,
-            dirigente.attivo || 1,
+            dirigente.attivo ? true : false,
             now,
             now
         ], function(err, result) {
@@ -112,12 +112,15 @@ exports.addDirigente = function(dirigente) {
 exports.removeDirigente = function(id) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = false, updated_at = NOW() WHERE id = ?`;
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
-                reject({ error: 'Error removing dirigente: ' + err.message });
-            } else {
-                resolve({ message: 'Dirigente removed successfully' });
+                return reject({ error: 'Error removing dirigente: ' + err.message });
             }
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
+                return reject({ error: 'Dirigente non trovato' });
+            }
+            resolve({ message: 'Dirigente removed successfully' });
         });
     });
 };
@@ -188,11 +191,12 @@ exports.updateDirigente = async (id, dirigenteData) => {
     sql += ` WHERE id = ?`;
     params.push(id);
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, params, function(err) {
+        sqlite.run(sql, params, function(err, result) {
             if (err) {
                 return reject({ error: 'Errore aggiornamento dirigente: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Dirigente non trovato' });
             }
             resolve({ message: 'Dirigente aggiornato' });
@@ -209,11 +213,12 @@ exports.updateDirigente = async (id, dirigenteData) => {
 exports.deleteDirigente = async (id) => {
     const sql = 'UPDATE DIRIGENTI_SQUADRE SET attivo = false WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore eliminazione dirigente: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Dirigente non trovato' });
             }
             resolve({ message: 'Dirigente eliminato' });
@@ -230,11 +235,12 @@ exports.deleteDirigente = async (id) => {
 exports.restoreDirigente = function(id) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = true, updated_at = NOW() WHERE id = ?`;
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore ripristino dirigente: ' + err.message });
             }
-            if (this.changes === 0) {
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            if (changes === 0) {
                 return reject({ error: 'Dirigente non trovato' });
             }
             resolve({ message: 'Dirigente ripristinato' });
@@ -250,12 +256,12 @@ exports.restoreDirigente = function(id) {
 exports.restoreAllDirigenti = function() {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE DIRIGENTI_SQUADRE SET attivo = true, updated_at = NOW() WHERE attivo = false`;
-        sqlite.run(sql, [], function(err) {
+        sqlite.run(sql, [], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore ripristino massivo dirigenti: ' + err.message });
             }
-            // this.changes contiene il numero di righe aggiornate
-            resolve({ message: 'Ripristino massivo completato', changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ message: 'Ripristino massivo completato', changes });
         });
     });
 }
