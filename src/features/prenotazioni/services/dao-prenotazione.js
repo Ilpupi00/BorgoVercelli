@@ -22,6 +22,7 @@ exports.deletePrenotazioneById = async (id) => {
 const Campo = require('../../../core/models/campo.js');
 const Immagine = require('../../../core/models/immagine.js');
 const Prenotazione = require('../../../core/models/prenotazione.js');
+const campiDao = require('./dao-campi');
 
 // ==================== FACTORY FUNCTIONS ====================
 
@@ -144,19 +145,17 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
     const giornoSettimana = dateObj.getDay(); // 0=Dom, 1=Lun, ..., 6=Sab
 
     // Ottieni orari disponibili per questo campo e giorno
-    const orariCampo = await new Promise((resolve, reject) => {
-        const sql = `
-            SELECT ora_inizio, ora_fine 
-            FROM ORARI_CAMPI 
-            WHERE campo_id = ? AND attivo = true 
-            AND (giorno_settimana = ? OR giorno_settimana IS NULL)
-            ORDER BY ora_inizio
-        `;
-        db.all(sql, [campoId, giornoSettimana], (err, rows) => {
-            if (err) return reject(err);
-            resolve(rows || []);
-        });
-    });
+    // Usa il DAO `dao-campi` che implementa la logica di fallback tra orari specifici
+    // per il giorno della settimana e orari default (giorno_settimana IS NULL).
+    let orariCampo = [];
+    try {
+        orariCampo = await campiDao.getOrariCampo(campoId, giornoSettimana);
+        console.log('[PRENOTAZIONE] debug orariCampo rows count:', Array.isArray(orariCampo) ? orariCampo.length : 0);
+        console.log('[PRENOTAZIONE] debug orariCampo rows:', orariCampo || []);
+    } catch (e) {
+        console.error('[PRENOTAZIONE] errore recupero orariCampo dal dao-campi:', e);
+        orariCampo = [];
+    }
 
     let orariDisponibili = orariCampo.map(o => ({ inizio: o.ora_inizio, fine: o.ora_fine }));
 
