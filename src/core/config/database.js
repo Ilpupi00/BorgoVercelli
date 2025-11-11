@@ -11,8 +11,13 @@
 if (!process.env.DATABASE_URL) {
     console.error('[database] FATAL: process.env.DATABASE_URL non è impostata.');
     console.error('[database] L\'applicazione è configurata per connettersi solo a Postgres tramite DATABASE_URL (es. fornita da Railway).');
+    console.error('[database] Assicurati di configurare DATABASE_URL nelle variabili d\'ambiente.');
     process.exit(1);
 }
+
+// Log della connessione per debugging (nasconde la password)
+const maskedUrl = process.env.DATABASE_URL.replace(/:[^:@]+@/, ':****@');
+console.log('[database] Tentativo di connessione a:', maskedUrl);
 
 const { Pool } = require('pg');
 
@@ -21,10 +26,32 @@ const useSSL = process.env.NODE_ENV === 'production' || process.env.PGSSLMODE ==
 
 const pool = new Pool({
     connectionString,
-    ssl: useSSL ? { rejectUnauthorized: false } : false
+    ssl: useSSL ? { rejectUnauthorized: false } : false,
+    // Configurazioni aggiuntive per stabilità
+    max: 20, // Numero massimo di connessioni nel pool
+    idleTimeoutMillis: 30000, // Chiudi connessioni inattive dopo 30 secondi
+    connectionTimeoutMillis: 10000, // Timeout di connessione 10 secondi
 });
 
 console.log('[database] using Postgres via DATABASE_URL');
+console.log('[database] SSL:', useSSL ? 'enabled' : 'disabled');
+console.log('[database] NODE_ENV:', process.env.NODE_ENV || 'development');
+
+// Gestione errori del pool
+pool.on('error', (err, client) => {
+    console.error('[database] Unexpected error on idle client', err);
+    // Non terminare il processo, lascia che l'app continui
+});
+
+// Test connessione al database
+pool.query('SELECT NOW()')
+    .then(() => {
+        console.log('[database] ✅ Connessione al database stabilita con successo');
+    })
+    .catch(err => {
+        console.error('[database] ❌ Errore durante la connessione al database:', err.message);
+        console.error('[database] Verifica che DATABASE_URL sia corretto e che il database sia accessibile');
+    });
 
 // Helper: convert SQL with '?' placeholders to Postgres $1, $2 ... placeholders
 function convertQuestionPlaceholders(sql) {
