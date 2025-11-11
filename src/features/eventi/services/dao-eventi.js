@@ -24,8 +24,7 @@ const makeEvento=(row)=>{
         row.max_partecipanti,
         row.pubblicato,
         row.created_at,
-        row.updated_at,
-        row.immagini_id
+        row.updated_at
     );
 }
 
@@ -220,7 +219,7 @@ exports.togglePubblicazioneEvento = function(id) {
  */
 exports.searchEventi = async function(searchTerm) {
     const sql = `
-        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at, immagini_id
+        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
         FROM EVENTI
         WHERE pubblicato = 1 AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
         ORDER BY data_inizio DESC

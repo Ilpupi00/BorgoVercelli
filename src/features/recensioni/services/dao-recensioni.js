@@ -23,8 +23,7 @@ exports.getRecensioni = async () => {
     RECENSIONI.data_recensione,
     RECENSIONI.visibile,
     UTENTI.nome AS nome_utente,
-    UTENTI.cognome AS cognome_utente,
-    UTENTI.immagine_profilo AS immagine_utente
+    UTENTI.cognome AS cognome_utente
     FROM
         RECENSIONI
     JOIN
