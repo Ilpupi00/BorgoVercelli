@@ -170,17 +170,20 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
             return (orarioDate.getTime() - now.getTime()) >= 2 * 60 * 60 * 1000;
         });
     }
-    // Filtro sempre orari entro 2 ore anche se la data non è oggi (per sicurezza)
-    if (dataNorm !== now.toISOString().slice(0,10)) {
-        // Se la data è futura, non serve filtro
-        // Se la data è passata, non mostrare nulla
-        const richiestaDate = new Date(dataNorm);
-        if (richiestaDate < now) {
+    // Se la data richiesta non è oggi, confrontiamo solo la data (string) per evitare
+    // problemi dovuti al fuso orario / orari locali. Se la data richiesta è nel passato
+    // non mostriamo disponibilità.
+    const todayStr = now.toISOString().slice(0,10);
+    if (dataNorm !== todayStr) {
+        if (dataNorm < todayStr) {
             orariDisponibili = [];
         }
     }
+
     return new Promise((resolve,reject)=>{
-        db.all(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ?`, [campoId, dataNorm], (err, rows) => {
+        // Esegui la query usando placeholder (il wrapper converte ? in $1 ecc.)
+        const prenSql = `SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ?`;
+        db.all(prenSql, [campoId, dataNorm], (err, rows) => {
             if (err) return reject(err);
             const prenotazioni = rows.map(makePrenotazione);
             const orariOccupati = prenotazioni.map(p => ({ inizio: p.ora_inizio, fine: p.ora_fine }));
@@ -197,7 +200,7 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
                     return inizioP < fineO && fineP > inizioO;
                 });
             });
-            console.log('[PRENOTAZIONE] Query:', `SELECT * FROM PRENOTAZIONI WHERE campo_id = ${campoId} AND data_prenotazione = ${dataNorm}`);
+            console.log('[PRENOTAZIONE] Query:', prenSql, [campoId, dataNorm]);
             console.log('[PRENOTAZIONE] Prenotazioni trovate:', prenotazioni);
             console.log('[PRENOTAZIONE] Orari disponibili:', disponibili);
             resolve(disponibili);
