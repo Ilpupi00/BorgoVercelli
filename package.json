@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./src/server/www"
+    "start": "node ./src/server/www",
+    "postinstall": "node ./scripts/run-create-db.js || true"
   },
   "dependencies": {
     "axios": "^1.12.2",
