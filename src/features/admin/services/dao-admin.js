@@ -117,7 +117,10 @@ function countNotiziePubblicate(dataInizio, dataFine) {
  */
 function countEventiPubblicati(dataInizio, dataFine) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?';
+        // Nota: la tabella EVENTI non contiene una colonna 'data_pubblicazione'.
+        // Usiamo 'data_inizio' come timestamp di riferimento per il conteggio degli eventi
+        // pubblicati nel periodo richiesto.
+        const sql = 'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_inizio >= ? AND data_inizio < ?';
         db.get(sql, [dataInizio, dataFine], (err, result) => {
             if (err) {
                 console.error('Errore conteggio eventi pubblicati:', err);
