@@ -246,7 +246,7 @@ exports.updateRecensioneVisibile = async (id, visibile) => {
     const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [visibile ? 1 : 0, id], function(err, result) {
+    sqlite.run(sql, [visibile ? true : false, id], function(err, result) {
             if (err) {
                 return reject({ error: 'Error updating review visibility: ' + err.message });
             }
