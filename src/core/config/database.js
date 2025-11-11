@@ -26,22 +26,34 @@ const pool = new Pool({
 
 console.log('[database] using Postgres via DATABASE_URL');
 
+// Helper: convert SQL with '?' placeholders to Postgres $1, $2 ... placeholders
+function convertQuestionPlaceholders(sql) {
+    let index = 0;
+    return sql.replace(/\?/g, () => {
+        index += 1;
+        return `$${index}`;
+    });
+}
+
 const db = {
     get: (sql, params, cb) => {
         if (typeof params === 'function') { cb = params; params = []; }
-        pool.query(sql, params)
+        const pgSql = convertQuestionPlaceholders(sql);
+        pool.query(pgSql, params)
             .then(res => cb && cb(null, res.rows && res.rows[0] ? res.rows[0] : undefined))
             .catch(err => cb && cb(err));
     },
     all: (sql, params, cb) => {
         if (typeof params === 'function') { cb = params; params = []; }
-        pool.query(sql, params)
+        const pgSql = convertQuestionPlaceholders(sql);
+        pool.query(pgSql, params)
             .then(res => cb && cb(null, res.rows))
             .catch(err => cb && cb(err));
     },
     run: (sql, params, cb) => {
         if (typeof params === 'function') { cb = params; params = []; }
-        pool.query(sql, params)
+        const pgSql = convertQuestionPlaceholders(sql);
+        pool.query(pgSql, params)
             .then(res => {
                 if (cb) cb(null, { rowCount: res.rowCount, rows: res.rows });
             })
