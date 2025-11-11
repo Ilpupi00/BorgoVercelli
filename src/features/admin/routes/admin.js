@@ -3,20 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const multer = require('multer');
-const db = require('../../../core/config/database');
-
-// Configurazione multer per upload immagini
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../../public/uploads'));
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+const { upload } = require('../../../core/config/multer');
 const { isLoggedIn, isAdmin, isAdminOrDirigente } = require('../../../core/middlewares/auth');
 const userDao = require('../../users/services/dao-user');
 const notizieDao = require('../../notizie/services/dao-notizie');
@@ -28,6 +15,7 @@ const recensioniDao = require('../../recensioni/services/dao-recensioni');
 const prenotazioniDao = require('../../prenotazioni/services/dao-prenotazione');
 const dirigenteDao = require('../../squadre/services/dao-dirigenti-squadre');
 const campionatiDao = require('../../campionati/services/dao-campionati');
+const adminDao = require('../services/dao-admin');
 
 /**
  * Admin Routes per la gestione del sito
@@ -277,36 +265,13 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
 
         const toIso = (d) => d.toISOString();
 
-        const getCount = (sql, params) => new Promise((resolve) => {
-            db.get(sql, params, (err, result) => {
-                if (err) {
-                    console.error('Error getting count for stats:', err);
-                    return resolve(0);
-                }
-                const row = result && result.rows && result.rows[0];
-                resolve(row && (row.count || 0) || 0);
-            });
-        });
-
         // Notizie: pubblicate nel mese corrente vs mese precedente
-        const notizieCurrent = await getCount(
-            'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
-            [toIso(startCurrent), toIso(startNext)]
-        );
-        const notiziePrev = await getCount(
-            'SELECT COUNT(*) as count FROM NOTIZIE WHERE pubblicata = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
-            [toIso(startPrev), toIso(startCurrent)]
-        );
+        const notizieCurrent = await adminDao.countNotiziePubblicate(toIso(startCurrent), toIso(startNext));
+        const notiziePrev = await adminDao.countNotiziePubblicate(toIso(startPrev), toIso(startCurrent));
 
         // Eventi: pubblicati nel mese corrente vs mese precedente (usa data_pubblicazione)
-        const eventiCurrent = await getCount(
-            'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
-            [toIso(startCurrent), toIso(startNext)]
-        );
-        const eventiPrev = await getCount(
-            'SELECT COUNT(*) as count FROM EVENTI WHERE pubblicato = true AND data_pubblicazione >= ? AND data_pubblicazione < ?',
-            [toIso(startPrev), toIso(startCurrent)]
-        );
+        const eventiCurrent = await adminDao.countEventiPubblicati(toIso(startCurrent), toIso(startNext));
+        const eventiPrev = await adminDao.countEventiPubblicati(toIso(startPrev), toIso(startCurrent));
 
         // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
         let utentiVar = null;
@@ -537,14 +502,7 @@ router.post('/admin/campi', isLoggedIn, isAdmin, upload.single('immagine'), asyn
         // Se c'è un'immagine, salvala nella tabella IMMAGINI
         if (req.file) {
             const imageUrl = '/uploads/' + req.file.filename;
-            const now = new Date().toISOString();
-            const sql = 'INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            await new Promise((resolve, reject) => {
-                db.run(sql, [imageUrl, 'Campo', 'Campo', result.id, 1, now, now], (err, result) => {
-                    if (err) reject(err);
-                    else resolve();
-                });
-            });
+            await adminDao.insertImmagine(imageUrl, 'Campo', 'Campo', result.id, 1);
         }
         
         // Dopo aver creato il campo, aggiungi orari di default
@@ -636,24 +594,12 @@ router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('imma
         // Se c'è un'immagine, aggiorna o inserisci nella tabella IMMAGINI
         if (req.file) {
             const imageUrl = '/uploads/' + req.file.filename;
-            const now = new Date().toISOString();
             
             // Prima, elimina eventuali immagini esistenti per questo campo
-            await new Promise((resolve, reject) => {
-                db.run('DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?', ['Campo', campoId], (err, result) => {
-                    if (err) reject(err);
-                    else resolve();
-                });
-            });
+            await adminDao.deleteImmaginiByEntita('Campo', campoId);
             
             // Poi inserisci la nuova immagine
-            await new Promise((resolve, reject) => {
-                db.run('INSERT INTO IMMAGINI (url, tipo, entita_riferimento, entita_id, ordine, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                    [imageUrl, 'Campo', 'Campo', campoId, 1, now, now], (err, result) => {
-                    if (err) reject(err);
-                    else resolve();
-                });
-            });
+            await adminDao.insertImmagine(imageUrl, 'Campo', 'Campo', campoId, 1);
         }
         
         res.json({ success: true, updated });
@@ -792,13 +738,7 @@ router.get('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
         // Conta squadre per ogni campionato
         const campionatiWithStats = await Promise.all(campionati.map(async (c) => {
             // Query per contare squadre nel campionato
-            const squadreCount = await new Promise((resolve) => {
-                db.get('SELECT COUNT(*) as count FROM CLASSIFICA WHERE campionato_id = ?', [c.id], (err, result) => {
-                    if (err) return resolve(0);
-                    const row = result && result.rows && result.rows[0];
-                    resolve(row ? (row.count || 0) : 0);
-                });
-            });
+            const squadreCount = await adminDao.countSquadreByCampionato(c.id);
 
             return {
                 id: c.id,
