@@ -354,8 +354,8 @@ exports.getUserStats = function(userId) {
             SELECT
                 (SELECT COUNT(*) FROM PRENOTAZIONI WHERE utente_id = ?) as prenotazioni_totali,
                 (SELECT COUNT(*) FROM RECENSIONI WHERE utente_id = ?) as recensioni_totali,
-                (SELECT COUNT(*) FROM PRENOTAZIONI WHERE utente_id = ? AND data_prenotazione >= date('now', '-30 days')) as prenotazioni_mese,
-                (SELECT COUNT(*) FROM RECENSIONI WHERE utente_id = ? AND created_at >= datetime('now', '-30 days')) as recensioni_mese
+                (SELECT COUNT(*) FROM PRENOTAZIONI WHERE utente_id = ? AND data_prenotazione >= (CURRENT_DATE - INTERVAL '30 days')) as prenotazioni_mese,
+                (SELECT COUNT(*) FROM RECENSIONI WHERE utente_id = ? AND created_at >= (NOW() - INTERVAL '30 days')) as recensioni_mese
         `;
         sqlite.get(sql, [userId, userId, userId, userId], (err, stats) => {
             if (err) {
@@ -530,7 +530,7 @@ exports.getStatistiche = async () => {
         const prenotazioniAttive = await new Promise((resolve, reject) => {
             sqlite.get(`
                 SELECT COUNT(*) as count FROM PRENOTAZIONI 
-                WHERE data_prenotazione >= date('now')
+                WHERE data_prenotazione >= CURRENT_DATE
             `, (err, row) => {
                 if (err) reject(err);
                 else resolve(row.count);
@@ -558,10 +558,10 @@ exports.getStatistiche = async () => {
                 SELECT 
                     'registrazione' as tipo,
                     COUNT(*) as count,
-                    strftime('%Y-%m', data_registrazione) as periodo
+                    TO_CHAR(data_registrazione, 'YYYY-MM') as periodo
                 FROM UTENTI 
-                WHERE data_registrazione >= date('now', '-30 days')
-                GROUP BY strftime('%Y-%m', data_registrazione)
+                WHERE data_registrazione >= (CURRENT_DATE - INTERVAL '30 days')
+                GROUP BY TO_CHAR(data_registrazione, 'YYYY-MM')
                 UNION ALL
                 SELECT 
                     'notizia' as tipo,
@@ -590,11 +590,11 @@ exports.getStatistiche = async () => {
         const tendenzeMensili = await new Promise((resolve, reject) => {
             sqlite.all(`
                 SELECT 
-                    strftime('%Y-%m', data_registrazione) as mese,
+                    TO_CHAR(data_registrazione, 'YYYY-MM') as mese,
                     COUNT(*) as nuovi_utenti
                 FROM UTENTI 
-                WHERE data_registrazione >= date('now', '-6 months')
-                GROUP BY strftime('%Y-%m', data_registrazione)
+                WHERE data_registrazione >= (CURRENT_DATE - INTERVAL '6 months')
+                GROUP BY TO_CHAR(data_registrazione, 'YYYY-MM')
                 ORDER BY mese ASC
             `, (err, rows) => {
                 if (err) reject(err);
@@ -606,11 +606,11 @@ exports.getStatistiche = async () => {
         const prenotazioniMensili = await new Promise((resolve, reject) => {
             sqlite.all(`
                 SELECT 
-                    strftime('%Y-%m', data_prenotazione) as mese,
+                    TO_CHAR(data_prenotazione, 'YYYY-MM') as mese,
                     COUNT(*) as prenotazioni
                 FROM PRENOTAZIONI 
-                WHERE data_prenotazione >= date('now', '-6 months')
-                GROUP BY strftime('%Y-%m', data_prenotazione)
+                WHERE data_prenotazione >= (CURRENT_DATE - INTERVAL '6 months')
+                GROUP BY TO_CHAR(data_prenotazione, 'YYYY-MM')
                 ORDER BY mese ASC
             `, (err, rows) => {
                 if (err) reject(err);
