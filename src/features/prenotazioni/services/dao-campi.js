@@ -155,14 +155,16 @@ exports.addOrarioCampo = function(campoId, giornoSettimana, oraInizio, oraFine) 
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
-    const sql = 'UPDATE ORARI_CAMPI SET ora_inizio = ?, ora_fine = ?, attivo = ?, updated_at = datetime("now") WHERE id = ?';
+    const sql = 'UPDATE ORARI_CAMPI SET ora_inizio = ?, ora_fine = ?, attivo = ?, updated_at = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [oraInizio, oraFine, attivo, id], function(err) {
+        sqlite.run(sql, [oraInizio, oraFine, attivo, id], function(err, result) {
             if (err) {
                 console.error('Errore SQL update orario campo:', err);
                 return reject({ error: 'Error updating orario: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            // result.rowCount contains number of affected rows for Postgres wrapper
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -176,12 +178,13 @@ exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
 exports.deleteOrarioCampo = function(id) {
     const sql = 'DELETE FROM ORARI_CAMPI WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 console.error('Errore SQL delete orario campo:', err);
                 return reject({ error: 'Error deleting orario: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -245,12 +248,13 @@ exports.updateCampo = function(id, campoData) {
     
     const sql = `UPDATE CAMPI SET ${setClause}, updated_at = NOW() WHERE id = ?`;
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err) {
+        sqlite.run(sql, values, function(err, result) {
             if (err) {
                 console.error('Errore SQL update campo:', err);
                 return reject({ error: 'Error updating campo: ' + err.message });
             }
-            resolve({ success: true, changes: this.changes });
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
         });
     });
 }
@@ -264,12 +268,13 @@ exports.updateCampo = function(id, campoData) {
 exports.deleteCampo=function(id){
     const sql='DELETE FROM CAMPI WHERE id=?';
     return new Promise((resolve,reject)=>{
-        sqlite.run(sql,[id],function(err){
+        sqlite.run(sql,[id],function(err, result){
             if(err){
                 console.error('Errore SQL delete campo:',err);
                 return reject({error:'Error deleting campo: '+err.message});
             }
-            resolve({success:true,changes:this.changes});
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({success:true,changes});
         });
     });
 }
