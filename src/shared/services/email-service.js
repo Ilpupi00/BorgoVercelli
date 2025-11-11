@@ -3,17 +3,83 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Configurazione del trasportatore per Gmail SMTP
+// Configurazione del trasportatore SMTP (preferisce variabili d'ambiente)
+// NOTE: usare variabili d'ambiente in produzione: SMTP_HOST, SMTP_PORT, SMTP_SECURE,
+// SMTP_USER, SMTP_PASS. Per Gmail usare app password o OAuth2.
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+const smtpSecure = (process.env.SMTP_SECURE === 'true') || (smtpPort === 465);
+const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail' || 'smtp',
-    host: 'smtp.gmail.com' || process.env.SMTP_HOST,
-    port: 587 || process.env.SMTP_PORT,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD // App Password, non la password normale
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined,
+    // Improve diagnostics and resilience
+    logger: !!process.env.EMAIL_DEBUG,
+    debug: !!process.env.EMAIL_DEBUG,
+    // Timeouts (ms) - configurable via env if needed
+    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '30000', 10),
+    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT || '30000', 10),
+    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || '30000', 10),
+    tls: {
+        // If you have self-signed certs in your environment you can set this to false.
+        rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== 'false'
     }
 });
+
+// Helper: verify transporter connectivity with clear logging
+async function verifyTransporter() {
+    try {
+        await transporter.verify();
+        if (process.env.EMAIL_DEBUG) console.log('SMTP transporter verified');
+        return true;
+    } catch (err) {
+        console.error('SMTP verify failed:', err && err.message ? err.message : err);
+        // rethrow to allow caller to decide (or sendWithRetry will catch)
+        throw err;
+    }
+}
+
+// Helper: send with simple retries on transient connection errors (ETIMEDOUT, ECONNRESET)
+async function sendWithRetry(mailOptions, maxRetries = 3) {
+    let attempt = 0;
+    let lastErr;
+    // try to verify first (best-effort)
+    try {
+        await verifyTransporter();
+    } catch (verifyErr) {
+        // continue to attempts; verify failure often indicates network/auth issue
+        if (process.env.EMAIL_DEBUG) console.warn('verifyTransporter warning, will attempt send:', verifyErr && verifyErr.code);
+    }
+
+    while (attempt < maxRetries) {
+        try {
+            attempt += 1;
+            if (process.env.EMAIL_DEBUG) console.log(`Attempt ${attempt} to send email to ${mailOptions.to}`);
+            const info = await transporter.sendMail(mailOptions);
+            if (process.env.EMAIL_DEBUG) console.log('Email sent (info):', info && info.messageId);
+            return info;
+        } catch (err) {
+            lastErr = err;
+            const code = err && err.code;
+            // Retry only on transient network errors
+            if (code === 'ETIMEDOUT' || code === 'ECONNRESET' || code === 'EPIPE' || code === 'ENOTFOUND') {
+                const backoff = Math.min(30000, 1000 * Math.pow(2, attempt)); // ms
+                console.warn(`Transient SMTP error (${code}). Retry ${attempt}/${maxRetries} after ${backoff}ms`);
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                continue;
+            }
+            // Non-transient error - rethrow
+            throw err;
+        }
+    }
+    // exhausted retries
+    const e = lastErr || new Error('Unknown error sending email');
+    throw e;
+}
 
 // Percorso al logo (verifica che il file esista in questo path)
 const logoPath = path.resolve(__dirname, '../../public/assets/images/Logo.png');
@@ -284,8 +350,8 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
             ]
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email inviata:', info.messageId);
+    const info = await sendWithRetry(mailOptions);
+    console.log('Email inviata:', info && info.messageId);
         return { messageId: info.messageId };
     } catch (err) {
         console.error('Errore invio email:', err);
@@ -332,9 +398,9 @@ exports.sendResetEmail = async function(toEmail, resetLink) {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email di reset inviata:', info.messageId);
-        return { messageId: info.messageId };
+    const info = await sendWithRetry(mailOptions);
+    console.log('Email di reset inviata:', info && info.messageId);
+    return { messageId: info.messageId };
     } catch (err) {
         console.error('Errore invio email reset:', err);
         throw err;
@@ -466,9 +532,9 @@ exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFin
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email di sospensione inviata:', info.messageId);
-        return { messageId: info.messageId };
+    const info = await sendWithRetry(mailOptions);
+    console.log('Email di sospensione inviata:', info && info.messageId);
+    return { messageId: info.messageId };
     } catch (err) {
         console.error('Errore invio email sospensione:', err);
         throw err;
@@ -593,9 +659,9 @@ exports.sendBanEmail = async function(toEmail, userName, motivo) {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email di ban inviata:', info.messageId);
-        return { messageId: info.messageId };
+    const info = await sendWithRetry(mailOptions);
+    console.log('Email di ban inviata:', info && info.messageId);
+    return { messageId: info.messageId };
     } catch (err) {
         console.error('Errore invio email ban:', err);
         throw err;
@@ -703,11 +769,15 @@ exports.sendRevocaEmail = async function(toEmail, userName) {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email di riattivazione inviata:', info.messageId);
-        return { messageId: info.messageId };
+    const info = await sendWithRetry(mailOptions);
+    console.log('Email di riattivazione inviata:', info && info.messageId);
+    return { messageId: info.messageId };
     } catch (err) {
         console.error('Errore invio email riattivazione:', err);
         throw err;
     }
 };
+
+// Export helpers for diagnostics/tests
+exports.verifyTransporter = verifyTransporter;
+exports.sendWithRetry = sendWithRetry;
