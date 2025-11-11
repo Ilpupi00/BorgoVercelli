@@ -129,7 +129,7 @@
 
                             <div class="mb-3">
                                 <label for="descrizione" class="form-label">Descrizione</label>
-                                <div id="editor-container" style="height: 200px;" data-initial-content="<%= evento ? evento.descrizione.replace(/\"/g, '&quot;').replace(/\'/g, '&#39;') : '' %>">
+                                    <div id="editor-container" style="height: 200px;" data-initial-content="<%= evento && evento.descrizione ? evento.descrizione.replace(/\"/g, '&quot;').replace(/\'/g, '&#39;') : '' %>">
                                 </div>
                                 <textarea name="descrizione" id="descrizione" style="display: none;"></textarea>
                             </div>

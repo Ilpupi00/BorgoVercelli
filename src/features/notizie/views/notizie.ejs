@@ -109,8 +109,9 @@
                                         </span>
                                     </div>
                                     <h3 class="card-title"><%= notizia.titolo %></h3>
+                                    <% const _safeCont = (notizia.contenuto || '').replace(/<[^>]*>/g, ''); %>
                                     <p class="card-excerpt">
-                                        <%= notizia.contenuto.replace(/<[^>]*>/g, '').length > 120 ? notizia.contenuto.replace(/<[^>]*>/g, '').substring(0, 120) + '...' : notizia.contenuto.replace(/<[^>]*>/g, '') %>
+                                        <%= _safeCont.length > 120 ? _safeCont.substring(0, 120) + '...' : _safeCont %>
                                     </p>
                                     <a href="/notizia/<%= notizia.id || notizia.N_id %>" class="btn btn-primary read-full-btn">
                                         <i class="bi bi-arrow-right me-2"></i>Leggi tutto
