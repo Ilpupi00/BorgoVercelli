@@ -10,14 +10,16 @@ const sqlite = require('../../../core/config/database');
 const Notizie= require('../../../core/models/notizia.js');
 
 const makeNotizie = (row) => {
-    // Verifica che la riga abbia almeno un ID valido
-    const notiziaId = row.N_id || row.id;
+    // PostgreSQL restituisce i nomi colonna in minuscolo, SQLite può usare maiuscolo
+    // Gestisci entrambi i casi: N_id (SQLite/alias maiuscolo) e n_id (PostgreSQL)
+    const notiziaId = row.N_id || row.n_id || row.id;
     
     if (!notiziaId) {
         console.warn('[DAO-NOTIZIE] WARNING: Tentativo di creare Notizia senza ID valido. Row keys:', Object.keys(row));
         console.warn('[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:', {
-            titolo: row.N_titolo || row.titolo,
+            titolo: row.N_titolo || row.n_titolo || row.titolo,
             raw_N_id: row.N_id,
+            raw_n_id: row.n_id,
             raw_id: row.id,
             all_keys: Object.keys(row).join(', ')
         });
@@ -29,26 +31,26 @@ const makeNotizie = (row) => {
     let autore = '';
     if (row.autore_nome || row.autore_cognome) {
         autore = `${row.autore_nome || ''} ${row.autore_cognome || ''}`.trim();
-    } else if (row.N_autore_id || row.autore_id) {
-        autore = `Autore ID: ${row.N_autore_id || row.autore_id}`;
+    } else if (row.N_autore_id || row.n_autore_id || row.autore_id) {
+        autore = `Autore ID: ${row.N_autore_id || row.n_autore_id || row.autore_id}`;
     }
 
     return new Notizie(
         notiziaId,
-        row.N_titolo || row.titolo,
-        row.N_sottotitolo || row.sottotitolo,
+        row.N_titolo || row.n_titolo || row.titolo,
+        row.N_sottotitolo || row.n_sottotitolo || row.sottotitolo,
         {
             url: row.immagine_url || '/assets/images/default-news.jpg',
-            id: row.N_immagine || row.immagine_principale_id
+            id: row.N_immagine || row.n_immagine || row.immagine_principale_id
         },
-        row.N_contenuto || row.contenuto,
+        row.N_contenuto || row.n_contenuto || row.contenuto,
         autore, // Usa il nome completo invece dell'ID
-        row.N_autore_id || row.autore_id,
-        row.N_pubblicata || row.pubblicata,
-        row.N_data_pubblicazione || row.data_pubblicazione,
-        row.N_visualizzazioni || row.visualizzazioni,
-        row.N_created_at || row.created_at || null,
-        row.N_updated_at || row.updated_at || null
+        row.N_autore_id || row.n_autore_id || row.autore_id,
+        row.N_pubblicata || row.n_pubblicata || row.pubblicata,
+        row.N_data_pubblicazione || row.n_data_pubblicazione || row.data_pubblicazione,
+        row.N_visualizzazioni || row.n_visualizzazioni || row.visualizzazioni,
+        row.N_created_at || row.n_created_at || row.created_at || null,
+        row.N_updated_at || row.n_updated_at || row.updated_at || null
     );
 }
 /**
