@@ -6,6 +6,11 @@ const { isLoggedIn, isAdminOrDirigente, isAdmin, canEditNotizia } = require('../
 const multer = require('multer');
 const { upload } = require('../../../core/config/multer');
 
+function parseIdParam(param) {
+  const id = parseInt(param, 10);
+  return Number.isInteger(id) ? id : null;
+}
+
 // HTML: render list of news
 router.get('/notizie/all', async (req, res) => {
   try {
@@ -55,7 +60,10 @@ router.get('/notizie', async (req, res) => {
 // HTML: view a single news
 router.get('/notizia/:id', async (req, res) => {
   try {
-    const notizia = await dao.getNotiziaById(req.params.id);
+    const id = parseIdParam(req.params.id);
+    if (!id) return res.status(400).render('error', { message: 'ID notizia non valido', error: { status: 400 } });
+
+    const notizia = await dao.getNotiziaById(id);
     if (!notizia) {
       return res.status(404).render('error', { message: 'Notizia non trovata', error: { status: 404 } });
     }
@@ -69,7 +77,10 @@ router.get('/notizia/:id', async (req, res) => {
 // API: get single news JSON
 router.get('/api/notizia/:id', async (req, res) => {
   try {
-    const notizia = await dao.getNotiziaById(req.params.id);
+    const id = parseIdParam(req.params.id);
+    if (!id) return res.status(400).json({ error: 'ID notizia non valido' });
+
+    const notizia = await dao.getNotiziaById(id);
     if (!notizia) return res.status(404).json({ error: 'Notizia non trovata' });
     res.json(notizia);
   } catch (error) {
@@ -164,8 +175,8 @@ router.post('/notizie/:id', canEditNotizia, upload.single('immagine_principale')
     if (req.body._method !== 'PUT') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
-
-    const id = req.params.id;
+    const id = parseIdParam(req.params.id);
+    if (!id) return res.status(400).render('error', { message: 'ID notizia non valido', error: { status: 400 } });
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
     const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
 
@@ -220,8 +231,8 @@ router.post('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
     if (req.body._method !== 'PUT') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
-
-    const id = req.params.id;
+    const id = parseIdParam(req.params.id);
+    if (!id) return res.status(400).json({ success: false, error: 'ID notizia non valido' });
     const { pubblicata } = req.body;
     const updateData = {
       pubblicata: pubblicata ? 1 : 0
@@ -237,7 +248,10 @@ router.post('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
 // Delete
 router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
   try {
-    await dao.deleteNotiziaById(req.params.id);
+    const id = parseIdParam(req.params.id);
+    if (!id) return res.status(400).json({ success: false, error: 'ID notizia non valido' });
+
+    await dao.deleteNotiziaById(id);
     res.json({ success: true });
   } catch (error) {
     console.error('Errore nell\'eliminazione della notizia:', error);
@@ -247,7 +261,9 @@ router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
 
 // Edit news - redirect to create form with id
 router.get('/notizie/edit/:id', canEditNotizia, async (req, res) => {
-  res.redirect(`/crea-notizie?id=${req.params.id}`);
+  const id = parseIdParam(req.params.id);
+  if (!id) return res.status(400).render('error', { message: 'ID notizia non valido', error: { status: 400 } });
+  res.redirect(`/crea-notizie?id=${id}`);
 });
 
 module.exports = router;
