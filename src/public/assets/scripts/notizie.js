@@ -38,8 +38,21 @@ class NotizieManager {
                 const excerptEl = card.querySelector('.card-excerpt');
                 const dateEl = card.querySelector('.card-meta .date');
                 const linkEl = card.querySelector('a.read-full-btn');
+                
+                // Extract ID from link href
+                let id = null;
+                if (linkEl) {
+                    const href = linkEl.getAttribute('href');
+                    if (href) {
+                        const match = href.match(/\/notizia\/(\d+)/);
+                        if (match) {
+                            id = parseInt(match[1], 10);
+                        }
+                    }
+                }
 
                 return {
+                    id: id,
                     titolo: titoloEl ? titoloEl.textContent.trim() : '',
                     contenuto: excerptEl ? excerptEl.textContent.trim() : '',
                     data_pubblicazione: dateEl ? dateEl.textContent.trim() : null,
@@ -51,6 +64,12 @@ class NotizieManager {
                 this.allNews = parsed;
                 this.filteredNews = [...this.allNews];
                 console.log('Popolate notizie dal DOM:', this.allNews.length);
+                
+                // Log warning for news without ID
+                const noId = this.allNews.filter(n => !n.id);
+                if (noId.length > 0) {
+                    console.warn('[NOTIZIE.JS] Trovate', noId.length, 'notizie senza ID:', noId.map(n => n.titolo));
+                }
             }
         } catch (err) {
             console.warn('Impossibile popolare notizie dal DOM:', err);
@@ -382,6 +401,15 @@ class NotizieManager {
         const excerpt = notizia.contenuto ? notizia.contenuto.replace(/<[^>]*>/g, '').substring(0, 120) + '...' : 'Nessuna descrizione';
         const linkId = notizia.id || notizia.N_id;
 
+        // Build the button based on whether we have a valid ID
+        const buttonHtml = linkId 
+            ? `<a href="/notizia/${linkId}" class="btn btn-primary read-full-btn">
+                <i class="bi bi-arrow-right me-2"></i>Leggi tutto
+               </a>`
+            : `<button class="btn btn-secondary disabled" disabled aria-disabled="true">
+                <i class="bi bi-eye-slash me-2"></i>Dettagli non disponibili
+               </button>`;
+
         article.innerHTML = `
             <div class="card-image">
                 <img src="${imageUrl}" alt="${notizia.titolo}" class="card-img">
@@ -399,9 +427,7 @@ class NotizieManager {
                 </div>
                 <h3 class="card-title">${notizia.titolo}</h3>
                 <p class="card-excerpt">${excerpt}</p>
-                <a href="/notizia/${linkId}" class="btn btn-primary read-full-btn">
-                    <i class="bi bi-arrow-right me-2"></i>Leggi tutto
-                </a>
+                ${buttonHtml}
             </div>
         `;
 

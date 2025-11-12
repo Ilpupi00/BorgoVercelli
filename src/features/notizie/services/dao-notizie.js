@@ -18,8 +18,19 @@ const makeNotizie = (row) => {
         autore = `Autore ID: ${row.N_autore_id || row.autore_id}`;
     }
 
+    const notiziaId = row.N_id || row.id;
+    
+    // Log warning if ID is missing
+    if (!notiziaId) {
+        console.warn('[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:', {
+            titolo: row.N_titolo || row.titolo,
+            raw_N_id: row.N_id,
+            raw_id: row.id
+        });
+    }
+
     return new Notizie(
-        row.N_id || row.id,
+        notiziaId,
         row.N_titolo || row.titolo,
         row.N_sottotitolo || row.sottotitolo,
         {
