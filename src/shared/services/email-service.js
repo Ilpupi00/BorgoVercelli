@@ -449,7 +449,7 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
                                     <div class="header">
                                         <div class="header-content">
                                             <div class="logo-container">
-                                                <img src="cid:borgo-logo" alt="Borgo Vercelli" class="logo" />
+                                                        <img src="${process.env.BASE_URL || 'http://localhost:3000'}/images/Logo.png" alt="Borgo Vercelli" class="logo" />
                                             </div>
                                             <h1>📬 Nuovo Messaggio</h1>
                                             <p>Ricevuto dal sito web</p>
