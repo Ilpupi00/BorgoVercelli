@@ -67,6 +67,15 @@ router.get('/notizia/:id', async (req, res) => {
     if (!notizia) {
       return res.status(404).render('error', { message: 'Notizia non trovata', error: { status: 404 } });
     }
+    
+    // Incrementa il contatore delle visualizzazioni
+    try {
+      await dao.incrementVisualizzazioni(id);
+    } catch (viewError) {
+      // Non bloccare il rendering se l'incremento fallisce
+      console.warn('Errore incremento visualizzazioni notizia:', viewError);
+    }
+    
     res.render('visualizza_notizia', { notizia });
   } catch (error) {
     console.error('Errore nel caricamento della notizia:', error);

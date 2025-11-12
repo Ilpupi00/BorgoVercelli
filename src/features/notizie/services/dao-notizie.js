@@ -146,6 +146,32 @@ exports.getNotiziaById = async function(id) {
 }
 
 /**
+ * Incrementa il contatore delle visualizzazioni di una notizia
+ * @async
+ * @param {number} id - ID della notizia
+ * @returns {Promise<Object>} { success: true, visualizzazioni }
+ */
+exports.incrementVisualizzazioni = async function(id) {
+    const sql = `UPDATE NOTIZIE SET visualizzazioni = COALESCE(visualizzazioni, 0) + 1 WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [id], function(err, result) {
+            if (err) {
+                console.error('[DAO-NOTIZIE] Errore incremento visualizzazioni:', err);
+                return reject({ error: 'Error incrementing views: ' + err.message });
+            }
+            // Recupera il nuovo valore delle visualizzazioni
+            sqlite.get('SELECT visualizzazioni FROM NOTIZIE WHERE id = ?', [id], (err, row) => {
+                if (err) {
+                    console.warn('[DAO-NOTIZIE] Errore recupero visualizzazioni dopo incremento:', err);
+                    return resolve({ success: true, visualizzazioni: null });
+                }
+                resolve({ success: true, visualizzazioni: row ? (row.visualizzazioni || row.n_visualizzazioni) : null });
+            });
+        });
+    });
+}
+
+/**
  * Elimina una notizia per ID
  * @async
  * @param {number} id - ID della notizia
