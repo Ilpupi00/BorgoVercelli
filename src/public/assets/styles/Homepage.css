@@ -706,6 +706,36 @@ section.vw100 {
   }
 }
 
+/* Spaziatura e layout migliorati per i pulsanti nella sezione recensioni su mobile */
+@media (max-width: 576px) {
+  /* Rendiamo i pulsanti più facili da toccare e separati */
+  #recensioni-section .text-center .btn {
+    display: block;
+    width: calc(100% - 4vw);
+    max-width: 420px;
+    margin: 0.5rem auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  /* Assicura uno spazio extra fra i due pulsanti */
+  #recensioni-section .text-center .btn + .btn {
+    margin-top: 0.6rem;
+  }
+}
+
+/* Ulteriore leggera riduzione della searchbar e del logo per dispositivi stretti (compatibile con Navbar.css) */
+@media (max-width: 420px) {
+  form[role="search"] {
+    max-width: 86vw !important;
+  }
+
+  form[role="search"] input {
+    font-size: 13px !important;
+    padding: 5px 8px !important;
+  }
+}
+
 /* Hero Section Styles */
 .hero-section {
   position: relative;

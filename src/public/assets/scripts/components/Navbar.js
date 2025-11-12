@@ -56,7 +56,7 @@ class Navbar {
     logoImg.alt = 'Logo';
     logoImg.width = 60;
     logoImg.height = 60;
-    logoImg.className = 'd-inline-block align-text-top';
+  logoImg.className = 'navbar-logo d-inline-block align-text-top';
     brandLink.appendChild(logoImg);
     container.appendChild(brandLink);
 

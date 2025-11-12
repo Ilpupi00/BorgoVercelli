@@ -4,7 +4,7 @@
   .navbar {
     min-height: 54px;
     padding: 0 2vw;
-    background-color: #0d6efd;
+    background-color: var(--primary-color);
     transition: box-shadow 0.3s, background 0.3s;
   }
   .navbar-brand {
@@ -18,20 +18,16 @@
     transition: filter 0.2s;
   }
   .navbar-logo {
-    width: 24px !important;
-    height: 24px !important;
+    width:36px !important;
+    height: 36px !important;
     margin: 0 auto;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     object-fit: contain;
     transition: width 0.2s, height 0.2s;
   }
-@media (min-width: 577px) {
-  .navbar-logo {
-    width: 32px !important;
-    height: 32px !important;
-  }
-}
+
+
   .navbar-toggler {
     margin-left: auto;
     padding: 4px 8px;
@@ -41,7 +37,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background-color: #0d6efd;
+    background-color: var(--primary-color);
     border: none;
     box-shadow: 0 2px 8px rgba(13,110,253,0.10);
     transition: background 0.2s, box-shadow 0.2s;
@@ -51,7 +47,7 @@
     box-shadow: 0 4px 16px rgba(13,110,253,0.18);
   }
   .navbar {
-    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%) !important;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-variant) 100%) !important;
     box-shadow: 0 2px 12px rgba(13,110,253,0.15);
   }
   .navbar-nav {
@@ -74,7 +70,7 @@
     border-radius: 10px;
     font-weight: 500;
     letter-spacing: 0.01em;
-    color: #fff;
+    color: var(--text-on-primary);
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
     box-shadow: none;
     position: relative;
@@ -162,10 +158,10 @@
     transition: box-shadow 0.2s, background 0.2s;
   }
   form[role="search"] input {
-    min-width: 80px !important;
+    min-width: 70px !important;
     max-width: 100vw !important;
-    font-size: 15px !important;
-    padding: 7px 10px !important;
+    font-size: 14px !important;
+    padding: 6px 8px !important;
     border-radius: 10px;
     border: 1px solid #e3e3e3;
     background: rgba(255,255,255,0.95);
@@ -175,6 +171,29 @@
   form[role="search"] input:focus {
     border: 1px solid #0d6efd;
     box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+  }
+}
+
+/* Mobile fixes: ensure navbar stays blue and active links don't create white blocks */
+@media (max-width: 576px) {
+  /* force nav background (covers cases where collapse or other classes override it) */
+  nav#navbar, .navbar, .navbar-collapse, .navbar-collapse.show {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-variant) 100%) !important;
+    background-color: var(--primary-color) !important;
+    color: var(--text-on-primary) !important;
+  }
+
+  /* avoid active nav-link showing full white block on mobile (links often full-width) */
+  .navbar-nav .nav-link:active,
+  .navbar-nav .nav-link.active {
+    background: rgba(255,255,255,0.06) !important;
+    color: var(--text-on-primary) !important;
+  }
+
+  /* ensure dropdown/menu backgrounds are consistent */
+  .navbar .dropdown-menu {
+    background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%) !important;
+    border-color: rgba(255,255,255,0.08) !important;
   }
 }
 @keyframes fadeInUp {
@@ -264,8 +283,8 @@ form {
 }
 
 #navbarSupportedContent {
-  background-color: #0d6efd;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
   padding: 10px;
   z-index: 1000;
   top: 0;
@@ -322,8 +341,8 @@ form {
   right: 0;
   height: 100%;
   width: 50%;
-  background-color: #0d6efd;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
   /* keep off-canvas transform for mobile, but allow overflow visible so dropdowns aren't clipped */
   transform: translateX(100%);
   transition: transform 0.3s ease-in-out;
@@ -627,6 +646,32 @@ header p {
   .navbar .dropdown-menu {
     left: auto !important;
     right: 0 !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   Fix: ensure navbar logo has a controlled size on tablet/desktop
+   Problem: some .navbar-logo rules were inside a malformed nested
+   media query and therefore not applied on larger viewports; this
+   overrides that and keeps the logo responsive and consistent.
+   ------------------------------------------------------------------ */
+
+/* small/medium screens (>= 577px) */
+@media (min-width: 577px) and (max-width: 991px) {
+  .navbar-logo {
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: contain;
+  }
+}
+
+/* desktop */
+@media (min-width: 992px) {
+  .navbar-logo {
+    width: 48px !important;
+    height: 48px !important;
+    object-fit: contain;
   }
 }
 
