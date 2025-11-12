@@ -1,55 +1,5 @@
+import ShowModal from '../utils/showModal.js';
 console.log("send_email.js caricato!");
-
-function createOrGetModal() {
-  let modal = document.getElementById('emailModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'emailModal';
-    modal.setAttribute('tabindex', '-1');
-    modal.setAttribute('aria-labelledby', 'emailModalLabel');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="emailModalLabel">Notifica</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-          </div>
-          <div class="modal-body">
-            <p id="emailModalMessage"></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-  return modal;
-}
-
-function showModalMessage(message, isSuccess = false) {
-  console.log('showModalMessage chiamata con:', message);
-  const modal = createOrGetModal();
-  const modalMessage = modal.querySelector('#emailModalMessage');
-  const modalTitle = modal.querySelector('#emailModalLabel');
-
-  modalMessage.textContent = message;
-  modalTitle.textContent = isSuccess ? 'Successo' : 'Errore';
-
-  if (isSuccess) {
-    modal.querySelector('.modal-header').classList.remove('bg-danger');
-    modal.querySelector('.modal-header').classList.add('bg-success');
-  } else {
-    modal.querySelector('.modal-header').classList.remove('bg-success');
-    modal.querySelector('.modal-header').classList.add('bg-danger');
-  }
-
-  const bsModal = new bootstrap.Modal(modal);
-  bsModal.show();
-}
 
 export function setupEmailFormListener() {
   const emailForm = document.getElementById('emailForm');
@@ -71,7 +21,8 @@ export function setupEmailFormListener() {
       if (privacyError) {
         privacyError.style.display = 'block';
       }
-      showModalMessage('Devi accettare la Privacy Policy per inviare il messaggio.', false);
+      // Usa ShowModal per uniformare lo stile dei modal
+      ShowModal.showModalError('Devi accettare la Privacy Policy per inviare il messaggio.', 'Errore invio');
       return;
     }
     
@@ -93,7 +44,8 @@ export function setupEmailFormListener() {
     };
 
     try {
-      const response = await fetch('/send-email', {
+      // Usa la stessa route del footer (/contatti)
+      const response = await fetch('/contatti', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -109,15 +61,16 @@ export function setupEmailFormListener() {
       }
 
       if (response.ok) {
-        showModalMessage('Messaggio inviato con successo!', true);
+        // Mostra il modal di successo condiviso
+        ShowModal.showModalSuccess('Messaggio inviato', 'Ti risponderemo presto.');
         newForm.reset();
       } else {
-        const errorMsg = (result && result.error) || `Errore ${response.status}: ${response.statusText}`;
-        showModalMessage(errorMsg, false);
+        const errorMsg = (result && (result.error || (result.details && result.details.message))) || `Errore ${response.status}: ${response.statusText}`;
+        ShowModal.showModalError(errorMsg, 'Errore invio');
       }
     } catch (err) {
       console.error('Errore di rete:', err);
-      showModalMessage('Errore di rete durante l\'invio del messaggio.', false);
+      ShowModal.showModalError('Errore di rete durante l\'invio del messaggio.', 'Errore rete');
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
