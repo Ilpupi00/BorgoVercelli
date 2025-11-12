@@ -65,7 +65,12 @@
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <div class="result-card">
                                             <div class="card-img-container">
-                                                <img src="<%= notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png' %>" alt="<%= notizia.titolo %>" loading="lazy">
+                                                <% 
+                                                const notiziaSearchImgSrc = (notizia.immagine_url && notizia.immagine_url.trim()) 
+                                                    ? notizia.immagine_url 
+                                                    : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png');
+                                                %>
+                                                <img src="<%= notiziaSearchImgSrc %>" alt="<%= notizia.titolo %>" loading="lazy">
                                                 <div class="result-category">
                                                     <i class="fas fa-tag me-1"></i>notizia
                                                 </div>
