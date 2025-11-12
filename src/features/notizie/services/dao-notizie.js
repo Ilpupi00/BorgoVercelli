@@ -10,23 +10,27 @@ const sqlite = require('../../../core/config/database');
 const Notizie= require('../../../core/models/notizia.js');
 
 const makeNotizie = (row) => {
+    // Verifica che la riga abbia almeno un ID valido
+    const notiziaId = row.N_id || row.id;
+    
+    if (!notiziaId) {
+        console.warn('[DAO-NOTIZIE] WARNING: Tentativo di creare Notizia senza ID valido. Row keys:', Object.keys(row));
+        console.warn('[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:', {
+            titolo: row.N_titolo || row.titolo,
+            raw_N_id: row.N_id,
+            raw_id: row.id,
+            all_keys: Object.keys(row).join(', ')
+        });
+        // Restituisci null invece di un oggetto invalido
+        return null;
+    }
+
     // Costruisci il nome completo dell'autore
     let autore = '';
     if (row.autore_nome || row.autore_cognome) {
         autore = `${row.autore_nome || ''} ${row.autore_cognome || ''}`.trim();
     } else if (row.N_autore_id || row.autore_id) {
         autore = `Autore ID: ${row.N_autore_id || row.autore_id}`;
-    }
-
-    const notiziaId = row.N_id || row.id;
-    
-    // Log warning if ID is missing
-    if (!notiziaId) {
-        console.warn('[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:', {
-            titolo: row.N_titolo || row.titolo,
-            raw_N_id: row.N_id,
-            raw_id: row.id
-        });
     }
 
     return new Notizie(
@@ -68,7 +72,7 @@ exports.getNotizie = async function(){
             }
 
             try {
-                const result = notizie.map(makeNotizie)|| [];
+                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
                 resolve(result);
             } catch (e) {
                 return reject({ error: 'Error mapping news: ' + e.message });
@@ -102,7 +106,7 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
             }
 
             try {
-                const result = notizie.map(makeNotizie)|| [];
+                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
                 resolve(result);
             } catch (e) {
                 return reject({ error: 'Error mapping news: ' + e.message });
@@ -271,7 +275,17 @@ exports.searchNotizie = async function(searchTerm) {
             }
 
             try {
-                const result = notizie.map(makeNotizie) || [];
+                console.log('[DAO-NOTIZIE] searchNotizie - Righe trovate:', notizie ? notizie.length : 0);
+                if (notizie && notizie.length > 0) {
+                    console.log('[DAO-NOTIZIE] searchNotizie - Prima riga raw:', JSON.stringify(notizie[0], null, 2));
+                }
+                
+                // Filtra le righe senza ID valido e mappa solo quelle valide
+                const result = notizie
+                    .filter(row => row.N_id || row.id)
+                    .map(makeNotizie) || [];
+                
+                console.log('[DAO-NOTIZIE] searchNotizie - Risultati mappati:', result.length);
                 resolve(result);
             } catch (e) {
                 console.error('Errore nella mappatura delle notizie:', e);
@@ -336,7 +350,7 @@ exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12
             }
 
             try {
-                const result = notizie.map(makeNotizie) || [];
+                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
                 resolve(result);
             } catch (e) {
                 return reject({ error: 'Error mapping filtered news: ' + e.message });
@@ -393,7 +407,7 @@ exports.getNotiziePersonali = async function(userId) {
             }
 
             try {
-                const result = notizie.map(makeNotizie) || [];
+                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
                 resolve(result);
             } catch (e) {
                 return reject({ error: 'Error mapping personal news: ' + e.message });
