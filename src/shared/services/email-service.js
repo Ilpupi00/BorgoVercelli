@@ -155,7 +155,7 @@ async function sendViaSendGrid(mailOptions) {
 
     const msg = {
         to: mailOptions.to,
-        from: mailOptions.from || (process.env.DEFAULT_FROM || 'noreply@borgovercelli.app'),
+        from: mailOptions.from || (process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app'),
         subject: mailOptions.subject,
         html: mailOptions.html,
     };
@@ -198,7 +198,7 @@ async function sendViaSendGrid(mailOptions) {
 async function sendViaResend(mailOptions) {
     if (!resendClient) throw new Error('Resend not configured');
 
-    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@borgovercelli.app';
+    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
     const to = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
 
     const payload = {
@@ -941,7 +941,7 @@ exports.sendWithRetry = sendWithRetry;
 exports.sendTestViaResend = async function(toEmail) {
     if (!resendClient) throw new Error('Resend not configured (set RESEND_API_KEY)');
     const mailOptions = {
-        from: process.env.DEFAULT_FROM || 'noreply@borgovercelli.app',
+        from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
         to: toEmail,
         subject: 'Test email da Borgo Vercelli (via Resend)',
         html: `<p>Questa è una email di test inviata tramite Resend da Borgo Vercelli.</p><p>Se la ricevi su Gmail, la configurazione è corretta.</p>`
