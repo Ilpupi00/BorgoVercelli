@@ -470,7 +470,7 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
                                                         <img src="${logoImgSrc}" alt="Borgo Vercelli" class="logo" />
                                             </div> -->
                                             <h1>📬 Nuovo Messaggio</h1>
-                                            <p>Ricevuto dal sito web</p>
+                                            <p>Ricevuto dal sito del asd BorgoVercelli 2022</p>
                                         </div>
                                     </div>
                                     <div class="content">
