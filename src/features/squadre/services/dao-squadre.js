@@ -228,10 +228,11 @@ exports.getSquadraById = function(id) {
  */
 exports.searchSquadre = async function(searchTerm) {
     const sql = `
-        SELECT id, nome, id_immagine, Anno
-        FROM SQUADRE
-        WHERE nome LIKE ?
-        ORDER BY nome ASC
+        SELECT s.id, s.nome, i.url AS id_immagine, s.anno_fondazione AS Anno
+        FROM SQUADRE s
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'squadra' AND i.entita_id = s.id AND i.ordine = 1
+        WHERE s.nome LIKE ?
+        ORDER BY s.nome ASC
         LIMIT 10
     `;
     return new Promise((resolve, reject) => {
