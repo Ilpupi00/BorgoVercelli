@@ -36,8 +36,8 @@ const makeEvento=(row)=>{
 exports.getEventi = function(){
     return new Promise((resolve, reject) => {
     // Return only published events by default to avoid exposing drafts in public lists
-    // Schema stores `pubblicato` as INTEGER (0/1), so check for = 1
-    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = 1 ORDER BY data_inizio DESC;';
+    // Use boolean true for Postgres boolean column
+    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true ORDER BY data_inizio DESC;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -56,8 +56,8 @@ exports.getEventi = function(){
  */
 exports.getEventiPubblicati = function(){
     return new Promise((resolve, reject) => {
-    // Ensure consistent ordering and integer-based published check
-    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = 1 ORDER BY data_inizio DESC;';
+    // Ensure consistent ordering and boolean-based published check
+    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true ORDER BY data_inizio DESC;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
@@ -229,7 +229,7 @@ exports.searchEventi = async function(searchTerm) {
     const sql = `
         SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
         FROM EVENTI
-    WHERE pubblicato = 1 AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
+    WHERE pubblicato = true AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
     ORDER BY data_inizio DESC
         LIMIT 10
     `;
