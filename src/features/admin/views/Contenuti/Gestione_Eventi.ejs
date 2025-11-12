@@ -143,7 +143,7 @@
                                                             <td>
                                                                 <div class="fw-semibold"><%= evento.titolo %></div>
                                                                 <% if (evento.descrizione) { %>
-                                                                    <small class="text-muted"><%= evento.descrizione.substring(0, 50) %>...</small>
+                                                                    <small class="text-muted"><%= (evento.descrizione || '').replace(/<[^>]*>/g, '').substring(0, 50) %>...</small>
                                                                 <% } %>
                                                             </td>
                                                             <td><%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'N/A' %></td>

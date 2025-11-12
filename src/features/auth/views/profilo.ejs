@@ -398,7 +398,7 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1 text-truncate"><%= notizia.titolo %></h6>
-                                                    <p class="mb-1 text-muted small text-truncate"><%= notizia.sottotitolo || notizia.contenuto.substring(0, 80) + (notizia.contenuto.length > 80 ? '...' : '') %></p>
+                                                    <p class="mb-1 text-muted small text-truncate"><%= notizia.sottotitolo || ((notizia.contenuto || '').replace(/<[^>]*>/g, '').substring(0, 80) + (notizia.contenuto && notizia.contenuto.length > 80 ? '...' : '')) %></p>
                                                     <small class="text-muted">
                                                         <i class="bi bi-calendar me-1"></i>
                                                         <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') : 'Data non disponibile' %>
@@ -435,7 +435,7 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1 text-truncate"><%= evento.titolo %></h6>
-                                                    <p class="mb-1 text-muted small text-truncate"><%= evento.descrizione ? evento.descrizione.substring(0, 80) + (evento.descrizione.length > 80 ? '...' : '') : 'Nessuna descrizione' %></p>
+                                                    <p class="mb-1 text-muted small text-truncate"><%= evento.descrizione ? ((evento.descrizione || '').replace(/<[^>]*>/g, '').substring(0, 80) + (evento.descrizione && evento.descrizione.length > 80 ? '...' : '')) : 'Nessuna descrizione' %></p>
                                                     <small class="text-muted">
                                                         <i class="bi bi-calendar me-1"></i>
                                                         <%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'Data non disponibile' %>

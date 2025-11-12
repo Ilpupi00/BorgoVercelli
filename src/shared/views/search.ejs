@@ -120,7 +120,7 @@
                                                     const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
                                                 %><%- highlightedTitle %></h5>
                                                 <p class="card-text"><%
-                                                    const desc = evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Nessuna descrizione';
+                                                    const desc = evento.descrizione ? evento.descrizione.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'Nessuna descrizione';
                                                     const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
                                                 %><%- highlightedDesc %></p>
