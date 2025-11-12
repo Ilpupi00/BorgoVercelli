@@ -20,6 +20,15 @@ router.get('/search', async (req, res) => {
 
             // Cerca in notizie
             const notizie = await daoNotizie.searchNotizie(searchTerm);
+            console.log('[SEARCH] Notizie trovate:', notizie ? notizie.length : 0);
+            if (notizie && notizie.length > 0) {
+                console.log('[SEARCH] Prima notizia:', JSON.stringify({
+                    id: notizie[0].id,
+                    titolo: notizie[0].titolo,
+                    immagine_url: notizie[0].immagine_url,
+                    autore: notizie[0].autore
+                }, null, 2));
+            }
 
             // Cerca in eventi
             const eventi = await daoEventi.searchEventi(searchTerm);

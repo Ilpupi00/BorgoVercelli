@@ -68,25 +68,28 @@
                                                 <% 
                                                 const notiziaSearchImgSrc = (notizia.immagine_url && notizia.immagine_url.trim()) 
                                                     ? notizia.immagine_url 
-                                                    : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png');
+                                                    : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/default-news.jpg');
                                                 %>
-                                                <img src="<%= notiziaSearchImgSrc %>" alt="<%= notizia.titolo %>" loading="lazy">
+                                                <img src="<%= notiziaSearchImgSrc %>" alt="<%= notizia.titolo || 'Notizia' %>" loading="lazy">
                                                 <div class="result-category">
                                                     <i class="fas fa-tag me-1"></i>notizia
                                                 </div>
                                             </div>
                                             <div class="card-body">
                                                 <h5 class="card-title"><%
-                                                    const escapedTitle = notizia.titolo.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const safeTitle = notizia.titolo || 'Titolo non disponibile';
+                                                    const escapedTitle = safeTitle.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
                                                 %><%- highlightedTitle %></h5>
                                                 <p class="card-text"><%
-                                                    const desc = notizia.sottotitolo || notizia.titolo || 'Nessuna descrizione';
+                                                    const desc = notizia.sottotitolo || safeTitle || 'Nessuna descrizione';
                                                     const escapedDesc = desc.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
                                                 %><%- highlightedDesc %></p>
                                                 <div class="result-meta">
-                                                    <i class="fas fa-user"></i> <%= notizia.autore || 'Redazione' %> <i class="fas fa-calendar ms-3"></i> <%= new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') %>
+                                                    <i class="fas fa-user"></i> <%= notizia.autore || 'Redazione' %> 
+                                                    <i class="fas fa-calendar ms-3"></i> 
+                                                    <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') : 'Data non disponibile' %>
                                                 </div>
                                                 <% const resultLink = notizia && notizia.id ? ('/notizia/' + notizia.id) : null; %>
                                                 <% if (resultLink) { %>
@@ -114,14 +117,15 @@
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <div class="result-card">
                                             <div class="card-img-container">
-                                                <img src="/assets/images/Campo.png" alt="<%= evento.titolo %>" loading="lazy">
+                                                <img src="/assets/images/Campo.png" alt="<%= evento.titolo || 'Evento' %>" loading="lazy">
                                                 <div class="result-category">
                                                     <i class="fas fa-tag me-1"></i>evento
                                                 </div>
                                             </div>
                                             <div class="card-body">
                                                 <h5 class="card-title"><%
-                                                    const escapedTitle = evento.titolo.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const safeEventoTitle = evento.titolo || 'Titolo non disponibile';
+                                                    const escapedTitle = safeEventoTitle.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
                                                 %><%- highlightedTitle %></h5>
                                                 <p class="card-text"><%
@@ -130,7 +134,9 @@
                                                     const highlightedDesc = query ? escapedDesc.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedDesc;
                                                 %><%- highlightedDesc %></p>
                                                 <div class="result-meta">
-                                                    <i class="fas fa-map-marker-alt"></i> <%= evento.luogo || 'Luogo non specificato' %> <i class="fas fa-calendar ms-3"></i> <%= new Date(evento.data_inizio).toLocaleDateString('it-IT') %>
+                                                    <i class="fas fa-map-marker-alt"></i> <%= evento.luogo || 'Luogo non specificato' %> 
+                                                    <i class="fas fa-calendar ms-3"></i> 
+                                                    <%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'Data non disponibile' %>
                                                 </div>
                                                 <a href="/evento/<%= evento.id %>" class="btn btn-primary btn-sm mt-3">
                                                     <i class="fas fa-eye me-1"></i>Vedi dettagli
@@ -151,14 +157,15 @@
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <div class="result-card">
                                             <div class="card-img-container">
-                                                <img src="/assets/images/Logo.png" alt="<%= squadra.nome %>" loading="lazy">
+                                                <img src="/assets/images/Logo.png" alt="<%= squadra.nome || 'Squadra' %>" loading="lazy">
                                                 <div class="result-category">
                                                     <i class="fas fa-tag me-1"></i>squadra
                                                 </div>
                                             </div>
                                             <div class="card-body">
                                                 <h5 class="card-title"><%
-                                                    const escapedTitle = squadra.nome.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const safeSquadraName = squadra.nome || 'Nome non disponibile';
+                                                    const escapedTitle = safeSquadraName.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
                                                 %><%- highlightedTitle %></h5>
                                                 <p class="card-text"><%
@@ -188,14 +195,15 @@
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <div class="result-card">
                                             <div class="card-img-container">
-                                                <img src="<%= campo.immagine && campo.immagine !== '/assets/images/Campo.png' ? campo.immagine : '/assets/images/Campo.png' %>" alt="<%= campo.nome %>" loading="lazy">
+                                                <img src="<%= campo.immagine && campo.immagine !== '/assets/images/Campo.png' ? campo.immagine : '/assets/images/Campo.png' %>" alt="<%= campo.nome || 'Campo' %>" loading="lazy">
                                                 <div class="result-category">
                                                     <i class="fas fa-tag me-1"></i>campo
                                                 </div>
                                             </div>
                                             <div class="card-body">
                                                 <h5 class="card-title"><%
-                                                    const escapedTitle = campo.nome.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+                                                    const safeCampoName = campo.nome || 'Nome non disponibile';
+                                                    const escapedTitle = safeCampoName.replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
                                                     const highlightedTitle = query ? escapedTitle.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : escapedTitle;
                                                 %><%- highlightedTitle %></h5>
                                                 <p class="card-text"><%

@@ -36,9 +36,19 @@ class Notizia{
         this.id = id;
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
-        this.immagine = immagine;
-        // Aggiungi alias immagine_url per compatibilità template
-        this.immagine_url = (immagine && typeof immagine === 'object' && immagine.url) ? immagine.url : (typeof immagine === 'string' ? immagine : null);
+        
+        // Gestione robusta dell'immagine
+        if (immagine && typeof immagine === 'object') {
+            this.immagine = immagine;
+            this.immagine_url = immagine.url || '/assets/images/default-news.jpg';
+        } else if (typeof immagine === 'string') {
+            this.immagine = { url: immagine };
+            this.immagine_url = immagine;
+        } else {
+            this.immagine = null;
+            this.immagine_url = '/assets/images/default-news.jpg';
+        }
+        
         this.contenuto = contenuto
         this.autore = autore;
         this.autore_id = autore_id;
