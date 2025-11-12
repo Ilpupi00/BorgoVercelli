@@ -319,7 +319,22 @@ router.post('/forgot-password', async (req, res) => {
             baseUrlEnv = 'https://' + baseUrlEnv;
             if (process.env.EMAIL_DEBUG) console.warn('BASE_URL missing protocol; prefixed with https:// ->', baseUrlEnv);
         }
-        const baseUrl = baseUrlEnv || `${req.protocol}://${req.get('host')}`;
+
+        // Verifica che l'host di BASE_URL risolva via DNS; se non risolve, fallback al host della richiesta
+        let baseUrl = baseUrlEnv || `${req.protocol}://${req.get('host')}`;
+        if (baseUrlEnv) {
+            try {
+                const { hostname } = new URL(baseUrlEnv);
+                const dns = require('dns').promises;
+                await dns.lookup(hostname);
+            } catch (dnsErr) {
+                console.warn('[forgot-password] BASE_URL DNS lookup failed for', baseUrlEnv, dnsErr && dnsErr.message ? dnsErr.message : dnsErr);
+                // Fallback: usa host corrente della richiesta (es. localhost:3000)
+                baseUrl = `${req.protocol}://${req.get('host')}`;
+                if (process.env.EMAIL_DEBUG) console.warn('[forgot-password] Falling back to', baseUrl);
+            }
+        }
+
         const resetLink = `${baseUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
         if (process.env.EMAIL_DEBUG) console.log('[forgot-password] resetLink:', resetLink);
         const emailService = require('../../../shared/services/email-service');
