@@ -216,13 +216,14 @@ async function sendViaResend(mailOptions) {
                 payload.attachments.push({
                     name: att.filename || path.basename(att.path),
                     type: att.contentType || 'application/octet-stream',
-                    data: data.toString('base64')
+                    // Resend expects either `content` (base64) or `path`
+                    content: data.toString('base64')
                 });
             } else if (att.content) {
                 payload.attachments.push({
                     name: att.filename || 'attachment',
                     type: att.contentType || 'application/octet-stream',
-                    data: Buffer.from(att.content).toString('base64')
+                    content: Buffer.from(att.content).toString('base64')
                 });
             }
         }
