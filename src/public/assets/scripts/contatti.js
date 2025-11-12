@@ -19,8 +19,20 @@ class ContactForm {
 
     setupEventListeners() {
         // (re)locate form and controls at binding time so we find elements rendered by server
-        this.form = document.getElementById('emailForm') || document.getElementById('contactForm');
+        // Prefer the page contact form (#contactForm) over the footer small form (#emailForm)
+        this.form = document.getElementById('contactForm') || document.getElementById('emailForm');
         this.submitBtn = document.getElementById('submitBtn') || (this.form ? this.form.querySelector('button[type="submit"]') : null);
+
+        // Ensure the form has a sensible fallback action/method in case JS fails to bind
+        if (this.form) {
+            try {
+                // Only set defaults if not present to avoid overriding explicit templates
+                if (!this.form.getAttribute('action')) this.form.setAttribute('action', '/send-email');
+                if (!this.form.getAttribute('method')) this.form.setAttribute('method', 'POST');
+            } catch (e) {
+                // ignore errors
+            }
+        }
         this.feedback = document.getElementById('feedback');
 
         if (!this.form) return; // nothing to bind on this page
