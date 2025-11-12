@@ -109,7 +109,13 @@
                                                     <% if (utente.tipo_utente_id === 1) { %>
                                                         <span class="badge bg-danger">Admin</span>
                                                     <% } else if (utente.tipo_utente_id === 2) { %>
+                                                        <span class="badge bg-primary">Presidente</span>
+                                                    <% } else if (utente.tipo_utente_id === 3) { %>
+                                                        <span class="badge bg-success">Vice Presidente</span>
+                                                    <% } else if (utente.tipo_utente_id === 4) { %>
                                                         <span class="badge bg-warning text-dark">Dirigente</span>
+                                                    <% } else if (utente.tipo_utente_id === 5) { %>
+                                                        <span class="badge bg-secondary">Segretario</span>
                                                     <% } else { %>
                                                         <span class="badge bg-info">Utente</span>
                                                     <% } %>
@@ -224,10 +230,13 @@
                                         <option value="<%= t.id %>"><%= t.nome %></option>
                                     <% }); %>
                                 <% } else { %>
-                                    <!-- Fallback static options -->
-                                    <option value="3">Utente</option>
-                                    <option value="2">Dirigente</option>
+                                    <!-- Fallback static options (ids: 0=Utente,1=Admin,2=Presidente,3=Vice Presidente,4=Dirigente,5=Segretario) -->
+                                    <option value="0">Utente</option>
                                     <option value="1">Admin</option>
+                                    <option value="2">Presidente</option>
+                                    <option value="3">Vice Presidente</option>
+                                    <option value="4">Dirigente</option>
+                                    <option value="5">Segretario</option>
                                 <% } %>
                             </select>
                         </div>
@@ -282,10 +291,13 @@
                                         <option value="<%= t.id %>"><%= t.nome %></option>
                                     <% }); %>
                                 <% } else { %>
-                                    <!-- Fallback static options -->
-                                    <option value="3">Utente</option>
-                                    <option value="2">Dirigente</option>
+                                    <!-- Fallback static options (ids: 0=Utente,1=Admin,2=Presidente,3=Vice Presidente,4=Dirigente,5=Segretario) -->
+                                    <option value="0">Utente</option>
                                     <option value="1">Admin</option>
+                                    <option value="2">Presidente</option>
+                                    <option value="3">Vice Presidente</option>
+                                    <option value="4">Dirigente</option>
+                                    <option value="5">Segretario</option>
                                 <% } %>
                             </select>
                         </div>
