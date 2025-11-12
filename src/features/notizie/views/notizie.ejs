@@ -113,9 +113,16 @@
                                     <p class="card-excerpt">
                                         <%= _safeCont.length > 120 ? _safeCont.substring(0, 120) + '...' : _safeCont %>
                                     </p>
-                                    <a href="/notizia/<%= notizia.id || notizia.N_id %>" class="btn btn-primary read-full-btn">
-                                        <i class="bi bi-arrow-right me-2"></i>Leggi tutto
-                                    </a>
+                                    <% const notiziaLink = (notizia.id || notizia.N_id) ? ('/notizia/' + (notizia.id || notizia.N_id)) : null; %>
+                                    <% if (notiziaLink) { %>
+                                        <a href="<%= notiziaLink %>" class="btn btn-primary read-full-btn">
+                                            <i class="bi bi-arrow-right me-2"></i>Leggi tutto
+                                        </a>
+                                    <% } else { %>
+                                        <button class="btn btn-secondary disabled" aria-disabled="true">
+                                            <i class="bi bi-eye-slash me-2"></i>Dettagli non disponibili
+                                        </button>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>

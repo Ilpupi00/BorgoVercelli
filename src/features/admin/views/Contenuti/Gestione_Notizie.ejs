@@ -141,12 +141,12 @@
                     <!-- Notizie List -->
                     <section class="notizie-list fade-in" id="notizieList">
                         <% if (notizie && notizie.length > 0) { %>
-                            <% notizie.forEach(notizia => { %>
+                            <% notizie.filter(n => n).forEach(notizia => { %>
                                 <article class="notizia-card" 
                                     data-notizia-id="<%= notizia.id %>" 
                                     data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
                                     data-titolo="<%= (notizia.titolo || '').toLowerCase() %>"
-                                    data-contenuto="<%= (notizia.contenuto || '').toLowerCase() %>"
+                                    data-contenuto="<%= (notizia.contenuto || '') %>"
                                     data-autore="<%= notizia.autore_nome %> <%= notizia.autore_cognome %>"
                                     data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">
                                     
@@ -220,14 +220,21 @@
                                             </div>
                                             
                                             <div class="notizia-actions">
-                                                <a 
-                                                    href="/notizia/<%= notizia.id %>" 
-                                                    class="btn-icon-only btn-view"
-                                                    title="Visualizza"
-                                                    aria-label="Visualizza notizia"
-                                                >
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
+                                                <% const adminLink = notizia && notizia.id ? ('/notizia/' + notizia.id) : null; %>
+                                                <% if (adminLink) { %>
+                                                    <a 
+                                                        href="<%= adminLink %>" 
+                                                        class="btn-icon-only btn-view"
+                                                        title="Visualizza"
+                                                        aria-label="Visualizza notizia"
+                                                    >
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                <% } else { %>
+                                                    <button class="btn-icon-only btn-view disabled" title="Visualizza" aria-disabled="true">
+                                                        <i class="fas fa-eye-slash"></i>
+                                                    </button>
+                                                <% } %>
                                                 <button 
                                                     class="btn-icon-only btn-edit"
                                                     onclick="modificaNotizia('<%= notizia.id %>')"
