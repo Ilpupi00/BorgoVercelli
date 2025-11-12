@@ -507,19 +507,23 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
             : `Nuovo messaggio da ${fromName || 'Anonimo'} - Borgo Vercelli`;
 
         // Use verified sender as Envelope From and set Reply-To to the original sender
+        // Only attach the logo as a CID attachment when the template expects a cid (legacy SMTP).
+        // If logoImgSrc is a data URI or public URL, do NOT attach the file - many providers (Resend)
+        // treat attachments as separate files and mail clients show them as attachments.
+        const shouldAttachCid = typeof logoImgSrc === 'string' && logoImgSrc.startsWith('cid:');
         const mailOptions = {
             from: defaultFrom,
             replyTo: `${fromName} <${fromEmail}>`,
             to: to,
             subject: mailSubject,
             html: formattedMessage,
-            attachments: [
+            attachments: shouldAttachCid ? [
                 {
                     filename: 'Logo.png',
                     path: logoPath,
                     cid: 'borgo-logo'
                 }
-            ]
+            ] : undefined
         };
 
     const info = await sendWithRetry(mailOptions);
