@@ -120,7 +120,8 @@ exports.getNotiziaById = async function(id) {
                 return reject({ error: 'Error retrieving news: ' + err.message });
             }
             if (!notizia) {
-                return reject({ error: 'News not found' });
+                // Return null when not found so callers can handle 404 vs 500
+                return resolve(null);
             }
             resolve(makeNotizie(notizia));
         });
@@ -136,11 +137,15 @@ exports.getNotiziaById = async function(id) {
 exports.deleteNotiziaById = async function(id) {
     const sql = 'DELETE FROM NOTIZIE WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err) {
+        sqlite.run(sql, [id], function(err, result) {
             if (err) {
                 return reject({ error: 'Error deleting news: ' + err.message });
-            }   
-            resolve({ success: true });
+            }
+            const deleted = result && typeof result.rowCount === 'number' ? result.rowCount : 0;
+            if (deleted === 0) {
+                return resolve({ success: false, deleted: 0 });
+            }
+            resolve({ success: true, deleted });
         });
     });
 }

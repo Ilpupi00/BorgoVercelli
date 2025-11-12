@@ -145,7 +145,7 @@ router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, upload.single('imm
       sottotitolo: sottotitolo || '',
       immagine_principale_id: immagineId,
       autore_id: req.user ? req.user.id : 1, // default to user 1 if not logged in
-      pubblicata: pubblicata ? 1 : 0
+      pubblicata: pubblicata ? true : false
     };
 
     const result = await dao.createNotizia(notiziaData);
@@ -208,7 +208,7 @@ router.post('/notizie/:id', canEditNotizia, upload.single('immagine_principale')
       contenuto,
       sottotitolo: sottotitolo || '',
       immagine_principale_id: immagineId,
-      pubblicata: pubblicata ? 1 : 0
+      pubblicata: pubblicata ? true : false
     };
 
     await dao.updateNotizia(id, notiziaData);
@@ -235,7 +235,7 @@ router.post('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
     if (!id) return res.status(400).json({ success: false, error: 'ID notizia non valido' });
     const { pubblicata } = req.body;
     const updateData = {
-      pubblicata: pubblicata ? 1 : 0
+      pubblicata: pubblicata ? true : false
     };
     await dao.updateNotizia(id, updateData);
     res.json({ success: true, message: pubblicata ? 'Notizia pubblicata' : 'Notizia sospesa' });
@@ -251,7 +251,10 @@ router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
     const id = parseIdParam(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: 'ID notizia non valido' });
 
-    await dao.deleteNotiziaById(id);
+    const result = await dao.deleteNotiziaById(id);
+    if (!result || !result.success) {
+      return res.status(404).json({ success: false, error: 'Notizia non trovata' });
+    }
     res.json({ success: true });
   } catch (error) {
     console.error('Errore nell\'eliminazione della notizia:', error);

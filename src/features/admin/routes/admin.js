@@ -86,7 +86,7 @@ router.put('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
             contenuto: req.body.contenuto,
             immagine_principale_id: req.body.immagine_principale_id || null,
             autore_id: req.user.id,
-            pubblicata: pubblicata ? 1 : 0,
+            pubblicata: pubblicata ? true : false,
             data_pubblicazione: pubblicata ? new Date().toISOString() : null
         };
 
@@ -101,7 +101,10 @@ router.put('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
 // Route per eliminare una notizia
 router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        await notizieDao.deleteNotiziaById(req.params.id);
+        const result = await notizieDao.deleteNotiziaById(req.params.id);
+        if (!result || !result.success) {
+            return res.status(404).json({ success: false, error: 'Notizia non trovata' });
+        }
         res.json({ success: true, message: 'Notizia eliminata con successo' });
     } catch (error) {
         console.error('Errore nell\'eliminazione della notizia:', error);
@@ -112,11 +115,12 @@ router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
 // Route per pubblicare/sospendere una notizia
 router.put('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        await notizieDao.togglePubblicazioneNotizia(req.params.id);
-        const notizia = await notizieDao.getNotiziaById(req.params.id);
-        const isPubblicato = notizia.pubblicato;
-        const message = isPubblicato ? 'Notizia pubblicata con successo' : 'Notizia sospesa con successo';
-        res.json({ success: true, message, pubblicato: isPubblicato });
+    await notizieDao.togglePubblicazioneNotizia(req.params.id);
+    const notizia = await notizieDao.getNotiziaById(req.params.id);
+    if (!notizia) return res.status(404).json({ success: false, error: 'Notizia non trovata' });
+    const isPubblicato = notizia.pubblicata;
+    const message = isPubblicato ? 'Notizia pubblicata con successo' : 'Notizia sospesa con successo';
+    res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
         console.error('Errore nel toggle pubblicazione notizia:', error);
         res.status(500).json({ success: false, error: 'Errore nel cambio stato pubblicazione' });

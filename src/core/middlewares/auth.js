@@ -211,11 +211,14 @@ const canEditNotizia = async function(req, res, next) {
 
     if (user.tipo_utente_id === 2) { // dirigente
         try {
-            const notizia = await dao.getNotiziaById(req.params.id);
-            if (notizia && notizia.autore_id == user.id) {
-                return next();
-            }
-            else{
+            const id = parseInt(req.params.id, 10);
+            if (!Number.isInteger(id)) {
+                console.log('canEditNotizia: id non valido', req.params.id);
+            } else {
+                const notizia = await dao.getNotiziaById(id);
+                if (notizia && notizia.autore_id == user.id) {
+                    return next();
+                }
                 console.log('Utente dirigente non è autore della notizia');
             }
         } catch (error) {
