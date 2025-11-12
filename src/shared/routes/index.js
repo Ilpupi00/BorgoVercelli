@@ -342,6 +342,8 @@ router.get('/regolamento', (req, res) => {
 router.post('/contatti', async (req, res) => {
     try {
         const { name, email, message, subject } = req.body;
+        // Log incoming contact payload for debugging (will appear in server logs)
+        console.log('[POST /contatti] payload:', { name, email, subject, hasMessage: !!message });
 
         // semplice validazione server-side
         if (!name || !email || !message || !subject) {

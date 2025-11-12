@@ -1,34 +1,38 @@
 class ContactForm {
     constructor() {
-        // The footer form uses id="emailForm" so try that first, fall back to contactForm for older pages
-        this.form = document.getElementById('emailForm') || document.getElementById('contactForm');
-        this.submitBtn = document.getElementById('submitBtn');
-        this.feedback = document.getElementById('feedback');
+        // Do not query DOM here (script might be loaded before DOMContentLoaded in some pages)
+        this.form = null;
+        this.submitBtn = null;
+        this.feedback = null;
         this.init();
     }
 
     init() {
-        document.addEventListener('DOMContentLoaded', () => {
+        // Bind immediately if DOM is already ready, otherwise wait for DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
+        } else {
+            // DOM already parsed
             this.setupEventListeners();
-        });
+        }
     }
 
     setupEventListeners() {
-        if (this.form) {
-            this.form.addEventListener('submit', (event) => {
-                this.handleSubmit(event);
-            });
-        }
+        // (re)locate form and controls at binding time so we find elements rendered by server
+        this.form = document.getElementById('emailForm') || document.getElementById('contactForm');
+        this.submitBtn = document.getElementById('submitBtn') || (this.form ? this.form.querySelector('button[type="submit"]') : null);
+        this.feedback = document.getElementById('feedback');
+
+        if (!this.form) return; // nothing to bind on this page
+
+        // Attach submit handler
+        this.form.addEventListener('submit', (event) => this.handleSubmit(event));
 
         // Validazione in tempo reale
         const inputs = this.form.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.addEventListener('blur', () => {
-                this.validateField(input);
-            });
-            input.addEventListener('input', () => {
-                this.clearFieldError(input);
-            });
+            input.addEventListener('blur', () => this.validateField(input));
+            input.addEventListener('input', () => this.clearFieldError(input));
         });
     }
 
@@ -127,15 +131,30 @@ class ContactForm {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                this.showFeedback('Messaggio inviato con successo! Ti risponderemo presto.', 'success');
+                // Prefer using the site's ShowModal helper when available
+                if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
+                    try { window.ShowModal.showModalSuccess('Messaggio inviato', 'Ti risponderemo presto.'); } catch (e) { /* ignore */ }
+                } else {
+                    this.showFeedback('Messaggio inviato con successo! Ti risponderemo presto.', 'success');
+                }
                 this.form.reset();
                 this.clearValidation();
             } else {
-                this.showFeedback(result.error || 'Errore durante l\'invio del messaggio.', 'danger');
+                const errMsg = result && result.error ? result.error : 'Errore durante l\'invio del messaggio.';
+                if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                    try { window.ShowModal.showModalError(errMsg, 'Errore invio messaggio'); } catch (e) { /* ignore */ }
+                } else {
+                    this.showFeedback(errMsg, 'danger');
+                }
             }
         } catch (error) {
             console.error('Errore:', error);
-            this.showFeedback('Errore di connessione. Riprova più tardi.', 'danger');
+            const errMsg = 'Errore di connessione. Riprova più tardi.';
+            if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
+                try { window.ShowModal.showModalError(errMsg, 'Errore invio messaggio'); } catch (e) { /* ignore */ }
+            } else {
+                this.showFeedback(errMsg, 'danger');
+            }
         } finally {
             this.setLoading(false);
         }
