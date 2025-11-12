@@ -151,7 +151,14 @@ router.get('/admin/squadre', isLoggedIn, isAdmin, async (req, res) => {
 router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const utenti = await userDao.getAllUsers();
-        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
+        // Recupera i tipi utente per popolare i select nella UI
+        let tipiUtente = [];
+        try {
+            tipiUtente = await userDao.getTipiUtente();
+        } catch (e) {
+            console.error('Impossibile recuperare TIPI_UTENTE:', e);
+        }
+        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti, tipiUtente });
     } catch (err) {
         console.error('Errore nel caricamento degli utenti:', err);
         res.status(500).send('Errore interno del server');
@@ -1037,7 +1044,13 @@ router.get('/api/admin/utenti/:id/stato', isLoggedIn, isAdmin, async (req, res) 
 router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const utenti = await userDao.getAllUsers();
-        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti });
+        let tipiUtente = [];
+        try {
+            tipiUtente = await userDao.getTipiUtente();
+        } catch (e) {
+            console.error('Impossibile recuperare TIPI_UTENTE:', e);
+        }
+        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti, tipiUtente });
     } catch (err) {
         console.error('Errore nel caricamento degli utenti:', err);
         res.status(500).send('Errore interno del server');

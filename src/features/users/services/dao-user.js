@@ -350,6 +350,21 @@ exports.getAllUsers = function() {
 }
 
 /**
+ * Recupera tutti i tipi utente definiti nella tabella TIPI_UTENTE
+ * @function getTipiUtente
+ * @returns {Promise<Array<Object>>} Array di tipi utente { id, nome }
+ */
+exports.getTipiUtente = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT id, nome FROM TIPI_UTENTE ORDER BY id`;
+        sqlite.all(sql, [], (err, rows) => {
+            if (err) return reject({ error: 'Errore recupero tipi utente: ' + err.message });
+            resolve(rows || []);
+        });
+    });
+}
+
+/**
  * Ottiene statistiche aggregate per un utente (prenotazioni, recensioni, ultimi 30 giorni)
  * @function getUserStats
  * @param {number} userId - ID utente

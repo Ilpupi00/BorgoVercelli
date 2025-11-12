@@ -219,9 +219,16 @@
                         <div class="mb-3">
                             <label for="tipo_utente_id" class="form-label">Tipo Utente</label>
                             <select class="form-select" id="tipo_utente_id">
-                                <option value="3">Utente</option>
-                                <option value="2">Dirigente</option>
-                                <option value="1">Admin</option>
+                                <% if (typeof tipiUtente !== 'undefined' && Array.isArray(tipiUtente) && tipiUtente.length>0) { %>
+                                    <% tipiUtente.forEach(function(t) { %>
+                                        <option value="<%= t.id %>"><%= t.nome %></option>
+                                    <% }); %>
+                                <% } else { %>
+                                    <!-- Fallback static options -->
+                                    <option value="3">Utente</option>
+                                    <option value="2">Dirigente</option>
+                                    <option value="1">Admin</option>
+                                <% } %>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -270,9 +277,16 @@
                         <div class="mb-3">
                             <label for="modificaTipo" class="form-label">Tipo Utente</label>
                             <select class="form-select" id="modificaTipo">
-                                <option value="3">Utente</option>
-                                <option value="2">Dirigente</option>
-                                <option value="1">Admin</option>
+                                <% if (typeof tipiUtente !== 'undefined' && Array.isArray(tipiUtente) && tipiUtente.length>0) { %>
+                                    <% tipiUtente.forEach(function(t) { %>
+                                        <option value="<%= t.id %>"><%= t.nome %></option>
+                                    <% }); %>
+                                <% } else { %>
+                                    <!-- Fallback static options -->
+                                    <option value="3">Utente</option>
+                                    <option value="2">Dirigente</option>
+                                    <option value="1">Admin</option>
+                                <% } %>
                             </select>
                         </div>
                     </form>
