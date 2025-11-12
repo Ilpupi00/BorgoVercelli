@@ -338,7 +338,14 @@ class EventiManager {
 
         // Link
         const link = card.querySelector('.card-button');
-        link.href = `/evento/${event.id}`;
+        const eventId = event.id || event.E_id;
+        if (eventId) {
+            link.href = `/evento/${eventId}`;
+        } else {
+            link.href = '#';
+            link.classList.add('disabled');
+            link.setAttribute('aria-disabled', 'true');
+        }
 
         return card;
     }

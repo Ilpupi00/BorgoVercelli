@@ -273,12 +273,18 @@ class Profilo {
                         </div>
                     </div>
                     <div class="btn-group" role="group">
-                        <a href="/evento/crea-evento/${evento.id}" class="btn btn-sm btn-outline-success" title="Modifica evento">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/${evento.id}', '_blank')">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                        ${evento.id || evento.E_id ? `
+                            <a href="/evento/crea-evento/${evento.id || evento.E_id}" class="btn btn-sm btn-outline-success" title="Modifica evento">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/evento/${evento.id || evento.E_id}', '_blank')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="ID evento non valido">
+                                <i class="bi bi-eye-slash"></i>
+                            </button>
+                        `}
                     </div>
                 </div>
             `;
@@ -305,12 +311,18 @@ class Profilo {
                         </div>
                     </div>
                     <div class="btn-group" role="group">
-                        <a href="/notizie/edit/${notizia.id}" class="btn btn-sm btn-outline-primary" title="Modifica notizia">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/notizia/${notizia.id}', '_blank')">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                        ${notizia.id || notizia.N_id ? `
+                            <a href="/notizie/edit/${notizia.id || notizia.N_id}" class="btn btn-sm btn-outline-primary" title="Modifica notizia">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-info" title="Visualizza" onclick="window.open('/notizia/${notizia.id || notizia.N_id}', '_blank')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="ID notizia non valido">
+                                <i class="bi bi-eye-slash"></i>
+                            </button>
+                        `}
                     </div>
                 </div>
             `;

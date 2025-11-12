@@ -256,8 +256,8 @@ class Search {
 
   getItemLink(item, type) {
     switch (type) {
-      case 'notizia': return `/notizia/${item.id}`;
-      case 'evento': return `/evento/${item.id}`;
+      case 'notizia': return (item.id || item.N_id) ? `/notizia/${item.id || item.N_id}` : '#';
+      case 'evento': return (item.id || item.E_id) ? `/evento/${item.id || item.E_id}` : '#';
       case 'squadra': return `/squadre`;
       case 'campo': return `/prenotazione`;
       default: return '#';
