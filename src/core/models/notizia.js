@@ -62,7 +62,16 @@ class Notizia{
      * Notizia.parseDate('2024-12-25');  // '2024-12-25 00:00:00'
      */
     static parseDate(dateStr) {
-        if (!dateStr || typeof dateStr !== 'string') return null;
+        if (!dateStr) return null;
+        // Accept Date objects returned by PG driver
+        if (dateStr instanceof Date) {
+            try {
+                return moment(dateStr).format('YYYY-MM-DD HH:mm:ss');
+            } catch (e) {
+                return null;
+            }
+        }
+        if (typeof dateStr !== 'string') return null;
         
         try {
             // Prova prima con moment.js specificando formati comuni

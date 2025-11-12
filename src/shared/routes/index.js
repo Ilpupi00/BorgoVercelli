@@ -39,7 +39,7 @@ router.get('/homepage', async (req, res) => {
     try {
         // Temporaneamente senza dao per evitare errori
         const notizie = await daoNotizie.getNotiziePaginated(0,3) || [];
-        const eventi = await daoEventi.getEventi() || [];
+    const eventi = await daoEventi.getEventiPubblicati() || [];
         const recensioni = await daoRecensioni.getRecensioni() || [];
         const isLoggedIn = req.isAuthenticated ? req.isAuthenticated() : false;
         res.render('homepage', {
