@@ -35,7 +35,8 @@ const makeEvento=(row)=>{
  */
 exports.getEventi = function(){
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI;';
+        // Return only published events by default to avoid exposing drafts in public lists
+        const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true ORDER BY data_inizio DESC;';
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
