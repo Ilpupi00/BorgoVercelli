@@ -350,17 +350,26 @@ router.post('/contatti', async (req, res) => {
             return res.status(400).json({ error: 'Tutti i campi sono obbligatori.' });
         }
 
-        // Invia la mail tramite il service
-        await emailService.sendEmail({
+        // Invia la mail tramite il service e logga il risultato
+        const info = await emailService.sendEmail({
             fromName: name,
             fromEmail: email,
             subject: subject,
             message: message
         });
+        if (process.env.EMAIL_DEBUG) console.log('[POST /contatti] sendEmail result:', info);
 
         return res.json({ success: true, message: 'Messaggio inviato con successo.' });
     } catch (err) {
         console.error('Errore invio contatti:', err);
+        // In ambiente di debug forniamo qualche dettaglio in più per aiutare il troubleshooting
+        if (process.env.EMAIL_DEBUG) {
+            const safe = {
+                message: err && err.message ? err.message : 'Unknown error',
+                code: err && err.code ? err.code : undefined
+            };
+            return res.status(500).json({ error: 'Errore durante l\'invio del messaggio.', details: safe });
+        }
         return res.status(500).json({ error: 'Errore durante l\'invio del messaggio.' });
     }
 });
