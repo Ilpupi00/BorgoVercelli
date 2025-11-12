@@ -239,6 +239,7 @@ const logoPath = path.resolve(__dirname, '../../public/assets/images/Logo.png');
 
 exports.sendEmail = async function({ fromName, fromEmail, subject, message, to = 'lucalupi03@gmail.com' }) {
     try {
+    const defaultFrom = process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
     const formattedMessage = `
     <!DOCTYPE html>
         <html lang="it">
@@ -488,9 +489,10 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
             ? subject.toString().trim()
             : `Nuovo messaggio da ${fromName || 'Anonimo'} - Borgo Vercelli`;
 
-        // Aggiungiamo attachments per includere il logo come CID
+        // Use verified sender as Envelope From and set Reply-To to the original sender
         const mailOptions = {
-            from: `"${fromName}" <${fromEmail}>`,
+            from: defaultFrom,
+            replyTo: `${fromName} <${fromEmail}>`,
             to: to,
             subject: mailSubject,
             html: formattedMessage,
@@ -515,7 +517,7 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
 exports.sendResetEmail = async function(toEmail, resetLink) {
     try {
         const mailOptions = {
-            from: `"Borgo Vercelli" <noreply@borgovercelli.it>`,
+            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
             to: toEmail,
             subject: 'Reset della tua password - Borgo Vercelli',
             html: `
@@ -571,7 +573,7 @@ exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFin
         });
 
         const mailOptions = {
-            from: `"Borgo Vercelli" <noreply@borgovercelli.it>`,
+            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
             to: toEmail,
             subject: 'Account Sospeso - Borgo Vercelli',
             html: `
@@ -697,7 +699,7 @@ exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFin
 exports.sendBanEmail = async function(toEmail, userName, motivo) {
     try {
         const mailOptions = {
-            from: `"Borgo Vercelli" <noreply@borgovercelli.it>`,
+            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
             to: toEmail,
             subject: 'Account Bannato - Borgo Vercelli',
             html: `
@@ -824,7 +826,7 @@ exports.sendBanEmail = async function(toEmail, userName, motivo) {
 exports.sendRevocaEmail = async function(toEmail, userName) {
     try {
         const mailOptions = {
-            from: `"Borgo Vercelli" <noreply@borgovercelli.it>`,
+            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
             to: toEmail,
             subject: 'Account Riattivato - Borgo Vercelli',
             html: `
