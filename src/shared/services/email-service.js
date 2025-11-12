@@ -237,6 +237,23 @@ async function sendViaResend(mailOptions) {
 // Percorso al logo (verifica che il file esista in questo path)
 const logoPath = path.resolve(__dirname, '../../public/assets/images/Logo.png');
 
+// Prepare logo image source: prefer public BASE_URL if it's a real public URL; otherwise embed inline as base64
+let logoImgSrc = (process.env.BASE_URL && process.env.BASE_URL.replace(/\/$/, '')) ? `${process.env.BASE_URL.replace(/\/$/, '')}/images/Logo.png` : null;
+try {
+    // If BASE_URL is localhost or not set, embed as data URI so external mail clients can render it
+    const baseUrl = (process.env.BASE_URL || '').trim();
+    if (!baseUrl || baseUrl.startsWith('http://localhost') || baseUrl.startsWith('https://localhost')) {
+        const logoData = fs.readFileSync(logoPath);
+        const ext = (path.extname(logoPath) || '.png').replace('.', '') || 'png';
+        logoImgSrc = `data:image/${ext};base64,${logoData.toString('base64')}`;
+    }
+    if (process.env.EMAIL_DEBUG) console.log('logoImgSrc selected (inline?):', logoImgSrc && logoImgSrc.startsWith('data:'));
+} catch (e) {
+    console.warn('Failed to read logo for embedding:', e && e.message);
+    // fallback to public URL even if it might be localhost
+    logoImgSrc = logoImgSrc || `${process.env.BASE_URL || 'http://localhost:3000'}/images/Logo.png`;
+}
+
 exports.sendEmail = async function({ fromName, fromEmail, subject, message, to = 'lucalupi03@gmail.com' }) {
     try {
     const defaultFrom = process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
@@ -449,7 +466,7 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
                                     <div class="header">
                                         <div class="header-content">
                                             <div class="logo-container">
-                                                        <img src="${process.env.BASE_URL || 'http://localhost:3000'}/images/Logo.png" alt="Borgo Vercelli" class="logo" />
+                                                        <img src="${logoImgSrc}" alt="Borgo Vercelli" class="logo" />
                                             </div>
                                             <h1>📬 Nuovo Messaggio</h1>
                                             <p>Ricevuto dal sito web</p>
