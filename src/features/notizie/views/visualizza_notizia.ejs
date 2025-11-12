@@ -36,11 +36,11 @@
                         <% } %>
                         <div class="d-flex align-items-center mt-3 animate__animated animate__fadeInUp animate__delay-2s">
                             <i class="bi bi-person-circle me-2 text-primary"></i>
-                            <span class="me-3"><%= notizia.autore %></span>
+                            <span class="me-3"><%= notizia.autore || 'Autore sconosciuto' %></span>
                             <i class="bi bi-calendar-event me-2 text-primary"></i>
                             <span class="me-3"><%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Non pubblicato' %></span>
                             <i class="bi bi-eye me-2 text-primary"></i>
-                            <span><%= notizia.visualizzazioni %> visualizzazioni</span>
+                            <span><%= notizia.visualizzazioni || 0 %> visualizzazioni</span>
                         </div>
                     </div>
                 </div>
@@ -54,11 +54,11 @@
                     <div class="col-lg-8">
                         <article class="notizia-article animate__animated animate__fadeInUp">
                             <div class="notizia-immagine mb-4">
-                                <img src="<%= notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' ? notizia.immagine.url : '/images/default-news.jpg' %>"
+                                <img src="<%= (notizia.immagine_url && notizia.immagine_url.trim() !== '') ? notizia.immagine_url : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/default-news.jpg') %>"
                                      alt="<%= notizia.titolo %>" class="img-fluid rounded shadow">
                             </div>
                             <div class="notizia-contenuto ql-editor">
-                                <%- notizia.contenuto %>
+                                <%- notizia.contenuto || '' %>
                             </div>
                         </article>
 

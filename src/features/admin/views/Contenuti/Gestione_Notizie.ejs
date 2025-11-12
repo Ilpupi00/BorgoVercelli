@@ -152,21 +152,17 @@
                                     
                                     <!-- Image -->
                                     <div class="notizia-image-container">
-                                        <% if (notizia.immagine && notizia.immagine.url) { %>
-                                            <img 
-                                                src="<%= notizia.immagine.url %>" 
-                                                alt="<%= notizia.titolo %>"
-                                                class="notizia-image"
-                                                loading="lazy"
-                                            >
-                                        <% } else { %>
-                                            <img 
-                                                src="/assets/images/default-news.jpg" 
-                                                alt="Immagine placeholder"
-                                                class="notizia-image"
-                                                loading="lazy"
-                                            >
-                                        <% } %>
+                                        <% 
+                                        const imgSrc = (notizia.immagine_url && notizia.immagine_url.trim()) 
+                                            ? notizia.immagine_url 
+                                            : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/default-news.jpg');
+                                        %>
+                                        <img 
+                                            src="<%= imgSrc %>" 
+                                            alt="<%= notizia.titolo || 'Immagine notizia' %>"
+                                            class="notizia-image"
+                                            loading="lazy"
+                                        >
                                         
                                         <!-- Status Badge -->
                                         <span class="notizia-status-badge badge-<%= notizia.pubblicata ? 'pubblicata' : 'bozza' %>">

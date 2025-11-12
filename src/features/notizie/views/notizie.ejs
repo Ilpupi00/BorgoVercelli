@@ -92,7 +92,7 @@
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="notizia-card h-100 animate__animated animate__fadeInUp">
                                 <div class="card-image">
-                                    <img src="<%= notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' ? notizia.immagine.url : '/images/default-news.jpg' %>"
+                                    <img src="<%= (notizia.immagine_url && notizia.immagine_url.trim() !== '') ? notizia.immagine_url : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/default-news.jpg') %>"
                                          alt="<%= notizia.titolo %>"
                                          class="card-img">
                                     <div class="card-overlay">
@@ -108,7 +108,7 @@
                                             <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Non pubblicato' %>
                                         </span>
                                     </div>
-                                    <h3 class="card-title"><%= notizia.titolo %></h3>
+                                    <h3 class="card-title"><%= notizia.titolo || 'Senza titolo' %></h3>
                                     <% const _safeCont = (notizia.contenuto || '').replace(/<[^>]*>/g, ''); %>
                                     <p class="card-excerpt">
                                         <%= _safeCont.length > 120 ? _safeCont.substring(0, 120) + '...' : _safeCont %>
