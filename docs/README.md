@@ -315,7 +315,7 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_app_password
-EMAIL_FROM=noreply@borgovercelli.it
+EMAIL_FROM=noreply@borgovercelli.app
 
 # Upload
 UPLOAD_DIR=./src/public/uploads
