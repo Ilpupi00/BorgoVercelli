@@ -1,6 +1,7 @@
 class ContactForm {
     constructor() {
-        this.form = document.getElementById('contactForm');
+        // The footer form uses id="emailForm" so try that first, fall back to contactForm for older pages
+        this.form = document.getElementById('emailForm') || document.getElementById('contactForm');
         this.submitBtn = document.getElementById('submitBtn');
         this.feedback = document.getElementById('feedback');
         this.init();
@@ -114,7 +115,8 @@ class ContactForm {
         const data = Object.fromEntries(formData);
 
         try {
-            const response = await fetch('/send-email', {
+            // Send to the server route that exists in the app (POST /contatti)
+            const response = await fetch('/contatti', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -34,6 +34,34 @@ router.get('/admin/verify-smtp', async (req, res) => {
     }
 });
 
+// Admin-only endpoint to send a quick test via Resend API (if configured)
+// Protected by ADMIN_VERIFY_TOKEN env var. Use query ?token=... and ?to=recipient
+router.get('/admin/send-test-resend', async (req, res) => {
+    const token = req.query.token || req.get('x-admin-token');
+    const expected = process.env.ADMIN_VERIFY_TOKEN;
+    if (!expected) return res.status(400).json({ error: 'ADMIN_VERIFY_TOKEN not configured on server' });
+    if (!token || token !== expected) return res.status(403).json({ error: 'Forbidden' });
+
+    if (!process.env.RESEND_API_KEY) {
+        return res.status(400).json({ error: 'RESEND_API_KEY not configured on server' });
+    }
+
+    const to = req.query.to;
+    if (!to) return res.status(400).json({ error: 'Missing required query param: to' });
+
+    try {
+        const result = await emailService.sendTestViaResend(to);
+        return res.json({ ok: true, result });
+    } catch (err) {
+        const safe = {
+            message: err && err.message ? err.message : 'Unknown error',
+            code: err && err.code ? err.code : undefined
+        };
+        console.error('Admin send-test-resend failed:', err);
+        return res.status(500).json({ ok: false, error: safe });
+    }
+});
+
 
 router.get('/homepage', async (req, res) => {
     try {
