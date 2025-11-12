@@ -44,7 +44,7 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="news-card h-100 animate__animated animate__fadeInUp" style="--index: <%= index %>;">
                             <div class="card-img-container">
-                                <img src="<%= notizia.immagine_url || '/assets/images/Campo.png' %>" alt="<%= notizia.titolo %>" class="img-fluid">
+                                <img src="<%= (notizia.immagine && notizia.immagine.url) ? notizia.immagine.url : '/assets/images/Campo.png' %>" alt="<%= notizia.titolo %>" class="img-fluid">
                             </div>
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title fw-bold"><%= notizia.titolo %></h5>

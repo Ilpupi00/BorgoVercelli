@@ -77,6 +77,8 @@ class Evento {
         }
 
         this.immagini_id = immagini_id;
+        // Aggiungi alias immagine_url per compatibilità template (evento non ha immagini, usa placeholder)
+        this.immagine_url = null;
     }
 
     // ==================== METODI STATICI ====================

@@ -37,6 +37,8 @@ class Notizia{
         this.titolo = titolo;
         this.sottotitolo = sottotitolo;
         this.immagine = immagine;
+        // Aggiungi alias immagine_url per compatibilità template
+        this.immagine_url = (immagine && typeof immagine === 'object' && immagine.url) ? immagine.url : (typeof immagine === 'string' ? immagine : null);
         this.contenuto = contenuto
         this.autore = autore;
         this.autore_id = autore_id;
