@@ -198,7 +198,7 @@ async function sendViaSendGrid(mailOptions) {
 async function sendViaResend(mailOptions) {
     if (!resendClient) throw new Error('Resend not configured');
 
-    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@borgovercelli.it';
+    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@borgovercelli.app';
     const to = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
 
     const payload = {
