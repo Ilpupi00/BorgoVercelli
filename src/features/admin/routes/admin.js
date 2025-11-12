@@ -53,7 +53,7 @@ router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
  */
 router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
     try{
-        const eventi = await eventiDao.getEventi();
+        const eventi = await eventiDao.getEventiAll();
         res.render('Contenuti/Gestione_Eventi.ejs', { user: req.user, eventi });
     } catch (err) {
         console.error('Errore nel caricamento degli eventi:', err);
