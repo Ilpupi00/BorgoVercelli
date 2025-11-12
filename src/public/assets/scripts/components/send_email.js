@@ -45,7 +45,7 @@ export function setupEmailFormListener() {
 
     try {
       // Usa la stessa route del footer (/contatti)
-      const response = await fetch('/contatti', {
+      const response = await fetch('/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

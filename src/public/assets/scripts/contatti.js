@@ -119,8 +119,8 @@ class ContactForm {
         const data = Object.fromEntries(formData);
 
         try {
-            // Send to the server route that exists in the app (POST /send-email)
-            const response = await fetch('/send-emaili', {
+            // Send to the legacy server route that handles email sending (POST /send-email)
+            const response = await fetch('/send-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -130,7 +130,7 @@ class ContactForm {
 
             const result = await response.json();
 
-            if (response.ok && result.success) {
+            if (response.ok && result && result.success) {
                 // Prefer using the site's ShowModal helper when available
                 if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
                     try { window.ShowModal.showModalSuccess('Messaggio inviato', 'Ti risponderemo presto.'); } catch (e) { /* ignore */ }
@@ -140,7 +140,7 @@ class ContactForm {
                 this.form.reset();
                 this.clearValidation();
             } else {
-                const errMsg = result && result.error ? result.error : 'Errore durante l\'invio del messaggio.';
+                const errMsg = result && (result.error || (result.details && result.details.message)) ? (result.error || result.details.message) : 'Errore durante l\'invio del messaggio.';
                 if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
                     try { window.ShowModal.showModalError(errMsg, 'Errore invio messaggio'); } catch (e) { /* ignore */ }
                 } else {
