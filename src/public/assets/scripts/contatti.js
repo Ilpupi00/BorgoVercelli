@@ -119,8 +119,8 @@ class ContactForm {
         const data = Object.fromEntries(formData);
 
         try {
-            // Send to the server route that exists in the app (POST /contatti)
-            const response = await fetch('/contatti', {
+            // Send to the server route that exists in the app (POST /send-email)
+            const response = await fetch('/send-emaili', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -313,8 +313,15 @@ router.post('/forgot-password', async (req, res) => {
         // Salva token nel DB (aggiungeremo colonna reset_token e reset_expires)
         await userDao.saveResetToken(user.id, resetToken, expiresAt);
         // Invia email
-        const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-        const resetLink = `${baseUrl}/reset-password/${resetToken}`;
+        // Normalizza BASE_URL: se è impostata senza protocollo aggiungi https:// per evitare link non validi
+        let baseUrlEnv = (process.env.BASE_URL || '').toString().trim();
+        if (baseUrlEnv && !/^https?:\/\//i.test(baseUrlEnv)) {
+            baseUrlEnv = 'https://' + baseUrlEnv;
+            if (process.env.EMAIL_DEBUG) console.warn('BASE_URL missing protocol; prefixed with https:// ->', baseUrlEnv);
+        }
+        const baseUrl = baseUrlEnv || `${req.protocol}://${req.get('host')}`;
+        const resetLink = `${baseUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
+        if (process.env.EMAIL_DEBUG) console.log('[forgot-password] resetLink:', resetLink);
         const emailService = require('../../../shared/services/email-service');
         await emailService.sendResetEmail(user.email, resetLink);
         res.status(200).json({ message: 'Se l\'email è registrata, riceverai un link di reset.' });
