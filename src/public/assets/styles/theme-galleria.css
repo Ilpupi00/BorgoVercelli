@@ -1,0 +1,107 @@
+/* =============================================
+   DARK THEME - GALLERIA SPECIFIC OVERRIDES
+   ============================================= */
+
+/* Header e titoli */
+:root[data-theme="dark"] .gallery-section h2,
+:root[data-theme="dark"] header h1,
+:root[data-theme="dark"] header h2 {
+    color: var(--text-primary) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Gallery container */
+:root[data-theme="dark"] .gallery-container {
+    background: transparent;
+}
+
+/* Gallery items */
+:root[data-theme="dark"] .gallery-item {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+/* Image wrapper */
+:root[data-theme="dark"] .image-wrapper {
+    position: relative;
+    background: var(--bg-secondary) !important;
+}
+
+/* Gallery images */
+:root[data-theme="dark"] .gallery-image {
+    opacity: 0.95;
+    transition: opacity 0.3s ease;
+}
+
+:root[data-theme="dark"] .gallery-item:hover .gallery-image {
+    opacity: 1;
+}
+
+/* Overlay */
+:root[data-theme="dark"] .overlay {
+    background: rgba(26, 31, 53, 0.85) !important;
+}
+
+/* Upload button */
+:root[data-theme="dark"] .upload-btn {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    border: 2px solid var(--primary-color) !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+:root[data-theme="dark"] .upload-btn:hover {
+    background: var(--primary-variant) !important;
+    border-color: var(--primary-variant) !important;
+    box-shadow: 0 6px 16px rgba(74, 158, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Load more button */
+:root[data-theme="dark"] #loadMoreBtn,
+:root[data-theme="dark"] .btn-primary {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    border: 2px solid var(--primary-color) !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+:root[data-theme="dark"] #loadMoreBtn:hover,
+:root[data-theme="dark"] .btn-primary:hover {
+    background: var(--primary-variant) !important;
+    border-color: var(--primary-variant) !important;
+    transform: translateY(-2px);
+}
+
+/* Header image container */
+:root[data-theme="dark"] .img-container {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+:root[data-theme="dark"] .img-container img {
+    opacity: 0.9;
+}
+
+/* Section backgrounds */
+:root[data-theme="dark"] .gallery-section {
+    background: var(--bg-primary);
+}
+
+:root[data-theme="dark"] header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}

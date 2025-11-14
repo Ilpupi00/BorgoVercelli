@@ -1,0 +1,392 @@
+/* =============================================
+   DARK THEME - PRIVACY & REGOLAMENTO
+   ============================================= */
+
+/* Body Background */
+:root[data-theme="dark"] body {
+    background: var(--bg-primary) !important;
+}
+
+/* Hero Section */
+:root[data-theme="dark"] .privacy-hero,
+:root[data-theme="dark"] .regolamento-hero {
+    background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .privacy-hero h1,
+:root[data-theme="dark"] .regolamento-hero h1 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .privacy-hero .subtitle,
+:root[data-theme="dark"] .regolamento-hero .subtitle {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+:root[data-theme="dark"] .privacy-hero .badge,
+:root[data-theme="dark"] .regolamento-hero .badge {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Main Content */
+:root[data-theme="dark"] .privacy-content,
+:root[data-theme="dark"] .regolamento-content {
+    background: var(--bg-primary) !important;
+}
+
+/* Container */
+:root[data-theme="dark"] .container {
+    color: var(--text-primary);
+}
+
+/* Sections */
+:root[data-theme="dark"] .privacy-section,
+:root[data-theme="dark"] .regolamento-section {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+:root[data-theme="dark"] .privacy-section:hover,
+:root[data-theme="dark"] .regolamento-section:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+/* Headings */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .section-title {
+    color: var(--primary-color) !important;
+}
+
+/* Paragraphs */
+:root[data-theme="dark"] p {
+    color: var(--text-primary) !important;
+    line-height: 1.8;
+}
+
+/* Lists */
+:root[data-theme="dark"] ul,
+:root[data-theme="dark"] ol {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] li {
+    color: var(--text-primary) !important;
+    margin-bottom: 0.8rem;
+}
+
+/* Strong text */
+:root[data-theme="dark"] strong,
+:root[data-theme="dark"] b {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+/* Links */
+:root[data-theme="dark"] a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--primary-color) !important;
+    text-decoration: underline;
+}
+
+:root[data-theme="dark"] a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--primary-variant) !important;
+}
+
+/* Cards */
+:root[data-theme="dark"] .card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .card-header {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .card-body {
+    color: var(--text-primary) !important;
+}
+
+/* Alerts */
+:root[data-theme="dark"] .alert {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .alert-info {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .alert-warning {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Tables */
+:root[data-theme="dark"] .table {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table thead {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table tbody tr {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .table tbody td,
+:root[data-theme="dark"] .table tbody th {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Icons */
+:root[data-theme="dark"] i {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Blockquote */
+:root[data-theme="dark"] blockquote {
+    background: var(--bg-secondary) !important;
+    border-left: 4px solid var(--primary-color) !important;
+    color: var(--text-secondary) !important;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+}
+
+/* Code */
+:root[data-theme="dark"] code {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+:root[data-theme="dark"] pre {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Buttons */
+:root[data-theme="dark"] .btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .btn-primary:hover {
+    background: var(--primary-variant) !important;
+    border-color: var(--primary-variant) !important;
+}
+
+/* Back to top button */
+:root[data-theme="dark"] .back-to-top {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .back-to-top:hover {
+    background: var(--primary-variant) !important;
+    transform: translateY(-3px);
+}
+
+/* Sidebar */
+:root[data-theme="dark"] .sidebar {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .sidebar-link {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .sidebar-link:hover,
+:root[data-theme="dark"] .sidebar-link.active {
+    background: var(--bg-hover) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Dividers */
+:root[data-theme="dark"] hr {
+    border-color: var(--border-color) !important;
+    opacity: 1;
+}
+
+/* Text colors utility */
+:root[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .text-dark {
+    color: var(--text-primary) !important;
+}
+
+/* Background utilities */
+:root[data-theme="dark"] .bg-light {
+    background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .bg-white {
+    background: var(--card-bg) !important;
+}
+
+/* Contact Box - Privacy */
+:root[data-theme="dark"] .contact-box {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+:root[data-theme="dark"] .contact-box p {
+    color: var(--text-primary) !important;
+    margin-bottom: 0.5rem;
+}
+
+:root[data-theme="dark"] .contact-box strong {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .contact-box a {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .contact-box a:hover {
+    color: var(--primary-variant) !important;
+}
+
+:root[data-theme="dark"] .contact-box i {
+    color: var(--primary-color) !important;
+}
+
+/* Info Box - Regolamento */
+:root[data-theme="dark"] .info-box {
+    background: rgba(74, 158, 255, 0.15) !important;
+    border: 1px solid rgba(74, 158, 255, 0.3) !important;
+    border-left: 4px solid var(--primary-color) !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+:root[data-theme="dark"] .info-box p {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .info-box strong {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .info-box i {
+    color: var(--primary-color) !important;
+}
+
+/* Warning Box - Regolamento */
+:root[data-theme="dark"] .warning-box {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    border-left: 4px solid #f59e0b !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+:root[data-theme="dark"] .warning-box p {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .warning-box strong {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .warning-box i {
+    color: #f59e0b !important;
+}
+
+/* Success Box - Regolamento */
+:root[data-theme="dark"] .success-box {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+    border-left: 4px solid #22c55e !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+:root[data-theme="dark"] .success-box p {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .success-box strong {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .success-box i {
+    color: #22c55e !important;
+}
+
+/* Danger Box - Regolamento */
+:root[data-theme="dark"] .danger-box {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    border-left: 4px solid #ef4444 !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+:root[data-theme="dark"] .danger-box p {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .danger-box strong {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .danger-box i {
+    color: #ef4444 !important;
+}
+
+/* Last Update - Privacy & Regolamento */
+:root[data-theme="dark"] .last-update {
+    color: #94a3b8 !important; /* Darker gray for better contrast */
+    background: var(--bg-secondary) !important; /* Add background for better visibility */
+    border-top: 1px solid var(--border-color) !important;
+    padding: 2rem 1.5rem !important;
+    margin-top: 3rem !important;
+    border-radius: 8px !important;
+}
+
+:root[data-theme="dark"] .last-update i {
+    color: var(--primary-color) !important;
+}

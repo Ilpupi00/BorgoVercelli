@@ -2,12 +2,18 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Determina il percorso assoluto della directory uploads
-// Funziona sia localmente che su Railway
-const uploadDir = path.join(process.cwd(), 'src', 'public', 'uploads');
+// Determina il percorso della directory uploads
+// Su Railway: usa il volume montato su /data/uploads
+// In locale: usa src/public/uploads per sviluppo
+const uploadDir = process.env.RAILWAY_ENVIRONMENT 
+  ? '/data/uploads' 
+  : path.join(process.cwd(), 'src', 'public', 'uploads');
+
+console.log('[MULTER] Upload directory:', uploadDir);
 
 // Crea la directory se non esiste
 if (!fs.existsSync(uploadDir)) {
+  console.log('[MULTER] Creating upload directory:', uploadDir);
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 

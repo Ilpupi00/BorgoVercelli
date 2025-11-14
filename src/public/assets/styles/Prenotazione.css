@@ -232,3 +232,29 @@
     max-height: 250px;
   }
 }
+
+/* Ensure buttons are visible in light theme (override possible theme rules) */
+:root[data-theme="light"] .btn-prenota,
+:root[data-theme="light"] .btn-primary,
+:root[data-theme="light"] .btn-cancel {
+  background: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(13,110,253,0.12) !important;
+}
+
+:root[data-theme="light"] .btn-prenota:hover,
+:root[data-theme="light"] .btn-primary:hover,
+:root[data-theme="light"] .btn-cancel:hover {
+  background: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%) !important;
+  color: #ffffff !important;
+}
+
+/* If .btn-outline-light was applied, ensure it doesn't force white-on-white in this page */
+:root[data-theme="light"] .btn-prenota.btn-outline-light,
+:root[data-theme="light"] .btn-primary.btn-outline-light,
+:root[data-theme="light"] .btn-cancel.btn-outline-light {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%) !important;
+  border: none !important;
+}

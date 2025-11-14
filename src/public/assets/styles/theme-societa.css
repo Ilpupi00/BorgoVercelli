@@ -1,0 +1,349 @@
+/* =============================================
+   DARK THEME - SOCIETÀ COMPLETE RESTYLING
+   ============================================= */
+
+/* Hero Section */
+:root[data-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, #2D40A0 0%, #1a2870 100%) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .hero-section h1,
+:root[data-theme="dark"] .hero-section .display-4 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .hero-section p,
+:root[data-theme="dark"] .hero-section .lead {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+:root[data-theme="dark"] .hero-section .stat-card {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+:root[data-theme="dark"] .hero-section .stat-number {
+    color: #ffffff !important;
+    font-size: 1.8rem;
+}
+
+:root[data-theme="dark"] .hero-section .stat-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* About Section */
+:root[data-theme="dark"] .about-section {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .about-section h2 {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .about-section .lead {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .about-section .feature-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] .about-section .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-color);
+}
+
+:root[data-theme="dark"] .about-section .feature-card h5 {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .about-section .feature-card p {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .about-section .feature-icon i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Team Section */
+:root[data-theme="dark"] .team-section {
+    background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .team-section h2,
+:root[data-theme="dark"] .team-section h3 {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .team-section .lead,
+:root[data-theme="dark"] .team-section p {
+    color: var(--text-secondary) !important;
+}
+
+/* Groups Legend */
+:root[data-theme="dark"] .groups-legend {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .legend-item small {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .legend-icon i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Group Headers */
+:root[data-theme="dark"] .group-header {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+:root[data-theme="dark"] .group-icon {
+    background: linear-gradient(135deg, #2D40A0, #3a51c7);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(45, 64, 160, 0.3);
+}
+
+:root[data-theme="dark"] .group-title {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .group-description {
+    color: var(--text-secondary) !important;
+}
+
+/* Member Cards - Completo Restyling */
+:root[data-theme="dark"] .member-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] .member-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(45, 64, 160, 0.3);
+    border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .member-header {
+    background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .member-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border: 4px solid #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .member-avatar.bg-dark {
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+:root[data-theme="dark"] .member-name {
+    color: #ffffff !important;
+    font-size: 1.3rem;
+}
+
+:root[data-theme="dark"] .member-role {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Role Badges - Colori distintivi */
+:root[data-theme="dark"] .role-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="dark"] .role-presidente {
+    background: linear-gradient(135deg, #ffd700, #ffed4e) !important;
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="dark"] .role-vice-presidente {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8) !important;
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="dark"] .role-segretario {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .role-allenatore {
+    background: linear-gradient(135deg, #10b981, #34d399) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .role-dirigente {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24) !important;
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="dark"] .role-dirigente-accompagnatore {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+    color: #ffffff !important;
+}
+
+/* Member Body */
+:root[data-theme="dark"] .member-body {
+    background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .member-description {
+    color: var(--text-secondary) !important;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Contact Section */
+:root[data-theme="dark"] .contact-section {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .contact-section h2 {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .contact-section .lead {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .contact-section .btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+:root[data-theme="dark"] .contact-section .btn-primary:hover {
+    background: var(--primary-variant) !important;
+    border-color: var(--primary-variant) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(74, 158, 255, 0.4);
+}
+
+:root[data-theme="dark"] .contact-section .btn-outline-primary {
+    border: 2px solid var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    background: transparent !important;
+    font-weight: 600;
+}
+
+:root[data-theme="dark"] .contact-section .btn-outline-primary:hover {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+}
+
+/* Animazioni */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+:root[data-theme="dark"] .animate__fadeInUp {
+    animation-delay: var(--animation-delay, 0s);
+}
+
+/* Text Colors Globali per Società */
+:root[data-theme="dark"] .bg-gradient-primary {
+    background: linear-gradient(135deg, #2D40A0, #3a51c7) !important;
+}
+
+:root[data-theme="dark"] .text-primary {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .bg-light {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .bg-white {
+    background: var(--card-bg) !important;
+}
+
+/* Shadows */
+:root[data-theme="dark"] .shadow-sm {
+    box-shadow: var(--shadow-sm) !important;
+}
+
+:root[data-theme="dark"] .shadow {
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Icons Colors */
+:root[data-theme="dark"] .text-danger i {
+    color: #ef4444 !important;
+}
+
+:root[data-theme="dark"] .text-warning i {
+    color: #f59e0b !important;
+}
+
+:root[data-theme="dark"] .text-success i {
+    color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .text-info i {
+    color: #3b82f6 !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    :root[data-theme="dark"] .member-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    :root[data-theme="dark"] .member-name {
+        font-size: 1.1rem;
+    }
+    
+    :root[data-theme="dark"] .group-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    :root[data-theme="dark"] .group-icon i {
+        font-size: 1.8rem !important;
+    }
+}

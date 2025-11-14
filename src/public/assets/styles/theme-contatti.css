@@ -1,0 +1,217 @@
+/* ==================================================
+   TEMA SCURO - PAGINA CONTATTI
+   ================================================== */
+
+/* ===== BODY BACKGROUND ===== */
+:root[data-theme="dark"] body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ===== HERO SECTION ===== */
+:root[data-theme="dark"] main.hero-section.bg-gradient-primary {
+    background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
+    color: #ffffff;
+}
+
+:root[data-theme="dark"] main.hero-section h1 {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] main.hero-section .lead {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* ===== CONTACT SECTION ===== */
+:root[data-theme="dark"] .contact-section {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, #1a1f35 100%) !important;
+}
+
+:root[data-theme="dark"] .contact-section::before {
+    background: linear-gradient(90deg, rgba(74, 158, 255, 0.45), rgba(45, 64, 160, 0.45)) !important;
+    opacity: 0.6 !important;
+}
+
+/* ===== CONTACT CARD ===== */
+:root[data-theme="dark"] .contact-card {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+:root[data-theme="dark"] .contact-card h2 {
+    color: var(--primary-color) !important;
+}
+
+/* ===== FORM LABELS ===== */
+:root[data-theme="dark"] .form-label {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+:root[data-theme="dark"] .form-label i {
+    color: var(--primary-color) !important;
+}
+
+/* ===== FORM CONTROLS ===== */
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] textarea.form-control {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .form-control:focus,
+:root[data-theme="dark"] textarea.form-control:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+}
+
+:root[data-theme="dark"] .form-control::placeholder,
+:root[data-theme="dark"] textarea.form-control::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+/* ===== FORM CHECK (CHECKBOX) ===== */
+:root[data-theme="dark"] .form-check-input {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .form-check-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+}
+
+:root[data-theme="dark"] .form-check-label {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .form-check-label a {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .form-check-label a:hover {
+    color: var(--primary-hover) !important;
+    text-decoration: underline !important;
+}
+
+:root[data-theme="dark"] .text-danger {
+    color: #ff6b6b !important;
+}
+
+/* ===== VALIDATION FEEDBACK ===== */
+:root[data-theme="dark"] .invalid-feedback {
+    color: #ff6b6b !important;
+}
+
+:root[data-theme="dark"] .form-control.is-invalid,
+:root[data-theme="dark"] textarea.form-control.is-invalid {
+    border-color: #ff6b6b !important;
+}
+
+:root[data-theme="dark"] .form-control.is-invalid:focus,
+:root[data-theme="dark"] textarea.form-control.is-invalid:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25) !important;
+}
+
+:root[data-theme="dark"] .form-check-input.is-invalid {
+    border-color: #ff6b6b !important;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+:root[data-theme="dark"] #submitBtn {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] #submitBtn:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 158, 255, 0.4) !important;
+}
+
+:root[data-theme="dark"] #submitBtn:active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    transform: translateY(0);
+}
+
+:root[data-theme="dark"] #submitBtn:disabled {
+    background-color: var(--text-muted) !important;
+    border-color: var(--text-muted) !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== FEEDBACK MESSAGE ===== */
+:root[data-theme="dark"] #feedback {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] #feedback.alert-success {
+    background-color: rgba(72, 187, 120, 0.2) !important;
+    border: 1px solid rgba(72, 187, 120, 0.4) !important;
+    color: #81e6a1 !important;
+}
+
+:root[data-theme="dark"] #feedback.alert-danger {
+    background-color: rgba(255, 107, 107, 0.2) !important;
+    border: 1px solid rgba(255, 107, 107, 0.4) !important;
+    color: #ff9999 !important;
+}
+
+:root[data-theme="dark"] #feedback.alert-info {
+    background-color: rgba(74, 158, 255, 0.2) !important;
+    border: 1px solid rgba(74, 158, 255, 0.4) !important;
+    color: #9dc9ff !important;
+}
+
+/* ===== ANIMATIONS - Manteniamo smooth anche in dark mode ===== */
+:root[data-theme="dark"] .animate__animated {
+    animation-duration: 1s;
+}
+
+/* ===== SCROLLBAR - Styling per form textarea ===== */
+:root[data-theme="dark"] textarea.form-control::-webkit-scrollbar {
+    width: 8px;
+}
+
+:root[data-theme="dark"] textarea.form-control::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+    border-radius: 4px;
+}
+
+:root[data-theme="dark"] textarea.form-control::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+:root[data-theme="dark"] textarea.form-control::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* ===== RESPONSIVE - Mantenere dimensioni corrette anche in dark ===== */
+@media (max-width: 768px) {
+    :root[data-theme="dark"] .contact-card {
+        padding: 1.5rem !important;
+    }
+    
+    :root[data-theme="dark"] main.hero-section h1 {
+        font-size: 2rem !important;
+    }
+    
+    :root[data-theme="dark"] main.hero-section .lead {
+        font-size: 1rem !important;
+    }
+}

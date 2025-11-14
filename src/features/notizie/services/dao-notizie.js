@@ -40,7 +40,7 @@ const makeNotizie = (row) => {
         row.N_titolo || row.n_titolo || row.titolo,
         row.N_sottotitolo || row.n_sottotitolo || row.sottotitolo,
         {
-            url: row.immagine_url || '/assets/images/default-news.jpg',
+            url: row.immagine_url || '/assets/images/Campo.png',
             id: row.N_immagine || row.n_immagine || row.immagine_principale_id
         },
         row.N_contenuto || row.n_contenuto || row.contenuto,

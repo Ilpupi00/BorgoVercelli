@@ -259,16 +259,20 @@
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto; /* Changed from hidden to auto to allow vertical scrolling */
 }
 
-form {
-  overflow: hidden;
+.navbar,
+nav#navbar.sticky-top,
+#navbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1030 !important;
 }
 
 .form-control {
-  overflow: hidden;
+  /* overflow: hidden; - Removed to prevent interference with sticky positioning */
   display: flex;
   animation: fadeinUp 0.5s ease-in-out;
 }
@@ -468,7 +472,7 @@ form {
 .navbar-nav .nav-item:nth-child(7) { animation-delay: 0.7s; }
 
 #Login{
-  overflow: hidden;
+  /* overflow: hidden; - Removed to prevent interference with sticky positioning */
   display: flex;
   margin: 0 auto;
   text-align: center;
@@ -490,7 +494,7 @@ form {
   }
 }
 #Profilo {
-  overflow: hidden;
+  /* overflow: hidden; - Removed to prevent interference with sticky positioning */
   display: flex;
   margin: 0 auto;
   text-align: center;
@@ -672,6 +676,58 @@ header p {
     width: 48px !important;
     height: 48px !important;
     object-fit: contain;
+  }
+}
+
+/* ===================================
+   Theme Dropdown Styling
+   =================================== */
+.theme-dropdown {
+  min-width: 220px !important;
+}
+
+.theme-dropdown .dropdown-item {
+  padding: 10px 16px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.theme-dropdown .dropdown-item i {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.theme-dropdown .dropdown-item.active {
+  background: rgba(255, 255, 255, 0.15) !important;
+  font-weight: 600;
+}
+
+.theme-dropdown .dropdown-item.active::after {
+  content: '✓';
+  margin-left: auto;
+  font-weight: bold;
+}
+
+#theme-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+#theme-dropdown-btn i {
+  font-size: 1.1rem;
+}
+
+/* Mobile adjustments for theme dropdown */
+@media (max-width: 992px) {
+  .theme-dropdown {
+    min-width: 200px !important;
+  }
+  
+  .theme-dropdown .dropdown-item {
+    font-size: 14px;
+    padding: 8px 14px;
   }
 }
 

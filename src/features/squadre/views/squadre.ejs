@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="/assets/styles/Squadra.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
+    <link rel="stylesheet" href="/assets/styles/theme-squadre.css">
 </head>
 <body>
     <%- include('partials/navbar') %>
@@ -55,7 +57,9 @@
                     <div class="col-md-6">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Cerca giocatore..." id="searchPlayer">
-                            <button class="btn btn-outline-secondary" type="button" id="searchButton">Cerca</button>
+                            <button class="btn btn-primary" type="button" id="searchButton">
+                                <i class="fas fa-search"></i> Cerca
+                            </button>
                         </div>
                         <div id="resultsContainer" class="mt-2"></div>
                     </div>

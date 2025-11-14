@@ -4,3 +4,7 @@
 .env.production
 *.env
 database/database.db
+
+# Upload locali (in produzione Railway usa volume /data/uploads)
+src/public/uploads/*
+!src/public/uploads/.gitkeep

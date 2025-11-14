@@ -6,6 +6,7 @@
     <title>Eventi - Asd BorgoVercelli 2022</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
@@ -93,7 +94,8 @@
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="event-card h-100 animate__animated animate__fadeInUp">
                                 <div class="card-img-container">
-                                    <img src="/assets/images/Campo.png" alt="<%= evento.titolo %>" class="img-fluid">
+                                    <img src="<%= (evento.immagine_url && evento.immagine_url.trim() !== '') ? evento.immagine_url : (evento.immagine && evento.immagine.url ? evento.immagine.url : '/assets/images/Campo.png') %>" alt="<%= evento.titolo %>" class="img-fluid"
+                                         onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
                                     <div class="card-overlay">
                                         <span class="event-type-badge"><%= evento.tipo_evento || 'Evento' %></span>
                                     </div>

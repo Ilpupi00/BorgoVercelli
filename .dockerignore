@@ -15,3 +15,5 @@ coverage
 database.db
 public/uploads/*
 !public/uploads/.gitkeep
+src/public/uploads/*
+!src/public/uploads/.gitkeep

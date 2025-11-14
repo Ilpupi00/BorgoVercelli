@@ -234,7 +234,7 @@ class Search {
     switch (type) {
       case 'notizia':
         // Prima controlla se c'è un'immagine nel database
-        if (item.immagine?.url && item.immagine.url !== '/assets/images/default-news.jpg') {
+        if (item.immagine?.url && item.immagine.url !== '/assets/images/Campo.png') {
           return item.immagine.url;
         }
         return '/assets/images/Campo.png';

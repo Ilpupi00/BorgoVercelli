@@ -1,0 +1,13 @@
+<!-- Theme System - Include this in every page head -->
+<link rel="stylesheet" href="/assets/styles/theme-dark.css">
+<script defer>
+    // Prevent FOUC (Flash of Unstyled Content) by applying theme before page render
+    (function() {
+        const savedTheme = localStorage.getItem('site-theme-preference') || 'auto';
+        const effectiveTheme = savedTheme === 'auto' 
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : savedTheme;
+        document.documentElement.setAttribute('data-theme', effectiveTheme);
+    })();
+</script>
+<script src="/assets/scripts/theme-manager.js" defer></script>

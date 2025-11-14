@@ -392,7 +392,7 @@ class NotizieManager {
 
         const imageUrl = notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' 
             ? notizia.immagine.url 
-            : '/assets/images/default-news.jpg';
+            : '/assets/images/Campo.png';
         const dateStr = new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT', {
             year: 'numeric',
             month: 'long',

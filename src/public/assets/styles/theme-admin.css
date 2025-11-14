@@ -1,0 +1,878 @@
+/* ===================================
+   Theme-specific overrides for Admin Panel
+   =================================== */
+
+/* COMMON BUTTON FIXES (apply to both light & dark) - ensure consistent sizing, weight and readability */
+.btn-modern {
+    border-radius: 22px !important;
+    padding: 0.6rem 1rem !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 0.25px !important;
+}
+
+.action-card .btn {
+    padding: 0.6rem 0.75rem !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+/* Ensure header outline buttons remain visible in light mode when this file is loaded last */
+.admin-page-header .btn.btn-outline-primary,
+.admin-page-header .btn.btn-outline-danger,
+.admin-page-header .btn.btn-outline-secondary {
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #ffffff !important;
+    background: linear-gradient(135deg, rgba(37,99,235,0.28) 0%, rgba(59,130,246,0.18) 100%);
+}
+
+/* When action-card buttons explicitly include `text-white`, keep that but ensure contrast in dark mode via overrides below */
+
+/* SIDEBAR: For light mode ensure sidebar texts are white (some pages load admin styles last) */
+:root:not([data-theme="dark"]) .admin-sidebar .nav-link,
+:root:not([data-theme="dark"]) .admin-sidebar .sidebar-header,
+:root:not([data-theme="dark"]) .admin-sidebar .sidebar-header h5,
+:root:not([data-theme="dark"]) .admin-sidebar .nav-link .bi {
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .admin-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.06) !important;
+}
+
+
+
+/* Align Bootstrap CSS variables with dark theme palette */
+:root[data-theme="dark"] {
+    --bs-body-bg: var(--bg-primary);
+    --bs-body-color: var(--text-primary);
+    --bs-card-bg: var(--card-bg);
+    --bs-card-cap-bg: var(--bg-secondary);
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-striped-color: var(--text-primary);
+    --bs-table-hover-bg: rgba(74, 158, 255, 0.08);
+    --bs-table-hover-color: var(--text-primary);
+}
+
+/* Override hardcoded backgrounds from Admin.css and Admin_Global.css */
+:root[data-theme="dark"] body {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .container,
+:root[data-theme="dark"] .container-fluid {
+    background: transparent !important;
+}
+
+:root[data-theme="dark"] main,
+:root[data-theme="dark"] .main-content,
+:root[data-theme="dark"] .content-wrapper {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-container,
+:root[data-theme="dark"] .content-card,
+:root[data-theme="dark"] .content-card .card,
+:root[data-theme="dark"] .filters-section,
+:root[data-theme="dark"] .filters-panel,
+:root[data-theme="dark"] .filters-card,
+:root[data-theme="dark"] .data-card,
+:root[data-theme="dark"] .summary-card,
+:root[data-theme="dark"] .card.mb-4,
+:root[data-theme="dark"] .card.shadow-sm {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Override Admin.css white backgrounds */
+:root[data-theme="dark"] .admin-header {
+    background: rgba(30, 41, 59, 0.95) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+/* Override Admin.css white backgrounds */
+:root[data-theme="dark"] .admin-content {
+    background: rgba(30, 41, 59, 0.95) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+/* Override Admin_Global.css var(--bg-white) */
+:root[data-theme="dark"] .admin-content-section {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Action cards */
+:root[data-theme="dark"] .action-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--card-shadow);
+}
+
+:root[data-theme="dark"] .action-card:hover {
+    box-shadow: var(--card-hover-shadow);
+}
+
+/* Sidebar */
+:root[data-theme="dark"] .admin-sidebar {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    border-right: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .sidebar-header {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .sidebar .nav-link {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .sidebar .nav-link:hover {
+    background: var(--bg-hover) !important;
+}
+
+:root[data-theme="dark"] .sidebar .nav-link.active {
+    background: var(--primary-color) !important;
+    color: var(--text-on-primary) !important;
+}
+
+/* Profile avatar */
+:root[data-theme="dark"] .profile-avatar img,
+:root[data-theme="dark"] .profile-avatar i {
+    border-color: var(--border-color) !important;
+}
+
+/* Modern buttons */
+:root[data-theme="dark"] .btn-modern {
+    background: var(--primary-color);
+    color: var(--text-on-primary);
+}
+
+:root[data-theme="dark"] .btn-modern:hover {
+    background: var(--primary-hover);
+}
+
+/* Strong, distinct button colors for admin area in dark mode
+   Make action buttons as visible as in light mode (solid & readable) */
+:root[data-theme="dark"] .action-card .btn.btn-primary,
+:root[data-theme="dark"] .btn-primary.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(13,110,253,0.18) !important;
+}
+
+:root[data-theme="dark"] .action-card .btn.btn-warning,
+:root[data-theme="dark"] .btn-warning.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-warning {
+    background: #f59e0b !important;
+    border-color: #f59e0b !important;
+    color: #1a1f35 !important;
+    box-shadow: 0 6px 18px rgba(245,158,11,0.12) !important;
+}
+
+:root[data-theme="dark"] .action-card .btn.btn-success,
+:root[data-theme="dark"] .btn-success.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-success {
+    background: #22c55e !important;
+    border-color: #22c55e !important;
+    color: #062e16 !important;
+    box-shadow: 0 6px 18px rgba(34,197,94,0.12) !important;
+}
+
+:root[data-theme="dark"] .action-card .btn.btn-info,
+:root[data-theme="dark"] .btn-info.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-info {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(37,99,235,0.12) !important;
+}
+
+:root[data-theme="dark"] .action-card .btn.btn-secondary,
+:root[data-theme="dark"] .btn-secondary.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-secondary {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(108,117,125,0.08) !important;
+}
+
+:root[data-theme="dark"] .action-card .btn.btn-danger,
+:root[data-theme="dark"] .btn-danger.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-danger {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(220,53,69,0.12) !important;
+}
+
+/* Dark button on admin should be visible too (use lighter border) */
+:root[data-theme="dark"] .action-card .btn.btn-dark,
+:root[data-theme="dark"] .btn-dark.btn-modern,
+:root[data-theme="dark"] .admin-content .btn-dark {
+    background: linear-gradient(135deg, rgba(55,65,81,1), rgba(31,41,55,1)) !important;
+    border-color: rgba(255,255,255,0.06) !important;
+    color: #ffffff !important;
+}
+
+/* Outline buttons in header/profile: keep them visible (light border & icon color) */
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-primary,
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-danger {
+    background: transparent !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255,255,255,0.12) !important;
+}
+
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-primary:hover {
+    background: rgba(255,255,255,0.06) !important;
+}
+
+/* Ensure full-width action buttons keep same padding/weight as light mode */
+:root[data-theme="dark"] .action-card .btn {
+    padding: 0.6rem 1rem !important;
+    font-weight: 700 !important;
+}
+
+/* Stats cards */
+:root[data-theme="dark"] .stats-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Forms in admin */
+:root[data-theme="dark"] .admin-content .form-control {
+    background: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+:root[data-theme="dark"] .admin-content .form-control:focus {
+    border-color: var(--input-focus-border) !important;
+    box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
+}
+
+/* Admin tables */
+:root[data-theme="dark"] .admin-content table {
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .admin-content table thead {
+    background: var(--bg-tertiary) !important;
+}
+
+:root[data-theme="dark"] .admin-content table tbody tr {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .admin-content table tbody tr:hover {
+    background: var(--bg-hover) !important;
+}
+
+/* Admin modals */
+:root[data-theme="dark"] .modal-content {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Admin alerts */
+:root[data-theme="dark"] .alert {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Admin badges */
+:root[data-theme="dark"] .badge {
+    opacity: 0.9;
+}
+
+/* Navigation items */
+:root[data-theme="dark"] .nav-link.section-header {
+    color: var(--text-primary) !important;
+    opacity: 0.8;
+}
+
+:root[data-theme="dark"] .nav-link.submenu {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .nav-link.submenu.active {
+    background: var(--primary-color) !important;
+    color: var(--text-on-primary) !important;
+}
+
+/* Dropdown in admin */
+:root[data-theme="dark"] .dropdown-menu {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item:hover {
+    background: var(--bg-hover) !important;
+}
+
+/* Charts and visualizations */
+:root[data-theme="dark"] canvas {
+    filter: brightness(0.9);
+}
+
+/* ===================================
+   COMPONENTI SPECIFICI ADMIN
+   =================================== */
+
+/* Content Card - Contenitore principale */
+:root[data-theme="dark"] .content-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-md);
+}
+
+/* Section Header */
+:root[data-theme="dark"] .section-header {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .section-title {
+    color: var(--text-primary) !important;
+}
+
+/* Card Components */
+:root[data-theme="dark"] .card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .card-header {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .toast-body {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Additional admin component backgrounds */
+:root[data-theme="dark"] .admin-page,
+:root[data-theme="dark"] .admin-container,
+:root[data-theme="dark"] .page-content,
+:root[data-theme="dark"] .content-section {
+    background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .card-body,
+:root[data-theme="dark"] .card-header,
+:root[data-theme="dark"] .card-footer {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .section-header {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .section-title {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .section-title i {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .text-muted,
+:root[data-theme="dark"] small.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .input-group-text,
+:root[data-theme="dark"] .form-select {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .form-select:focus {
+    background: var(--bg-secondary) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+}
+
+:root[data-theme="dark"] .input-group .form-control {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .input-group .form-control:focus {
+    background: var(--input-bg) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+}
+
+:root[data-theme="dark"] .input-group .btn {
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .input-group .btn-outline-secondary,
+:root[data-theme="dark"] .input-group .btn-outline-secondary:hover,
+:root[data-theme="dark"] .input-group .btn-outline-secondary:focus {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .btn-outline-secondary,
+:root[data-theme="dark"] .btn-outline-secondary:hover,
+:root[data-theme="dark"] .btn-outline-secondary:focus {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .table,
+:root[data-theme="dark"] .table-responsive {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table-responsive {
+    border-radius: 0.75rem !important;
+}
+
+:root[data-theme="dark"] .table thead {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .table thead th {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .table tbody tr {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table tbody tr:hover,
+:root[data-theme="dark"] .table-hover tbody tr:hover {
+    background: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table tbody td {
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Badge Colors - Manteniamo i colori ma con opacity adattato */
+:root[data-theme="dark"] .badge {
+    opacity: 0.95;
+}
+
+:root[data-theme="dark"] .badge.bg-danger {
+    background: #dc3545 !important;
+}
+
+:root[data-theme="dark"] .badge.bg-primary {
+    background: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .badge.bg-success {
+    background: #48bb78 !important;
+}
+
+:root[data-theme="dark"] .badge.bg-warning {
+    background: #f59e0b !important;
+    color: #1a1f35 !important;
+}
+
+:root[data-theme="dark"] .badge.bg-secondary {
+    background: #6c757d !important;
+}
+
+:root[data-theme="dark"] .badge.bg-info {
+    background: var(--primary-color) !important;
+}
+
+/* Button Group */
+:root[data-theme="dark"] .btn-group .btn {
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .btn-group .btn:hover {
+    opacity: 0.9;
+}
+
+/* Button Variants in Admin */
+:root[data-theme="dark"] .btn-sm {
+    opacity: 0.95;
+}
+
+:root[data-theme="dark"] .btn-info {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .btn-info:hover {
+    background: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+/* Ensure action-card buttons that use `text-white` remain readable in dark mode
+   (some color variants previously set a dark text color) */
+:root[data-theme="dark"] .action-card .btn.btn-warning.text-white,
+:root[data-theme="dark"] .action-card .btn.btn-success.text-white,
+:root[data-theme="dark"] .action-card .btn.btn-info.text-white,
+:root[data-theme="dark"] .action-card .btn.btn-secondary.text-white,
+:root[data-theme="dark"] .action-card .btn.btn-danger.text-white,
+:root[data-theme="dark"] .action-card .btn.btn-primary.text-white {
+    color: #ffffff !important;
+}
+
+/* Also make sure full-width modern buttons in action-cards are bold and high-contrast */
+:root[data-theme="dark"] .action-card .btn-modern.w-100 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+/* Ensure variant-specific contrast in dark mode (explicit colors for readability) */
+:root[data-theme="dark"] .action-card .btn.btn-primary,
+:root[data-theme="dark"] .action-card .btn.btn-info,
+:root[data-theme="dark"] .action-card .btn.btn-danger,
+:root[data-theme="dark"] .action-card .btn.btn-secondary {
+    color: #ffffff !important;
+}
+
+/* Keep warning/success using darker text on bright backgrounds for accessibility */
+:root[data-theme="dark"] .action-card .btn.btn-warning {
+    color: #1a1f35 !important; /* dark text on yellow */
+}
+:root[data-theme="dark"] .action-card .btn.btn-success {
+    color: #062e16 !important; /* dark text on green */
+}
+
+/* LIGHT MODE: explicit backgrounds & colors for action-card buttons so toggling themes preserves intended look */
+:root:not([data-theme="dark"]) .action-card .btn.btn-primary,
+:root:not([data-theme="dark"]) .action-card .btn.btn-primary.btn-modern {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .action-card .btn.btn-info,
+:root:not([data-theme="dark"]) .action-card .btn.btn-info.btn-modern {
+    background: linear-gradient(135deg, var(--info) 0%, var(--info-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .action-card .btn.btn-danger,
+:root:not([data-theme="dark"]) .action-card .btn.btn-danger.btn-modern {
+    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .action-card .btn.btn-secondary,
+:root:not([data-theme="dark"]) .action-card .btn.btn-secondary.btn-modern {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .action-card .btn.btn-success,
+:root:not([data-theme="dark"]) .action-card .btn.btn-success.btn-modern {
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #062e16 !important; /* keep dark text on green for contrast */
+}
+
+:root:not([data-theme="dark"]) .action-card .btn.btn-warning,
+:root:not([data-theme="dark"]) .action-card .btn.btn-warning.btn-modern {
+    background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%) !important;
+    border-color: transparent !important;
+    color: #1a1f35 !important; /* dark text on yellow */
+}
+
+:root:not([data-theme="dark"]) .action-card .btn {
+    padding: 0.6rem 0.75rem !important;
+    font-weight: 700 !important;
+}
+
+:root:not([data-theme="dark"]) .action-card .btn-modern.w-100 {
+    font-weight: 800 !important;
+}
+
+/* Admin Page Header */
+:root[data-theme="dark"] .admin-page-header {
+    background: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .admin-page-header h1 {
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-page-subtitle {
+    color: var(--text-secondary) !important;
+}
+
+/* Text Muted */
+:root[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] small.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Empty State */
+:root[data-theme="dark"] .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* Responsive Table */
+:root[data-theme="dark"] .table-responsive {
+    background: var(--card-bg) !important;
+}
+
+/* Form Select in Admin */
+:root[data-theme="dark"] .form-select {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23e2e8f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+:root[data-theme="dark"] .form-select:focus {
+    background: var(--input-bg) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+}
+
+/* Pagination */
+:root[data-theme="dark"] .pagination .page-link {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .pagination .page-link:hover {
+    background: var(--bg-hover) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .pagination .page-item.active .page-link {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .pagination .page-item.disabled .page-link {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-muted) !important;
+}
+
+/* List Group in Admin */
+:root[data-theme="dark"] .list-group-item {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .list-group-item:hover {
+    background: var(--bg-hover) !important;
+}
+
+:root[data-theme="dark"] .list-group-item.active {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Progress Bar */
+:root[data-theme="dark"] .progress {
+    background: var(--bg-tertiary) !important;
+}
+
+:root[data-theme="dark"] .progress-bar {
+    background: var(--primary-color) !important;
+}
+
+/* Accordion in Admin */
+:root[data-theme="dark"] .accordion-item {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .accordion-button {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .accordion-button:not(.collapsed) {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .accordion-body {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Toast Notifications */
+:root[data-theme="dark"] .toast {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .toast-header {
+    background: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Offcanvas */
+:root[data-theme="dark"] .offcanvas {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .offcanvas-header {
+    border-bottom-color: var(--border-color) !important;
+}
+
+/* Breadcrumb */
+:root[data-theme="dark"] .breadcrumb {
+    background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .breadcrumb-item a {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .breadcrumb-item.active {
+    color: var(--text-secondary) !important;
+}
+
+/* Target specific admin action buttons (Notizie, Galleria, Statistiche) in dark mode
+   Use href attribute selectors for highest specificity and ensure consistent appearance */
+:root[data-theme="dark"] a.btn[href="/admin/notizie"],
+:root[data-theme="dark"] a.btn[href="/admin/notizie"].btn-modern,
+:root[data-theme="dark"] .action-card a.btn[href="/admin/notizie"] {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(13,110,253,0.18) !important;
+}
+
+:root[data-theme="dark"] a.btn[href="/admin/galleria"],
+:root[data-theme="dark"] a.btn[href="/admin/galleria"].btn-modern,
+:root[data-theme="dark"] .action-card a.btn[href="/admin/galleria"] {
+    background: var(--primary-color) !important; /* keep info variant visible in dark */
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(37,99,235,0.12) !important;
+}
+
+:root[data-theme="dark"] a.btn[href="/admin/statistiche"],
+:root[data-theme="dark"] a.btn[href="/admin/statistiche"].btn-modern,
+:root[data-theme="dark"] .action-card a.btn[href="/admin/statistiche"] {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(13,110,253,0.18) !important;
+}
+
+/* Ensure hover state is visible in dark mode for these specific buttons */
+:root[data-theme="dark"] a.btn[href="/admin/notizie"]:hover,
+:root[data-theme="dark"] a.btn[href="/admin/galleria"]:hover,
+:root[data-theme="dark"] a.btn[href="/admin/statistiche"]:hover {
+    filter: brightness(1.05) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Strong, explicit rules for the three admin action buttons (both modes) using class hooks */
+.btn-notizie,
+.btn-galleria,
+.btn-statistiche {
+    border-radius: 12px !important;
+}
+
+/* Light mode explicit styles */
+:root:not([data-theme="dark"]) .btn-notizie {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: #ffffff !important;
+}
+:root:not([data-theme="dark"]) .btn-galleria {
+    background: linear-gradient(135deg, var(--info) 0%, var(--info-dark) 100%) !important;
+    color: #ffffff !important;
+}
+:root:not([data-theme="dark"]) .btn-statistiche {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Dark mode explicit styles for same classes (reinforce earlier href-based rules) */
+:root[data-theme="dark"] .btn-notizie,
+:root[data-theme="dark"] .btn-statistiche {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+:root[data-theme="dark"] .btn-galleria {
+    background: var(--primary-color) !important; /* map info to primary for clarity */
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Hover for class-targeted buttons */
+:root[data-theme="dark"] .btn-notizie:hover,
+:root[data-theme="dark"] .btn-galleria:hover,
+:root[data-theme="dark"] .btn-statistiche:hover,
+:root:not([data-theme="dark"]) .btn-notizie:hover,
+:root:not([data-theme="dark"]) .btn-galleria:hover,
+:root:not([data-theme="dark"]) .btn-statistiche:hover {
+    transform: translateY(-2px) !important;
+    filter: brightness(1.03) !important;
+}
+
+/* Light-mode: force white text for Eventi, Campi, Campionati action buttons */
+:root:not([data-theme="dark"]) a.btn[href="/admin/eventi"],
+:root:not([data-theme="dark"]) .action-card a.btn[href="/admin/eventi"],
+:root:not([data-theme="dark"]) a.btn[href="/admin/campi"],
+:root:not([data-theme="dark"]) .action-card a.btn[href="/admin/campi"],
+:root:not([data-theme="dark"]) a.btn[href="/admin/campionati"],
+:root:not([data-theme="dark"]) .action-card a.btn[href="/admin/campionati"] {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Also ensure .btn-modern full-width variants keep white text in light mode */
+:root:not([data-theme="dark"]) .action-card .btn-modern.w-100[href="/admin/eventi"],
+:root:not([data-theme="dark"]) .action-card .btn-modern.w-100[href="/admin/campi"],
+:root:not([data-theme="dark"]) .action-card .btn-modern.w-100[href="/admin/campionati"] {
+    color: #ffffff !important;
+}

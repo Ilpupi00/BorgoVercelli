@@ -1,0 +1,150 @@
+/* =============================================
+   DARK THEME - SQUADRE SPECIFIC OVERRIDES
+   ============================================= */
+
+/* Header e titoli */
+:root[data-theme="dark"] header h1,
+:root[data-theme="dark"] #SquadraTitle,
+:root[data-theme="dark"] #rosterTitle {
+    color: var(--text-primary) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Select container */
+:root[data-theme="dark"] .select-container {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+/* Custom select */
+:root[data-theme="dark"] .custom-select,
+:root[data-theme="dark"] .form-select {
+    background: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--input-border) !important;
+    font-weight: 500;
+}
+
+:root[data-theme="dark"] .custom-select:focus,
+:root[data-theme="dark"] .form-select:focus {
+    background: var(--input-bg) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(74, 158, 255, 0.25);
+}
+
+/* Image container */
+:root[data-theme="dark"] .img-container {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+:root[data-theme="dark"] .img-container img {
+    opacity: 0.95;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Search input */
+:root[data-theme="dark"] .input-group .form-control {
+    background: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--input-border) !important;
+}
+
+:root[data-theme="dark"] .input-group .btn {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .input-group .btn:hover {
+    background: var(--primary-variant) !important;
+    border-color: var(--primary-variant) !important;
+}
+
+/* Results container */
+:root[data-theme="dark"] #resultsContainer {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+/* Tabella roster */
+:root[data-theme="dark"] .table-soccer {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .table-soccer thead {
+    background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .table-soccer thead th {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+    font-weight: 600;
+}
+
+:root[data-theme="dark"] .table-soccer tbody tr {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+    transition: all 0.2s ease;
+}
+
+:root[data-theme="dark"] .table-soccer tbody tr:hover {
+    background: var(--bg-hover) !important;
+    transform: scale(1.01);
+}
+
+:root[data-theme="dark"] .table-soccer tbody td,
+:root[data-theme="dark"] .table-soccer tbody th {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Table striped */
+:root[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Table responsive wrapper */
+:root[data-theme="dark"] .table-responsive {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+/* Player photo */
+:root[data-theme="dark"] .table-soccer img {
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+/* Section backgrounds */
+:root[data-theme="dark"] header {
+    background: var(--bg-primary);
+}
+
+:root[data-theme="dark"] section {
+    background: var(--bg-primary);
+}
+
+/* Alert messages */
+:root[data-theme="dark"] .alert {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .alert-danger {
+    background: rgba(220, 53, 69, 0.15) !important;
+    border-color: rgba(220, 53, 69, 0.3) !important;
+    color: var(--text-primary) !important;
+}

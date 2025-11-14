@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/Galleria.css">
+    <link rel="stylesheet" href="/assets/styles/theme-galleria.css">
 </head>
 <body>
     <%- include('partials/navbar') %>
@@ -17,7 +19,7 @@
         <header class="text-center py-3 text-white overflow-hidden">
             <div class="row">
                 <div class="img-container">
-                    <img src="<%= immagini.length > 0 ? immagini[0].url : '/images/default-news.jpg' %>" alt="<%= immagini.length > 0 ? immagini[0].descrizione || 'Immagine della galleria' : 'Immagine predefinita' %>" class="centered-image">
+                    <img src="<%= immagini.length > 0 ? immagini[0].url : '/assets/images/Campo.png' %>" alt="<%= immagini.length > 0 ? immagini[0].descrizione || 'Immagine della galleria' : 'Immagine predefinita' %>" class="centered-image">
                 </div>
             </div>
         </header>
@@ -37,7 +39,7 @@
                                 <img src="<%= img.url %>"
                                      class="img-fluid rounded gallery-image w-100"
                                      alt="<%= img.descrizione || 'Immagine della galleria' %>"
-                                     onerror="this.src='/images/default-news.jpg'; this.alt='Immagine non disponibile';"
+                                     onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='Immagine non disponibile';"
                                      loading="lazy">
                                 <div class="overlay">
                                     <span class="btn btn-primary btn-sm">

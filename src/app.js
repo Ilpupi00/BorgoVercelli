@@ -109,6 +109,11 @@ app.get('/favicon.ico', function(req, res) {
   res.sendFile(path.join(__dirname, 'public', 'assets', 'images', 'Logo.png'));
 });
 
+// Legacy/default image fallbacks: always serve Campo.png for old default image paths
+app.get(['/images/default-news.jpg', '/assets/images/default-news.jpg', '/images/default-event.jpg', '/assets/images/default-event.jpg'], function(req, res) {
+  return res.sendFile(path.join(__dirname, 'public', 'assets', 'images', 'Campo.png'));
+});
+
 /**
  * Serve i file statici dalla cartella "public"
  * Include immagini, CSS, JavaScript lato client
@@ -230,6 +235,18 @@ app.use(async function(req, res, next) {
  * Organizzate per feature e funzionalità
  */
 app.use('/', routes);                             // Homepage e pagine generiche
+// Debug endpoint: collect client-side computed styles for navbar (development only)
+app.post('/__debug-navbar', express.json(), (req, res) => {
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[NAVBAR_DEBUG]', JSON.stringify(req.body, null, 2));
+    }
+  } catch (e) {
+    console.error('[NAVBAR_DEBUG] Error logging debug info', e);
+  }
+  res.sendStatus(200);
+});
+
 app.use('/', routesNotizie);                      // Gestione notizie
 app.use('/', routesEventi);                       // Gestione eventi
 app.use('/', routesRegistrazione);                // Login e registrazione
@@ -246,16 +263,27 @@ app.use('/users', routesUsers);                   // Profili utenti
 // ==================== GESTIONE FILE CARICATI ====================
 
 /**
+ * Determina il percorso degli upload in base all'ambiente
+ * Railway: /data/uploads (volume persistente)
+ * Locale: src/public/uploads (sviluppo)
+ */
+const uploadsPath = process.env.RAILWAY_ENVIRONMENT 
+  ? '/data/uploads' 
+  : path.join(__dirname, 'public/uploads');
+
+console.log('[APP] Serving uploads from:', uploadsPath);
+
+/**
  * Serve file caricati dagli utenti al percorso pubblico '/uploads'
  * Verifica l'esistenza del file prima di servirlo per evitare log inutili
  */
 app.use('/uploads', (req, res, next) => {
-    const filePath = path.join(__dirname, 'public/uploads', req.path);
+    const filePath = path.join(uploadsPath, req.path);
     
     // Verifica se il file esiste
     if (require('fs').existsSync(filePath)) {
         // File trovato, servilo normalmente
-        express.static(path.join(__dirname, 'public/uploads'))(req, res, next);
+        express.static(uploadsPath)(req, res, next);
     } else {
         // File non trovato, restituisci 404 senza logging
         res.status(404).send('File not found');
@@ -268,10 +296,10 @@ app.use('/uploads', (req, res, next) => {
  * Mantiene accessibili le immagini già salvate con questo URL
  */
 app.use('/src/public/uploads', (req, res, next) => {
-    const filePath = path.join(__dirname, 'public/uploads', req.path);
+    const filePath = path.join(uploadsPath, req.path);
     
     if (require('fs').existsSync(filePath)) {
-        express.static(path.join(__dirname, 'public/uploads'))(req, res, next);
+        express.static(uploadsPath)(req, res, next);
     } else {
         res.status(404).send('File not found');
     }

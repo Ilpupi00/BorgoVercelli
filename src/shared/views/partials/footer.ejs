@@ -1,38 +1,58 @@
 <footer class="bg-primary text-white py-5" id="footer">
+  <style>
+    /* Inline override: force footer text white across pages (safe, keeps inputs dark) */
+    #footer, #footer h1, #footer h2, #footer h3, #footer h4, #footer h5, #footer h6,
+    #footer p, #footer span, #footer a, #footer .social-icons a, #footer .form-check-label,
+    #footer .form-label, #footer .form-text, #footer .invalid-feedback {
+      color: #ffffff !important;
+    }
+    /* Keep form inputs readable with dark text */
+    #footer input, #footer textarea, #footer .form-control {
+      color: #222 !important;
+    }
+    /* Links inside labels (privacy) keep accent but remain readable */
+    #footer .form-check-label a {
+      color: #fbbf24 !important;
+    }
+    /* Make invalid feedback clearly visible */
+    #footer .invalid-feedback {
+      color: #fcd34d !important;
+    }
+  </style>
   <div class="container">
     <div class="row gy-4">
       <div class="col-lg-6 mb-4 mb-lg-0">
         <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
-  <form id="emailForm" action="/send-email" method="POST">
+        <form id="emailForm" action="/send-email" method="POST" novalidate>
           <div class="mb-3">
-            <label for="contact_name" class="form-label text-white">Nome e Cognome</label>
-            <input type="text" class="form-control form-control-lg" id="contact_name" name="name" placeholder="Nome e Cognome" required autocomplete="name">
+            <label for="contact_name" class="form-label text-white">Nome e cognome</label>
+            <input aria-label="Nome e cognome" type="text" class="form-control form-control-lg" id="contact_name" name="name" placeholder="Es. Mario Rossi" required autocomplete="name">
           </div>
           <div class="mb-3">
-            <label for="contact_email" class="form-label text-white">Email</label>
-            <input type="email" class="form-control form-control-lg" id="contact_email" name="email" placeholder="Email" required autocomplete="email">
+            <label for="contact_email" class="form-label text-white">Indirizzo email</label>
+            <input aria-label="Email" type="email" class="form-control form-control-lg" id="contact_email" name="email" placeholder="tuo@esempio.it" required autocomplete="email">
           </div>
           <div class="mb-3">
             <label for="contact_subject" class="form-label text-white">Oggetto</label>
-            <input type="text" class="form-control form-control-lg" id="contact_subject" name="subject" placeholder="Oggetto" required>
+            <input aria-label="Oggetto" type="text" class="form-control form-control-lg" id="contact_subject" name="subject" placeholder="Motivo del messaggio" required>
           </div>
           <div class="mb-3">
             <label for="contact_message" class="form-label text-white">Messaggio</label>
-            <textarea class="form-control" id="contact_message" name="message" placeholder="Messaggio" rows="4" required></textarea>
+            <textarea aria-label="Messaggio" class="form-control" id="contact_message" name="message" placeholder="Scrivi qui il tuo messaggio" rows="4" required></textarea>
           </div>
           <div class="mb-4">
             <div class="d-flex align-items-start">
               <input class="form-check-input me-2 mt-1" type="checkbox" id="footer_privacy_accept" name="privacy_accept" required>
-              <label class="form-check-label text-white" for="footer_privacy_accept" style="cursor: pointer; line-height: 1.5;">
-                Accetto la <a href="/privacy" target="_blank" class="text-white fw-bold text-decoration-underline">Privacy Policy</a> <span class="text-warning">*</span>
+              <label class="form-check-label text-white" for="footer_privacy_accept" style="cursor: pointer; line-height: 1.4;">
+                Dichiaro di aver letto e accetto la <a href="/privacy" target="_blank" rel="noopener" class="text-white fw-bold text-decoration-underline">Informativa sulla privacy</a> <span class="text-warning">*</span>
               </label>
             </div>
             <div class="invalid-feedback text-white" id="privacy_error" style="display: none;">
-              Devi accettare la Privacy Policy per inviare il messaggio.
+              Devi accettare l'informativa sulla privacy per inviare il messaggio.
             </div>
           </div>
           <div class="text-center">
-            <button type="submit" class="btn btn-light px-4 py-2">Invia Messaggio</button>
+            <button type="submit" class="btn btn-light px-4 py-2" aria-label="Invia messaggio">Invia messaggio</button>
           </div>
         </form>
       </div>

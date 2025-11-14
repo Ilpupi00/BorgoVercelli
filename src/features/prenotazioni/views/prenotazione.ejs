@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/Prenotazione.css">
@@ -19,7 +20,7 @@
         <% } else { %>
             <% campi.forEach(campo => { %>
                 <%
-                let imgSrc = '/images/default-news.jpg';
+                let imgSrc = '/assets/images/Campo.png';
                 if (campo.immagini && campo.immagini.length > 0) {
                     if (campo.immagini[0].url.startsWith('/Sito/Immagini')) {
                         imgSrc = campo.immagini[0].url;
@@ -40,7 +41,7 @@
                         return `<img src="${src}" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
                     }).join('');
                 } else {
-                    immaginiHtml = `<img src="/assets/images/default-news.jpg" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
+                    immaginiHtml = `<img src="/assets/images/Campo.png" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
                 }
                 %>
                 <section class="campo-prenotazione">

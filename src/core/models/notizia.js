@@ -40,13 +40,13 @@ class Notizia{
         // Gestione robusta dell'immagine
         if (immagine && typeof immagine === 'object') {
             this.immagine = immagine;
-            this.immagine_url = immagine.url || '/assets/images/default-news.jpg';
+            this.immagine_url = immagine.url || '/assets/images/Campo.png';
         } else if (typeof immagine === 'string') {
             this.immagine = { url: immagine };
             this.immagine_url = immagine;
         } else {
             this.immagine = null;
-            this.immagine_url = '/assets/images/default-news.jpg';
+            this.immagine_url = '/assets/images/Campo.png';
         }
         
         this.contenuto = contenuto

@@ -8,12 +8,14 @@ const daoNotizie = require('../../notizie/services/dao-notizie');
 const daoEventi = require('../../eventi/services/dao-eventi');
 const fs = require('fs');
 const path = require('path');
-const multer = require('multer');
 const { isLoggedIn } = require('../../../core/middlewares/auth');
+const { upload, uploadDir } = require('../../../core/config/multer');
+const multer = require('multer');
 
-const storage = multer.diskStorage({
+// Configurazione upload specifico per foto profilo utente
+const userStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'src/public/uploads/');
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueName = 'user_' + req.user.id + '_' + Date.now() + path.extname(file.originalname);
@@ -21,7 +23,17 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const uploadProfilePic = multer({ 
+  storage: userStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo file immagine sono permessi'), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
 
 router.post('/registrazione', async (req, res) => {
     try {
@@ -209,7 +221,7 @@ router.put('/profilo', async (req, res) => {
 });
 
 // Route dedicata solo alla modifica della foto profilo
-router.post('/update-profile-pic', isLoggedIn, upload.single('profilePic'), async (req, res) => {
+router.post('/update-profile-pic', isLoggedIn, uploadProfilePic.single('profilePic'), async (req, res) => {
     console.log('Route /update-profile-pic chiamata');
     console.log('User autenticato:', req.isAuthenticated());
     console.log('File ricevuto:', req.file ? req.file.filename : 'nessun file');
@@ -237,8 +249,11 @@ router.post('/update-profile-pic', isLoggedIn, upload.single('profilePic'), asyn
     }
     
     try {
-        const filePath = 'src/public/uploads/' + req.file.filename;
-        console.log('File path:', filePath);
+        // Salva solo il nome del file nel DB, non il percorso completo
+        // Il percorso sarà gestito dall'app quando serve il file
+        const filePath = '/uploads/' + req.file.filename;
+        console.log('[UPLOAD] File salvato:', req.file.path);
+        console.log('[UPLOAD] URL pubblico:', filePath);
         
         await userDao.updateProfilePicture(req.user.id, filePath);
         console.log('Foto profilo aggiornata nel database');

@@ -1,0 +1,16 @@
+# Railway Configuration
+# Questo file configura il deployment su Railway con volume persistente
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Volume persistente per le immagini caricate
+# IMPORTANTE: Devi creare il volume nella dashboard Railway prima del deploy
+[[deploy.volumes]]
+mountPath = "/data"
+name = "uploads-volume"

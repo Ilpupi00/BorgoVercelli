@@ -1,0 +1,2 @@
+# Questa directory contiene le immagini caricate dagli utenti in locale
+# In produzione (Railway) viene usato il volume montato su /data/uploads

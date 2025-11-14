@@ -384,3 +384,25 @@ footer#footer .form-check-label {
   cursor: pointer !important;
   user-select: none;
 }
+
+/* High-specificity fallback: force footer text to white to avoid page-specific overrides */
+footer#footer,
+footer#footer h1,
+footer#footer h2,
+footer#footer h3,
+footer#footer h4,
+footer#footer h5,
+footer#footer h6,
+footer#footer p,
+footer#footer span,
+footer#footer a,
+footer#footer .social-icons a {
+  color: #ffffff !important;
+}
+
+/* Keep form inputs readable (dark text) inside footer */
+footer#footer input,
+footer#footer textarea,
+footer#footer .form-control {
+  color: #222 !important;
+}

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tema Scuro - Borgo Vercelli</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/theme-dark.css">
+    <script>
+        // Prevent FOUC
+        (function() {
+            const savedTheme = localStorage.getItem('site-theme-preference') || 'auto';
+            const effectiveTheme = savedTheme === 'auto' 
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : savedTheme;
+            document.documentElement.setAttribute('data-theme', effectiveTheme);
+        })();
+    </script>
+    <script src="/assets/scripts/theme-manager.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+        .color-box {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .theme-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Controls -->
+    <div class="theme-controls">
+        <h6 class="mb-3">🎨 Controlli Tema</h6>
+        <div class="btn-group-vertical w-100" role="group">
+            <button class="btn btn-outline-primary" id="theme-light">
+                <i class="bi bi-sun-fill me-2"></i>Chiaro
+            </button>
+            <button class="btn btn-outline-primary" id="theme-dark">
+                <i class="bi bi-moon-stars-fill me-2"></i>Scuro
+            </button>
+            <button class="btn btn-outline-primary" id="theme-auto">
+                <i class="bi bi-circle-half me-2"></i>Sistema
+            </button>
+        </div>
+        <hr>
+        <small class="text-muted d-block text-center" id="current-theme-display">
+            Tema: <span id="theme-name">Auto</span>
+        </small>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">🌙 Test Sistema Tema Scuro</h1>
+            <p class="lead">Borgo Vercelli - Demo Completa</p>
+        </div>
+
+        <!-- Colors Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">🎨 Colori</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="color-box" style="background: var(--primary-color); color: var(--text-on-primary);">
+                        Primary Color
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="color-box" style="background: var(--secondary-color); color: var(--text-on-primary);">
+                        Secondary Color
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="color-box" style="background: var(--accent-color); color: var(--text-primary);">
+                        Accent Color
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">📋 Cards</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Card Title</h5>
+                            <p class="card-text">This is a sample card with some text content to demonstrate the card styling in both light and dark themes.</p>
+                            <a href="#" class="btn btn-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Another Card</h5>
+                            <p class="card-text">Cards automatically adapt to the selected theme with proper colors and shadows.</p>
+                            <a href="#" class="btn btn-outline-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Third Card</h5>
+                            <p class="card-text">The card background, text, and borders all change seamlessly.</p>
+                            <a href="#" class="btn btn-secondary">Action</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">📝 Forms</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" id="name" placeholder="Inserisci il tuo nome">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" placeholder="email@esempio.it">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="select" class="form-label">Selezione</label>
+                                    <select class="form-select" id="select">
+                                        <option selected>Scegli...</option>
+                                        <option value="1">Opzione 1</option>
+                                        <option value="2">Opzione 2</option>
+                                        <option value="3">Opzione 3</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="textarea" class="form-label">Messaggio</label>
+                                    <textarea class="form-control" id="textarea" rows="3" placeholder="Scrivi qui..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Invia</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Elementi Form</h5>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check1" checked>
+                                    <label class="form-check-label" for="check1">
+                                        Checkbox selezionata
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check2">
+                                    <label class="form-check-label" for="check2">
+                                        Checkbox non selezionata
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radio" id="radio1" checked>
+                                    <label class="form-check-label" for="radio1">
+                                        Radio button 1
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radio" id="radio2">
+                                    <label class="form-check-label" for="radio2">
+                                        Radio button 2
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="range" class="form-label">Range</label>
+                                <input type="range" class="form-range" id="range">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">🔘 Buttons</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <button class="btn btn-primary me-2">Primary</button>
+                        <button class="btn btn-secondary me-2">Secondary</button>
+                        <button class="btn btn-success me-2">Success</button>
+                        <button class="btn btn-danger me-2">Danger</button>
+                        <button class="btn btn-warning me-2">Warning</button>
+                        <button class="btn btn-info me-2">Info</button>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-outline-primary me-2">Outline Primary</button>
+                        <button class="btn btn-outline-secondary me-2">Outline Secondary</button>
+                        <button class="btn btn-outline-success me-2">Outline Success</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-primary me-2">Small</button>
+                        <button class="btn btn-primary me-2">Normal</button>
+                        <button class="btn btn-lg btn-primary">Large</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">⚠️ Alerts</h2>
+            <div class="alert alert-primary" role="alert">
+                <i class="bi bi-info-circle me-2"></i>This is a primary alert with an icon!
+            </div>
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle me-2"></i>This is a success alert—check it out!
+            </div>
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>This is a danger alert—pay attention!
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-circle me-2"></i>This is a warning alert—be careful!
+            </div>
+        </div>
+
+        <!-- Table Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">📊 Table</h2>
+            <div class="card">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Ruolo</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Mario Rossi</td>
+                                <td>mario@esempio.it</td>
+                                <td><span class="badge bg-primary">Admin</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Luigi Verdi</td>
+                                <td>luigi@esempio.it</td>
+                                <td><span class="badge bg-success">User</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Giuseppe Bianchi</td>
+                                <td>giuseppe@esempio.it</td>
+                                <td><span class="badge bg-warning">Moderator</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Demo -->
+        <div class="demo-section">
+            <h2 class="mb-4">🏷️ Badges</h2>
+            <div class="card">
+                <div class="card-body">
+                    <span class="badge bg-primary me-2">Primary</span>
+                    <span class="badge bg-secondary me-2">Secondary</span>
+                    <span class="badge bg-success me-2">Success</span>
+                    <span class="badge bg-danger me-2">Danger</span>
+                    <span class="badge bg-warning me-2">Warning</span>
+                    <span class="badge bg-info me-2">Info</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-5 mt-5 border-top">
+            <p class="text-muted">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                Sistema Tema Scuro Implementato con Successo
+            </p>
+            <p class="text-muted small">
+                Borgo Vercelli 2022 &copy; Tutti i diritti riservati
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update theme display
+        function updateThemeDisplay() {
+            const theme = window.themeManager.getCurrentTheme();
+            const themeName = document.getElementById('theme-name');
+            themeName.textContent = theme.preference.charAt(0).toUpperCase() + theme.preference.slice(1);
+            
+            // Update active button
+            document.querySelectorAll('.theme-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (theme.preference === 'light') {
+                document.getElementById('theme-light').classList.add('active');
+            } else if (theme.preference === 'dark') {
+                document.getElementById('theme-dark').classList.add('active');
+            } else {
+                document.getElementById('theme-auto').classList.add('active');
+            }
+        }
+
+        // Listen for theme changes
+        window.addEventListener('themechange', updateThemeDisplay);
+        
+        // Initial update
+        if (window.themeManager) {
+            updateThemeDisplay();
+        } else {
+            window.addEventListener('DOMContentLoaded', updateThemeDisplay);
+        }
+    </script>
+</body>
+</html>
