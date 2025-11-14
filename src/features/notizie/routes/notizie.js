@@ -207,6 +207,16 @@ router.post('/notizie/:id', canEditNotizia, upload.single('immagine_principale')
 
     let immagineId = immagine_principale_id || null;
     if (req.file) {
+      // Se c'è una nuova immagine, elimina il file della vecchia
+      if (immagine_principale_id) {
+        const { deleteImageFile } = require('../../../shared/utils/file-helper');
+        const oldNotizia = await dao.getNotiziaById(id);
+        if (oldNotizia && oldNotizia.immagine_url) {
+          console.log('[updateNotizia] Eliminazione file vecchio:', oldNotizia.immagine_url);
+          deleteImageFile(oldNotizia.immagine_url);
+        }
+      }
+      
       const url = '/uploads/' + req.file.filename;
       const result = await daoGalleria.insertImmagineNotizia(url, id, 1);
       immagineId = result.id;

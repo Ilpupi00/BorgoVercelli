@@ -57,14 +57,35 @@ function insertImmagine(imageUrl, tipo, entitaRiferimento, entitaId, ordine = 1)
  */
 function deleteImmaginiByEntita(entitaRiferimento, entitaId) {
     return new Promise((resolve, reject) => {
-        const sql = 'DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?';
+        // Prima recupera gli URL delle immagini da eliminare
+        const selectSql = 'SELECT url FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?';
         
-        db.run(sql, [entitaRiferimento, entitaId], (err, result) => {
+        db.all(selectSql, [entitaRiferimento, entitaId], (err, rows) => {
             if (err) {
-                console.error('Errore cancellazione immagini:', err);
+                console.error('Errore recupero immagini:', err);
                 return reject(err);
             }
-            resolve({ success: true, rowCount: result ? result.rowCount : 0 });
+            
+            // Elimina i file fisici
+            if (rows && rows.length > 0) {
+                const { deleteImageFile } = require('../../../shared/utils/file-helper');
+                rows.forEach(row => {
+                    if (row.url) {
+                        console.log('[deleteImmaginiByEntita] Eliminazione file:', row.url);
+                        deleteImageFile(row.url);
+                    }
+                });
+            }
+            
+            // Poi elimina i record dal DB
+            const deleteSql = 'DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?';
+            db.run(deleteSql, [entitaRiferimento, entitaId], (err2, result) => {
+                if (err2) {
+                    console.error('Errore cancellazione immagini:', err2);
+                    return reject(err2);
+                }
+                resolve({ success: true, rowCount: result ? result.rowCount : 0 });
+            });
         });
     });
 }

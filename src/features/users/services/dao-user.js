@@ -261,7 +261,28 @@ exports.updateProfilePicture = async (userId, imageUrl) => {
     console.log('updateProfilePicture chiamato con userId:', userId, 'imageUrl:', imageUrl);
     if (!userId || !imageUrl) return false;
 
-    // Prima elimina eventuali record esistenti per questo utente
+    // Prima recupera e elimina il file fisico vecchio
+    const { deleteImageFile } = require('../../../shared/utils/file-helper');
+    const selectSql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ?`;
+    
+    const oldImageUrl = await new Promise((resolve, reject) => {
+        sqlite.get(selectSql, [userId], (err, row) => {
+            if (err) {
+                console.log('Errore SELECT vecchia immagine:', err);
+                resolve(null); // Non blocca se fallisce
+            } else {
+                resolve(row ? row.url : null);
+            }
+        });
+    });
+    
+    // Elimina il file fisico vecchio se esiste
+    if (oldImageUrl) {
+        console.log('[updateProfilePicture] Eliminazione file vecchio:', oldImageUrl);
+        deleteImageFile(oldImageUrl);
+    }
+
+    // Poi elimina il record dal DB
     const deleteSql = `DELETE FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ?`;
     console.log('Eseguo DELETE per eliminare record esistenti');
     await new Promise((resolve, reject) => {

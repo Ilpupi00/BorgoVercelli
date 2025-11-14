@@ -149,7 +149,38 @@ exports.createSquadra = function(nome, annoFondazione) {
  * @param {number|null} [id_immagine] - ID immagine logo (opzionale)
  * @returns {Promise<Object>} { message }
  */
-exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
+exports.updateSquadra = async function(id, nome, anno, id_immagine = null) {
+    // Se c'è una nuova immagine, elimina il file della vecchia
+    if (id_immagine !== null) {
+        const { deleteImageFile } = require('../../../shared/utils/file-helper');
+        
+        // Recupera la vecchia immagine
+        const selectSql = `
+            SELECT I.url 
+            FROM SQUADRE S
+            LEFT JOIN IMMAGINI I ON S.id_immagine = I.id
+            WHERE S.id = ?
+        `;
+        
+        const oldImage = await new Promise((resolve, reject) => {
+            sqlite.get(selectSql, [parseInt(id)], (err, row) => {
+                if (err) {
+                    console.error('[updateSquadra] Errore recupero vecchia immagine:', err);
+                    resolve(null); // Non blocca
+                } else {
+                    resolve(row && row.url ? row.url : null);
+                }
+            });
+        });
+        
+        // Elimina il file fisico vecchio
+        if (oldImage) {
+            console.log('[updateSquadra] Eliminazione file vecchio:', oldImage);
+            deleteImageFile(oldImage);
+        }
+    }
+    
+    // Aggiorna la squadra
     let sql = 'UPDATE SQUADRE SET nome = ?, Anno = ?';
     let params = [nome, anno,];
     if (id_immagine !== null) {
@@ -158,6 +189,7 @@ exports.updateSquadra = function(id, nome, anno, id_immagine = null) {
     }
     sql += ' WHERE id = ?';
     params.push(parseInt(id));
+    
     return new Promise((resolve, reject) => {
         sqlite.run(sql, params, function(err, result) {
             if (err) {
