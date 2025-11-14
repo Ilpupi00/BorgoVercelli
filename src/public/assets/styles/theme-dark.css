@@ -698,7 +698,7 @@ button {
 :root[data-theme="light"] input[type="submit"],
 :root[data-theme="light"] .btn *,
 :root[data-theme="light"] button * {
-    color: #0d6efd !important;
+    color: #131c2b !important;
 }
 
 :root[data-theme="light"] .btn-dark{
