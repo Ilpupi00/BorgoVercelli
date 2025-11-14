@@ -174,6 +174,24 @@
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+/* Light-mode checkbox visibility fixes
+   Ensure the checked state is clearly visible in light theme */
+:root[data-theme="light"] .form-check-input {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+:root[data-theme="light"] .form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="light"] .form-check-label {
+    color: var(--text-primary) !important;
+}
+
 /* System Preference (Auto) */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
@@ -1864,4 +1882,52 @@ code {
 /* Address */
 :root[data-theme="dark"] address {
     color: var(--text-primary) !important;
+}
+
+/* Quill editor - dark mode adjustments */
+:root[data-theme="dark"] .ql-snow .ql-editor,
+:root[data-theme="dark"] .ql-dark .ql-editor {
+    background: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    caret-color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-toolbar,
+:root[data-theme="dark"] .ql-dark .ql-toolbar {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-editor a,
+:root[data-theme="dark"] .ql-dark .ql-editor a {
+    color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-stroke,
+:root[data-theme="dark"] .ql-dark .ql-stroke,
+:root[data-theme="dark"] .ql-snow .ql-fill,
+:root[data-theme="dark"] .ql-dark .ql-fill {
+    stroke: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+}
+
+/* Ensure toolbar buttons remain visible */
+:root[data-theme="dark"] .ql-snow .ql-picker-label,
+:root[data-theme="dark"] .ql-dark .ql-picker-label,
+:root[data-theme="dark"] .ql-snow .ql-toolbar button,
+:root[data-theme="dark"] .ql-dark .ql-toolbar button {
+    color: var(--text-primary) !important;
+}
+
+/* Slightly darker border for editor in dark mode */
+:root[data-theme="dark"] .ql-snow .ql-container,
+:root[data-theme="dark"] .ql-dark .ql-container {
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Helper class to force dark styling even if theme manager isn't available */
+.ql-dark .ql-editor {
+    background: #1e293b;
+    color: #f1f5f9;
 }

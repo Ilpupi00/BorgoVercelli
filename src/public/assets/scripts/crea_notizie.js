@@ -25,6 +25,24 @@ class NewsEditor {
      * Inizializza l'editor Quill con la configurazione della toolbar
      */
     initializeQuill() {
+        // Detect dark theme and add helper class so CSS can style the Quill editor
+        const editorEl = document.getElementById('editor');
+        let isDark = false;
+        try {
+            if (window.themeManager && typeof window.themeManager.getCurrentTheme === 'function') {
+                isDark = !!window.themeManager.getCurrentTheme().isDark;
+            } else {
+                const dataTheme = document.documentElement.getAttribute('data-theme');
+                isDark = dataTheme === 'dark' || document.body.classList.contains('theme-dark');
+            }
+        } catch (e) {
+            isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        }
+
+        if (editorEl && isDark) {
+            editorEl.classList.add('ql-dark');
+        }
+
         this.quill = new Quill('#editor', {
             theme: 'snow',
             placeholder: 'Scrivi il contenuto della notizia...',
@@ -40,6 +58,19 @@ class NewsEditor {
                     ['link', 'image'],
                     ['clean']
                 ]
+            }
+        });
+
+        // React to theme changes at runtime
+        window.addEventListener('themechange', (e) => {
+            try {
+                const themeIsDark = e && e.detail && e.detail.theme === 'dark';
+                if (editorEl) {
+                    if (themeIsDark) editorEl.classList.add('ql-dark');
+                    else editorEl.classList.remove('ql-dark');
+                }
+            } catch (err) {
+                // ignore
             }
         });
 

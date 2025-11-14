@@ -517,6 +517,16 @@ body {
     border: 1px solid #dee2e6;
 }
 
+/* Fix: ensure the publish checkbox is clickable (z-index issues on some layouts) */
+.card-body .form-check-input {
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.card-body .form-check-label {
+    cursor: pointer;
+}
 /* Single News View Styles */
 .notizia-article {
     font-size: 1.1rem;
