@@ -537,9 +537,9 @@ exports.deleteUser = async function(userId) {
                 });
             });
             
-            // 3. Elimina iscrizioni eventi dell'utente
+            // 3. Elimina partecipazioni eventi dell'utente (tabella corretta per PostgreSQL)
             await new Promise((res, rej) => {
-                sqlite.run('DELETE FROM ISCRIZIONI_EVENTI WHERE utente_id = ?', [userId], (err) => {
+                sqlite.run('DELETE FROM PARTECIPAZIONI_EVENTI WHERE utente_id = ?', [userId], (err) => {
                     if (err) rej(err);
                     else res();
                 });
@@ -556,14 +556,6 @@ exports.deleteUser = async function(userId) {
             // 5. Elimina dirigenti associati all'utente
             await new Promise((res, rej) => {
                 sqlite.run('DELETE FROM DIRIGENTI_SQUADRE WHERE utente_id = ?', [userId], (err) => {
-                    if (err) rej(err);
-                    else res();
-                });
-            });
-            
-            // 6. Elimina membri società associati all'utente
-            await new Promise((res, rej) => {
-                sqlite.run('DELETE FROM MEMBRI_SOCIETA WHERE utente_id = ?', [userId], (err) => {
                     if (err) rej(err);
                     else res();
                 });
