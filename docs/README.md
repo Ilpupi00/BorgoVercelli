@@ -195,6 +195,7 @@ Backup automatici
 ### DevOps & Tools
 ```
 Docker · Docker Compose
+Railway (Production Deployment)
 Git · GitHub
 VS Code · ESLint · Prettier
 ```
@@ -296,6 +297,18 @@ docker-compose logs -f
 # Stop
 docker-compose down
 ```
+
+### Deployment su Railway
+
+Il progetto è attualmente deployato su **Railway** con:
+- ✅ Database PostgreSQL gestito
+- ✅ Storage persistente per uploads
+- ✅ SSL/HTTPS automatico
+- ✅ CI/CD automatico da GitHub
+- ✅ Variabili d'ambiente sicure
+- ✅ Backup automatici
+
+**Accesso all'applicazione live**: [https://asdborgovercelli.app](https://asdborgovercelli.app)
 
 ### Configurazione .env
 
@@ -633,6 +646,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ### Borgo Vercelli
 - 🌐 **Website**: [www.borgovercelli.it](http://www.borgovercelli.it)
+- 🚀 **Live App**: [Deployed on Railway](https://asdborgovercelli.app)
 - 📧 **Email**: info@borgovercelli.it
 - 📱 **Social**: [Facebook](https://facebook.com/borgovercelli) · [Instagram](https://instagram.com/borgovercelli)
 

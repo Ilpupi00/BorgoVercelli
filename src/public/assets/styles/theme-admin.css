@@ -405,6 +405,7 @@
     background: var(--bg-secondary) !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
+    background-image: none !important;
 }
 
 :root[data-theme="dark"] .form-select:focus {
@@ -412,6 +413,7 @@
     border-color: var(--primary-color) !important;
     color: var(--text-primary) !important;
     box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25) !important;
+    background-image: none !important;
 }
 
 :root[data-theme="dark"] .input-group .form-control {
@@ -660,7 +662,7 @@
     background: var(--input-bg) !important;
     border: 1px solid var(--border-color) !important;
     color: var(--text-primary) !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23e2e8f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-image: none !important;
 }
 
 :root[data-theme="dark"] .form-select:focus {

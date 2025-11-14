@@ -593,6 +593,7 @@ select {
     border-color: var(--input-border) !important;
     color: var(--input-text) !important;
     transition: all 0.3s ease;
+    background-image: none !important;
 }
 
 .form-control::placeholder,
@@ -608,6 +609,7 @@ select:focus {
     background-color: var(--input-bg) !important;
     border-color: var(--input-focus-border) !important;
     box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
+    background-image: none !important;
 }
 
 .form-label {

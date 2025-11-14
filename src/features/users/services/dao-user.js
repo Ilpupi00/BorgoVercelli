@@ -511,21 +511,108 @@ exports.changePassword = function(userId, currentPassword, newPassword) {
 };
 
 /**
- * Elimina un utente dal database
+ * Elimina un utente dal database e tutte le sue dipendenze
  * @function deleteUser
  * @param {number} userId - ID utente
  * @returns {Promise<Object>} Messaggio di successo
  */
-exports.deleteUser = function(userId) {
-    return new Promise((resolve, reject) => {
-        const sql = 'DELETE FROM UTENTI WHERE id = ?';
-        sqlite.run(sql, [userId], function(err) {
-            if (err) {
-                reject({ error: 'Error deleting user: ' + err.message });
-            } else {
-                resolve({ message: 'User deleted successfully' });
-            }
-        });
+exports.deleteUser = async function(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Elimina in cascata tutte le dipendenze dell'utente
+            
+            // 1. Elimina recensioni scritte dall'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM RECENSIONI WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 2. Elimina prenotazioni dell'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM PRENOTAZIONI WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 3. Elimina iscrizioni eventi dell'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM ISCRIZIONI_EVENTI WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 4. Elimina giocatori associati all'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM GIOCATORI WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 5. Elimina dirigenti associati all'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM DIRIGENTI_SQUADRE WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 6. Elimina membri società associati all'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM MEMBRI_SOCIETA WHERE utente_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 7. Aggiorna notizie ed eventi dove l'utente è autore (imposta autore_id a NULL)
+            await new Promise((res, rej) => {
+                sqlite.run('UPDATE NOTIZIE SET autore_id = NULL WHERE autore_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            await new Promise((res, rej) => {
+                sqlite.run('UPDATE EVENTI SET autore_id = NULL WHERE autore_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 8. Aggiorna squadre dove l'utente è allenatore (imposta allenatore_id a NULL)
+            await new Promise((res, rej) => {
+                sqlite.run('UPDATE SQUADRE SET allenatore_id = NULL WHERE allenatore_id = ?', [userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 9. Elimina immagini profilo dell'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ?', ['utente', userId], (err) => {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            // 10. Infine, elimina l'utente
+            await new Promise((res, rej) => {
+                sqlite.run('DELETE FROM UTENTI WHERE id = ?', [userId], function(err) {
+                    if (err) rej(err);
+                    else res();
+                });
+            });
+            
+            resolve({ message: 'User and all related data deleted successfully' });
+            
+        } catch (err) {
+            reject({ error: 'Error deleting user: ' + err.message });
+        }
     });
 };
 
