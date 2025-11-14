@@ -23,11 +23,16 @@ exports.getRecensioni = async () => {
     RECENSIONI.data_recensione,
     RECENSIONI.visibile,
     UTENTI.nome AS nome_utente,
-    UTENTI.cognome AS cognome_utente
+    UTENTI.cognome AS cognome_utente,
+    IMMAGINI.url AS immagine_utente
     FROM
         RECENSIONI
     JOIN
         UTENTI ON RECENSIONI.utente_id = UTENTI.id
+    LEFT JOIN
+        IMMAGINI ON IMMAGINI.entita_riferimento = 'utente'
+            AND IMMAGINI.entita_id = UTENTI.id
+            AND (IMMAGINI.ordine = 1 OR IMMAGINI.ordine IS NULL)
     WHERE
         RECENSIONI.visibile = true
     ORDER BY
