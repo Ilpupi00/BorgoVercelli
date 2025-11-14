@@ -62,7 +62,7 @@
                             <% immagini.forEach(immagine => { %>
                                 <div class="gallery-item">
                                     <div class="gallery-item-image">
-                                        <img src="<%= immagine.url %>" alt="<%= immagine.descrizione || 'Immagine galleria' %>">
+                                        <img src="<%= immagine.url %>" alt="<%= immagine.descrizione || 'Immagine galleria' %>" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
                                         <div class="gallery-item-overlay">
                                             <button class="btn btn-sm btn-light" onclick="galleriaAdmin.visualizzaImmagine('<%= immagine.url %>')" title="Visualizza">
                                                 <i class="bi bi-eye"></i>

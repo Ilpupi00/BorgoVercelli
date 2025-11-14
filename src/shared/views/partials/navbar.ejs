@@ -81,7 +81,7 @@
         <% if (typeof isLogged !== 'undefined' && isLogged) { %>
           <a href="/profilo" class="text-light d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
             <% if (typeof imageUrl !== 'undefined' && imageUrl) { %>
-              <img src="/<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+              <img src="<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
             <% } else { %>
               <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
             <% } %>

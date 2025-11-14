@@ -64,7 +64,7 @@ class FilterSquadre {
             console.log('Giocatore:', giocatore);
             let fotoCell = '';
             if (giocatore.id_immagine && giocatore.id_immagine.trim() !== '') {
-                fotoCell = `<img src="${giocatore.id_immagine}" class="player-photo rounded-circle" style="width:32px;height:32px;object-fit:cover;" alt="Foto Giocatore">`;
+                fotoCell = `<img src="${giocatore.id_immagine}" class="player-photo rounded-circle" style="width:32px;height:32px;object-fit:cover;" alt="Foto Giocatore" onerror="this.onerror=null; this.outerHTML='<i class=\\'fa fa-user-circle fa-2x text-secondary\\'></i>';">`;
             } else {
                 fotoCell = `<i class="fa fa-user-circle fa-2x text-secondary"></i>`;
             }

@@ -46,7 +46,7 @@
             </div>
             <div class="row">
                 <div class="col-12 text-center img-container">
-                    <img src="<%= squadre.length > 0 && squadre[0].id_immagine ? squadre[0].id_immagine : '/assets/images/Logo.png' %>" alt="<%= squadre.length > 0 ? squadre[0].nome : 'Logo' %>" class="img-fluid">
+                    <img src="<%= squadre.length > 0 && squadre[0].id_immagine ? squadre[0].id_immagine : '/assets/images/Logo.png' %>" alt="<%= squadre.length > 0 ? squadre[0].nome : 'Logo' %>" class="img-fluid" onerror="this.onerror=null; this.src='/assets/images/Logo.png';">
                 </div>
             </div>
         </header>

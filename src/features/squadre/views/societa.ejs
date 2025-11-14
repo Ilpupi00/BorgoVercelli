@@ -192,7 +192,8 @@
                             <% if (membro.immagine_profilo) { %>
                                 <img class="member-avatar rounded-circle border border-4 border-white shadow"
                                      src="<%= membro.immagine_profilo %>"
-                                     alt="Foto di <%= membro.nome %> <%= membro.cognome %>">
+                                     alt="Foto di <%= membro.nome %> <%= membro.cognome %>"
+                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'member-avatar bg-dark rounded-circle d-flex align-items-center justify-content-center border border-4 border-white shadow\'><i class=\'bi bi-person-fill text-white\' style=\'font-size: 3rem;\'></i></div>';">
                             <% } else { %>
                                 <div class="member-avatar bg-dark rounded-circle d-flex align-items-center justify-content-center border border-4 border-white shadow">
                                     <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
