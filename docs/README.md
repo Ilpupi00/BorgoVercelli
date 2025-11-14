@@ -6,6 +6,7 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![railway](https://img.shields.io/badge/deployed%20on-railway-blue.svg)
 
 **Piattaforma web moderna per connettere atleti, staff e la comunità sportiva locale**
 
