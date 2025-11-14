@@ -31,7 +31,8 @@ export function setupEmailFormListener() {
     }
 
     const submitBtn = newForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
+    // conserva l'HTML originale (icone + testo) così viene ripristinato correttamente
+    const originalHTML = submitBtn ? submitBtn.innerHTML : '';
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
 
@@ -72,8 +73,10 @@ export function setupEmailFormListener() {
       console.error('Errore di rete:', err);
       ShowModal.showModalError('Errore di rete durante l\'invio del messaggio.', 'Errore rete');
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      }
     }
   });
 }

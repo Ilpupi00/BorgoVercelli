@@ -648,6 +648,24 @@ button {
     transition: all 0.3s ease;
 }
 
+/* Forza testo bianco dentro i bottoni in dark mode (anche per icone/SVG) */
+:root[data-theme="dark"] .btn,
+:root[data-theme="dark"] button,
+:root[data-theme="dark"] input[type="button"],
+:root[data-theme="dark"] input[type="submit"],
+:root[data-theme="dark"] .btn *,
+:root[data-theme="dark"] button * {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .btn svg,
+:root[data-theme="dark"] .btn line,
+:root[data-theme="dark"] .btn path,
+:root[data-theme="dark"] .btn circle {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
 .btn-primary {
     background: var(--primary-color) !important;
     color: #ffffff !important;
@@ -945,6 +963,7 @@ button {
 :root[data-theme="dark"] .card .btn-primary:hover {
     background: var(--primary-hover) !important;
     border-color: var(--primary-hover) !important;
+    color: #ffffff !important;
 }
 
 :root[data-theme="dark"] .card-button {
@@ -956,6 +975,14 @@ button {
 :root[data-theme="dark"] .card-button:hover {
     background: var(--primary-hover) !important;
     border-color: var(--primary-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Enforce white text/icons inside card buttons for dark mode (high specificity) */
+:root[data-theme="dark"] .card-button,
+:root[data-theme="dark"] .card-button i,
+:root[data-theme="dark"] .card-button svg {
+    color: #ffffff !important;
 }
 
 /* Footer - Tema Chiaro: Uguale navbar tema chiaro */
@@ -1145,18 +1172,88 @@ footer .social-links a:hover,
 
 :root[data-theme="dark"] footer .btn-light,
 :root[data-theme="dark"] .footer .btn-light {
-    background: #ffffff !important;
-    border-color: #ffffff !important;
-    color: #2D40A0 !important;
+    /* Usa lo stesso stile dei bottoni chiari in dark mode: sfondo semitrasparente e testo bianco */
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
     font-weight: 600;
 }
 
 :root[data-theme="dark"] footer .btn-light:hover,
 :root[data-theme="dark"] .footer .btn-light:hover {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Extra: forza il testo e le icone bianche per i bottoni nel footer (dark mode)
+   e gestisce lo stato di loading/disabilitato per mantenere contrasto corretto */
+:root[data-theme="dark"] #footer .btn,
+:root[data-theme="dark"] #footer .btn *,
+:root[data-theme="dark"] .footer #footer .btn,
+:root[data-theme="dark"] .footer #footer .btn * {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+:root[data-theme="dark"] #footer .btn.btn-loading,
+:root[data-theme="dark"] #footer .btn.btn-loading * {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] #footer .btn:disabled,
+:root[data-theme="dark"] #footer .btn[disabled],
+:root[data-theme="dark"] .footer .btn:disabled,
+:root[data-theme="dark"] .footer .btn[disabled] {
+    opacity: 0.9 !important;
+    color: #ffffff !important;
+}
+
+/* Assicura che le icone FontAwesome ereditino il colore corretto */
+:root[data-theme="dark"] .btn .fa,
+:root[data-theme="dark"] .btn .fas,
+:root[data-theme="dark"] .btn .far,
+:root[data-theme="dark"] .btn .fab {
+    color: inherit !important;
+}
+
+/* Evita doppio spinner: alcune pagine usano `.btn-loading::after` (CSS)
+   mentre lo script inserisce un'icona spinner inline. In dark-mode
+   disattiviamo lo pseudo-spinner per evitare sovrapposizioni. */
+:root[data-theme="dark"] .btn-loading::after {
+    display: none !important;
+}
+
+/* Forza testo e icone bianche per bottoni outline e link-button in dark mode
+   Questo risolve i casi in cui il testo risulta invisibile su sfondi scuri/gradienti */
+:root[data-theme="dark"] a.btn,
+:root[data-theme="dark"] .btn,
+:root[data-theme="dark"] .btn-outline-primary,
+:root[data-theme="dark"] a.btn-outline-primary,
+:root[data-theme="dark"] .btn-outline-light,
+:root[data-theme="dark"] a.btn-outline-light,
+:root[data-theme="dark"] .btn-lg,
+:root[data-theme="dark"] a.btn-lg {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .btn-outline-primary:hover,
+:root[data-theme="dark"] a.btn-outline-primary:hover,
+:root[data-theme="dark"] .btn-outline-light:hover,
+:root[data-theme="dark"] a.btn-outline-light:hover {
+    color: #ffffff !important;
+}
+
+/* Ensure SVG/icon fills are white inside these buttons */
+:root[data-theme="dark"] a.btn svg,
+:root[data-theme="dark"] .btn svg,
+:root[data-theme="dark"] a.btn .bi,
+:root[data-theme="dark"] .btn .bi {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+    color: #ffffff !important;
 }
 
 /* Footer Links Bottom */
