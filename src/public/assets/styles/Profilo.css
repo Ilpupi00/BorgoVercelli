@@ -158,10 +158,18 @@ html {
     line-height: 1;
 }
 
+:root[data-theme="dark"] .stat-content .stat-number {
+    color: var(--text-primary) !important;
+}
+
 .stat-content .stat-label {
     font-size: 0.9rem;
     color: #666;
     margin-top: 0.25rem;
+}
+
+:root[data-theme="dark"] .stat-content .stat-label {
+    color: var(--text-secondary) !important;
 }
 
 .preference-item {

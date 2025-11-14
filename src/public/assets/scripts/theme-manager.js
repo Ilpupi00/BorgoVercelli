@@ -89,6 +89,12 @@ class ThemeManager {
         // Update body class for backwards compatibility
         document.body.classList.remove('theme-light', 'theme-dark');
         document.body.classList.add(`theme-${effectiveTheme}`);
+        // Also set data-theme on body so CSS selectors that target body[data-theme="dark"] work
+        try {
+            document.body.setAttribute('data-theme', effectiveTheme);
+        } catch (e) {
+            // ignore in environments where body may not be available yet
+        }
         
         // Save preference
         this.saveTheme(theme);

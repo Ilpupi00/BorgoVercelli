@@ -484,7 +484,85 @@ mark {
   }
 }
 
-/* Dark mode support */
+/* Dark mode support - FULL OVERRIDE */
+:root[data-theme="dark"] .search-results {
+  background: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .result-card {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .result-card .card-title {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .result-card .card-text {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .result-card .result-meta {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .results-section h2 {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .search-header {
+  background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
+}
+
+:root[data-theme="dark"] .search-header h1 {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .search-header .lead {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+:root[data-theme="dark"] .result-card .btn {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .result-card .btn * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+:root[data-theme="dark"] .empty-state {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .empty-state h3 {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .empty-state i {
+  color: var(--text-muted) !important;
+}
+
+/* Override ALL hardcoded dark colors in Search page for dark mode */
+:root[data-theme="dark"] .search-header h1,
+:root[data-theme="dark"] .results-section h2,
+:root[data-theme="dark"] .result-card .card-title,
+:root[data-theme="dark"] .empty-state h3 {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .search-header .lead,
+:root[data-theme="dark"] .result-card .card-text,
+:root[data-theme="dark"] .result-card .result-meta {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] mark {
+  background: rgba(74, 158, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
 @media (prefers-color-scheme: dark) {
   .search-results {
     background: #1a202c;

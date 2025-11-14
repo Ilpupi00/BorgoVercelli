@@ -878,3 +878,10 @@
 :root:not([data-theme="dark"]) .action-card .btn-modern.w-100[href="/admin/campionati"] {
     color: #ffffff !important;
 }
+
+/* Make header action icons (profile, logout) white in light mode only
+   This targets the small icon inside header buttons and keeps card icons unchanged */
+:root:not([data-theme="dark"]) .admin-page-header .admin-page-header-actions .btn i,
+:root:not([data-theme="dark"]) .admin-page-header .admin-page-header-actions .btn .bi {
+    color: #ffffff !important;
+}

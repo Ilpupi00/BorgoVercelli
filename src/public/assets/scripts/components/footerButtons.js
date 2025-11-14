@@ -38,27 +38,7 @@ class FooterButtons {
   }
 
   applyDarkButtonFix() {
-    try {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (!isDark) return;
-      this.fixSelectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => {
-          try {
-            el.style.setProperty('color', '#000000ff', 'important');
-            el.style.setProperty('fill', '#ffffff', 'important');
-            el.style.setProperty('stroke', '#ffffff', 'important');
-          } catch (e) {}
-          // fix icons inside
-          el.querySelectorAll('svg, i, .bi, .fa, .fas, .far, .fab').forEach(ic => {
-            try { ic.style.setProperty('color', '#ffffff', 'important'); } catch(e){}
-            try { ic.style.setProperty('fill', '#ffffff', 'important'); } catch(e){}
-          });
-        });
-      });
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('applyDarkButtonFix error:', err);
-    }
+    // Theme detection removed - no dark mode support
   }
 
   setupHoverHide() {
@@ -114,18 +94,7 @@ class FooterButtons {
   }
 
   observeThemeChanges() {
-    try {
-      const root = document.documentElement;
-      const mo = new MutationObserver(() => {
-        // re-apply dark button fix on theme change
-        this.applyDarkButtonFix();
-      });
-      mo.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-      this._themeObserver = mo;
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('observeThemeChanges error:', err);
-    }
+    // Theme observer removed - no dark mode support
   }
 }
 

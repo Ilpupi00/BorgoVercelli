@@ -88,3 +88,132 @@
   </div>
   </footer>
   <script type="module" src="/assets/scripts/components/footerButtons.js" defer></script>
+  <script>
+    // Controlled dark-mode fixer: marks modified elements and removes changes on light
+    (function controlledDarkModeFix(){
+      const DATA_ATTR = 'data-tm-dark';
+
+      function mark(el) {
+        try { el.setAttribute(DATA_ATTR, '1'); } catch (e) {}
+      }
+
+      function unmark(el) {
+        try { el.removeAttribute(DATA_ATTR); } catch (e) {}
+      }
+
+      function applyTo(el) {
+        if (!el || !el.style) return;
+        // skip form controls and buttons
+        if (el.closest && el.closest('input, textarea, select, .btn, button, [type="button"], [type="submit"]')) return;
+        el.style.setProperty('color', '#f8fafc', 'important');
+        mark(el);
+      }
+
+      function applyToDescendants(el) {
+        if (!el) return;
+        const children = el.querySelectorAll('*');
+        children.forEach(child => {
+          if (child && child.style && !child.closest('input, textarea, select, .btn, button, [type="button"], [type="submit"]')) {
+            child.style.setProperty('color', '#f8fafc', 'important');
+            mark(child);
+          }
+        });
+      }
+
+      function applyFix() {
+        try {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (!isDark) return;
+
+          // Mark and apply only when dark
+          const allElements = document.querySelectorAll('*:not(script):not(style):not(link):not(meta):not(title):not(head)');
+          allElements.forEach(el => {
+            if (el && el.style && el.tagName !== 'HTML' && el.tagName !== 'BODY') {
+              applyTo(el);
+            }
+          });
+
+          // Buttons and links
+          const allButtons = document.querySelectorAll('.btn, button, input[type="button"], input[type="submit"], a.btn, .btn-outline-primary, .btn-outline-light, .btn-light');
+          allButtons.forEach(btn => {
+            if (btn && btn.style) {
+              btn.style.setProperty('color', '#ffffff', 'important');
+              mark(btn);
+              const descendants = btn.querySelectorAll('*');
+              descendants.forEach(desc => {
+                if (desc && desc.style) {
+                  desc.style.setProperty('color', '#ffffff', 'important');
+                  desc.style.setProperty('fill', '#ffffff', 'important');
+                  desc.style.setProperty('stroke', '#ffffff', 'important');
+                  mark(desc);
+                }
+              });
+            }
+          });
+
+          // SVGs
+          const allSVGs = document.querySelectorAll('svg, svg *, .bi, .fa, i[class*="bi-"], i[class*="fa-"]');
+          allSVGs.forEach(svg => {
+            if (svg && svg.style) {
+              svg.style.setProperty('fill', '#ffffff', 'important');
+              svg.style.setProperty('stroke', '#ffffff', 'important');
+              svg.style.setProperty('color', '#ffffff', 'important');
+              mark(svg);
+            }
+          });
+
+        } catch (err) {
+          console.error('controlled dark mode fix error:', err);
+        }
+      }
+
+      function cleanupApplied() {
+        try {
+          const applied = document.querySelectorAll('[' + DATA_ATTR + '="1"]');
+          applied.forEach(el => {
+            try {
+              // Remove only the properties we touched
+              el.style.removeProperty('color');
+              el.style.removeProperty('fill');
+              el.style.removeProperty('stroke');
+            } catch (e) {}
+            unmark(el);
+          });
+        } catch (err) {
+          console.error('cleanupApplied error:', err);
+        }
+      }
+
+      // Initial application if dark
+      applyFix();
+
+      // React to theme changes: apply when entering dark, cleanup when leaving
+      const observer = new MutationObserver(() => {
+        setTimeout(() => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            applyFix();
+          } else {
+            cleanupApplied();
+          }
+        }, 50);
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+      // React to DOM changes: only apply fixes when dark
+      const domObserver = new MutationObserver(() => {
+        setTimeout(() => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) applyFix();
+        }, 100);
+      });
+      domObserver.observe(document.body, { childList: true, subtree: true });
+
+      // Backup interval: only runs applyFix when dark to avoid leaving inline styles on light
+      setInterval(() => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) applyFix();
+      }, 2000);
+
+    })();
+  </script>

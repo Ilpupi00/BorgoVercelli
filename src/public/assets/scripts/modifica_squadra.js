@@ -1112,8 +1112,7 @@ function createBackButton() {
         btn.className = 'btn position-fixed top-0 start-0 m-3 d-flex align-items-center justify-content-center';
         btn.setAttribute('aria-label', 'Torna indietro');
         btn.style.zIndex = '1060';
-    // make the icon black so it's visible on light backgrounds
-    btn.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true" style="color: black; font-size: 1.25rem;"></i>';
+        btn.innerHTML = `<i class="bi bi-x-lg" aria-hidden="true" style="color: #000000; font-size: 1.25rem;"></i>`;
 
         // Click handler with fallbacks
         btn.addEventListener('click', function (e) {

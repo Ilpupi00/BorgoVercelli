@@ -192,3 +192,28 @@
     border-color: var(--border-color) !important;
     opacity: 1;
 }
+
+/* Ensure all buttons in the search results are white in dark mode (text + icons) */
+:root[data-theme="dark"] .search-results .card .btn,
+:root[data-theme="dark"] .search-results .card .btn *,
+:root[data-theme="dark"] .search-results .card a.btn,
+:root[data-theme="dark"] .search-results .card a.btn * {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Outline buttons inside cards should show white text by default in dark mode */
+:root[data-theme="dark"] .search-results .card .btn-outline-primary {
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Ensure SVG/icons inherit white color */
+:root[data-theme="dark"] .search-results .card .btn svg,
+:root[data-theme="dark"] .search-results .card .btn .bi,
+:root[data-theme="dark"] .search-results .card .btn .fa {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+}

@@ -1,0 +1,160 @@
+/* ===================================
+   Theme Variables Only - NO STYLE OVERRIDES
+   Used by Homepage.css and other page-specific CSS
+   =================================== */
+
+/* Light Theme (Default) - Variables Only */
+:root[data-theme="light"],
+:root:not([data-theme]) {
+    /* Primary Colors */
+    --primary-color: #0d6efd;
+    --primary-variant: #2563eb;
+    --primary-hover: #0a58ca;
+    --primary-active: #084298;
+    
+    /* Secondary Colors */
+    --secondary-color: #22b14c;
+    --secondary-dark: #1a8e3a;
+    --accent-color: #ffc107;
+    
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e9ecef;
+    --bg-elevated: #ffffff;
+    --bg-hover: #f1f5f9;
+    --bg-active: #e2e8f0;
+    --bg-gradient-start: #f8fafc;
+    --bg-gradient-end: #e9ecef;
+    
+    /* Text Colors */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --text-on-primary: #ffffff;
+    --text-muted: #6c757d;
+    
+    /* Border Colors */
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --border-focus: #0d6efd;
+    
+    /* Shadow Colors */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-colored: 0 10px 30px rgba(13, 110, 253, 0.15);
+    
+    /* Card Specific */
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    
+    /* Input & Forms */
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-text: #1e293b;
+    --input-placeholder: #94a3b8;
+    --input-focus-border: #0d6efd;
+    --input-focus-ring: rgba(13, 110, 253, 0.15);
+    
+    /* Navbar */
+    --navbar-bg: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+    --navbar-text: #ffffff;
+    --navbar-hover: rgba(255, 255, 255, 0.1);
+    --navbar-active: rgba(255, 255, 255, 0.2);
+    
+    /* Footer */
+    --footer-bg: #1e293b;
+    --footer-text: #cbd5e1;
+    --footer-heading: #ffffff;
+    
+    /* Status Colors */
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+}
+
+/* Dark Theme - Variables Only */
+:root[data-theme="dark"] {
+    /* Primary Colors */
+    --primary-color: #4a9eff;
+    --primary-variant: #3b82f6;
+    --primary-hover: #5dadff;
+    --primary-active: #70b8ff;
+    
+    /* Secondary Colors */
+    --secondary-color: #3cc566;
+    --secondary-dark: #2fb357;
+    --accent-color: #ffc107;
+    
+    /* Background Colors */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-elevated: #1e293b;
+    --bg-hover: #334155;
+    --bg-active: #475569;
+    --bg-gradient-start: #0b1230;
+    --bg-gradient-end: #111522;
+    
+    /* Text Colors */
+    --text-primary: #f8fafc;
+    --text-secondary: #e2e8f0;
+    --text-tertiary: #cbd5e1;
+    --text-on-primary: #ffffff;
+    --text-muted: #94a3b8;
+    
+    /* Border Colors */
+    --border-color: #3a4261;
+    --border-hover: #4a5575;
+    --border-focus: #4a9eff;
+    
+    /* Shadow Colors */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
+    
+    /* Card Specific */
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
+    --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
+    
+    /* Input & Forms */
+    --input-bg: #1e293b;
+    --input-border: #334155;
+    --input-text: #f1f5f9;
+    --input-placeholder: #64748b;
+    --input-focus-border: #3b82f6;
+    --input-focus-ring: rgba(59, 130, 246, 0.25);
+    
+    /* Navbar */
+    --navbar-bg: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%);
+    --navbar-text: #ffffff;
+    --navbar-hover: rgba(255, 255, 255, 0.1);
+    --navbar-active: rgba(255, 255, 255, 0.15);
+    
+    /* Footer */
+    --footer-bg: #2D40A0;
+    --footer-text: #ffffff;
+    --footer-heading: #f1f5f9;
+    
+    /* Status Colors */
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+}
+
+/* Optional: Smooth transitions when theme changes */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

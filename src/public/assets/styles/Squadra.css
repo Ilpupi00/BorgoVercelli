@@ -72,6 +72,12 @@
   -moz-appearance: none;
 }
 
+:root[data-theme="dark"] .custom-select {
+  color: var(--text-primary) !important;
+  background: var(--input-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
 .custom-select:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
@@ -238,6 +244,15 @@
 .position-attaccante {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: #fff;
+}
+
+/* ============================================
+   DARK MODE FIXES FOR POSITION BADGES
+   ============================================ */
+
+/* Force white text in dark mode for position badges */
+:root[data-theme="dark"] .position-portiere {
+    color: #ffffff !important;
 }
 
 .player-photo {

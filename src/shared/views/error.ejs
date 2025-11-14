@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Errore - <%= error.status || 500 %></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
-    <%- include('partials/theme-includes') %>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
   <link href="/assets/styles/Navbar.css" rel="stylesheet" type="text/css">
   <link href="/assets/styles/Footer.css" rel="stylesheet" type="text/css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -175,6 +176,7 @@
 
   <%- include('partials/footer') %>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
+    <%- include('../../shared/views/partials/theme-includes') %></script>
 </body>
 </html>

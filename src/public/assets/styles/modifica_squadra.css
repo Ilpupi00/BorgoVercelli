@@ -266,6 +266,22 @@ body {
     color: #000 !important;
 }
 
+/* ============================================
+   DARK MODE FIXES FOR PLAYER/MANAGER CARDS
+   ============================================ */
+
+/* Force white text in dark mode for player and manager cards */
+:root[data-theme="dark"] .player-card .card-title,
+:root[data-theme="dark"] .player-card .card-title.gradient-text,
+:root[data-theme="dark"] .manager-card .card-title,
+:root[data-theme="dark"] .manager-card .card-title.gradient-text {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #f8fafc !important;
+    color: #f8fafc !important;
+}
+
 .btn-success {
     background: var(--secondary-color);
     color: white;

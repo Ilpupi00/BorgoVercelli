@@ -1,0 +1,749 @@
+/* ===================================
+   Theme Light Mode - Profilo Page
+   Stile moderno, sofisticato e Web 2.0
+   =================================== */
+
+:root:not([data-theme="dark"]) {
+    /* Light mode color palette - Web 2.0 style */
+    --profile-bg-primary: #f8fafc;
+    --profile-bg-secondary: #ffffff;
+    --profile-text-primary: #1e293b;
+    --profile-text-secondary: #64748b;
+    --profile-border-color: #e2e8f0;
+    --profile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --profile-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --profile-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Body e container principale */
+:root:not([data-theme="dark"]) body {
+    background: #ffffff !important;
+    color: var(--profile-text-primary) !important;
+}
+
+:root:not([data-theme="dark"]) .profile-container {
+    background: transparent !important;
+}
+
+/* Header Card - Gradiente blu per light mode */
+:root:not([data-theme="dark"]) .profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3) !important;
+    border: none !important;
+    padding: 2rem !important;
+}
+
+:root:not([data-theme="dark"]) .profile-header-card * {
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .profile-header-card .text-white,
+:root:not([data-theme="dark"]) .profile-header-card h1,
+:root:not([data-theme="dark"]) .profile-header-card p,
+:root:not([data-theme="dark"]) .profile-header-card span {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .member-since {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .member-since * {
+    color: #ffffff !important;
+}
+
+/* Avatar profilo */
+:root:not([data-theme="dark"]) .profile-avatar img,
+:root:not([data-theme="dark"]) .profile-avatar i {
+    border-color: #ffffff !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .profile-avatar .bi-person-circle {
+    color: #ffffff !important;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+:root:not([data-theme="dark"]) #editPicBtn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border-color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) #editPicBtn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+
+/* User Badges */
+:root:not([data-theme="dark"]) .user-badges .badge {
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Cards - Stile moderno e sofisticato */
+:root:not([data-theme="dark"]) .card {
+    background: var(--profile-bg-secondary) !important;
+    border: 1px solid var(--profile-border-color) !important;
+    box-shadow: var(--profile-shadow) !important;
+    border-radius: 16px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+:root:not([data-theme="dark"]) .card:hover {
+    box-shadow: var(--profile-hover-shadow) !important;
+    transform: translateY(-4px) !important;
+}
+
+/* Card Headers - Gradients moderni */
+:root:not([data-theme="dark"]) .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 16px 16px 0 0 !important;
+}
+
+:root:not([data-theme="dark"]) .card-header * {
+    color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) .card-header.bg-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .card-header.bg-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .card-header.bg-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .card-header.bg-info {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .card-header.bg-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* Card Body */
+:root:not([data-theme="dark"]) .card-body {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+}
+
+/* Statistiche */
+:root:not([data-theme="dark"]) .stat-number {
+    color: var(--profile-text-primary) !important;
+    font-weight: 700 !important;
+}
+
+:root:not([data-theme="dark"]) .stat-label {
+    color: var(--profile-text-secondary) !important;
+}
+
+:root:not([data-theme="dark"]) .stat-item {
+    border-bottom: 1px solid var(--profile-border-color) !important;
+}
+
+/* Bottoni - Design moderno e accattivante */
+:root:not([data-theme="dark"]) .btn {
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+:root:not([data-theme="dark"]) .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-primary {
+    color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-success {
+    color: #10b981 !important;
+    border-color: #10b981 !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-success:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-info {
+    color: #06b6d4 !important;
+    border-color: #06b6d4 !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-info:hover {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-warning {
+    color: #f59e0b !important;
+    border-color: #f59e0b !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-warning:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-danger {
+    color: #ef4444 !important;
+    border-color: #ef4444 !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-secondary {
+    color: #64748b !important;
+    border-color: #64748b !important;
+}
+
+:root:not([data-theme="dark"]) .btn-outline-secondary:hover {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+/* Bottoni Gradiente (Eventi e Notizie) */
+:root:not([data-theme="dark"]) .btn-gradient-event {
+    background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+}
+
+:root:not([data-theme="dark"]) .btn-gradient-event:hover {
+    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%) !important;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+:root:not([data-theme="dark"]) .btn-gradient-news {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+}
+
+:root:not([data-theme="dark"]) .btn-gradient-news:hover {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Activity Timeline */
+:root:not([data-theme="dark"]) .activity-item {
+    border-left-color: var(--profile-border-color) !important;
+}
+
+:root:not([data-theme="dark"]) .activity-item::before {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .activity-title {
+    color: var(--profile-text-primary) !important;
+    font-weight: 600 !important;
+}
+
+:root:not([data-theme="dark"]) .activity-details {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Preferenze e Info Sportive */
+:root:not([data-theme="dark"]) .preference-item,
+:root:not([data-theme="dark"]) .sports-info,
+:root:not([data-theme="dark"]) .management-info {
+    color: var(--profile-text-primary) !important;
+    border-bottom: 1px solid var(--profile-border-color) !important;
+}
+
+:root:not([data-theme="dark"]) .preference-item small,
+:root:not([data-theme="dark"]) .sports-info i,
+:root:not([data-theme="dark"]) .management-info i {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Text Colors */
+:root:not([data-theme="dark"]) .text-muted {
+    color: var(--profile-text-secondary) !important;
+}
+
+:root:not([data-theme="dark"]) small.text-muted {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Modali - Design sofisticato */
+:root:not([data-theme="dark"]) .modal-content {
+    background: var(--profile-bg-secondary) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+:root:not([data-theme="dark"]) .modal-header {
+    border-bottom: 1px solid var(--profile-border-color) !important;
+    border-radius: 16px 16px 0 0 !important;
+}
+
+:root:not([data-theme="dark"]) .modal-body {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+}
+
+:root:not([data-theme="dark"]) .modal-footer {
+    border-top: 1px solid var(--profile-border-color) !important;
+    background: var(--profile-bg-secondary) !important;
+}
+
+/* Form Elements */
+:root:not([data-theme="dark"]) .form-control,
+:root:not([data-theme="dark"]) .form-select {
+    background: var(--profile-bg-secondary) !important;
+    border: 1px solid var(--profile-border-color) !important;
+    color: var(--profile-text-primary) !important;
+    border-radius: 8px !important;
+}
+
+:root:not([data-theme="dark"]) .form-control:focus,
+:root:not([data-theme="dark"]) .form-select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+:root:not([data-theme="dark"]) .form-label {
+    color: var(--profile-text-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Actions Card - Web 2.0 Gradient */
+:root:not([data-theme="dark"]) .actions-card .card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .actions-card .card-body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%) !important;
+}
+
+/* Recensioni e News/Eventi Lists */
+:root:not([data-theme="dark"]) .hover-shadow:hover {
+    background-color: rgba(59, 130, 246, 0.05) !important;
+    box-shadow: var(--profile-shadow) !important;
+}
+
+/* Empty State */
+:root:not([data-theme="dark"]) .empty-state-icon {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Badge Override for Light Mode */
+:root:not([data-theme="dark"]) .badge {
+    font-weight: 600 !important;
+}
+
+:root:not([data-theme="dark"]) .badge.bg-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .badge.bg-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .badge.bg-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .badge.bg-info {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+}
+
+:root:not([data-theme="dark"]) .badge.bg-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* Animazioni migliorate */
+:root:not([data-theme="dark"]) .animate__animated {
+    animation-duration: 0.5s !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    :root:not([data-theme="dark"]) .card {
+        margin-bottom: 1rem !important;
+    }
+    
+    :root:not([data-theme="dark"]) .profile-header-card {
+        border-radius: 12px !important;
+    }
+}
+
+/* Gestione bottone - specifico per dirigenti */
+:root:not([data-theme="dark"]) .gestione_bottone .btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+:root:not([data-theme="dark"]) .gestione_bottone .btn:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* News/Events Items */
+:root:not([data-theme="dark"]) .news-event-item {
+    border: 1px solid var(--profile-border-color) !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease !important;
+}
+
+:root:not([data-theme="dark"]) .news-event-item:hover {
+    background: rgba(59, 130, 246, 0.05) !important;
+    border-color: #3b82f6 !important;
+}
+
+:root:not([data-theme="dark"]) .news-event-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Content Counter Badge */
+:root:not([data-theme="dark"]) #contentCount {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* Fallbacks: some theme scripts set `data-theme` on `html` OR `body`.
+   Ensure light mode rules apply when either `html` or `body` does NOT have data-theme="dark".
+   This fixes cases where the light stylesheet did not load due to `data-theme` being placed on body. */
+html:not([data-theme="dark"]) body,
+body:not([data-theme="dark"]) body,
+html:not([data-theme="dark"]) ,
+body:not([data-theme="dark"]) {
+    background: #ffffff !important;
+    color: var(--profile-text-primary) !important;
+}
+
+html:not([data-theme="dark"]) .profile-header-card,
+body:not([data-theme="dark"]) .profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Ensure profile info and contact lines are left-aligned in light mode */
+html:not([data-theme="dark"]) .profile-info,
+body:not([data-theme="dark"]) .profile-info,
+html:not([data-theme="dark"]) .contact-lines,
+body:not([data-theme="dark"]) .contact-lines {
+    text-align: left !important;
+}
+
+html:not([data-theme="dark"]) .contact-lines p,
+body:not([data-theme="dark"]) .contact-lines p {
+    margin-bottom: 0.25rem !important;
+    line-height: 1.25 !important;
+}
+
+/* Small accessibility/contrast tweak for mailto link in header */
+html:not([data-theme="dark"]) .contact-lines a[href^="mailto:"] ,
+body:not([data-theme="dark"]) .contact-lines a[href^="mailto:"] {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+
+/* Also support body.theme-light class used by ThemeManager for compatibility */
+body.theme-light .profile-header-card,
+body.theme-light .profile-info,
+body.theme-light .contact-lines,
+body.theme-light #contentCount {
+    color: #ffffff !important;
+}
+
+body.theme-light .profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+body.theme-light .contact-lines,
+body.theme-light .profile-info {
+    text-align: left !important;
+}
+
+body.theme-light .contact-lines p {
+    margin-bottom: 0.25rem !important;
+}
+
+/* High-specificity safety net for profile header in light mode
+   This overrides broad selectors from other theme files that may break the profile display. */
+html[data-theme="light"] body[data-theme="light"] .profile-header-card,
+html[data-theme="light"] body.theme-light .profile-header-card,
+body.theme-light .profile-header-card,
+html:not([data-theme="dark"]) body .profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(0,123,255,0.28) !important;
+}
+
+html[data-theme="light"] body[data-theme="light"] .profile-header-card *,
+html[data-theme="light"] body.theme-light .profile-header-card *,
+body.theme-light .profile-header-card *,
+html:not([data-theme="dark"]) body .profile-header-card * {
+    color: #ffffff !important;
+}
+
+/* Ensure member-since and contact lines keep white text and left alignment */
+html[data-theme="light"] .profile-header-card .member-since,
+body.theme-light .profile-header-card .member-since,
+html[data-theme="light"] .profile-header-card .contact-lines p,
+body.theme-light .profile-header-card .contact-lines p {
+    color: #ffffff !important;
+    text-align: left !important;
+}
+
+/* Ensure avatar icon stays visible */
+html[data-theme="light"] .profile-avatar .bi-person-circle,
+body.theme-light .profile-avatar .bi-person-circle {
+    color: #ffffff !important;
+}
+
+/* =========================
+   Force readable content colors
+   for all profile page content when in LIGHT mode
+   ========================= */
+
+/* Apply to different theme markers to be robust */
+:root[data-theme="light"] .profile-container,
+body[data-theme="light"] .profile-container,
+body.theme-light .profile-container,
+html:not([data-theme="dark"]) .profile-container {
+    color: var(--profile-text-primary) !important;
+}
+
+/* Cards and content areas should show dark text on light backgrounds */
+:root[data-theme="light"] .profile-container .card,
+body[data-theme="light"] .profile-container .card,
+body.theme-light .profile-container .card {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+}
+
+:root[data-theme="light"] .profile-container .card-body,
+body[data-theme="light"] .profile-container .card-body,
+body.theme-light .profile-container .card-body {
+    color: var(--profile-text-primary) !important;
+}
+
+/* Generic text elements in the profile content */
+:root[data-theme="light"] .profile-container p,
+body[data-theme="light"] .profile-container p,
+body.theme-light .profile-container p,
+:root[data-theme="light"] .profile-container span,
+body[data-theme="light"] .profile-container span,
+body.theme-light .profile-container span,
+:root[data-theme="light"] .profile-container li,
+body[data-theme="light"] .profile-container li,
+body.theme-light .profile-container li {
+    color: var(--profile-text-primary) !important;
+}
+
+/* Muted/smaller text */
+:root[data-theme="light"] .profile-container .text-muted,
+body[data-theme="light"] .profile-container .text-muted,
+body.theme-light .profile-container .text-muted,
+:root[data-theme="light"] .profile-container small.text-muted,
+body[data-theme="light"] .profile-container small.text-muted,
+body.theme-light .profile-container small.text-muted {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Activity and news items */
+:root[data-theme="light"] .profile-container .activity-item,
+body[data-theme="light"] .profile-container .activity-item,
+body.theme-light .profile-container .activity-item,
+:root[data-theme="light"] .profile-container .news-event-item,
+body[data-theme="light"] .profile-container .news-event-item,
+body.theme-light .profile-container .news-event-item {
+    color: var(--profile-text-primary) !important;
+    background: var(--profile-bg-secondary) !important;
+}
+
+/* Links inside cards/content should be primary color */
+:root[data-theme="light"] .profile-container a,
+body[data-theme="light"] .profile-container a,
+body.theme-light .profile-container a {
+    color: #3b82f6 !important;
+}
+
+/* Ensure any accidental .text-white outside header doesn't hide content
+   (we don't change header where .text-white is intended) */
+:root[data-theme="light"] .profile-container .text-white:not(.profile-header-card *),
+body[data-theme="light"] .profile-container .text-white:not(.profile-header-card *),
+body.theme-light .profile-container .text-white:not(.profile-header-card *) {
+    color: var(--profile-text-primary) !important;
+}
+
+/* final safety: set color for most common tags inside profile container */
+:root[data-theme="light"] .profile-container h1,
+body[data-theme="light"] .profile-container h1,
+body.theme-light .profile-container h1,
+:root[data-theme="light"] .profile-container h2,
+body[data-theme="light"] .profile-container h2,
+body.theme-light .profile-container h2,
+:root[data-theme="light"] .profile-container h3,
+body[data-theme="light"] .profile-container h3,
+body.theme-light .profile-container h3,
+:root[data-theme="light"] .profile-container h4,
+body[data-theme="light"] .profile-container h4,
+body.theme-light .profile-container h4 {
+    color: var(--profile-text-primary) !important;
+}
+
+/* === Explicit light-mode attribute selectors ===
+   Some pages set the theme on `body` or use `body.theme-light`.
+   Add explicit `[data-theme="light"]` and `body.theme-light` rules
+   for the profile page to ensure readable colors when switching. */
+
+:root[data-theme="light"] body,
+body[data-theme="light"],
+body.theme-light,
+html:not([data-theme="dark"]) body,
+body:not([data-theme="dark"]) {
+    background: #ffffff !important;
+    color: var(--profile-text-primary) !important;
+}
+
+:root[data-theme="light"] .profile-container,
+body[data-theme="light"] .profile-container,
+body.theme-light .profile-container {
+    background: transparent !important;
+}
+
+/* Header card must keep blue gradient with white text */
+:root[data-theme="light"] .profile-header-card,
+body[data-theme="light"] .profile-header-card,
+body.theme-light .profile-header-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(0,123,255,0.28) !important;
+}
+
+/* Ensure header children inherit white color */
+:root[data-theme="light"] .profile-header-card *,
+body[data-theme="light"] .profile-header-card *,
+body.theme-light .profile-header-card * {
+    color: #ffffff !important;
+}
+
+/* Profile info & contact lines: left aligned, readable on header */
+:root[data-theme="light"] .profile-info,
+body[data-theme="light"] .profile-info,
+body.theme-light .profile-info,
+:root[data-theme="light"] .contact-lines,
+body[data-theme="light"] .contact-lines,
+body.theme-light .contact-lines {
+    text-align: left !important;
+    color: #ffffff !important;
+}
+
+/* Cards and card bodies should be dark text on white backgrounds */
+:root[data-theme="light"] .card,
+body[data-theme="light"] .card,
+body.theme-light .card {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+    border-color: var(--profile-border-color) !important;
+}
+
+:root[data-theme="light"] .card-body,
+body[data-theme="light"] .card-body,
+body.theme-light .card-body {
+    color: var(--profile-text-primary) !important;
+}
+
+/* Ensure stat numbers and labels are readable */
+:root[data-theme="light"] .stat-number,
+body[data-theme="light"] .stat-number,
+body.theme-light .stat-number {
+    color: var(--profile-text-primary) !important;
+}
+
+:root[data-theme="light"] .stat-label,
+body[data-theme="light"] .stat-label,
+body.theme-light .stat-label {
+    color: var(--profile-text-secondary) !important;
+}
+
+/* Links inside card/body should use primary color */
+:root[data-theme="light"] .card a,
+body[data-theme="light"] .card a,
+body.theme-light .card a {
+    color: #3b82f6 !important;
+}
+
+/* Ensure modals and forms in profile are readable */
+:root[data-theme="light"] .modal-content,
+body[data-theme="light"] .modal-content,
+body.theme-light .modal-content {
+    background: var(--profile-bg-secondary) !important;
+    color: var(--profile-text-primary) !important;
+}
+
+/* Safety: override any remaining !important color rules coming from other theme files */
+:root[data-theme="light"] .profile-header-card,
+body[data-theme="light"] .profile-header-card,
+body.theme-light .profile-header-card {
+    color: #ffffff !important;
+}
+
+/* Emergency safety overrides: force readable (dark) text for all profile
+   content when the page is in light mode. This uses explicit color values
+   (not CSS variables) and high-specificity selectors so it reliably wins
+   even if variables are missing or other theme rules are applied later. */
+:root[data-theme="light"] .profile-container,
+body[data-theme="light"] .profile-container,
+body.theme-light .profile-container,
+html:not([data-theme="dark"]) .profile-container {
+    color: #1e293b !important;
+}
+
+:root[data-theme="light"] .profile-container .card-body,
+body[data-theme="light"] .profile-container .card-body,
+body.theme-light .profile-container .card-body,
+html:not([data-theme="dark"]) .profile-container .card-body {
+    color: #1e293b !important;
+}
+
+/* Make sure common inline elements inside the profile container are dark */
+:root[data-theme="light"] .profile-container p,
+body[data-theme="light"] .profile-container p,
+body.theme-light .profile-container p,
+html:not([data-theme="dark"]) .profile-container p,
+:root[data-theme="light"] .profile-container span,
+body[data-theme="light"] .profile-container span,
+body.theme-light .profile-container span {
+    color: #1e293b !important;
+}
+
+/* Ensure any accidental `.text-white` markers inside content are neutralized */
+:root[data-theme="light"] .profile-container .text-white:not(.profile-header-card *),
+body[data-theme="light"] .profile-container .text-white:not(.profile-header-card *),
+body.theme-light .profile-container .text-white:not(.profile-header-card *) {
+    color: #1e293b !important;
+}

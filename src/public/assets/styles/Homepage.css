@@ -493,6 +493,21 @@ section.vw100 {
   position: relative;
 }
 
+:root[data-theme="dark"] .review-text {
+  color: var(--text-primary) !important;
+}
+
+/* Override ALL hardcoded dark colors for dark mode */
+:root[data-theme="dark"] .news-card p,
+:root[data-theme="dark"] .news-description,
+:root[data-theme="dark"] .card-text,
+:root[data-theme="dark"] .description,
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] span:not(.badge),
+:root[data-theme="dark"] div:not(.btn):not(button) {
+  color: var(--text-primary) !important;
+}
+
 .review-text::before {
   content: '"';
   font-size: 2em;
