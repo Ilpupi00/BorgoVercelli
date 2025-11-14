@@ -177,7 +177,9 @@
 /* Mobile fixes: ensure navbar stays blue and active links don't create white blocks */
 @media (max-width: 576px) {
   /* force nav background (covers cases where collapse or other classes override it) */
-  nav#navbar, .navbar, .navbar-collapse, .navbar-collapse.show {
+  /* Keep the main nav background but leave the collapse container transparent
+     so the navbar background is the only visible layer (prevents double background). */
+  nav#navbar, .navbar {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-variant) 100%) !important;
     background-color: var(--primary-color) !important;
     color: var(--text-on-primary) !important;
@@ -191,8 +193,9 @@
   }
 
   /* ensure dropdown/menu backgrounds are consistent */
+  /* Use the same navbar background for dropdowns so they match in both themes */
   .navbar .dropdown-menu {
-    background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%) !important;
+    background: var(--navbar-bg) !important;
     border-color: rgba(255,255,255,0.08) !important;
   }
 }
@@ -587,8 +590,8 @@ header p {
   min-width: 260px; /* default mobile/tablet fallback */
   padding: 8px; /* space around items */
   border-radius: 12px;
-  /* Use a solid, brand-coherent background instead of transparent glass */
-  background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%);
+  /* Use the same navbar background so dropdowns match the navbar in both themes */
+  background: var(--navbar-bg) !important;
   border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 10px 30px rgba(2,6,23,0.35), 0 2px 6px rgba(13,110,253,0.08);
   overflow: visible;
@@ -604,8 +607,8 @@ header p {
 }
 
 /* Dropdown items styling */
-.navbar .dropdown-item {
-  color: #ffffff;
+  .navbar .dropdown-item {
+  color: var(--navbar-text) !important;
   padding: 10px 14px;
   border-radius: 8px;
   display: flex;
@@ -732,6 +735,15 @@ header p {
     font-size: 14px;
     padding: 8px 14px;
   }
+}
+
+/* Force dropdowns in light theme to match the navbar background and use white text */
+:root[data-theme="light"] .navbar .dropdown-menu {
+  background: var(--navbar-bg) !important;
+}
+
+:root[data-theme="light"] .navbar .dropdown-item {
+  color: var(--navbar-text) !important;
 }
 
 

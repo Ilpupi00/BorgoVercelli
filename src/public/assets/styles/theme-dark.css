@@ -101,15 +101,18 @@
     --secondary-dark: #2fb357;
     --accent-color: #ffc107;
     
-    /* Background Colors - Blu scuro coerente con il brand */
-    --bg-primary: #1a1f35;
-    --bg-secondary: #232a42;
-    --bg-tertiary: #2d3550;
-    --bg-elevated: #232a42;
-    --bg-hover: #2d3550;
-    --bg-active: #3a4261;
-    --bg-gradient-start: #1a1f35;
-    --bg-gradient-end: #232a42;
+    /* Background Colors - Modern Web2.0 layered gradients for depth */
+    /* Main page background: deep navy / indigo duotone with subtle warmth */
+    --bg-primary: linear-gradient(180deg, #070714 0%, #0e1530 45%, #111522 100%);
+    /* Secondary layers for sections (soft, slightly warmer) */
+    --bg-secondary: linear-gradient(180deg, rgba(28,36,70,0.9) 0%, rgba(24,30,54,0.9) 100%);
+    --bg-tertiary: linear-gradient(180deg, rgba(20,24,44,0.9) 0%, rgba(18,20,36,0.9) 100%);
+    /* Elevated surfaces (cards, modals) use a subtle frosted gradient */
+    --bg-elevated: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
+    --bg-hover: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.015) 100%);
+    --bg-active: linear-gradient(180deg, rgba(74,158,255,0.04), rgba(45,64,160,0.02));
+    --bg-gradient-start: #0b1230;
+    --bg-gradient-end: #111522;
     
     /* Text Colors - Testo molto più leggibile */
     --text-primary: #f8fafc;
@@ -131,11 +134,11 @@
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
     
-    /* Card Specific */
-    --card-bg: #1e293b;
-    --card-border: #334155;
-    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --card-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Card Specific - glassy elevated panels with subtle gradient */
+    --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
+    --card-border: rgba(255,255,255,0.04);
+    --card-shadow: 0 6px 18px rgba(3,9,23,0.6);
+    --card-hover-shadow: 0 18px 40px rgba(3,9,23,0.7);
     
     /* Input & Forms */
     --input-bg: #1e293b;
@@ -155,6 +158,9 @@
     --footer-bg: #2D40A0;
     --footer-text: #ffffff;
     --footer-heading: #ffffff;
+
+    /* Solid navbar color fallback (useful for small elements like toggler) */
+    --navbar-solid: #2D40A0;
     
     /* Status Colors - Adjusted for dark mode */
     --success: #10b981;
@@ -162,14 +168,14 @@
     --warning: #f59e0b;
     --info: #3b82f6;
     
-    /* Hero Section */
-    --hero-gradient-start: #1e293b;
-    --hero-gradient-end: #0f172a;
-    --hero-overlay: rgba(0, 0, 0, 0.5);
-    --hero-text: #f1f5f9;
+    /* Hero Section - bold duotone accent with indigo highlights */
+    --hero-gradient-start: linear-gradient(135deg, rgba(13,24,77,0.96) 0%, rgba(24,36,80,0.92) 50%);
+    --hero-gradient-end: linear-gradient(135deg, rgba(30,44,86,0.9) 50%, rgba(17,21,42,0.95) 100%);
+    --hero-overlay: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55));
+    --hero-text: #f3f6ff;
     
     /* Glass Morphism */
-    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-bg: rgba(7, 9, 12, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
@@ -262,9 +268,9 @@
 
 /* Body & Base */
 body {
-    background-color: var(--bg-primary);
+    background: var(--bg-primary) !important;
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background 0.35s ease, color 0.3s ease;
 }
 
 /* Backgrounds */
@@ -1931,4 +1937,28 @@ code {
 .ql-dark .ql-editor {
     background: #1e293b;
     color: #f1f5f9;
+}
+
+/* Navbar toggler/icon adjustments for dark mode
+   - Button gets a solid navbar-like background
+   - The three hamburger lines use a lighter azure (primary-color)
+   This makes the toggler visible and coherent with the navbar while
+   leaving the collapse area transparent to avoid double backgrounds. */
+:root[data-theme="dark"] .navbar-toggler {
+    background: var(--navbar-solid) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .navbar-toggler-icon::before,
+:root[data-theme="dark"] .navbar-toggler-icon::after,
+:root[data-theme="dark"] .navbar-toggler-icon span {
+    background: var(--primary-color) !important;
+}
+
+/* Ensure homepage "Eventi" section is dark in dark theme even when markup uses `bg-white` */
+:root[data-theme="dark"] #eventi-section,
+:root[data-theme="dark"] #eventi-section.bg-white {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
 }

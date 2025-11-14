@@ -347,3 +347,34 @@
         font-size: 1.8rem !important;
     }
 }
+
+/* Ensure the Società page uses the same navbar toggler styling as global dark theme
+   This overrides any accidental differences introduced by page-specific rules. */
+:root[data-theme="dark"] .navbar-toggler {
+    background: var(--navbar-solid) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .navbar-toggler:hover,
+:root[data-theme="dark"] .navbar-toggler:focus {
+    background: var(--navbar-solid) !important;
+}
+
+:root[data-theme="dark"] .navbar-toggler-icon::before,
+:root[data-theme="dark"] .navbar-toggler-icon::after,
+:root[data-theme="dark"] .navbar-toggler-icon span {
+    background: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .navbar-toggler-icon {
+    /* remove bootstrap default SVG hamburger if present (loaded later),
+       keep only our pseudo-elements so there's no duplicated icon */
+    background-image: none !important;
+}
+
+/* Ensure collapse remains transparent on Società page as well */
+:root[data-theme="dark"] #navbarSupportedContent,
+:root[data-theme="dark"] .navbar-collapse {
+    background-color: transparent !important;
+}
