@@ -272,38 +272,18 @@ const uploadsPath = process.env.RAILWAY_ENVIRONMENT
   : path.join(__dirname, 'public/uploads');
 
 console.log('[APP] Serving uploads from:', uploadsPath);
+console.log('[APP] RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
 
 /**
  * Serve file caricati dagli utenti al percorso pubblico '/uploads'
- * Verifica l'esistenza del file prima di servirlo per evitare log inutili
  */
-app.use('/uploads', (req, res, next) => {
-    const filePath = path.join(uploadsPath, req.path);
-    
-    // Verifica se il file esiste
-    if (require('fs').existsSync(filePath)) {
-        // File trovato, servilo normalmente
-        express.static(uploadsPath)(req, res, next);
-    } else {
-        // File non trovato, restituisci 404 senza logging
-        res.status(404).send('File not found');
-    }
-});
+app.use('/uploads', express.static(uploadsPath));
 
 /**
  * Route legacy per compatibilità
  * Alcuni record DB o client vecchi potrebbero usare '/src/public/uploads/...'
- * Mantiene accessibili le immagini già salvate con questo URL
  */
-app.use('/src/public/uploads', (req, res, next) => {
-    const filePath = path.join(uploadsPath, req.path);
-    
-    if (require('fs').existsSync(filePath)) {
-        express.static(uploadsPath)(req, res, next);
-    } else {
-        res.status(404).send('File not found');
-    }
-});
+app.use('/src/public/uploads', express.static(uploadsPath));
 
 // ==================== CONFIGURAZIONE TEMPLATE ENGINE ====================
 
