@@ -287,7 +287,8 @@ nav#navbar.sticky-top,
 }
 
 #navbarSupportedContent {
-  background-color: var(--primary-color);
+  /* Remove duplicated background: use the main <nav> background instead */
+  background-color: transparent;
   color: var(--text-on-primary);
   padding: 10px;
   z-index: 1000;
@@ -345,7 +346,9 @@ nav#navbar.sticky-top,
   right: 0;
   height: 100%;
   width: 50%;
-  background-color: var(--primary-color);
+  /* Use transparent background so the main .navbar background is the only background.
+     This prevents a double-background appearance under the navbar. */
+  background-color: transparent;
   color: var(--text-on-primary);
   /* keep off-canvas transform for mobile, but allow overflow visible so dropdowns aren't clipped */
   transform: translateX(100%);

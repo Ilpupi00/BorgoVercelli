@@ -330,9 +330,10 @@ body {
 :root[data-theme="dark"] .navbar.bg-primary,
 :root[data-theme="dark"] nav.navbar.bg-primary,
 :root[data-theme="dark"] .navbar-expand-lg,
-:root[data-theme="dark"] .navbar.sticky-top,
-:root[data-theme="dark"] .navbar-collapse,
-:root[data-theme="dark"] .navbar-collapse.show {
+:root[data-theme="dark"] .navbar.sticky-top {
+    /* Force navbar background only on the main <nav> element. Do not apply
+       the same background to .navbar-collapse to avoid a double-layered
+       background when the collapse/container sits under the navbar. */
     background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
     background-color: #2D40A0 !important;
     color: #ffffff !important;
@@ -342,9 +343,9 @@ body {
 /* Forza anche sui media query mobile */
 @media (max-width: 576px) {
     :root[data-theme="dark"] nav#navbar,
-    :root[data-theme="dark"] .navbar,
-    :root[data-theme="dark"] .navbar-collapse,
-    :root[data-theme="dark"] .navbar-collapse.show {
+    :root[data-theme="dark"] .navbar {
+        /* On mobile keep the navbar background, but do not apply it to
+           the collapse container itself; that should remain transparent. */
         background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
         background-color: #2D40A0 !important;
         color: #ffffff !important;
