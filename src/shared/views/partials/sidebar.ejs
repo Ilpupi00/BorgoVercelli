@@ -40,13 +40,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/campi')) ? 'active' : '' %>" href="/admin/campi">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.match(/^\/admin\/campi(\/|$)/)) ? 'active' : '' %>" href="/admin/campi">
                         ⚽
                         Gestisci Campi
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/campionati')) ? 'active' : '' %>" href="/admin/campionati">
+                    <a class="nav-link submenu <%= (currentPath && currentPath.match(/^\/admin\/campionati(\/|$)/)) ? 'active' : '' %>" href="/admin/campionati">
                         🏆
                         Gestisci Campionati
                     </a>

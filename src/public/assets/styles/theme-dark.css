@@ -271,7 +271,7 @@
 body[data-theme="dark"] {
     background: var(--bg-primary) !important;
     color: var(--text-primary);
-    transition: background 0.35s ease, color 0.3s ease;
+    transition:  0.35s ease, color 0.3s ease;
 }
 
 /* Backgrounds - Only apply in dark mode */
@@ -691,33 +691,12 @@ button {
     transition: all 0.3s ease;
 }
 
-/* Forza testo scuro nei bottoni in tema chiaro per garantire leggibilità */
-:root[data-theme="light"] .btn,
-:root[data-theme="light"] button,
-:root[data-theme="light"] input[type="button"],
-:root[data-theme="light"] input[type="submit"],
-:root[data-theme="light"] .btn *,
-:root[data-theme="light"] button * {
-    color: #131c2b !important;
-}
-
-:root[data-theme="light"] .btn-dark{
-    color: #ffffff !important;
-}
-
-:root[data-theme="light"] .btn svg,
-:root[data-theme="light"] .btn line,
-:root[data-theme="light"] .btn path,
-:root[data-theme="light"] .btn circle {
-    fill: #1e293b !important;
-    stroke: #1e293b !important;
-}
-
-/* Assicura che i bottoni "light" nel footer rimangano leggibili in tema chiaro */
-:root[data-theme="light"] footer .btn-light,
-:root[data-theme="light"] .footer .btn-light {
-    color: #1e293b !important;
-}
+/* In light mode preferiamo non forzare i colori delle icone/SVG nei bottoni
+   per permettere ai fogli di stile delle singole pagine (o alle icone stesse)
+   di mantenere i loro colori originali. */
+/* Nota: se serve contrasto specifico per alcuni bottoni, definire regole
+   puntuali in quei fogli di stile (es. footer o theme-*.css) invece di
+   impostare regole globali qui. */
 
 /* Forza testo bianco dentro i bottoni in dark mode (anche per icone/SVG) */
 :root[data-theme="dark"] .btn,
@@ -726,7 +705,7 @@ button {
 :root[data-theme="dark"] input[type="submit"],
 :root[data-theme="dark"] .btn *,
 :root[data-theme="dark"] button * {
-    color: #ffffff !important;
+    color: #ffffff ;
 }
 
 :root[data-theme="dark"] .btn svg,
@@ -746,7 +725,7 @@ button {
 .btn-primary:hover {
     background: var(--primary-variant) !important;
     border-color: var(--primary-variant) !important;
-    color: #ffffff !important;
+    color: #ffffff ;
     transform: translateY(-1px);
 }
 
