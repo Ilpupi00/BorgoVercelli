@@ -163,10 +163,15 @@
     font-size: 14px !important;
     padding: 6px 8px !important;
     border-radius: 10px;
-    border: 1px solid #e3e3e3;
-    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--input-border) !important;
+    background: var(--input-bg) !important;
+    color: var(--input-text) !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     transition: box-shadow 0.2s, border 0.2s;
+  }
+  form[role="search"] input::placeholder {
+    color: var(--input-placeholder) !important;
+    opacity: 1 !important;
   }
   form[role="search"] input:focus {
     border: 1px solid #0d6efd;
@@ -278,6 +283,32 @@ nav#navbar.sticky-top,
   /* overflow: hidden; - Removed to prevent interference with sticky positioning */
   display: flex;
   animation: fadeinUp 0.5s ease-in-out;
+}
+/* Ensure navbar inputs respect theme variables so typed text remains visible
+   in dark/light themes. This overrides hard-coded colors when necessary. */
+nav .form-control,
+nav form[role="search"] input {
+  background: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+/* High-specificity override for the navbar search input to beat
+   other theme rules that set a semi-transparent light background
+   and white text. Uses ID selector + :root[data-theme] for specificity. */
+:root[data-theme="dark"] nav#navbar form[role="search"] input#searchInput,
+nav#navbar form[role="search"] input#searchInput,
+:root[data-theme="light"] nav#navbar form[role="search"] input#searchInput {
+  background: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+:root[data-theme="dark"] nav#navbar form[role="search"] input#searchInput::placeholder,
+nav#navbar form[role="search"] input#searchInput::placeholder,
+:root[data-theme="light"] nav#navbar form[role="search"] input#searchInput::placeholder {
+  color: var(--input-placeholder) !important;
+  opacity: 1 !important;
 }
 @media(max-width: 992px) {
   .form-control {

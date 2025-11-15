@@ -418,3 +418,21 @@ footer#footer textarea,
 footer#footer .form-control {
   color: #222 !important;
 }
+/* Inline override: force footer text white across pages (safe, keeps inputs dark) */
+  #footer, #footer h1, #footer h2, #footer h3, #footer h4, #footer h5, #footer h6,
+    #footer p, #footer span, #footer a, #footer .social-icons a, #footer .form-check-label,
+    #footer .form-label, #footer .form-text, #footer .invalid-feedback {
+      color: #ffffff !important;
+    }
+    /* Keep form inputs readable with dark text */
+    #footer input, #footer textarea, #footer .form-control {
+      color: #222 !important;
+    }
+    /* Links inside labels (privacy) keep accent but remain readable */
+    #footer .form-check-label a {
+      color: #fbbf24 !important;
+    }
+    /* Make invalid feedback clearly visible */
+    #footer .invalid-feedback {
+      color: #fcd34d !important;
+    }
