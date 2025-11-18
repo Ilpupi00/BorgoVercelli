@@ -1,0 +1,40 @@
+# Railway fix helper for Windows PowerShell
+# Usage: apri PowerShell nella root del progetto e lancia questo script con `.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Write-Host "\nScript completato: segui i comandi mostrati sopra per procedere." -ForegroundColor CyanWrite-Host "- Se il deploy fallisce, copia qui l'errore (logs) e ti aiuto a interpretarlo." -ForegroundColor MagentaWrite-Host "- Assicurati che tutte le variabili sensibili (es. DATABASE_URL) siano presenti nelle variables di Railway." -ForegroundColor YellowWrite-Host "- Verifica che il volume indicato in railway.toml (uploads-volume) sia creato nella dashboard Railway prima del deploy." -ForegroundColor YellowWrite-Host "\nNote importanti:" -ForegroundColor CyanWrite-Host "oppure, per un deploy esplicito: railway deploy" -ForegroundColor GreenWrite-Host "railway up" -ForegroundColor GreenWrite-Host "Per avviare un deploy o fare il push della versione corrente usa:" -ForegroundColor GreenWrite-Host "\nStep 7: Deploy / Up" -ForegroundColor CyanWrite-Host "Esegui: railway variables" -ForegroundColor GreenWrite-Host "\nStep 6: Controlla variabili d'ambiente impostate su Railway" -ForegroundColor CyanWrite-Host "Se conosci l'ID del progetto: railway link --project <projectId>" -ForegroundColor YellowWrite-Host "Esegui: railway link" -ForegroundColor GreenWrite-Host "\nStep 5: Collega la cartella al progetto Railway (se non è già linkato)" -ForegroundColor CyanWrite-Host "(aprirà il browser per autenticarti)" -ForegroundColor YellowWrite-Host "Esegui: railway login" -ForegroundColor GreenWrite-Host "\nStep 4: Login a Railway" -ForegroundColor CyanWrite-Host "npm install -g railway" -ForegroundColor GreenWrite-Host "Se non hai Railway CLI, installalo con:" -ForegroundColor GreenWrite-Host "\nStep 3: Verifica/installazione Railway CLI (npm global)" -ForegroundColor CyanWrite-Host "git fetch --all; git pull origin main" -ForegroundColor GreenWrite-Host "Esegui i comandi seguenti se non ci sono cambiamenti locali non committati:" -ForegroundColor YellowWrite-Host "\nStep 2: Sincronizza repository con remote (fetch + pull)" -ForegroundColor Cyangit remote -vgit statusWrite-Host "Step 1: Controllo stato Git locale" -ForegroundColor Cyan# Lo script non forza operazioni distruttive; guida attraverso i comandi consigliati.ailway-fix.ps1`.
