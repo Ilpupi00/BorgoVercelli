@@ -150,7 +150,7 @@
                                     data-stato="<%= notizia.pubblicata ? 'published' : 'draft' %>"
                                     data-titolo="<%= (notizia.titolo || '').toLowerCase() %>"
                                     data-contenuto="<%= (notizia.contenuto || '') %>"
-                                    data-autore="<%= notizia.autore_nome %> <%= notizia.autore_cognome %>"
+                                    data-autore="<%= notizia.autore || '' %>"
                                     data-data="<%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toISOString().split('T')[0] : '' %>">
                                     
                                     <!-- Image -->
@@ -211,10 +211,10 @@
                                         <div class="notizia-footer">
                                             <div class="notizia-author">
                                                 <div class="author-avatar">
-                                                    <%= notizia.autore_nome ? notizia.autore_nome.charAt(0).toUpperCase() : 'A' %>
+                                                    <%= notizia.autore ? notizia.autore.charAt(0).toUpperCase() : 'A' %>
                                                 </div>
                                                 <span class="author-name">
-                                                    <%= notizia.autore_nome || 'Admin' %> <%= notizia.autore_cognome || '' %>
+                                                    <%= notizia.autore || 'Admin' %>
                                                 </span>
                                             </div>
                                             
