@@ -309,7 +309,7 @@ Il progetto è attualmente deployato su **Railway** con:
 - ✅ Variabili d'ambiente sicure
 - ✅ Backup automatici
 
-**Accesso all'applicazione live**: [https://asdborgovercelli.app](https://asdborgovercelli.app)
+**Accesso all'applicazione live**: [https://www.asdborgovercelli.app](https://www.asdborgovercelli.app)
 
 ### Configurazione .env
 
