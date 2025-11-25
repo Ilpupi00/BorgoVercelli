@@ -124,9 +124,9 @@
                                                     <% } %>
                                                 </td>
                                                 <td>
-                                                    <% if (utente.status === 'banned') { %>
+                                                    <% if (utente.stato === 'bannato') { %>
                                                         <span class="badge bg-danger">Bannato</span>
-                                                    <% } else if (utente.status === 'suspended' && utente.suspended_until && new Date(utente.suspended_until) > new Date()) { %>
+                                                    <% } else if (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date()) { %>
                                                         <span class="badge bg-warning text-dark">Sospeso</span>
                                                     <% } else { %>
                                                         <span class="badge bg-success">Attivo</span>
@@ -140,7 +140,7 @@
                                                         <button class="btn btn-sm btn-primary" onclick="modificaUtente('<%= utente.id %>')" title="Modifica">
                                                             <i class="bi bi-pencil"></i>
                                                         </button>
-                                                        <% if (utente.status === 'banned' || (utente.status === 'suspended' && utente.suspended_until && new Date(utente.suspended_until) > new Date())) { %>
+                                                        <% if (utente.stato === 'bannato' || (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date())) { %>
                                                             <button class="btn btn-sm btn-success" onclick="revocaSospensioneBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')" title="Revoca">
                                                                 <i class="bi bi-arrow-clockwise"></i>
                                                             </button>

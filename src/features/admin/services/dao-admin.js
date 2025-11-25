@@ -19,8 +19,7 @@ function getCount(sql, params) {
                 console.error('Error getting count for stats:', err);
                 return reject(err);
             }
-            const row = result && result.rows && result.rows[0];
-            resolve(row && (row.count || 0) || 0);
+            resolve(result ? (result.count || 0) : 0);
         });
     });
 }
@@ -104,8 +103,7 @@ function countSquadreByCampionato(campionatoId) {
                 console.error('Errore conteggio squadre campionato:', err);
                 return reject(err);
             }
-            const row = result && result.rows && result.rows[0];
-            resolve(row ? (row.count || 0) : 0);
+            resolve(result ? (result.count || 0) : 0);
         });
     });
 }
@@ -124,8 +122,7 @@ function countNotiziePubblicate(dataInizio, dataFine) {
                 console.error('Errore conteggio notizie pubblicate:', err);
                 return reject(err);
             }
-            const row = result && result.rows && result.rows[0];
-            resolve(row ? (row.count || 0) : 0);
+            resolve(result ? (result.count || 0) : 0);
         });
     });
 }
@@ -147,8 +144,7 @@ function countEventiPubblicati(dataInizio, dataFine) {
                 console.error('Errore conteggio eventi pubblicati:', err);
                 return reject(err);
             }
-            const row = result && result.rows && result.rows[0];
-            resolve(row ? (row.count || 0) : 0);
+            resolve(result ? (result.count || 0) : 0);
         });
     });
 }
