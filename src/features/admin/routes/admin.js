@@ -277,12 +277,20 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
         const toIso = (d) => d.toISOString();
 
         // Notizie: pubblicate nel mese corrente vs mese precedente
-        const notizieCurrent = await adminDao.countNotiziePubblicate(toIso(startCurrent), toIso(startNext));
-        const notiziePrev = await adminDao.countNotiziePubblicate(toIso(startPrev), toIso(startCurrent));
+        const notizieCurrentRaw = await adminDao.countNotiziePubblicate(toIso(startCurrent), toIso(startNext));
+        const notiziePrevRaw = await adminDao.countNotiziePubblicate(toIso(startPrev), toIso(startCurrent));
+        const toSafeNumber = (v) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        };
+        const notizieCurrent = toSafeNumber(notizieCurrentRaw);
+        const notiziePrev = toSafeNumber(notiziePrevRaw);
 
         // Eventi: pubblicati nel mese corrente vs mese precedente (usa data_pubblicazione)
-        const eventiCurrent = await adminDao.countEventiPubblicati(toIso(startCurrent), toIso(startNext));
-        const eventiPrev = await adminDao.countEventiPubblicati(toIso(startPrev), toIso(startCurrent));
+        const eventiCurrentRaw = await adminDao.countEventiPubblicati(toIso(startCurrent), toIso(startNext));
+        const eventiPrevRaw = await adminDao.countEventiPubblicati(toIso(startPrev), toIso(startCurrent));
+        const eventiCurrent = toSafeNumber(eventiCurrentRaw);
+        const eventiPrev = toSafeNumber(eventiPrevRaw);
 
         // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
         let utentiVar = null;
@@ -292,8 +300,10 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
             const last = arr[arr.length - 1];
             const prev = arr[arr.length - 2];
             const calc = (cur, prv) => {
-                const delta = (cur || 0) - (prv || 0);
-                const pct = (prv && prv !== 0) ? Math.round((delta / prv) * 100) : null;
+                const a = toSafeNumber(cur || 0);
+                const b = toSafeNumber(prv || 0);
+                const delta = a - b;
+                const pct = (b !== 0) ? Math.round((delta / b) * 100) : null;
                 const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
                 return { delta, pct, direction };
             };
@@ -302,8 +312,10 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
         }
 
         const calcSimpleVar = (cur, prev) => {
-            const delta = (cur || 0) - (prev || 0);
-            const pct = (prev && prev !== 0) ? Math.round((delta / prev) * 100) : null;
+            const a = toSafeNumber(cur || 0);
+            const b = toSafeNumber(prev || 0);
+            const delta = a - b;
+            const pct = (b !== 0) ? Math.round((delta / b) * 100) : null;
             const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
             return { delta, pct, direction };
         };
