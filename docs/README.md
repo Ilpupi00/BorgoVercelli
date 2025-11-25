@@ -16,6 +16,22 @@
 
 ---
 
+## 🔔 Aggiornamenti recenti (Nov 2025)
+
+- Aggiunto supporto PWA: `src/public/manifest.json` collegato globalmente (`<link rel="manifest">`).
+- Migliorata la gestione account:
+  - Controlli lato server per utenti **bannati** e **sospesi** (login, prenotazioni, recensioni).
+  - Login restituisce risposte con `type: 'banned'` o `type: 'suspended'` quando applicabile.
+  - Sospensioni scadute vengono **riattivate automaticamente** al login.
+- Frontend: aggiornato `login.js` per mostrare messaggi specifici per account bannato/sospeso.
+- Admin: corrette funzioni di conteggio statistiche per evitare `NaN`/`Infinity` e normalizzare valori numerici (fix in `src/features/admin/services/dao-admin.js` e `src/features/admin/routes/admin.js`).
+- Gestore Utenti: corretti i template per usare i campi `stato` e `data_fine_sospensione` (prima venivano usati nomi non coerenti).
+- UI: tema scuro migliorato per il modal Privacy/Regolamento (stili aggiunti in `Login.css`).
+
+Note rapide per deploy e test:
+- Verificare la presenza di `/manifest.json` dopo il deploy (serve da `src/public`).
+- Creare icone ottimizzate 192x192 e 512x512 per migliorare compatibilità PWA.
+
 ## 📖 Indice
 
 - [Visione e Missione](#-visione-e-missione)
@@ -428,6 +444,28 @@ Login utente con credenziali.
 }
 ```
 
+// Error responses (examples)
+
+```json
+// Invalid credentials
+HTTP 401
+{ "error": "Login fallito" }
+
+// Account banned
+HTTP 403
+{ "error": "Account bannato", "type": "banned", "message": "Il tuo account è stato bannato permanentemente." }
+
+// Account suspended (temporary)
+HTTP 403
+{
+  "error": "Account sospeso",
+  "type": "suspended",
+  "message": "Il tuo account è sospeso fino al 01/12/2025 12:00.",
+  "dataFine": "01/12/2025 12:00",
+  "motivo": "Comportamento non conforme"
+}
+```
+
 #### `POST /register`
 Registrazione nuovo utente.
 
@@ -605,7 +643,7 @@ Configurazioni sistema.
 
 ### Open Source Libraries
 - [Express.js](https://expressjs.com/) - Web framework
-- [SQLite](https://www.sqlite.org/) - Database
+- [Postgres](https://www.postgresql.org/) - Database
 - [Bootstrap](https://getbootstrap.com/) - UI Framework
 - [EJS](https://ejs.co/) - Templating
 - E molte altre (vedi `package.json`)
@@ -646,7 +684,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ## 📞 Contatti
 
 ### Borgo Vercelli
-- 🌐 **Website**: [www.borgovercelli.it](http://www.borgovercelli.it)
+- 🌐 **Website**: [www.borgovercelli.it](https://asdborgovercelli.app)
 - 🚀 **Live App**: [Deployed on Railway](https://asdborgovercelli.app)
 - 📧 **Email**: info@borgovercelli.it
 - 📱 **Social**: [Facebook](https://facebook.com/borgovercelli) · [Instagram](https://instagram.com/borgovercelli)
