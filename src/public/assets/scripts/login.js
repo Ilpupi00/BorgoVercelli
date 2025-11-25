@@ -47,7 +47,21 @@ class LoginPage {
             if (res.ok) {
                 window.location.href = '/homepage';
             } else {
-                this.showError('Email o password errate. Riprova.');
+                const data = await res.json();
+                
+                // Gestione account bannato
+                if (data.type === 'banned') {
+                    this.showError(data.message || 'Il tuo account è stato bannato permanentemente.');
+                } 
+                // Gestione account sospeso
+                else if (data.type === 'suspended') {
+                    const msg = data.message || `Il tuo account è sospeso fino al ${data.dataFine || 'data non specificata'}. Motivo: ${data.motivo || 'Non specificato'}`;
+                    this.showError(msg);
+                } 
+                // Errore generico
+                else {
+                    this.showError(data.error || 'Email o password errate. Riprova.');
+                }
             }
         } catch (error) {
             this.showError('Errore di connessione. Riprova più tardi.');

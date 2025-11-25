@@ -144,6 +144,30 @@ a:hover {
   border-color: #0056b3;
 }
 
+/* Dark theme support for privacy modal */
+[data-theme="dark"] .privacy-modal {
+  background: #1a1a1a;
+  border: 1px solid #333;
+}
+
+[data-theme="dark"] .privacy-modal h2 {
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .privacy-modal p {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .privacy-modal .btn-accept {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+[data-theme="dark"] .privacy-modal .btn-accept:hover {
+  background-color: #0a58ca;
+  border-color: #0a58ca;
+}
+
 /* Responsive adjustments for registration card */
 @media (max-width: 576px) {
   .login-card {

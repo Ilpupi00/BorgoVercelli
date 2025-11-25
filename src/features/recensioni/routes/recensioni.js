@@ -52,6 +52,31 @@ router.get('/recensioni/all', async (req, res) => {
 // Salva una nuova recensione
 router.post('/recensione', isLoggedIn, async (req, res) => {
     try {
+        // Verifica stato utente
+        if (req.user.isBannato && req.user.isBannato()) {
+            return res.status(403).json({ 
+                success: false,
+                error: 'Account bannato', 
+                type: 'banned',
+                message: 'Non puoi scrivere recensioni perché il tuo account è stato bannato.' 
+            });
+        }
+        
+        if (req.user.isSospeso && req.user.isSospeso()) {
+            const moment = require('moment');
+            const dataFine = req.user.data_fine_sospensione 
+                ? moment(req.user.data_fine_sospensione).format('DD/MM/YYYY HH:mm')
+                : 'Non specificato';
+            return res.status(403).json({ 
+                success: false,
+                error: 'Account sospeso', 
+                type: 'suspended',
+                message: `Non puoi scrivere recensioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${req.user.motivo_sospensione || 'Non specificato'}`,
+                dataFine: dataFine,
+                motivo: req.user.motivo_sospensione || 'Non specificato'
+            });
+        }
+        
         const { valutazione, titolo, contenuto, entita_tipo, entita_id } = req.body;
         console.log('DEBUG RECENSIONE POST: req.user =', req.user);
         const utente_id = req.user?.id;

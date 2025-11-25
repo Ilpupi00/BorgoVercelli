@@ -6,6 +6,7 @@
  */
 
 const dao = require('../../features/notizie/services/dao-notizie');
+const moment = require('moment');
 
 /**
  * Middleware per verificare se l'utente è autenticato
@@ -24,6 +25,15 @@ const dao = require('../../features/notizie/services/dao-notizie');
  */
 const isLoggedIn = function(req, res, next) {
     if (req.isAuthenticated && req.isAuthenticated()) {
+        // Safety: ensure req.user is present. In some edge cases passport may report
+        // isAuthenticated() true while req.user is null/undefined; handle gracefully.
+        if (!req.user) {
+            console.error('isLoggedIn: isAuthenticated() true but req.user is null');
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+            return res.status(401).render('error', { message: 'Accesso negato: devi essere loggato', error: { status: 401 } });
+        }
         // Verifica stato utente (sospeso/bannato)
         if (req.user.isBannato && req.user.isBannato()) {
             req.logout(function(err) {

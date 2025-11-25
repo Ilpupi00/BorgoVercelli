@@ -29,6 +29,29 @@ router.get('/campi/:id/disponibilita', async (req, res) => {
 
 // 3. Prenota un campo
 router.post('/prenotazioni', isLoggedIn, async (req, res) => {
+    // Verifica stato utente
+    if (req.user.isBannato && req.user.isBannato()) {
+        return res.status(403).json({ 
+            error: 'Account bannato', 
+            type: 'banned',
+            message: 'Non puoi effettuare prenotazioni perché il tuo account è stato bannato.' 
+        });
+    }
+    
+    if (req.user.isSospeso && req.user.isSospeso()) {
+        const moment = require('moment');
+        const dataFine = req.user.data_fine_sospensione 
+            ? moment(req.user.data_fine_sospensione).format('DD/MM/YYYY HH:mm')
+            : 'Non specificato';
+        return res.status(403).json({ 
+            error: 'Account sospeso', 
+            type: 'suspended',
+            message: `Non puoi effettuare prenotazioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${req.user.motivo_sospensione || 'Non specificato'}`,
+            dataFine: dataFine,
+            motivo: req.user.motivo_sospensione || 'Non specificato'
+        });
+    }
+    
     const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note } = req.body;
     console.log('[PRENOTAZIONE] Dati ricevuti:', req.body);
     if (!campo_id || !data_prenotazione || !ora_inizio || !ora_fine) {

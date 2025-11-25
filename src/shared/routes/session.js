@@ -11,6 +11,40 @@ router.post('/session', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ error: info?.message || 'Login fallito' });
+        
+        // Verifica stato utente prima del login
+        if (user.isBannato && user.isBannato()) {
+            return res.status(403).json({ 
+                error: 'Account bannato', 
+                type: 'banned',
+                message: 'Il tuo account è stato bannato permanentemente. Contatta l\'amministrazione per maggiori informazioni.' 
+            });
+        }
+        
+        if (user.isSospeso && user.isSospeso()) {
+            // Verifica se la sospensione è scaduta
+            if (user.isSospensioneScaduta && user.isSospensioneScaduta()) {
+                // Sospensione scaduta, riattiva automaticamente
+                const userDao = require('../../features/users/services/dao-user');
+                userDao.revocaSospensioneBan(user.id).catch(err => {
+                    console.error('Errore riattivazione automatica:', err);
+                });
+                // Continua con il login
+            } else {
+                const moment = require('moment');
+                const dataFine = user.data_fine_sospensione 
+                    ? moment(user.data_fine_sospensione).format('DD/MM/YYYY HH:mm')
+                    : 'Non specificato';
+                return res.status(403).json({ 
+                    error: 'Account sospeso', 
+                    type: 'suspended',
+                    message: `Il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${user.motivo_sospensione || 'Non specificato'}`,
+                    dataFine: dataFine,
+                    motivo: user.motivo_sospensione || 'Non specificato'
+                });
+            }
+        }
+        
         req.logIn(user, (err) => {
             if (err) return next(err);
             
