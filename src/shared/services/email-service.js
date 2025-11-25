@@ -623,7 +623,7 @@ exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFin
                     }
                     .header {
                         background: linear-gradient(135deg, var(--warning) 0%, #ff9800 100%);
-                        color: white;
+                        color: #0d6efd;
                         padding: 30px 20px;
                         text-align: center;
                     }
@@ -749,7 +749,7 @@ exports.sendBanEmail = async function(toEmail, userName, motivo) {
                     }
                     .header {
                         background: linear-gradient(135deg, var(--danger) 0%, #c82333 100%);
-                        color: white;
+                        color: #0d6efd;
                         padding: 30px 20px;
                         text-align: center;
                     }
@@ -876,7 +876,7 @@ exports.sendRevocaEmail = async function(toEmail, userName) {
                     }
                     .header {
                         background: linear-gradient(135deg, var(--success) 0%, #22b14c 100%);
-                        color: white;
+                        color: #0d6efd;
                         padding: 30px 20px;
                         text-align: center;
                     }
