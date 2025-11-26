@@ -1,0 +1,162 @@
+/* Mobile-first modern Web 2.0 styles for Calendario Prenotazioni */
+:root{
+    --accent-1: #5b8cff; /* primary */
+    --accent-2: #6ee7b7; /* secondary */
+    --bg-glass: rgba(255,255,255,0.65);
+    --muted: #6b7280;
+    --card-radius: 14px;
+    --shadow-1: 0 6px 18px rgba(19,24,33,0.06);
+    --shadow-2: 0 10px 30px rgba(19,24,33,0.08);
+}
+
+/* Section container */
+.calendario-section{
+    padding: 1.25rem 1rem;
+    margin: 1.25rem 0;
+    background: linear-gradient(180deg, rgba(91,140,255,0.06), rgba(110,231,183,0.02));
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-1);
+    backdrop-filter: saturate(120%) blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.calendario-section .section-header{
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.calendario-section .section-title{
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f1724;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Header subtitle / small text */
+.calendario-section .section-header .subtle{
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+#calendarioPrenotazioni{
+    margin-top: 0.85rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Primary CTA style tuned for the section */
+#calendarioPrenotazioni .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: var(--shadow-2);
+    transition: transform .14s ease, box-shadow .14s ease, opacity .14s ease;
+    border: none;
+}
+
+#calendarioPrenotazioni .btn i{
+    font-size: 1.05rem;
+}
+
+#calendarioPrenotazioni .btn.btn-primary{
+    background: linear-gradient(135deg, var(--accent-1), #3fc0a7 80%);
+    color: white;
+}
+
+#calendarioPrenotazioni .btn.btn-primary:hover,
+#calendarioPrenotazioni .btn.btn-primary:focus{
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(59,115,230,0.16);
+    outline: none;
+}
+
+/* Micro-card for calendar preview when needed */
+.calendario-preview{
+    margin-top: 0.9rem;
+    width: 100%;
+    max-width: 560px;
+    background: var(--bg-glass);
+    border-radius: 12px;
+    padding: 0.9rem;
+    box-shadow: var(--shadow-1);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.calendario-preview .meta{
+    text-align: left;
+}
+
+.calendario-preview .meta .date{
+    font-weight: 700;
+    color: #0b1220;
+}
+
+.calendario-preview .meta .info{
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+/* Make badges and icons pop */
+.calendario-section .bi{
+    color: var(--accent-1);
+}
+
+/* Accessibility: visible focus for keyboard users */
+.calendario-section .btn:focus{
+    box-shadow: 0 0 0 4px rgba(91,140,255,0.15);
+}
+
+/* Responsive: larger screens */
+@media (min-width: 768px){
+    .calendario-section{
+        padding: 1.5rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .calendario-section .section-header{
+        text-align: left;
+        align-items: flex-start;
+        flex: 1 1 auto;
+    }
+
+    #calendarioPrenotazioni{
+        justify-content: center; /* keep CTA centered on larger screens */
+        width: auto;
+        margin-top: 0;
+    }
+
+    /* If a specific section requests full-centering, apply scoped overrides */
+    .calendario-section.calendario-center{
+        justify-content: center; /* center the whole internal content */
+    }
+
+    .calendario-section.calendario-center .section-header{
+        text-align: center;
+        align-items: center;
+        flex: 0 0 auto; /* avoid growing to push content */
+    }
+
+    .calendario-section .section-title{
+        font-size: 1.15rem;
+    }
+}
+
+/* Slightly reduce motion on prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+    #calendarioPrenotazioni .btn{ transition: none; transform: none; }
+}

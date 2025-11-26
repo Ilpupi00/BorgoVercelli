@@ -1071,4 +1071,26 @@ router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+router.get('/prenotazione/calendario',isLoggedIn,isAdmin,async(req,res)=>{
+    try{
+        // Recupera tutte le prenotazioni con dati correlati
+        const daoPrenotazione = require('../../prenotazioni/services/dao-prenotazione');
+        const prenotazioni = await daoPrenotazione.getAllPrenotazioni();
+        
+        // Recupera tutti i campi attivi per i filtri
+        const daoCampi = require('../../prenotazioni/services/dao-campi');
+        const campi = await daoCampi.getCampi(true);
+        
+        // Renderizza la view `calendario.ejs` presente in `src/features/prenotazioni/views`
+        res.render('calendario', {
+            prenotazioni: prenotazioni,
+            campi: campi,
+            user: req.user
+        });
+    }catch(err){
+        console.error('Errore nel caricamento del calendario prenotazioni:', err);
+        res.status(500).send('Errore interno del server');
+    }
+});
+
 module.exports = router;

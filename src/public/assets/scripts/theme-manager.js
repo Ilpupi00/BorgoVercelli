@@ -222,9 +222,10 @@ class ThemeManager {
         if (toggleBtn) {
             const icon = toggleBtn.querySelector('i');
             if (icon) {
-                icon.className = effectiveTheme === this.themes.DARK 
-                    ? 'bi bi-sun-fill' 
-                    : 'bi bi-moon-stars-fill';
+                // Show icon that represents the CURRENT theme (moon for dark, sun for light)
+                icon.className = effectiveTheme === this.themes.DARK
+                    ? 'bi bi-moon-stars-fill'
+                    : 'bi bi-sun-fill';
             }
         }
         

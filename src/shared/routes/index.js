@@ -373,4 +373,6 @@ router.post('/contatti', async (req, res) => {
         return res.status(500).json({ error: 'Errore durante l\'invio del messaggio.' });
     }
 });
+
+
 module.exports = router;
