@@ -36,16 +36,18 @@ const makeCampo = (row) => {
 }
 
 /**
- * Recupera tutti i campi attivi (con immagine principale se presente)
+ * Recupera tutti i campi (con immagine principale se presente)
  * @async
+ * @param {boolean} [soloAttivi=true] - Se true, ritorna solo campi attivi; se false, ritorna tutti i campi
  * @returns {Promise<Array<Campo>>}
  */
-exports.getCampi = function(){
+exports.getCampi = function(soloAttivi = true){
     const sql = `
         SELECT C.id, C.nome, C.indirizzo, C.tipo_superficie, C.dimensioni, C.illuminazione, C.coperto, C.spogliatoi, C.capienza_pubblico, C.attivo, C.created_at, C.updated_at, C.descrizione, C.docce, I.url as immagine_url, I.id as immagine_id
         FROM CAMPI C
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'Campo' AND I.entita_id = C.id AND I.ordine = 1
-        WHERE C.attivo = true
+        ${soloAttivi ? 'WHERE C.attivo = true' : ''}
+        ORDER BY C.nome
     `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, campi) => {
@@ -163,6 +165,54 @@ exports.updateOrarioCampo = function(id, oraInizio, oraFine, attivo) {
                 return reject({ error: 'Error updating orario: ' + err.message });
             }
             // result.rowCount contains number of affected rows for Postgres wrapper
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
+        });
+    });
+}
+
+/**
+ * Aggiorna parzialmente un orario di campo (solo i campi forniti)
+ * @async
+ * @param {number} id
+ * @param {Object} fields - Oggetto con i campi da aggiornare
+ * @param {string} [fields.ora_inizio]
+ * @param {string} [fields.ora_fine]
+ * @param {boolean} [fields.attivo]
+ * @returns {Promise<Object>} { success: true, changes }
+ */
+exports.updateOrarioCampoPartial = function(id, fields) {
+    const updates = [];
+    const params = [];
+    
+    if (fields.ora_inizio !== undefined) {
+        updates.push('ora_inizio = ?');
+        params.push(fields.ora_inizio);
+    }
+    if (fields.ora_fine !== undefined) {
+        updates.push('ora_fine = ?');
+        params.push(fields.ora_fine);
+    }
+    if (fields.attivo !== undefined) {
+        updates.push('attivo = ?');
+        params.push(fields.attivo ? true : false);
+    }
+    
+    if (updates.length === 0) {
+        return Promise.reject({ error: 'No fields to update' });
+    }
+    
+    updates.push('updated_at = NOW()');
+    params.push(id);
+    
+    const sql = `UPDATE ORARI_CAMPI SET ${updates.join(', ')} WHERE id = ?`;
+    
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, params, function(err, result) {
+            if (err) {
+                console.error('Errore SQL update orario campo:', err);
+                return reject({ error: 'Error updating orario: ' + err.message });
+            }
             const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
             resolve({ success: true, changes });
         });

@@ -488,7 +488,7 @@ router.put('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const orarioId = req.params.id;
         const { ora_inizio, ora_fine, attivo } = req.body;
-        await campiDao.updateOrarioCampo(orarioId, ora_inizio, ora_fine, attivo ? 1 : 0);
+        await campiDao.updateOrarioCampoPartial(orarioId, { ora_inizio, ora_fine, attivo });
         res.json({ success: true });
     } catch (err) {
         console.error('Errore nell\'aggiornamento orario:', err);
@@ -510,7 +510,7 @@ router.delete('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) =>
 // Route per la gestione campi
 router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
     try {
-        const campi = await campiDao.getCampi();
+        const campi = await campiDao.getCampi(false); // false = mostra anche campi inattivi per admin
         res.render('Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
     } catch (err) {
         console.error('Errore nel caricamento dei campi:', err);
