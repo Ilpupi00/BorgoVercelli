@@ -353,7 +353,7 @@ router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, isAdmin, async (req, 
     try {
         const id = req.params.id;
         // usa l'API esistente del DAO per aggiornare lo stato
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'confermata');
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'confermata', null);
         if (result && result.success) {
             return res.json({ success: true, message: 'Prenotazione confermata con successo' });
         }
@@ -383,7 +383,8 @@ router.delete('/admin/prenotazioni/:id', isLoggedIn, isAdmin, async (req, res) =
 router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'annullata');
+        // Admin annulla - imposta annullata_da = 'admin'
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'annullata', 'admin');
         if (result && result.success) {
             return res.json({ success: true, message: 'Prenotazione annullata con successo' });
         }
@@ -398,7 +399,8 @@ router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, r
 router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'in_attesa');
+        // Riattivazione - annullata_da viene resettato a NULL automaticamente dal DAO
+        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'in_attesa', null);
         if (result && result.success) {
             return res.json({ success: true, message: 'Prenotazione riattivata con successo' });
         }

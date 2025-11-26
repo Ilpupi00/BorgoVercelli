@@ -79,14 +79,48 @@ router.get('/prenotazioni/:id', async (req, res) => {
 });
 
 // 5. Aggiorna stato prenotazione
-router.patch('/prenotazioni/:id/stato', async (req, res) => {
+router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
     const id = req.params.id;
     const { stato } = req.body;
     if (!stato) return res.status(400).json({ error: 'Stato richiesto' });
+    
+    console.log(`[ROUTE] PATCH /prenotazioni/${id}/stato - stato richiesto: ${stato}`);
+    console.log(`[ROUTE] User:`, req.user ? `id=${req.user.id}, tipo=${req.user.tipo_utente_id}` : 'NON AUTENTICATO');
+    
     try {
-        const result = await daoPrenotazione.updateStatoPrenotazione(id, stato);
+        // Verifica permessi per riattivazione
+        if (stato === 'in_attesa' || stato === 'confermata') {
+            // Se si sta riattivando una prenotazione annullata, controlla chi l'ha annullata
+            const prenotazione = await daoPrenotazione.getPrenotazioneById(id);
+            console.log(`[ROUTE] Prenotazione attuale:`, prenotazione);
+            
+            if (prenotazione && prenotazione.stato === 'annullata' && prenotazione.annullata_da === 'admin') {
+                // Solo gli admin possono riattivare prenotazioni annullate da admin
+                const isAdmin = req.user && req.user.tipo_utente_id === 1;
+                console.log(`[ROUTE] Tentativo riattivazione prenotazione annullata da admin. isAdmin=${isAdmin}`);
+                if (!isAdmin) {
+                    return res.status(403).json({ 
+                        error: 'Non autorizzato', 
+                        message: 'Non puoi riattivare una prenotazione annullata dall\'amministratore' 
+                    });
+                }
+            }
+        }
+        
+        // Determina chi sta annullando (se applicabile)
+        let annullata_da = null;
+        if (stato === 'annullata') {
+            const isAdmin = req.user && req.user.tipo_utente_id === 1;
+            annullata_da = isAdmin ? 'admin' : 'user';
+            console.log(`[ROUTE] Annullamento da: ${annullata_da} (isAdmin=${isAdmin})`);
+        }
+        
+        console.log(`[ROUTE] Chiamata DAO con: id=${id}, stato=${stato}, annullata_da=${annullata_da}`);
+        const result = await daoPrenotazione.updateStatoPrenotazione(id, stato, annullata_da);
+        console.log(`[ROUTE] Risultato DAO:`, result);
         res.json(result);
     } catch (err) {
+        console.error(`[ROUTE] Errore:`, err);
         res.status(500).json({ error: err.message });
     }
 });

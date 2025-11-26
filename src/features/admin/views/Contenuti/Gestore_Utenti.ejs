@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Contenuti_Global.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Table_Responsive.css">
     <link rel="stylesheet" href="/assets/styles/Gestore_Utenti.css">
     <link rel="stylesheet" href="/assets/styles/theme-admin.css">
 </head>
@@ -80,6 +81,107 @@
                                 </div>
                             </div>
 
+                        <!-- Mobile Cards View (nascosta su desktop) -->
+                        <div class="admin-mobile-cards" id="utentiMobileCards">
+                            <% if (utenti && utenti.length > 0) { %>
+                                <% utenti.forEach(utente => { %>
+                                    <div class="admin-mobile-card" 
+                                         data-utente-id="<%= utente.id %>" 
+                                         data-nome="<%= (utente.nome || '').toLowerCase() %>"
+                                         data-cognome="<%= (utente.cognome || '').toLowerCase() %>"
+                                         data-email="<%= (utente.email || '').toLowerCase() %>"
+                                         data-telefono="<%= (utente.telefono || '').toLowerCase() %>"
+                                         data-tipo="<%= utente.tipo_utente_id %>">
+                                        
+                                        <!-- Header Card -->
+                                        <div class="mobile-card-header">
+                                            <h3 class="mobile-card-title"><%= utente.nome %> <%= utente.cognome %></h3>
+                                            <span class="mobile-card-id">#<%= utente.id %></span>
+                                        </div>
+                                        
+                                        <!-- Body Card -->
+                                        <div class="mobile-card-body">
+                                            <div class="mobile-info-row">
+                                                <span class="mobile-info-label"><i class="bi bi-envelope me-1"></i> Email:</span>
+                                                <span class="mobile-info-value"><%= utente.email %></span>
+                                            </div>
+                                            
+                                            <div class="mobile-info-row">
+                                                <span class="mobile-info-label"><i class="bi bi-telephone me-1"></i> Telefono:</span>
+                                                <span class="mobile-info-value"><%= utente.telefono || '-' %></span>
+                                            </div>
+                                            
+                                            <div class="mobile-info-row">
+                                                <span class="mobile-info-label"><i class="bi bi-person-badge me-1"></i> Tipo:</span>
+                                                <span class="mobile-info-value">
+                                                    <% if (utente.tipo_utente_id === 1) { %>
+                                                        <span class="mobile-badge mobile-badge-admin">Admin</span>
+                                                    <% } else if (utente.tipo_utente_id === 2) { %>
+                                                        <span class="mobile-badge mobile-badge-presidente">Presidente</span>
+                                                    <% } else if (utente.tipo_utente_id === 3) { %>
+                                                        <span class="mobile-badge mobile-badge-vice">Vice Presidente</span>
+                                                    <% } else if (utente.tipo_utente_id === 4) { %>
+                                                        <span class="mobile-badge mobile-badge-dirigente">Dirigente</span>
+                                                    <% } else if (utente.tipo_utente_id === 5) { %>
+                                                        <span class="mobile-badge mobile-badge-segretario">Segretario</span>
+                                                    <% } else { %>
+                                                        <span class="mobile-badge mobile-badge-utente">Utente</span>
+                                                    <% } %>
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="mobile-info-row">
+                                                <span class="mobile-info-label"><i class="bi bi-shield-check me-1"></i> Stato:</span>
+                                                <span class="mobile-info-value">
+                                                    <% if (utente.stato === 'bannato') { %>
+                                                        <span class="mobile-badge mobile-badge-bannato">Bannato</span>
+                                                    <% } else if (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date()) { %>
+                                                        <span class="mobile-badge mobile-badge-sospeso">Sospeso</span>
+                                                    <% } else { %>
+                                                        <span class="mobile-badge mobile-badge-attivo">Attivo</span>
+                                                    <% } %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Footer Card con azioni -->
+                                        <div class="mobile-card-footer">
+                                            <div class="mobile-card-actions">
+                                                <button class="mobile-action-btn mobile-btn-info" onclick="visualizzaUtente('<%= utente.id %>')" title="Visualizza">
+                                                    <i class="bi bi-eye"></i><span class="d-none d-sm-inline ms-1">Visualizza</span>
+                                                </button>
+                                                <button class="mobile-action-btn mobile-btn-primary" onclick="modificaUtente('<%= utente.id %>')" title="Modifica">
+                                                    <i class="bi bi-pencil"></i><span class="d-none d-sm-inline ms-1">Modifica</span>
+                                                </button>
+                                                <% if (utente.stato === 'bannato' || (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date())) { %>
+                                                    <button class="mobile-action-btn mobile-btn-success" onclick="revocaSospensioneBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')" title="Revoca">
+                                                        <i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline ms-1">Revoca</span>
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="mobile-action-btn mobile-btn-warning" onclick="mostraSospendiBan('<%= utente.id %>', '<%= utente.nome %>', '<%= utente.cognome %>')" title="Sospendi/Banna">
+                                                        <i class="bi bi-ban"></i><span class="d-none d-sm-inline ms-1">Sospendi</span>
+                                                    </button>
+                                                <% } %>
+                                                <button class="mobile-action-btn mobile-btn-danger" onclick="eliminaUtente('<%= utente.id %>')" title="Elimina">
+                                                    <i class="bi bi-trash"></i><span class="d-none d-sm-inline ms-1">Elimina</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="mobile-empty-state">
+                                    <i class="bi bi-inbox mobile-empty-icon"></i>
+                                    <h5 class="mobile-empty-title">Nessun utente presente</h5>
+                                    <p class="mobile-empty-text">Crea il primo utente per iniziare</p>
+                                    <button class="btn btn-primary" onclick="creaUtente()">
+                                        <i class="bi bi-person-plus me-2"></i>Crea Utente
+                                    </button>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Desktop Table View (nascosta su mobile) -->
                         <div class="table-responsive">
                             <table class="table table-hover align-middle" id="utentiTable">
                                 <thead>

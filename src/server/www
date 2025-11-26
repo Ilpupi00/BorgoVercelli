@@ -22,6 +22,30 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
+// Log dettagliati su eventuali crash o exit del processo
+process.on('uncaughtException', (err) => {
+  console.error('[process] uncaughtException:', err && err.stack ? err.stack : err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[process] unhandledRejection at:', promise, 'reason:', reason);
+});
+
+process.on('exit', (code) => {
+  console.log('[process] exit event with code:', code);
+});
+
+process.on('SIGINT', () => {
+  console.log('[process] SIGINT received, shutting down');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('[process] SIGTERM received, shutting down');
+  process.exit(0);
+});
+
+
 /**
  * Listen on provided port, on all network interfaces.
  */

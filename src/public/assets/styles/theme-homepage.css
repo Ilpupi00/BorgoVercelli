@@ -11,12 +11,12 @@
     overflow: visible !important;
 }
 
-/* Navbar Fixed - Only Dark Theme (overrides the above) */
+/* Navbar Fixed - Only Dark Theme (overrides the above)
+   Use `sticky` instead of `fixed` to preserve document flow and
+   avoid overlaying hero/main content when switching to dark mode. */
 :root[data-theme="dark"] #navbar {
-    position: fixed !important;
+    position: sticky !important;
     top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
     z-index: 1030 !important;
 }
 

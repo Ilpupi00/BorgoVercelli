@@ -194,6 +194,7 @@ body {
     border: none;
 }
 
+.card-header-custom h3,
 .card-header-custom h5 {
     font-weight: 700;
     margin: 0;
@@ -208,6 +209,7 @@ body {
 
 .prenotazione-info {
     flex: 1;
+    margin: 0;
 }
 
 .info-item {
@@ -239,18 +241,23 @@ body {
     gap: 0.25rem;
 }
 
+/* Semantica corretta per dt/dd */
+.info-content dt,
 .info-label {
     font-size: 0.75rem;
     color: #6c757d;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
+    margin: 0;
 }
 
+.info-content dd,
 .info-value {
     font-size: 0.95rem;
     color: #2c3e50;
     font-weight: 500;
+    margin: 0;
 }
 
 /* Status Badges */
@@ -299,11 +306,69 @@ body {
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.3s ease;
+    border: 2px solid;
 }
 
-.card-actions .btn:hover {
+.card-actions .btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pulsante Riattiva - Verde brillante e molto visibile */
+.card-actions .btn-outline-success {
+    border-color: #28a745;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.card-actions .btn-outline-success:hover {
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Pulsante Annullata da Admin - Grigio chiaro e disabilitato */
+.card-actions .btn-outline-secondary:disabled,
+.card-actions .btn-admin-locked {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #ced4da;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.75;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.card-actions .btn-outline-secondary:disabled i,
+.card-actions .btn-admin-locked i {
+    color: #adb5bd;
+}
+
+/* Pulsante Dettagli */
+.card-actions .btn-outline-primary {
+    border-color: #667eea;
+    color: #667eea;
+    background: white;
+}
+
+.card-actions .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+/* Pulsante Annulla */
+.card-actions .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    background: white;
+}
+
+.card-actions .btn-outline-danger:hover {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-color: #dc3545;
+    color: white;
 }
 
 /* Card Footer */

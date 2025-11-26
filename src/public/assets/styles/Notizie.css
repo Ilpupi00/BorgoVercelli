@@ -41,6 +41,12 @@
     overflow: hidden;
     border-bottom: 1px solid #e9ecef;
 }
+
+/* Garantisce spazio in fondo alla hero per evitare che il contenuto successivo
+   si sovrapponga visivamente (utile quando si usa margin negativo altrove) */
+.hero-section-notizia {
+    padding-bottom: 5rem; /* leggero incremento per separazione */
+}
     
 .hero-section-notizia::before {
     content: '';
@@ -64,7 +70,7 @@ body {
 
 .main-content {
     background: #ffffff;
-    margin-top: -2rem;
+    margin-top: 0; /* rimosso margin negativo per evitare sovrapposizioni */
     position: relative;
     padding: 3rem 0;
 }
@@ -407,7 +413,7 @@ body {
     }
 
     .main-content {
-        margin-top: -3rem;
+        margin-top: 0; /* evita overlap su tablet */
         padding: 4rem 0;
     }
 
@@ -432,7 +438,7 @@ body {
     }
 
     .main-content {
-        margin-top: -4rem;
+        margin-top: 0; /* evita overlap su desktop */
         padding: 5rem 0;
     }
 
@@ -697,4 +703,37 @@ body {
     .search-filters-card {
         padding: 1rem;
     }
+}
+
+/* Dark-mode fixes: evita che i testi dei card vengano "tagliati" in modalità scura.
+   Alcuni sistemi/renderer possono ridurre il rientro dei discendenti o cambiare
+   il rendering dei font in dark mode. Aumentiamo leggermente il line-height e
+   aggiungiamo un piccolo padding inferiore per evitare che alcune lettere vengano
+   ritagliate quando si usa -webkit-line-clamp / overflow:hidden. */
+:root[data-theme="dark"] .card-title {
+    line-height: 1.4; /* leggermente più alto per evitare taglio dei discendenti */
+    padding-bottom: 0.12rem;
+    -webkit-line-clamp: 2;
+}
+
+:root[data-theme="dark"] .card-excerpt {
+    line-height: 1.6;
+    padding-bottom: 0.12rem;
+    -webkit-line-clamp: 2;
+}
+
+:root[data-theme="dark"] .card-content {
+    /* Assicuriamo che il contenuto abbia spazio interno sufficiente */
+    padding-bottom: 1.05rem; /* leggero incremento per sicurezza */
+}
+
+/* Evita che il contenuto principale sovrapponga e "tagli" la hero title in dark mode */
+:root[data-theme="dark"] .hero-section-notizia {
+    position: relative; /* già lo è ma rimarcato per sicurezza */
+    z-index: 3; /* porta la hero sopra il main-content */
+}
+
+:root[data-theme="dark"] .main-content {
+    position: relative;
+    z-index: 1; /* mantiene il contenuto principale sotto la hero */
 }

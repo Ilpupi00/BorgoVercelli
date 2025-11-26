@@ -21,9 +21,9 @@
 <body data-user-id="<%= user.id %>">
     <%- include('partials/navbar') %>
 
-    <div class="prenotazioni-container">
+    <main class="prenotazioni-container">
         <!-- Header -->
-        <div class="page-header animate__animated animate__fadeInDown">
+        <header class="page-header animate__animated animate__fadeInDown">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -33,21 +33,21 @@
                         </h1>
                         <p class="lead text-white-50 mb-0">Gestisci tutte le tue prenotazioni in un unico posto</p>
                     </div>
-                    <div class="col-md-4 text-end">
+                    <nav class="col-md-4 text-end">
                         <a href="/profilo" class="btn btn-outline-light btn-lg">
                             <i class="bi bi-arrow-left me-2"></i>Torna al Profilo
                         </a>
-                    </div>
+                    </nav>
                 </div>
             </div>
-        </div>
+        </header>
 
         <div class="container mt-5 mb-5">
             <!-- Stats Cards -->
-            <div class="row mb-4 animate__animated animate__fadeInUp">
-                <div class="col-md-3 mb-3">
+            <section class="row mb-4 animate__animated animate__fadeInUp" aria-label="Statistiche prenotazioni">
+                <article class="col-md-3 mb-3">
                     <div class="stat-card stat-card-success">
-                        <div class="stat-icon">
+                        <div class="stat-icon" aria-hidden="true">
                             <i class="bi bi-check-circle-fill"></i>
                         </div>
                         <div class="stat-content">
@@ -55,10 +55,10 @@
                             <div class="stat-label">Confermate</div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-3 mb-3">
+                </article>
+                <article class="col-md-3 mb-3">
                     <div class="stat-card stat-card-warning">
-                        <div class="stat-icon">
+                        <div class="stat-icon" aria-hidden="true">
                             <i class="bi bi-clock-fill"></i>
                         </div>
                         <div class="stat-content">
@@ -66,10 +66,10 @@
                             <div class="stat-label">In Attesa</div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-3 mb-3">
+                </article>
+                <article class="col-md-3 mb-3">
                     <div class="stat-card stat-card-danger">
-                        <div class="stat-icon">
+                        <div class="stat-icon" aria-hidden="true">
                             <i class="bi bi-x-circle-fill"></i>
                         </div>
                         <div class="stat-content">
@@ -77,10 +77,10 @@
                             <div class="stat-label">Annullate</div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-3 mb-3">
+                </article>
+                <article class="col-md-3 mb-3">
                     <div class="stat-card stat-card-secondary">
-                        <div class="stat-icon">
+                        <div class="stat-icon" aria-hidden="true">
                             <i class="bi bi-calendar-x-fill"></i>
                         </div>
                         <div class="stat-content">
@@ -88,72 +88,73 @@
                             <div class="stat-label">Scadute</div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </article>
+            </section>
 
             <!-- Filter and Search -->
-            <div class="card filter-card animate__animated animate__fadeInUp animate__delay-1s mb-4">
+            <section class="card filter-card animate__animated animate__fadeInUp animate__delay-1s mb-4" aria-label="Filtri e ricerca">
                 <div class="card-body">
-                    <div class="row align-items-center">
+                    <form class="row align-items-center" role="search" onsubmit="return false;">
                         <div class="col-md-6 mb-3 mb-md-0">
+                            <label for="searchInput" class="visually-hidden">Cerca prenotazioni</label>
                             <div class="input-group input-group-lg">
-                                <span class="input-group-text bg-white">
+                                <span class="input-group-text bg-white" aria-hidden="true">
                                     <i class="bi bi-search"></i>
                                 </span>
-                                <input type="text" id="searchInput" class="form-control" placeholder="Cerca per campo, data, orario...">
+                                <input type="search" id="searchInput" class="form-control" placeholder="Cerca per campo, data, orario..." aria-label="Cerca per campo, data, orario">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="btn-group w-100 filter-buttons" role="group">
-                                <button type="button" class="btn btn-outline-primary active" data-filter="all">
-                                    <i class="bi bi-grid-fill me-1"></i>Tutte
+                        <nav class="col-md-6" aria-label="Filtri stato prenotazione">
+                            <div class="btn-group w-100 filter-buttons" role="group" aria-label="Filtri per stato">
+                                <button type="button" class="btn btn-outline-primary active" data-filter="all" aria-pressed="true">
+                                    <i class="bi bi-grid-fill me-1" aria-hidden="true"></i>Tutte
                                 </button>
-                                <button type="button" class="btn btn-outline-success" data-filter="confermata">
-                                    <i class="bi bi-check-circle me-1"></i>Confermate
+                                <button type="button" class="btn btn-outline-success" data-filter="confermata" aria-pressed="false">
+                                    <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Confermate
                                 </button>
-                                <button type="button" class="btn btn-outline-warning" data-filter="in_attesa">
-                                    <i class="bi bi-clock me-1"></i>In Attesa
+                                <button type="button" class="btn btn-outline-warning" data-filter="in_attesa" aria-pressed="false">
+                                    <i class="bi bi-clock me-1" aria-hidden="true"></i>In Attesa
                                 </button>
-                                <button type="button" class="btn btn-outline-danger" data-filter="annullata">
-                                    <i class="bi bi-x-circle me-1"></i>Annullate
+                                <button type="button" class="btn btn-outline-danger" data-filter="annullata" aria-pressed="false">
+                                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Annullate
                                 </button>
                             </div>
-                        </div>
-                    </div>
+                        </nav>
+                    </form>
                 </div>
-            </div>
+            </section>
 
             <!-- Prenotazioni List -->
-            <div id="prenotazioniList" class="animate__animated animate__fadeInUp animate__delay-2s">
+            <section id="prenotazioniList" class="animate__animated animate__fadeInUp animate__delay-2s" aria-label="Lista prenotazioni">
                 <!-- Loading State -->
-                <div class="text-center py-5" id="loadingState">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <div class="text-center py-5" id="loadingState" role="status" aria-live="polite">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" aria-hidden="true">
                         <span class="visually-hidden">Caricamento...</span>
                     </div>
                     <p class="mt-3 text-muted">Caricamento delle tue prenotazioni...</p>
                 </div>
 
                 <!-- Empty State (hidden by default) -->
-                <div class="card empty-state" id="emptyState" style="display: none;">
+                <article class="card empty-state" id="emptyState" style="display: none;" role="status" aria-live="polite">
                     <div class="card-body text-center py-5">
-                        <div class="empty-icon mb-4">
+                        <div class="empty-icon mb-4" aria-hidden="true">
                             <i class="bi bi-calendar-x display-1 text-muted"></i>
                         </div>
-                        <h3 class="text-muted mb-3">Nessuna prenotazione trovata</h3>
+                        <h2 class="text-muted mb-3">Nessuna prenotazione trovata</h2>
                         <p class="text-muted mb-4">Non hai ancora effettuato prenotazioni o non ci sono prenotazioni che corrispondono ai tuoi filtri.</p>
                         <a href="/prenotazione" class="btn btn-primary btn-lg">
-                            <i class="bi bi-calendar-plus me-2"></i>Prenota un Campo
+                            <i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Prenota un Campo
                         </a>
                     </div>
-                </div>
+                </article>
 
                 <!-- Prenotazioni Cards (populated by JS) -->
-                <div id="prenotazioniCards" class="row">
+                <div id="prenotazioniCards" class="row" role="list" aria-label="Elenco prenotazioni">
                     <!-- Cards will be inserted here by JavaScript -->
                 </div>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 
     <%- include('partials/footer') %>
 

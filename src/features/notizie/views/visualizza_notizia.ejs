@@ -21,9 +21,9 @@
 <body>
     <%- include('partials/navbar') %>
 
-    <main class="container-fluid px-0">
+    <main class="container-fluid px-0 mb-3">
         <!-- Hero Section -->
-        <section class="hero-section-notizia">
+        <div class="hero-section-notizia">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
@@ -38,7 +38,7 @@
                         <% if (notizia.sottotitolo) { %>
                             <p class="lead text-muted animate__animated animate__fadeInUp animate__delay-1s"><%= notizia.sottotitolo %></p>
                         <% } %>
-                        <div class="d-flex align-items-center mt-3 animate__animated animate__fadeInUp animate__delay-2s">
+                        <div class="d-flex align-items-center mt-3 animate__animated animate__fadeInUp animate__delay-2s flex-wrap">
                             <i class="bi bi-person-circle me-2 text-primary"></i>
                             <span class="me-3"><%= notizia.autore || 'Autore sconosciuto' %></span>
                             <i class="bi bi-calendar-event me-2 text-primary"></i>
@@ -49,10 +49,10 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Main Content -->
-        <section class="main-content">
+        <div class="main-content py-5">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
@@ -70,7 +70,7 @@
                         <!-- Social Share Buttons -->
                         <div class="social-share mt-5 pt-4 border-top">
                             <h5 class="mb-3">Condividi questa notizia</h5>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <button class="btn btn-outline-primary btn-sm share-btn" data-platform="facebook">
                                     <i class="bi bi-facebook me-1"></i> Facebook
                                 </button>
@@ -90,7 +90,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <%- include('partials/footer') %>

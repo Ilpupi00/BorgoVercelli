@@ -12,7 +12,7 @@ const db = require('../../../core/config/database');
 // Wrapper di compatibilità: alcune parti del codice chiamavano nomi vecchi
 // Esponiamo comunque funzioni con quei nomi per evitare regressioni.
 exports.confermaPrenotazione = async (id) => {
-    return exports.updateStatoPrenotazione(id, 'confermata');
+    return exports.updateStatoPrenotazione(id, 'confermata', null);
 };
 
 exports.deletePrenotazioneById = async (id) => {
@@ -306,19 +306,40 @@ exports.getPrenotazioneById = async (id) => {
  * @async
  * @param {number} id - ID della prenotazione
  * @param {string} stato - Nuovo stato
+ * @param {string|null} [annullata_da] - Chi ha annullato: 'user' o 'admin' (solo per stato 'annullata')
  * @returns {Promise<Object>} { success: true, changes }
  * @throws {Error} In caso di errore DB
  */
-exports.updateStatoPrenotazione = async (id, stato) => {
+exports.updateStatoPrenotazione = async (id, stato, annullata_da = null) => {
     return new Promise((resolve, reject) => {
-        console.log(`[DAO] updateStatoPrenotazione: id=${id}, stato=${stato}`);
-        db.run(`UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`, [stato, id], function (err, result) {
+        console.log(`[DAO] updateStatoPrenotazione CHIAMATA: id=${id}, stato=${stato}, annullata_da=${annullata_da}`);
+        
+        // Se lo stato è 'annullata', aggiorna anche annullata_da
+        // Se lo stato cambia in altro, resetta annullata_da a NULL
+        let sql, params;
+        if (stato === 'annullata' && annullata_da) {
+            sql = `UPDATE PRENOTAZIONI SET stato = ?, annullata_da = ?, updated_at = NOW() WHERE id = ?`;
+            params = [stato, annullata_da, id];
+            console.log(`[DAO] Query annullamento con annullata_da: ${sql}`, params);
+        } else if (stato !== 'annullata') {
+            // Se non è più annullata, resetta annullata_da
+            sql = `UPDATE PRENOTAZIONI SET stato = ?, annullata_da = NULL, updated_at = NOW() WHERE id = ?`;
+            params = [stato, id];
+            console.log(`[DAO] Query cambio stato (reset annullata_da): ${sql}`, params);
+        } else {
+            // Stato annullata ma senza specificare chi (fallback - NON DOVREBBE SUCCEDERE)
+            console.warn(`[DAO] ATTENZIONE: annullamento senza annullata_da specificato! id=${id}`);
+            sql = `UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`;
+            params = [stato, id];
+        }
+        
+        db.run(sql, params, function (err, result) {
             if (err) {
-                console.error('[DAO] updateStatoPrenotazione: error', err);
+                console.error('[DAO] updateStatoPrenotazione ERROR:', err);
                 return reject(err);
             }
             const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            console.log(`[DAO] updateStatoPrenotazione: changes=${changes}`);
+            console.log(`[DAO] updateStatoPrenotazione SUCCESS: changes=${changes}, rowCount=${result?.rowCount}`);
             resolve({ success: true, changes });
         });
     });

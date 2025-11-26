@@ -8,9 +8,10 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
-<!-- Stili globali admin -->
+    <!-- Stili globali admin -->
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Table_Responsive.css">
     <link rel="stylesheet" href="/assets/styles/theme-admin.css">
     <!-- Stili specifici pagina -->
     <link rel="stylesheet" href="/assets/styles/Gestione_Eventi.css">
@@ -116,6 +117,115 @@
                     <!-- Eventi Table -->
                     <section class="admin-content-section fade-in">
                         <div class="admin-table-container">
+                            
+                            <!-- Mobile Cards View (nascosta su desktop) -->
+                            <div class="admin-mobile-cards" id="eventiMobileCards">
+                                <% if (eventi && eventi.length > 0) { %>
+                                    <% eventi.forEach(evento => { %>
+                                        <div class="admin-mobile-card" 
+                                             data-evento-id="<%= evento.id %>" 
+                                             data-titolo="<%= evento.titolo.toLowerCase() %>"
+                                             data-descrizione="<%= (evento.descrizione || '').toLowerCase() %>"
+                                             data-stato="<%= evento.pubblicato ? 'published' : 'draft' %>"
+                                             data-data-inizio="<%= evento.data_inizio || '' %>"
+                                             data-data-fine="<%= evento.data_fine || '' %>"
+                                             data-luogo="<%= (evento.luogo || '').toLowerCase() %>"
+                                             data-tipo="<%= evento.tipo_evento || '' %>">
+                                            
+                                            <!-- Header Card -->
+                                            <div class="mobile-card-header">
+                                                <h3 class="mobile-card-title"><%= evento.titolo %></h3>
+                                                <span class="mobile-card-id">#<%= evento.id %></span>
+                                            </div>
+                                            
+                                            <!-- Body Card -->
+                                            <div class="mobile-card-body">
+                                                <% if (evento.descrizione) { %>
+                                                    <div class="mobile-info-row">
+                                                        <span class="mobile-info-label"><i class="bi bi-file-text me-1"></i> Descrizione:</span>
+                                                        <span class="mobile-info-value truncate-text-2"><%= (evento.descrizione || '').replace(/<[^>]*>/g, '').substring(0, 100) %>...</span>
+                                                    </div>
+                                                <% } %>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-calendar-check me-1"></i> Data Inizio:</span>
+                                                    <span class="mobile-info-value"><%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'N/A' %></span>
+                                                </div>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-calendar-x me-1"></i> Data Fine:</span>
+                                                    <span class="mobile-info-value"><%= evento.data_fine ? new Date(evento.data_fine).toLocaleDateString('it-IT') : 'N/A' %></span>
+                                                </div>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-geo-alt me-1"></i> Luogo:</span>
+                                                    <span class="mobile-info-value"><%= evento.luogo || 'N/A' %></span>
+                                                </div>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-tag me-1"></i> Tipo:</span>
+                                                    <span class="mobile-info-value">
+                                                        <span class="mobile-badge mobile-badge-utente"><%= evento.tipo_evento || 'N/A' %></span>
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-eye me-1"></i> Stato:</span>
+                                                    <span class="mobile-info-value">
+                                                        <% if (evento.pubblicato) { %>
+                                                            <span class="mobile-badge mobile-badge-pubblicato">
+                                                                <i class="bi bi-check-circle me-1"></i>Pubblicato
+                                                            </span>
+                                                        <% } else { %>
+                                                            <span class="mobile-badge mobile-badge-bozza">
+                                                                <i class="bi bi-pencil me-1"></i>Bozza
+                                                            </span>
+                                                        <% } %>
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="mobile-info-row">
+                                                    <span class="mobile-info-label"><i class="bi bi-people me-1"></i> Max Partecipanti:</span>
+                                                    <span class="mobile-info-value"><%= evento.max_partecipanti || '∞' %></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Footer Card con azioni -->
+                                            <div class="mobile-card-footer">
+                                                <div class="mobile-card-actions">
+                                                    <a href="/evento/<%= evento.id %>" class="mobile-action-btn mobile-btn-info" title="Visualizza" target="_blank">
+                                                        <i class="bi bi-eye"></i><span class="d-none d-sm-inline ms-1">Visualizza</span>
+                                                    </a>
+                                                    <button class="mobile-action-btn mobile-btn-warning btn-modifica-evento" title="Modifica" data-evento-id="<%= evento.id %>">
+                                                        <i class="bi bi-pencil"></i><span class="d-none d-sm-inline ms-1">Modifica</span>
+                                                    </button>
+                                                    <button class="mobile-action-btn mobile-btn-<%= evento.pubblicato ? 'secondary' : 'success' %> toggle-pubblicazione" 
+                                                            title="<%= evento.pubblicato ? 'Ritira' : 'Pubblica' %>" 
+                                                            data-evento-id="<%= evento.id %>" 
+                                                            data-current-status="<%= evento.pubblicato ? 1 : 0 %>">
+                                                        <i class="bi <%= evento.pubblicato ? 'bi-eye-slash' : 'bi-eye' %>"></i>
+                                                        <span class="d-none d-sm-inline ms-1"><%= evento.pubblicato ? 'Ritira' : 'Pubblica' %></span>
+                                                    </button>
+                                                    <button class="mobile-action-btn mobile-btn-danger btn-elimina-evento" title="Elimina" data-evento-id="<%= evento.id %>">
+                                                        <i class="bi bi-trash"></i><span class="d-none d-sm-inline ms-1">Elimina</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div class="mobile-empty-state">
+                                        <i class="bi bi-calendar-x mobile-empty-icon"></i>
+                                        <h5 class="mobile-empty-title">Nessun evento presente</h5>
+                                        <p class="mobile-empty-text">Nessun evento presente nel sistema</p>
+                                        <a href="/evento/crea-evento" class="btn btn-primary">
+                                            <i class="bi bi-plus-circle me-2"></i>Crea il primo evento
+                                        </a>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Desktop Table View (nascosta su mobile) -->
                             <div class="table-responsive">
                                 <table class="admin-table">
                                     <thead>

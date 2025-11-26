@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!prenotazioneId) return;
 
         if (btn.classList.contains('btn-outline-primary') && btn.title === 'Visualizza') {
-            visualizzaPrenotazione(prenotazioneId);
+                visualizzaPrenotazione(prenotazioneId);
         } else if (btn.classList.contains('btn-outline-success') && btn.title === 'Conferma') {
             confermaPrenotazione(prenotazioneId);
         } else if (btn.classList.contains('btn-outline-danger') && btn.title === 'Annulla') {
@@ -124,11 +124,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Helper: safe JSON parse that falls back to text on non-JSON responses
+async function parseJsonSafe(response) {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+        return response.json();
+    }
+    // try parse anyway for ok responses, but return text if fails
+    try {
+        const text = await response.text();
+        console.warn('parseJsonSafe: expected JSON but got:', text && text.slice(0,200));
+        return { __raw: text };
+    } catch (e) {
+        return { __raw: null };
+    }
+}
+
 // Funzioni CRUD
 async function visualizzaPrenotazione(id) {
     try {
-        const response = await fetch(`/admin/prenotazioni/${id}`);
-        const data = await response.json();
+        // Use public API route for JSON response
+        const response = await fetch(`/prenotazione/prenotazioni/${id}`);
+        const data = await parseJsonSafe(response);
         
         if (response.ok) {
             // Mostra modal con dettagli

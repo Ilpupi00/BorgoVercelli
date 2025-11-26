@@ -26,9 +26,13 @@ class MiePrenotazioni {
         // Filter buttons
         this.filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // Update active state
-                this.filterButtons.forEach(b => b.classList.remove('active'));
+                // Update active state and aria-pressed
+                this.filterButtons.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
                 
                 // Apply filter
                 this.currentFilter = btn.dataset.filter;
@@ -156,73 +160,73 @@ class MiePrenotazioni {
         const actionButtons = this.getActionButtons(prenotazione);
 
         return `
-            <div class="col-lg-6 mb-4">
+            <article class="col-lg-6 mb-4" role="listitem">
                 <div class="prenotazione-card ${statusClass} animate__animated animate__fadeIn">
-                    <div class="card-header-custom">
+                    <header class="card-header-custom">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="bi bi-geo-alt-fill me-2"></i>
+                            <h3 class="mb-0 h5">
+                                <i class="bi bi-geo-alt-fill me-2" aria-hidden="true"></i>
                                 ${prenotazione.campo_nome || 'Campo ' + prenotazione.campo_id}
-                            </h5>
+                            </h3>
                             ${statusBadge}
                         </div>
-                    </div>
+                    </header>
                     <div class="card-body">
-                        <div class="prenotazione-info">
+                        <dl class="prenotazione-info">
                             <div class="info-item">
-                                <i class="bi bi-calendar3 text-primary"></i>
+                                <i class="bi bi-calendar3 text-primary" aria-hidden="true"></i>
                                 <div class="info-content">
-                                    <span class="info-label">Data</span>
-                                    <span class="info-value">${dataFormatted}</span>
+                                    <dt class="info-label">Data</dt>
+                                    <dd class="info-value">${dataFormatted}</dd>
                                 </div>
                             </div>
                             <div class="info-item">
-                                <i class="bi bi-clock text-primary"></i>
+                                <i class="bi bi-clock text-primary" aria-hidden="true"></i>
                                 <div class="info-content">
-                                    <span class="info-label">Orario</span>
-                                    <span class="info-value">${prenotazione.ora_inizio} - ${prenotazione.ora_fine}</span>
+                                    <dt class="info-label">Orario</dt>
+                                    <dd class="info-value">${prenotazione.ora_inizio} - ${prenotazione.ora_fine}</dd>
                                 </div>
                             </div>
                             ${prenotazione.tipo_attivita ? `
                             <div class="info-item">
-                                <i class="bi bi-activity text-primary"></i>
+                                <i class="bi bi-activity text-primary" aria-hidden="true"></i>
                                 <div class="info-content">
-                                    <span class="info-label">Attività</span>
-                                    <span class="info-value">${prenotazione.tipo_attivita}</span>
+                                    <dt class="info-label">Attività</dt>
+                                    <dd class="info-value">${prenotazione.tipo_attivita}</dd>
                                 </div>
                             </div>
                             ` : ''}
                             ${prenotazione.squadra_nome ? `
                             <div class="info-item">
-                                <i class="bi bi-people-fill text-primary"></i>
+                                <i class="bi bi-people-fill text-primary" aria-hidden="true"></i>
                                 <div class="info-content">
-                                    <span class="info-label">Squadra</span>
-                                    <span class="info-value">${prenotazione.squadra_nome}</span>
+                                    <dt class="info-label">Squadra</dt>
+                                    <dd class="info-value">${prenotazione.squadra_nome}</dd>
                                 </div>
                             </div>
                             ` : ''}
                             ${prenotazione.note ? `
                             <div class="info-item">
-                                <i class="bi bi-sticky text-primary"></i>
+                                <i class="bi bi-sticky text-primary" aria-hidden="true"></i>
                                 <div class="info-content">
-                                    <span class="info-label">Note</span>
-                                    <span class="info-value">${prenotazione.note}</span>
+                                    <dt class="info-label">Note</dt>
+                                    <dd class="info-value">${prenotazione.note}</dd>
                                 </div>
                             </div>
                             ` : ''}
-                        </div>
-                        <div class="card-actions mt-3">
+                        </dl>
+                        <nav class="card-actions mt-3" aria-label="Azioni prenotazione">
                             ${actionButtons}
-                        </div>
+                        </nav>
                     </div>
-                    <div class="card-footer-custom">
+                    <footer class="card-footer-custom">
                         <small class="text-muted">
-                            <i class="bi bi-clock-history me-1"></i>
-                            Prenotata il ${new Date(prenotazione.created_at).toLocaleDateString('it-IT')}
+                            <i class="bi bi-clock-history me-1" aria-hidden="true"></i>
+                            <time datetime="${prenotazione.created_at}">Prenotata il ${new Date(prenotazione.created_at).toLocaleDateString('it-IT')}</time>
                         </small>
-                    </div>
+                    </footer>
                 </div>
-            </div>
+            </article>
         `;
     }
 
@@ -245,33 +249,46 @@ class MiePrenotazioni {
         
         // View details button (always available)
         buttons.push(`
-            <button class="btn btn-outline-primary btn-sm" data-action="view" data-id="${prenotazione.id}">
-                <i class="bi bi-eye me-1"></i>Dettagli
+            <button type="button" class="btn btn-outline-primary btn-sm" data-action="view" data-id="${prenotazione.id}" aria-label="Visualizza dettagli prenotazione">
+                <i class="bi bi-eye me-1" aria-hidden="true"></i>Dettagli
             </button>
         `);
 
         // State change buttons based on current state
         if (prenotazione.stato === 'confermata' || prenotazione.stato === 'in_attesa') {
             buttons.push(`
-                <button class="btn btn-outline-danger btn-sm" data-action="cancel" data-id="${prenotazione.id}">
-                    <i class="bi bi-x-circle me-1"></i>Annulla
+                <button type="button" class="btn btn-outline-danger btn-sm" data-action="cancel" data-id="${prenotazione.id}" aria-label="Annulla prenotazione">
+                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Annulla
                 </button>
             `);
         }
 
         if (prenotazione.stato === 'annullata') {
-            buttons.push(`
-                <button class="btn btn-outline-success btn-sm" data-action="reactivate" data-id="${prenotazione.id}">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i>Riattiva
-                </button>
-            `);
+            // Mostra il pulsante riattiva solo se l'annullamento è stato fatto dall'utente
+            // Se annullata_da è 'admin', l'utente non può riattivarla
+            if (prenotazione.annullata_da !== 'admin') {
+                buttons.push(`
+                    <button type="button" class="btn btn-outline-success btn-sm" data-action="reactivate" data-id="${prenotazione.id}" aria-label="Riattiva prenotazione">
+                        <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+                        <strong>Riattiva</strong>
+                    </button>
+                `);
+            } else {
+                // Messaggio informativo per prenotazioni annullate dall'admin
+                buttons.push(`
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-admin-locked" disabled aria-label="Prenotazione annullata dall'amministratore - non modificabile">
+                        <i class="bi bi-lock-fill me-1" aria-hidden="true"></i>
+                        <span>Annullata da Admin</span>
+                    </button>
+                `);
+            }
         }
 
         // Delete button for expired bookings
         if (prenotazione.stato === 'scaduta') {
             buttons.push(`
-                <button class="btn btn-outline-danger btn-sm" data-action="delete" data-id="${prenotazione.id}">
-                    <i class="bi bi-trash me-1"></i>Elimina
+                <button type="button" class="btn btn-outline-danger btn-sm" data-action="delete" data-id="${prenotazione.id}" aria-label="Elimina prenotazione scaduta">
+                    <i class="bi bi-trash me-1" aria-hidden="true"></i>Elimina
                 </button>
             `);
         }
@@ -351,6 +368,12 @@ class MiePrenotazioni {
                         <strong><i class="bi bi-clock-history text-primary me-2"></i>Creata il:</strong>
                         <p class="mb-0">${new Date(prenotazione.created_at).toLocaleDateString('it-IT')}</p>
                     </div>
+                    ${prenotazione.stato === 'annullata' && prenotazione.annullata_da ? `
+                    <div class="col-md-6 mb-3">
+                        <strong><i class="bi bi-info-circle text-primary me-2"></i>Annullata da:</strong>
+                        <p class="mb-0">${prenotazione.annullata_da === 'admin' ? 'Amministratore' : 'Utente'}</p>
+                    </div>
+                    ` : ''}
                     ${prenotazione.note ? `
                     <div class="col-12 mb-3">
                         <strong><i class="bi bi-sticky text-primary me-2"></i>Note:</strong>
@@ -429,14 +452,16 @@ class MiePrenotazioni {
 
                 const result = await response.json();
                 
-                if (result.success) {
+                if (response.ok && result.success) {
                     if (window.ShowModal && typeof window.ShowModal.showModalSuccess === 'function') {
                         window.ShowModal.showModalSuccess('Prenotazione riattivata', 'La prenotazione è stata riattivata con successo');
                     }
                     await this.loadPrenotazioni();
                 } else {
+                    // Gestisci errori specifici
+                    const errorMessage = result.message || result.error || 'Impossibile riattivare la prenotazione';
                     if (window.ShowModal && typeof window.ShowModal.showModalError === 'function') {
-                        window.ShowModal.showModalError('Impossibile riattivare la prenotazione', 'Errore');
+                        window.ShowModal.showModalError(errorMessage, 'Errore');
                     }
                 }
             } catch (error) {
