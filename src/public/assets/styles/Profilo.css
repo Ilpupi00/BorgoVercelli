@@ -1162,71 +1162,7 @@ button::-webkit-scrollbar,
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* Stili per i bottoni nelle card */
-.card .btn-outline-primary {
-    border-color: #007bff;
-    color: #007bff;
-    transition: all 0.3s ease;
-}
-
-.card .btn-outline-primary:hover {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.card .btn-outline-success {
-    border-color: #28a745;
-    color: #28a745;
-    transition: all 0.3s ease;
-}
-
-.card .btn-outline-success:hover {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.card .btn-outline-info {
-    border-color: #17a2b8;
-    color: #17a2b8;
-    transition: all 0.3s ease;
-}
-
-.card .btn-outline-info:hover {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.card .btn-outline-warning {
-    border-color: #ffc107;
-    color: #ffc107;
-    transition: all 0.3s ease;
-}
-
-.card .btn-outline-warning:hover {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: #212529;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-}
-
-.card .btn-outline-danger {
-    border-color: #dc3545;
-    color: #dc3545;
-    transition: all 0.3s ease;
-}
-
-.card .btn-outline-danger:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
+/* Stili rimossi - causavano conflitti con Bootstrap */
 
 /* Stili per le icone delle news/events */
 .news-event-icon {
@@ -1283,4 +1219,85 @@ button::-webkit-scrollbar,
 .quick-links-card .btn:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Stili globali per i bottoni in light mode */
+:root:not([data-theme="dark"]) .btn {
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Colori distinti per i bottoni Azioni Rapide in light mode */
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-primary {
+    border-color: #3b82f6 !important;
+    color: #3b82f6 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-primary:hover {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    color: white !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-success {
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-success:hover {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    color: white !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-info {
+    border-color: #06b6d4 !important;
+    color: #06b6d4 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-info:hover {
+    background-color: #06b6d4 !important;
+    border-color: #06b6d4 !important;
+    color: white !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-warning {
+    border-color: #f59e0b !important;
+    color: #d97706 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-warning:hover {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    color: white !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-danger {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-danger:hover {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: white !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-secondary {
+    border-color: #6b7280 !important;
+    color: #6b7280 !important;
+    background-color: transparent !important;
+}
+
+:root:not([data-theme="dark"]) .quick-links-card .btn-outline-secondary:hover {
+    background-color: #6b7280 !important;
+    border-color: #6b7280 !important;
+    color: white !important;
 }
