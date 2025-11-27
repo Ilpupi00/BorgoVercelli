@@ -60,7 +60,10 @@ router.post('/session', (req, res, next) => {
                 });
             }
             
-            return res.status(200).json({ message: 'Login effettuato' });
+            return res.status(200).json({ 
+                message: 'Login effettuato',
+                showNotificationPrompt: true // Flag per mostrare richiesta notifiche
+            });
         });
     })(req, res, next);
 });

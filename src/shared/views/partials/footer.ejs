@@ -68,6 +68,83 @@
   </div>
   </footer>
   <script type="module" src="/assets/scripts/components/footerButtons.js" defer></script>
+  <!-- Web Push Notifications -->
+  <script src="/assets/scripts/push-notifications.js"></script>
+  <% if (isLogged && user) { %>
+  <script>
+    // Se è stata impostata la flag dopo il login, mostra un modal che chiede
+    // all'utente di abilitare le notifiche. La richiesta di permesso deve
+    // avvenire in risposta a un gesto utente per funzionare correttamente.
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        if (sessionStorage && sessionStorage.getItem('showPushPrompt') === '1') {
+          // Costruisci il modal (ricalca il markup usato altrove)
+          const modalHtml = `
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title fw-bold" id="notificationModalLabel">
+                                <i class="bi bi-bell-fill text-primary me-2"></i>Abilita le Notifiche
+                            </h5>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-calendar-check display-1 text-primary"></i>
+                            </div>
+                            <h6 class="mb-3">Resta aggiornato sulle tue prenotazioni!</h6>
+                            <p class="text-muted mb-0">Riceverai notifiche quando:</p>
+                            <ul class="list-unstyled mt-3">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Una prenotazione viene confermata</li>
+                                <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i>Una prenotazione viene annullata</li>
+                                <li class="mb-2"><i class="bi bi-bell-fill text-info me-2"></i>Nuove comunicazioni importanti</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer border-0 d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary flex-fill" id="skipNotifications">Più tardi</button>
+                            <button type="button" class="btn btn-primary flex-fill" id="enableNotifications">Abilita</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          `;
+
+          document.body.insertAdjacentHTML('beforeend', modalHtml);
+          const modalEl = document.getElementById('notificationModal');
+          const bsModal = new bootstrap.Modal(modalEl);
+
+          const enableBtn = document.getElementById('enableNotifications');
+          const skipBtn = document.getElementById('skipNotifications');
+
+          enableBtn.addEventListener('click', async () => {
+            bsModal.hide();
+            try {
+              if (window.initPushNotifications) {
+                // Questa chiamata è attivata da un gesto utente (click), quindi
+                // la richiesta di permesso funzionerà correttamente.
+                await window.initPushNotifications();
+              }
+            } catch (err) {
+              console.error('Errore inizializzazione push dopo login:', err);
+            } finally {
+              try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+            }
+          }, { once: true });
+
+          skipBtn.addEventListener('click', () => {
+            bsModal.hide();
+            try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+          }, { once: true });
+
+          modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
+          bsModal.show();
+        }
+      } catch (e) {
+        console.warn('Errore controllo flag push:', e);
+      }
+    });
+  </script>
+  <% } %>
   <script>
     // Controlled dark-mode fixer: marks modified elements and removes changes on light
     (function controlledDarkModeFix(){

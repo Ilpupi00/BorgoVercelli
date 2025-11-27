@@ -29,6 +29,7 @@ const routes = require('./shared/routes/index');
 const routesSession = require('./shared/routes/session');
 const routesSendEmail = require('./shared/routes/email');
 const routesSitemap = require('./shared/routes/sitemap');
+const routesPush = require('./shared/routes/push');
 
 // Route features
 const routesNotizie = require('./features/notizie/routes/notizie');
@@ -249,6 +250,7 @@ app.post('/__debug-navbar', express.json(), (req, res) => {
 });
 
 app.use('/', routesSitemap);                      // Sitemap dinamica
+app.use('/', routesPush);                         // Web Push Notifications
 app.use('/', routesNotizie);                      // Gestione notizie
 app.use('/', routesEventi);                       // Gestione eventi
 app.use('/', routesRegistrazione);                // Login e registrazione

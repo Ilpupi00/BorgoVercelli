@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const daoPrenotazione = require('../services/dao-prenotazione');
+const daoCampi = require('../services/dao-campi');
 const db = require('../../../core/config/database');
 const { isLoggedIn } = require('../../../core/middlewares/auth');
+const pushService = require('../../../shared/services/webpush');
 
 // 1. Lista campi attivi
 router.get('/campi', async (req, res) => {
@@ -60,6 +62,27 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
     try {
         const result = await daoPrenotazione.prenotaCampo({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note });
         if (result && result.error) return res.status(409).json(result);
+        
+        // Invia notifica push agli admin per nuova prenotazione
+        try {
+            const campo = await daoCampi.getCampoById(campo_id);
+            const campoNome = campo ? campo.nome : `Campo ${campo_id}`;
+            const dataFormatted = new Date(data_prenotazione).toLocaleDateString('it-IT');
+            
+            await pushService.sendNotificationToAdmins({
+                title: '🔔 Nuova Prenotazione',
+                body: `${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
+                icon: '/assets/images/icon-192.png',
+                url: '/admin',
+                tag: `prenotazione-${result.id}`,
+                requireInteraction: true
+            });
+            console.log('[PUSH] Notifica nuova prenotazione inviata agli admin');
+        } catch (pushErr) {
+            console.error('[PUSH] Errore invio notifica admin:', pushErr);
+            // Non blocca la risposta se la notifica fallisce
+        }
+        
         res.json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -88,12 +111,16 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
     console.log(`[ROUTE] User:`, req.user ? `id=${req.user.id}, tipo=${req.user.tipo_utente_id}` : 'NON AUTENTICATO');
     
     try {
+        // Recupera la prenotazione prima di modificarla
+        const prenotazione = await daoPrenotazione.getPrenotazioneById(id);
+        console.log(`[ROUTE] Prenotazione attuale:`, prenotazione);
+        
+        if (!prenotazione) {
+            return res.status(404).json({ error: 'Prenotazione non trovata' });
+        }
+        
         // Verifica permessi per riattivazione
         if (stato === 'in_attesa' || stato === 'confermata') {
-            // Se si sta riattivando una prenotazione annullata, controlla chi l'ha annullata
-            const prenotazione = await daoPrenotazione.getPrenotazioneById(id);
-            console.log(`[ROUTE] Prenotazione attuale:`, prenotazione);
-            
             if (prenotazione && prenotazione.stato === 'annullata' && prenotazione.annullata_da === 'admin') {
                 // Solo gli admin possono riattivare prenotazioni annullate da admin
                 const isAdmin = req.user && req.user.tipo_utente_id === 1;
@@ -118,6 +145,68 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
         console.log(`[ROUTE] Chiamata DAO con: id=${id}, stato=${stato}, annullata_da=${annullata_da}`);
         const result = await daoPrenotazione.updateStatoPrenotazione(id, stato, annullata_da);
         console.log(`[ROUTE] Risultato DAO:`, result);
+        
+        // Invia notifiche push in base al cambio di stato
+        try {
+            const campo = await daoCampi.getCampoById(prenotazione.campo_id);
+            const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
+            const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
+            const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+            
+            if (stato === 'confermata') {
+                // Notifica all'utente che la prenotazione è stata confermata
+                await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                    title: '✅ Prenotazione Confermata',
+                    body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/icon-192.png',
+                    url: '/prenotazione/mie_prenotazioni',
+                    tag: `prenotazione-${id}-confermata`,
+                    requireInteraction: true
+                });
+                console.log(`[PUSH] Notifica confermata inviata all'utente ${prenotazione.utente_id}`);
+            } else if (stato === 'annullata') {
+                if (annullata_da === 'user') {
+                    // Notifica agli admin che l'utente ha annullato
+                                        const resAdmins = await pushService.sendNotificationToAdmins({
+                                                title: '❌ Prenotazione Annullata',
+                                                body: `Utente ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                                                icon: '/assets/images/icon-192.png',
+                                                url: '/admin',
+                                                tag: `prenotazione-${id}-annullata-user`
+                                        });
+                                        console.log('[PUSH] Notifica annullamento utente inviata agli admin', resAdmins);
+
+                                        // Invia anche una notifica di conferma all'utente che ha annullato
+                                        try {
+                                            const resUser = await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                                                title: '❌ Prenotazione Annullata',
+                                                body: `Hai annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                                                icon: '/assets/images/icon-192.png',
+                                                url: '/prenotazione/mie_prenotazioni',
+                                                tag: `prenotazione-${id}-annullata-user`
+                                            });
+                                            console.log(`[PUSH] Notifica annullamento inviata all'utente ${prenotazione.utente_id}`, resUser);
+                                        } catch(eUserPush) {
+                                            console.error('[PUSH] Errore invio notifica all\'utente che ha annullato:', eUserPush);
+                                        }
+                } else if (annullata_da === 'admin') {
+                    // Notifica all'utente che l'admin ha annullato
+                    await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                        title: '❌ Prenotazione Annullata',
+                        body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                        icon: '/assets/images/icon-192.png',
+                        url: '/prenotazione/mie_prenotazioni',
+                        tag: `prenotazione-${id}-annullata-admin`,
+                        requireInteraction: true
+                    });
+                    console.log(`[PUSH] Notifica annullamento admin inviata all'utente ${prenotazione.utente_id}`);
+                }
+            }
+        } catch (pushErr) {
+            console.error('[PUSH] Errore invio notifica cambio stato:', pushErr);
+            // Non blocca la risposta se la notifica fallisce
+        }
+        
         res.json(result);
     } catch (err) {
         console.error(`[ROUTE] Errore:`, err);

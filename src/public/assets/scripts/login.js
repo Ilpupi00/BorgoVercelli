@@ -41,11 +41,26 @@ class LoginPage {
         try {
             const res = await fetch('/session', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, remember })
             });
             if (res.ok) {
-                window.location.href = '/homepage';
+                const data = await res.json();
+                
+                // Mostra richiesta notifiche push dopo login
+                    if (data.showNotificationPrompt) {
+                        // Imposta una flag temporanea per mostrare il prompt dopo il redirect
+                        // in modo da garantire che il cookie di sessione sia stato applicato.
+                        try {
+                            sessionStorage.setItem('showPushPrompt', '1');
+                        } catch (e) {
+                            console.warn('Impossibile accedere a sessionStorage:', e);
+                        }
+                        window.location.href = '/homepage';
+                    } else {
+                        window.location.href = '/homepage';
+                    }
             } else {
                 const data = await res.json();
                 
@@ -66,6 +81,100 @@ class LoginPage {
         } catch (error) {
             this.showError('Errore di connessione. Riprova più tardi.');
         }
+    }
+
+    async showNotificationPrompt() {
+        // Verifica supporto notifiche
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+            // Browser non supporta notifiche, vai alla homepage
+            window.location.href = '/homepage';
+            return;
+        }
+
+        // Se già concesso o negato, vai alla homepage
+        if (Notification.permission === 'granted') {
+            // Sottoscrivi in background
+            if (window.initPushNotifications) {
+                window.initPushNotifications().catch(() => {});
+            }
+            window.location.href = '/homepage';
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            window.location.href = '/homepage';
+            return;
+        }
+
+        // Mostra modal di richiesta personalizzata
+        const modalHtml = `
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title fw-bold" id="notificationModalLabel">
+                                <i class="bi bi-bell-fill text-primary me-2"></i>Abilita le Notifiche
+                            </h5>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-calendar-check display-1 text-primary"></i>
+                            </div>
+                            <h6 class="mb-3">Resta aggiornato sulle tue prenotazioni!</h6>
+                            <p class="text-muted mb-0">
+                                Riceverai notifiche quando:
+                            </p>
+                            <ul class="list-unstyled mt-3">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Una prenotazione viene confermata</li>
+                                <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i>Una prenotazione viene annullata</li>
+                                <li class="mb-2"><i class="bi bi-bell-fill text-info me-2"></i>Nuove comunicazioni importanti</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer border-0 d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary flex-fill" id="skipNotifications">
+                                Più tardi
+                            </button>
+                            <button type="button" class="btn btn-primary flex-fill" id="enableNotifications">
+                                Abilita
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Aggiungi modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        const enableBtn = document.getElementById('enableNotifications');
+        const skipBtn = document.getElementById('skipNotifications');
+
+        enableBtn.addEventListener('click', async () => {
+            modal.hide();
+            try {
+                // Inizializza notifiche push
+                if (window.initPushNotifications) {
+                    await window.initPushNotifications();
+                }
+            } catch (err) {
+                console.error('Errore attivazione notifiche:', err);
+            } finally {
+                window.location.href = '/homepage';
+            }
+        });
+
+        skipBtn.addEventListener('click', () => {
+            modal.hide();
+            window.location.href = '/homepage';
+        });
+
+        // Rimuovi modal dal DOM quando viene chiuso
+        document.getElementById('notificationModal').addEventListener('hidden.bs.modal', function () {
+            this.remove();
+        });
+
+        modal.show();
     }
 
     showError(message) {
