@@ -4,7 +4,7 @@ const daoPrenotazione = require('../services/dao-prenotazione');
 const daoCampi = require('../services/dao-campi');
 const db = require('../../../core/config/database');
 const { isLoggedIn } = require('../../../core/middlewares/auth');
-const pushService = require('../../../shared/services/webpush');
+const notifications = require('../../../shared/services/notifications');
 
 // 1. Lista campi attivi
 router.get('/campi', async (req, res) => {
@@ -69,7 +69,7 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
             const campoNome = campo ? campo.nome : `Campo ${campo_id}`;
             const dataFormatted = new Date(data_prenotazione).toLocaleDateString('it-IT');
             
-            await pushService.sendNotificationToAdmins({
+            await notifications.queueNotificationForAdmins({
                 title: '🔔 Nuova Prenotazione',
                 body: `${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
                 icon: '/assets/images/Logo.png',
@@ -77,12 +77,12 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
                 tag: `prenotazione-${result.id}`,
                 requireInteraction: true
             });
-            console.log('[PUSH] Notifica nuova prenotazione inviata agli admin');
+            console.log('[PUSH] Notifica nuova prenotazione accodata per admin');
             // Invia anche una notifica di conferma all'utente che ha effettuato la prenotazione
             try {
                 const bookingUserId = utente_id || (req.user && req.user.id) || result.utente_id;
                 if (bookingUserId) {
-                    await pushService.sendNotificationToUsers([bookingUserId], {
+                    await notifications.queueNotificationForUsers([bookingUserId], {
                         title: '✅ Prenotazione Effettuata',
                         body: `Hai prenotato: ${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
                         icon: '/assets/images/Logo.png',
@@ -90,7 +90,7 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
                         tag: `prenotazione-${result.id}-creata`,
                         requireInteraction: true
                     });
-                    console.log(`[PUSH] Notifica conferma inviata all'utente ${bookingUserId}`);
+                    console.log(`[PUSH] Notifica conferma accodata per utente ${bookingUserId}`);
                 } else {
                     console.warn('[PUSH] Impossibile inviare conferma all\'utente: userId non disponibile');
                 }
@@ -124,7 +124,7 @@ router.post('/prenotazioni/debug-create', async (req, res) => {
             const campoNome = `Campo ${campo_id}`;
             const dataFormatted = new Date(data_prenotazione).toLocaleDateString('it-IT');
 
-            await pushService.sendNotificationToAdmins({
+            await notifications.queueNotificationForAdmins({
                 title: '🔔 Nuova Prenotazione (debug)',
                 body: `${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
                 icon: '/assets/images/Logo.png',
@@ -140,7 +140,7 @@ router.post('/prenotazioni/debug-create', async (req, res) => {
         try {
             const bookingUserId = utente_id || null;
             if (bookingUserId) {
-                await pushService.sendNotificationToUsers([bookingUserId], {
+                await notifications.queueNotificationForUsers([bookingUserId], {
                     title: '✅ Prenotazione Effettuata (debug)',
                     body: `Hai prenotato: ${campo_id} - ${data_prenotazione} dalle ${ora_inizio} alle ${ora_fine}`,
                     icon: '/assets/images/Logo.png',
@@ -226,7 +226,7 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
             
             if (stato === 'confermata') {
                 // Notifica all'utente che la prenotazione è stata confermata
-                await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
                     title: '✅ Prenotazione Confermata',
                     body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
                     icon: '/assets/images/Logo.png',
@@ -234,35 +234,35 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
                     tag: `prenotazione-${id}-confermata`,
                     requireInteraction: true
                 });
-                console.log(`[PUSH] Notifica confermata inviata all'utente ${prenotazione.utente_id}`);
+                console.log(`[PUSH] Notifica confermata accodata per utente ${prenotazione.utente_id}`);
             } else if (stato === 'annullata') {
                 if (annullata_da === 'user') {
                     // Notifica agli admin che l'utente ha annullato
-                                        const resAdmins = await pushService.sendNotificationToAdmins({
+                                        const resAdmins = await notifications.queueNotificationForAdmins({
                                                 title: '❌ Prenotazione Annullata',
                                                 body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
                                                 icon: '/assets/images/Logo.png',
                                                 url: '/admin',
                                                 tag: `prenotazione-${id}-annullata-user`
                                         });
-                                        console.log('[PUSH] Notifica annullamento utente inviata agli admin', resAdmins);
+                                        console.log('[PUSH] Notifica annullamento utente accodata per admin', resAdmins);
 
                                         // Invia anche una notifica di conferma all'utente che ha annullato
                                         try {
-                                            const resUser = await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                                            const resUser = await notifications.queueNotificationForUsers([prenotazione.utente_id], {
                                                 title: '❌ Prenotazione Annullata',
                                                 body: `Hai annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
                                                 icon: '/assets/images/Logo.png',
                                                 url: '/prenotazione/mie_prenotazioni',
                                                 tag: `prenotazione-${id}-annullata-user`
                                             });
-                                            console.log(`[PUSH] Notifica annullamento inviata all'utente ${prenotazione.utente_id}`, resUser);
+                                            console.log(`[PUSH] Notifica annullamento accodata per utente ${prenotazione.utente_id}`, resUser);
                                         } catch(eUserPush) {
                                             console.error('[PUSH] Errore invio notifica all\'utente che ha annullato:', eUserPush);
                                         }
                 } else if (annullata_da === 'admin') {
                     // Notifica all'utente che l'admin ha annullato
-                    await pushService.sendNotificationToUsers([prenotazione.utente_id], {
+                    await notifications.queueNotificationForUsers([prenotazione.utente_id], {
                         title: '❌ Prenotazione Annullata',
                         body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
                         icon: '/assets/images/Logo.png',
@@ -270,7 +270,7 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
                         tag: `prenotazione-${id}-annullata-admin`,
                         requireInteraction: true
                     });
-                    console.log(`[PUSH] Notifica annullamento admin inviata all'utente ${prenotazione.utente_id}`);
+                    console.log(`[PUSH] Notifica annullamento admin accodata per utente ${prenotazione.utente_id}`);
                 }
             }
         } catch (pushErr) {
