@@ -1,10 +1,7 @@
 'use strict';
 
 const webpush = require('web-push');
-const fs = require('fs');
-const path = require('path');
-
-const STORE = path.join(__dirname, '../../data/webpush.json');
+const db = require('../../core/config/database');
 
 // Configura VAPID details
 const vapidEmail = process.env.VAPID_EMAIL || 'no-reply@example.com';
@@ -28,94 +25,92 @@ webpush.setVapidDetails(
 );
 
 /**
- * Carica le subscription dal file JSON
- * @returns {Array} Array di subscription
+ * Carica le subscription dal database
+ * @returns {Promise<Array>} Array di subscription in formato web-push
  */
-function loadSubscriptions() {
+async function loadSubscriptions() {
   try {
-    if (!fs.existsSync(STORE)) {
-      return [];
-    }
-    const raw = fs.readFileSync(STORE, 'utf8');
-    // Handle BOM or stray quotes/newlines gracefully
-    const data = (raw || '').trim();
-    if (!data) return [];
-    if (data.startsWith("'[") || data.startsWith('"[')) {
-      console.warn('[WEBPUSH] Subscription file contains wrapped quotes, attempting to sanitize');
-      const sanitized = data.slice(1, -1);
-      return JSON.parse(sanitized);
-    }
-    return JSON.parse(data);
+    const result = await db.query(
+      `SELECT id, user_id, endpoint, p256dh, auth, is_admin, created_at, updated_at 
+       FROM push_subscriptions 
+       WHERE error_count < 5
+       ORDER BY created_at DESC`
+    );
+    
+    // Converti dal formato DB al formato web-push
+    return result.rows.map(row => ({
+      endpoint: row.endpoint,
+      keys: {
+        p256dh: row.p256dh,
+        auth: row.auth
+      },
+      userId: row.user_id,
+      isAdmin: row.is_admin,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
   } catch (error) {
-    console.error('Errore caricamento subscriptions:', error);
-    try {
-      console.warn('[WEBPUSH] Resetting corrupted subscription store');
-      fs.writeFileSync(STORE, '[]', 'utf8');
-    } catch (writeErr) {
-      console.error('[WEBPUSH] Impossibile ripristinare webpush.json:', writeErr);
-    }
+    console.error('[WEBPUSH] Errore caricamento subscriptions dal database:', error);
     return [];
   }
 }
 
 /**
- * Salva le subscription nel file JSON
- * @param {Array} subscriptions - Array di subscription da salvare
- */
-function saveSubscriptions(subscriptions) {
-  try {
-    const dir = path.dirname(STORE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(STORE, JSON.stringify(subscriptions, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Errore salvataggio subscriptions:', error);
-  }
-}
-
-/**
- * Aggiunge una nuova subscription
+ * Aggiunge o aggiorna una subscription nel database
  * @param {Object} subscription - Oggetto subscription dal client
  * @param {Number} userId - ID dell'utente
  * @param {Boolean} isAdmin - Se l'utente è admin
+ * @param {String} userAgent - User agent del browser (opzionale)
  */
-async function addSubscription(subscription, userId, isAdmin = false) {
+async function addSubscription(subscription, userId, isAdmin = false, userAgent = null) {
   try {
-    const subscriptions = loadSubscriptions();
-    // Normalize userId when possible to keep a consistent type
+    // Validazione base
+    if (!subscription || !subscription.endpoint || !subscription.keys) {
+      throw new Error('Subscription non valida: mancano endpoint o keys');
+    }
+
+    const { endpoint, keys } = subscription;
+    const { p256dh, auth } = keys;
+
+    if (!p256dh || !auth) {
+      throw new Error('Subscription non valida: mancano p256dh o auth');
+    }
+
+    // Normalize userId
     let normalizedUserId = userId;
     if (userId !== undefined && userId !== null) {
       const n = Number(userId);
       if (!Number.isNaN(n)) normalizedUserId = n;
     }
-    
-    // Verifica se la subscription esiste già
-    const existingIndex = subscriptions.findIndex(s => s.endpoint === subscription.endpoint);
-    if (existingIndex === -1) {
-      // Nuova subscription
-      subscriptions.push({
-        ...subscription,
-        userId: normalizedUserId,
-        isAdmin,
-        createdAt: new Date().toISOString()
-      });
-      saveSubscriptions(subscriptions);
-      console.log(`[WEBPUSH] ✅ Subscription aggiunta per user ${userId} (admin: ${isAdmin})`);
-      console.log(`[WEBPUSH] Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
+
+    // Usa UPSERT (INSERT ... ON CONFLICT) per gestire sia insert che update
+    const result = await db.query(
+      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth, is_admin, user_agent, error_count)
+       VALUES ($1, $2, $3, $4, $5, $6, 0)
+       ON CONFLICT (endpoint) 
+       DO UPDATE SET 
+         user_id = EXCLUDED.user_id,
+         p256dh = EXCLUDED.p256dh,
+         auth = EXCLUDED.auth,
+         is_admin = EXCLUDED.is_admin,
+         user_agent = EXCLUDED.user_agent,
+         updated_at = CURRENT_TIMESTAMP,
+         error_count = 0
+       RETURNING id, created_at, updated_at`,
+      [normalizedUserId, endpoint, p256dh, auth, isAdmin, userAgent]
+    );
+
+    const row = result.rows[0];
+    const isNew = row.created_at.getTime() === row.updated_at.getTime();
+
+    if (isNew) {
+      console.log(`[WEBPUSH] ✅ Subscription aggiunta per user ${normalizedUserId} (admin: ${isAdmin})`);
     } else {
-      // Aggiorna la subscription esistente (potrebbe essere cambiato userId o isAdmin)
-      subscriptions[existingIndex] = {
-        ...subscription,
-        userId: normalizedUserId,
-        isAdmin,
-        createdAt: subscriptions[existingIndex].createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      saveSubscriptions(subscriptions);
-      console.log(`[WEBPUSH] 🔄 Subscription aggiornata per user ${userId} (admin: ${isAdmin})`);
-      console.log(`[WEBPUSH] Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
+      console.log(`[WEBPUSH] 🔄 Subscription aggiornata per user ${normalizedUserId} (admin: ${isAdmin})`);
     }
+    console.log(`[WEBPUSH] Endpoint: ${endpoint.substring(0, 50)}...`);
+
+    return { id: row.id, isNew };
   } catch (error) {
     console.error('[WEBPUSH] ❌ Errore aggiunta/aggiornamento subscription:', error);
     throw error;
@@ -123,17 +118,82 @@ async function addSubscription(subscription, userId, isAdmin = false) {
 }
 
 /**
- * Rimuove subscription scadute o non valide
+ * Rimuove una subscription dal database
  * @param {String} endpoint - Endpoint della subscription da rimuovere
  */
-function removeSubscription(endpoint) {
+async function removeSubscription(endpoint) {
   try {
-    const subscriptions = loadSubscriptions();
-    const filtered = subscriptions.filter(s => s.endpoint !== endpoint);
-    saveSubscriptions(filtered);
-    console.log(`Subscription rimossa: ${endpoint}`);
+    const result = await db.query(
+      'DELETE FROM push_subscriptions WHERE endpoint = $1 RETURNING id',
+      [endpoint]
+    );
+    
+    if (result.rows.length > 0) {
+      console.log(`[WEBPUSH] 🗑️ Subscription rimossa: ${endpoint.substring(0, 50)}...`);
+    } else {
+      console.log(`[WEBPUSH] ⚠️ Subscription non trovata per rimozione: ${endpoint.substring(0, 50)}...`);
+    }
   } catch (error) {
-    console.error('Errore rimozione subscription:', error);
+    console.error('[WEBPUSH] Errore rimozione subscription:', error);
+    throw error;
+  }
+}
+
+/**
+ * Incrementa il contatore errori per una subscription
+ * @param {String} endpoint - Endpoint della subscription
+ */
+async function incrementErrorCount(endpoint) {
+  try {
+    await db.query(
+      `UPDATE push_subscriptions 
+       SET error_count = error_count + 1, 
+           last_error_at = CURRENT_TIMESTAMP 
+       WHERE endpoint = $1`,
+      [endpoint]
+    );
+  } catch (error) {
+    console.error('[WEBPUSH] Errore incremento error_count:', error);
+  }
+}
+
+/**
+ * Aggiorna il timestamp di successo per una subscription
+ * @param {String} endpoint - Endpoint della subscription
+ */
+async function updateSuccessTimestamp(endpoint) {
+  try {
+    await db.query(
+      `UPDATE push_subscriptions 
+       SET last_success_at = CURRENT_TIMESTAMP,
+           error_count = 0
+       WHERE endpoint = $1`,
+      [endpoint]
+    );
+  } catch (error) {
+    console.error('[WEBPUSH] Errore aggiornamento success timestamp:', error);
+  }
+}
+
+/**
+ * Recupera una singola subscription dal database dato l'endpoint
+ * @param {String} endpoint
+ * @returns {Promise<Object|null>} row della subscription o null
+ */
+async function getSubscriptionByEndpoint(endpoint) {
+  try {
+    const result = await db.query(
+      `SELECT id, user_id, endpoint, p256dh, auth, is_admin, user_agent, created_at, updated_at
+       FROM push_subscriptions
+       WHERE endpoint = $1
+       LIMIT 1`,
+      [endpoint]
+    );
+    if (result.rows && result.rows.length > 0) return result.rows[0];
+    return null;
+  } catch (error) {
+    console.error('[WEBPUSH] Errore recupero subscription by endpoint:', error);
+    return null;
   }
 }
 
@@ -149,16 +209,19 @@ async function sendNotificationToUsers(userIds, payload) {
     console.log('[WEBPUSH] Target userIds:', userIds);
     console.log('[WEBPUSH] Payload:', JSON.stringify(payload, null, 2));
     
-    const subscriptions = loadSubscriptions();
+    const subscriptions = await loadSubscriptions();
     console.log('[WEBPUSH] Subscriptions totali caricate:', subscriptions.length);
     
     // Match userIds robustly by stringifying both sides to avoid type mismatch (number vs string)
     const userIdStrings = userIds.map(u => String(u));
     const targetSubs = subscriptions.filter(s => userIdStrings.includes(String(s.userId)));
     console.log('[WEBPUSH] Subscriptions trovate per questi user:', targetSubs.length);
+    
     // Log subscriptions that have missing/undefined userId (helpful for debugging)
     const missingIdSubs = subscriptions.filter(s => s.userId === undefined || s.userId === null);
-    if (missingIdSubs.length > 0) console.warn('[WEBPUSH] Attenzione - alcune subscription non hanno userId:', missingIdSubs.length);
+    if (missingIdSubs.length > 0) {
+      console.warn('[WEBPUSH] Attenzione - alcune subscription non hanno userId:', missingIdSubs.length);
+    }
     
     if (targetSubs.length > 0) {
       console.log('[WEBPUSH] Dettagli subscriptions target:');
@@ -177,23 +240,37 @@ async function sendNotificationToUsers(userIds, payload) {
     const results = await Promise.allSettled(
       targetSubs.map((sub, idx) => {
         console.log(`[WEBPUSH] Invio ${idx + 1}/${targetSubs.length} a userId ${sub.userId}...`);
-        return webpush.sendNotification(sub, JSON.stringify(payload), {
+        
+        // Prepara la subscription nel formato corretto per web-push
+        const pushSubscription = {
+          endpoint: sub.endpoint,
+          keys: sub.keys
+        };
+        
+        return webpush.sendNotification(pushSubscription, JSON.stringify(payload), {
           TTL: 86400, // 24 ore
-          urgency: 'high'
-        }).then(() => {
+          urgency: 'high',
+          headers: {
+            'Topic': payload.tag || 'general'
+          }
+        }).then(async () => {
           console.log(`[WEBPUSH] ✅ Notifica ${idx + 1} inviata con successo`);
+          await updateSuccessTimestamp(sub.endpoint);
           return { success: true };
-        }).catch(err => {
+        }).catch(async (err) => {
           console.error(`[WEBPUSH] ❌ Errore invio notifica ${idx + 1}:`, err.message);
           console.error(`[WEBPUSH] Status Code:`, err.statusCode);
           console.error(`[WEBPUSH] Body:`, err.body);
           
-          // Rimuovi subscription non valide
+          // Rimuovi subscription non valide (410 = Gone, 404 = Not Found)
           if (err.statusCode === 410 || err.statusCode === 404) {
             console.log(`[WEBPUSH] 🗑️ Rimozione subscription scaduta/non valida`);
-            removeSubscription(sub.endpoint);
+            await removeSubscription(sub.endpoint);
             return { removed: sub.endpoint };
           }
+          
+          // Incrementa contatore errori per altri errori
+          await incrementErrorCount(sub.endpoint);
           throw err;
         });
       })
@@ -218,9 +295,10 @@ async function sendNotificationToUsers(userIds, payload) {
         console.warn('[WEBPUSH] 🗑️ Subscription rimossa:', targetSubs[idx]?.endpoint?.substring(0, 50) + '...');
       }
     });
+    
     return { sent, failed, removed, results };
   } catch (error) {
-    console.error('Errore invio notifiche:', error);
+    console.error('[WEBPUSH] Errore invio notifiche:', error);
     throw error;
   }
 }
@@ -235,14 +313,18 @@ async function sendNotificationToAdmins(payload) {
     console.log('[WEBPUSH] 👑 sendNotificationToAdmins chiamato');
     console.log('[WEBPUSH] Payload:', JSON.stringify(payload, null, 2));
     
-    const subscriptions = loadSubscriptions();
+    const subscriptions = await loadSubscriptions();
     console.log('[WEBPUSH] Subscriptions totali caricate:', subscriptions.length);
     
     const adminSubs = subscriptions.filter(s => s.isAdmin === true);
     console.log('[WEBPUSH] Admin subscriptions trovate:', adminSubs.length);
+    
     // Log sintetico delle admin subscriptions per debug (no keys complete)
     try {
-      const adminSummary = adminSubs.map(s => ({ userId: s.userId, endpoint: (s.endpoint||'').substring(0,60) + '...' }));
+      const adminSummary = adminSubs.map(s => ({ 
+        userId: s.userId, 
+        endpoint: (s.endpoint || '').substring(0, 60) + '...' 
+      }));
       console.log('[WEBPUSH] Admin subscriptions summary:', JSON.stringify(adminSummary, null, 2));
     } catch (e) {
       console.warn('[WEBPUSH] Impossibile serializzare adminSubs per summary', e && e.message);
@@ -265,22 +347,35 @@ async function sendNotificationToAdmins(payload) {
     const results = await Promise.allSettled(
       adminSubs.map((sub, idx) => {
         console.log(`[WEBPUSH] Invio admin ${idx + 1}/${adminSubs.length} a userId ${sub.userId}...`);
-        return webpush.sendNotification(sub, JSON.stringify(payload), {
+        
+        // Prepara la subscription nel formato corretto per web-push
+        const pushSubscription = {
+          endpoint: sub.endpoint,
+          keys: sub.keys
+        };
+        
+        return webpush.sendNotification(pushSubscription, JSON.stringify(payload), {
           TTL: 86400,
-          urgency: 'high'
-        }).then(() => {
+          urgency: 'high',
+          headers: {
+            'Topic': payload.tag || 'admin'
+          }
+        }).then(async () => {
           console.log(`[WEBPUSH] ✅ Notifica admin ${idx + 1} inviata con successo`);
+          await updateSuccessTimestamp(sub.endpoint);
           return { success: true };
-        }).catch(err => {
+        }).catch(async (err) => {
           console.error(`[WEBPUSH] ❌ Errore invio notifica admin ${idx + 1}:`, err.message);
           console.error(`[WEBPUSH] Status Code:`, err.statusCode);
           console.error(`[WEBPUSH] Body:`, err.body);
           
           if (err.statusCode === 410 || err.statusCode === 404) {
             console.log(`[WEBPUSH] 🗑️ Rimozione subscription admin scaduta/non valida`);
-            removeSubscription(sub.endpoint);
+            await removeSubscription(sub.endpoint);
             return { removed: sub.endpoint };
           }
+          
+          await incrementErrorCount(sub.endpoint);
           throw err;
         });
       })
@@ -304,9 +399,10 @@ async function sendNotificationToAdmins(payload) {
         console.warn('[WEBPUSH] 🗑️ Admin subscription rimossa:', adminSubs[idx]?.endpoint?.substring(0, 50) + '...');
       }
     });
+    
     return { sent, failed, removed, results };
   } catch (error) {
-    console.error('Errore invio notifiche admin:', error);
+    console.error('[WEBPUSH] Errore invio notifiche admin:', error);
     throw error;
   }
 }
@@ -318,35 +414,71 @@ async function sendNotificationToAdmins(payload) {
  */
 async function sendNotificationToAll(payload) {
   try {
-    const subscriptions = loadSubscriptions();
+    console.log('[WEBPUSH] 📢 sendNotificationToAll chiamato');
+    
+    const subscriptions = await loadSubscriptions();
     
     if (subscriptions.length === 0) {
-      console.log('Nessuna subscription trovata');
+      console.log('[WEBPUSH] Nessuna subscription trovata');
       return { sent: 0, failed: 0 };
     }
 
+    console.log(`[WEBPUSH] Invio broadcast a ${subscriptions.length} subscriptions...`);
+
     const results = await Promise.allSettled(
-      subscriptions.map(sub =>
-        webpush.sendNotification(sub, JSON.stringify(payload), {
+      subscriptions.map((sub, idx) => {
+        const pushSubscription = {
+          endpoint: sub.endpoint,
+          keys: sub.keys
+        };
+        
+        return webpush.sendNotification(pushSubscription, JSON.stringify(payload), {
           TTL: 86400,
-          urgency: 'normal'
-        }).catch(err => {
+          urgency: 'normal',
+          headers: {
+            'Topic': payload.tag || 'broadcast'
+          }
+        }).then(async () => {
+          await updateSuccessTimestamp(sub.endpoint);
+          return { success: true };
+        }).catch(async (err) => {
           if (err.statusCode === 410 || err.statusCode === 404) {
-            removeSubscription(sub.endpoint);
+            await removeSubscription(sub.endpoint);
             return { removed: sub.endpoint };
           }
+          await incrementErrorCount(sub.endpoint);
           throw err;
-        })
-      )
+        });
+      })
     );
 
     const sent = results.filter(r => r.status === 'fulfilled' && !r.value?.removed).length;
     const failed = results.filter(r => r.status === 'rejected').length;
+    const removed = results.filter(r => r.status === 'fulfilled' && r.value?.removed).length;
     
-    console.log(`Notifiche broadcast inviate: ${sent}, fallite: ${failed}`);
-    return { sent, failed, results };
+    console.log(`[WEBPUSH] Notifiche broadcast - Inviate: ${sent}, Fallite: ${failed}, Rimosse: ${removed}`);
+    return { sent, failed, removed, results };
   } catch (error) {
-    console.error('Errore broadcast notifiche:', error);
+    console.error('[WEBPUSH] Errore broadcast notifiche:', error);
+    throw error;
+  }
+}
+
+/**
+ * Pulisce le subscription con troppi errori dal database
+ * @param {Number} maxErrors - Numero massimo di errori tollerati (default: 5)
+ */
+async function cleanupFailedSubscriptions(maxErrors = 5) {
+  try {
+    const result = await db.query(
+      'DELETE FROM push_subscriptions WHERE error_count >= $1 RETURNING id, endpoint',
+      [maxErrors]
+    );
+    
+    console.log(`[WEBPUSH] 🧹 Pulizia completata: ${result.rows.length} subscriptions rimosse`);
+    return result.rows.length;
+  } catch (error) {
+    console.error('[WEBPUSH] Errore pulizia subscriptions:', error);
     throw error;
   }
 }
@@ -357,6 +489,11 @@ module.exports = {
   sendNotificationToUsers,
   sendNotificationToAdmins,
   sendNotificationToAll,
-  loadSubscriptions
+  loadSubscriptions,
+  cleanupFailedSubscriptions,
+  incrementErrorCount,
+  updateSuccessTimestamp,
+  getSubscriptionByEndpoint
 };
+
 

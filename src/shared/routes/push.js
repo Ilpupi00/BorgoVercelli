@@ -27,18 +27,35 @@ router.get('/push/vapidPublicKey', (req, res) => {
 router.post('/push/subscribe', express.json(), async (req, res) => {
   try {
     const subscription = req.body;
+    const userAgent = req.headers['user-agent'];
     
     // DEBUG: log cookies, session and passport user to troubleshoot 401 issues
     console.log('[PUSH] /push/subscribe invoked - headers.cookie=', req.headers.cookie);
-    try { console.log('[PUSH] req.session (debug):', !!req.session, Object.keys(req.session || {})); } catch(e) { console.log('[PUSH] req.session logging error', e); }
-    try { console.log('[PUSH] req.user (passport):', !!req.user, req.user ? { id: req.user.id, tipo_utente: req.user.tipo_utente, tipo_utente_nome: req.user.tipo_utente_nome, tipo_utente_id: req.user.tipo_utente_id, isAdmin: req.user.isAdmin } : null); } catch(e) { console.log('[PUSH] req.user logging error', e); }
+    try { 
+      console.log('[PUSH] req.session (debug):', !!req.session, Object.keys(req.session || {})); 
+    } catch(e) { 
+      console.log('[PUSH] req.session logging error', e); 
+    }
+    try { 
+      console.log('[PUSH] req.user (passport):', !!req.user, req.user ? { 
+        id: req.user.id, 
+        tipo_utente: req.user.tipo_utente, 
+        tipo_utente_nome: req.user.tipo_utente_nome, 
+        tipo_utente_id: req.user.tipo_utente_id, 
+        isAdmin: req.user.isAdmin 
+      } : null); 
+    } catch(e) { 
+      console.log('[PUSH] req.user logging error', e); 
+    }
 
     // Verifica che l'utente sia autenticato tramite Passport
     if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || !req.user.id) {
+      console.log('[PUSH] ❌ Utente non autenticato');
       return res.status(401).json({ error: 'Utente non autenticato' });
     }
 
     const userId = req.user.id;
+    
     // Determine admin status robustly: accept multiple shapes coming from DAO/model
     const isAdmin = (
       req.user.isAdmin === true ||
@@ -48,18 +65,20 @@ router.post('/push/subscribe', express.json(), async (req, res) => {
     );
 
     // Valida la subscription
-    if (!subscription || !subscription.endpoint) {
+    if (!subscription || !subscription.endpoint || !subscription.keys) {
+      console.log('[PUSH] ❌ Subscription non valida');
       return res.status(400).json({ error: 'Subscription non valida' });
     }
 
-    await pushService.addSubscription(subscription, userId, isAdmin);
+    console.log(`[PUSH] ✅ Salvataggio subscription per user ${userId} (admin: ${isAdmin})`);
+    await pushService.addSubscription(subscription, userId, isAdmin, userAgent);
     
     res.status(201).json({ 
       success: true,
       message: 'Subscription salvata con successo' 
     });
   } catch (error) {
-    console.error('Errore salvataggio subscription:', error);
+    console.error('[PUSH] ❌ Errore salvataggio subscription:', error);
     res.status(500).json({ error: 'Errore salvataggio subscription' });
   }
 });
@@ -75,7 +94,8 @@ router.post('/push/subscribe-anon', express.json(), async (req, res) => {
       return res.status(400).json({ error: 'Subscription non valida' });
     }
     // userId 0 = anon test
-    await pushService.addSubscription(subscription, 0, false);
+    const userAgent = req.headers['user-agent'] || null;
+    await pushService.addSubscription(subscription, 0, false, userAgent);
     return res.status(201).json({ success: true, message: 'Subscription anon salvata' });
   } catch (error) {
     console.error('Errore /push/subscribe-anon:', error);
@@ -96,8 +116,37 @@ router.post('/push/unsubscribe', express.json(), async (req, res) => {
       return res.status(400).json({ error: 'Endpoint richiesto' });
     }
 
-    pushService.removeSubscription(endpoint);
-    
+    // Recupera la subscription per verificare ownership/anon removal
+    const sub = await pushService.getSubscriptionByEndpoint(endpoint);
+
+    if (!sub) {
+      return res.status(404).json({ error: 'Subscription non trovata' });
+    }
+
+    // Verifica autenticazione e autorizzazione
+    const isAuthenticated = !!(req.isAuthenticated && req.isAuthenticated() && req.user && req.user.id);
+    const isAdmin = isAuthenticated && (
+      req.user.isAdmin === true ||
+      req.user.tipo_utente === 'admin' ||
+      (typeof req.user.tipo_utente_nome === 'string' && req.user.tipo_utente_nome.toLowerCase() === 'admin') ||
+      req.user.tipo_utente_id === 1
+    );
+
+    // If user is authenticated, allow if owner or admin
+    if (isAuthenticated) {
+      const ownerId = sub.user_id !== null && sub.user_id !== undefined ? String(sub.user_id) : null;
+      if (ownerId !== null && String(req.user.id) !== ownerId && !isAdmin) {
+        return res.status(403).json({ error: 'Non autorizzato a rimuovere questa subscription' });
+      }
+    } else {
+      // Not authenticated: allow removal only for anon subscriptions (user_id === 0)
+      if (sub.user_id !== 0) {
+        return res.status(401).json({ error: 'Utente non autenticato' });
+      }
+    }
+
+    await pushService.removeSubscription(endpoint);
+
     res.json({ 
       success: true,
       message: 'Subscription rimossa con successo' 
@@ -127,7 +176,7 @@ router.post('/push/subscribe-error', express.json(), (req, res) => {
  * GET /push/subscriptions
  * Visualizza tutte le subscription (solo per admin)
  */
-router.get('/push/subscriptions', (req, res) => {
+router.get('/push/subscriptions', async (req, res) => {
   try {
     // Verifica che l'utente sia admin (usando Passport)
     if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || !(
@@ -139,13 +188,14 @@ router.get('/push/subscriptions', (req, res) => {
       return res.status(403).json({ error: 'Accesso negato' });
     }
 
-    const subscriptions = pushService.loadSubscriptions();
+    const subscriptions = await pushService.loadSubscriptions();
     
     // Nascondi dati sensibili
     const safeSubs = subscriptions.map(s => ({
       userId: s.userId,
       isAdmin: s.isAdmin,
       createdAt: s.createdAt,
+      updatedAt: s.updatedAt,
       endpoint: s.endpoint.substring(0, 50) + '...'
     }));
     
@@ -154,7 +204,7 @@ router.get('/push/subscriptions', (req, res) => {
       subscriptions: safeSubs 
     });
   } catch (error) {
-    console.error('Errore recupero subscriptions:', error);
+    console.error('[PUSH] Errore recupero subscriptions:', error);
     res.status(500).json({ error: 'Errore server' });
   }
 });
@@ -163,13 +213,13 @@ router.get('/push/subscriptions', (req, res) => {
  * GET /push/my-subscriptions
  * Debug route: restituisce le subscription salvate per l'utente corrente (autenticazione richiesta)
  */
-router.get('/push/my-subscriptions', (req, res) => {
+router.get('/push/my-subscriptions', async (req, res) => {
   try {
     if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || !req.user.id) {
       return res.status(401).json({ error: 'Utente non autenticato' });
     }
 
-    const subscriptions = pushService.loadSubscriptions();
+    const subscriptions = await pushService.loadSubscriptions();
     const myId = String(req.user.id);
     const mySubs = subscriptions.filter(s => String(s.userId) === myId);
 
@@ -177,7 +227,7 @@ router.get('/push/my-subscriptions', (req, res) => {
 
     return res.json({ count: mySubs.length, subscriptions: mySubs });
   } catch (error) {
-    console.error('Errore /push/my-subscriptions:', error);
+    console.error('[PUSH] Errore /push/my-subscriptions:', error);
     return res.status(500).json({ error: 'Errore server' });
   }
 });
@@ -206,17 +256,65 @@ router.get('/push/debug', (req, res) => {
 });
 
 /**
+ * GET /push/debug-my-subscriptions
+ * Restituisce le subscription salvate per l'utente autenticato (dettagli completi) - DEBUG
+ */
+router.get('/push/debug-my-subscriptions', async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Utente non autenticato' });
+    }
+
+    const all = await pushService.loadSubscriptions();
+    const myId = String(req.user.id);
+    const mySubs = all.filter(s => String(s.userId) === myId || s.userId === 0 && String(req.user.id) === '0');
+
+    return res.json({ count: mySubs.length, subscriptions: mySubs });
+  } catch (error) {
+    console.error('[PUSH] Errore /push/debug-my-subscriptions:', error);
+    return res.status(500).json({ error: 'Errore server' });
+  }
+});
+
+/**
+ * POST /push/debug-send-myself
+ * Invia una notifica di test all'utente autenticato utilizzando il servizio push
+ * Body: { title?, body?, url? }
+ */
+router.post('/push/debug-send-myself', express.json(), async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Utente non autenticato' });
+    }
+
+    const userId = req.user.id;
+    const { title = 'Test Notifica (debug)', body = 'Questa è una notifica di test inviata a te', url = '/' } = req.body || {};
+    const payload = { title, body, url };
+
+    const result = await pushService.sendNotificationToUsers([userId], payload);
+    return res.json({ success: true, result });
+  } catch (error) {
+    console.error('[PUSH] Errore /push/debug-send-myself:', error);
+    return res.status(500).json({ error: 'Errore server' });
+  }
+});
+
+/**
  * GET /push/admin-subs
  * Debug: restituisce tutte le subscription con isAdmin === true (dettagli minimi)
  */
-router.get('/push/admin-subs', (req, res) => {
+router.get('/push/admin-subs', async (req, res) => {
   try {
-    const subscriptions = pushService.loadSubscriptions();
+    const subscriptions = await pushService.loadSubscriptions();
     const adminSubs = subscriptions.filter(s => s.isAdmin === true);
-    const safe = adminSubs.map(s => ({ userId: s.userId, endpoint: s.endpoint, createdAt: s.createdAt }));
+    const safe = adminSubs.map(s => ({ 
+      userId: s.userId, 
+      endpoint: s.endpoint.substring(0, 50) + '...', 
+      createdAt: s.createdAt 
+    }));
     return res.json({ count: safe.length, subscriptions: safe });
   } catch (error) {
-    console.error('Errore /push/admin-subs:', error);
+    console.error('[PUSH] Errore /push/admin-subs:', error);
     return res.status(500).json({ error: 'Errore server' });
   }
 });

@@ -186,70 +186,108 @@ class PushNotificationManager {
    */
   async subscribe() {
     try {
+      console.log('[Push Manager] 🚀 Inizio processo di subscription...');
+      
       if (!this.isSupported) {
-        throw new Error('Le notifiche push non sono supportate');
+        throw new Error('Le notifiche push non sono supportate su questo browser');
       }
 
       // Registra il service worker se non è già registrato
       if (!this.registration) {
+        console.log('[Push Manager] Registrazione service worker...');
         this.registration = await this.registerServiceWorker();
       }
 
       // Richiedi il permesso
+      console.log('[Push Manager] Richiesta permesso notifiche...');
       const hasPermission = await this.requestPermission();
+      
       if (!hasPermission) {
+        console.log('[Push Manager] ❌ Permesso notifiche negato');
         // Mostra istruzioni all'utente per riabilitare il permesso (se negato)
-        try { this.showPermissionDeniedInstructions(); } catch(e){}
+        try { 
+          this.showPermissionDeniedInstructions(); 
+        } catch(e) {
+          console.warn('[Push Manager] Errore mostra istruzioni:', e);
+        }
         throw new Error('Permesso notifiche negato');
       }
 
+      console.log('[Push Manager] ✅ Permesso notifiche concesso');
+
       // Ottieni la chiave VAPID pubblica
+      console.log('[Push Manager] Recupero VAPID public key...');
       const vapidPublicKey = await this.getVapidPublicKey();
       
       if (!vapidPublicKey) {
-        throw new Error('VAPID public key non disponibile');
+        throw new Error('VAPID public key non disponibile dal server');
       }
 
-      // Crea la subscription
+      console.log('[Push Manager] VAPID key ricevuta, lunghezza:', vapidPublicKey.length);
+
+      // Crea la subscription con gestione errori migliorata
       try {
-        this.subscription = await this.registration.pushManager.subscribe({
+        console.log('[Push Manager] Tentativo di subscription...');
+        
+        const subscribeOptions = {
           userVisibleOnly: true,
           applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
-        });
+        };
+
+        this.subscription = await this.registration.pushManager.subscribe(subscribeOptions);
+        console.log('[Push Manager] ✅ Subscription creata con successo');
+        
       } catch (err) {
-        console.warn('Registration failed first attempt:', err);
-        // Fallback: normalize VAPID key and retry once (addresses subtle base64/url-safe differences)
+        console.warn('[Push Manager] ⚠️ Subscription fallita al primo tentativo:', err.message);
+        
+        // Fallback: prova a normalizzare la chiave VAPID e riprova
         try {
+          console.log('[Push Manager] Tentativo fallback con VAPID key normalizzata...');
+          
           const normalized = vapidPublicKey.trim().replace(/\s+/g, '');
           const alt = normalized.replace(/\+/g, '-').replace(/\//g, '_');
-          console.log('Retrying subscribe with normalized VAPID key');
+          
           this.subscription = await this.registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: this.urlBase64ToUint8Array(alt)
           });
+          
+          console.log('[Push Manager] ✅ Subscription creata con successo (fallback)');
+          
         } catch (err2) {
-          console.error('Registration failed - push service error (after retry):', err2);
+          console.error('[Push Manager] ❌ Subscription fallita anche con fallback:', err2);
+          
           // Report error to server for debugging
           try {
+            const errorReport = {
+              message: (err2 && err2.message) || String(err2),
+              name: err2 && err2.name,
+              code: err2 && err2.code,
+              stack: err2 && err2.stack,
+              userAgent: navigator.userAgent,
+              vapidSample: vapidPublicKey ? vapidPublicKey.substring(0, 50) : null,
+              timestamp: new Date().toISOString()
+            };
+            
             await fetch('/push/subscribe-error', {
               method: 'POST',
               credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: (err2 && err2.message) || String(err2),
-                stack: err2 && err2.stack,
-                userAgent: navigator.userAgent,
-                vapidSample: vapidPublicKey ? vapidPublicKey.substring(0, 50) : null
-              })
-            }).catch(e => console.warn('Errore invio report subscribe-error:', e));
-          } catch (e) {}
+              body: JSON.stringify(errorReport)
+            }).catch(e => console.warn('[Push Manager] Errore invio report errore:', e));
+          } catch (e) {
+            console.warn('[Push Manager] Impossibile inviare report errore:', e);
+          }
+          
           throw err2;
         }
       }
 
-      console.log('Subscription creata:', this.subscription);
+      console.log('[Push Manager] Subscription endpoint:', this.subscription.endpoint.substring(0, 60) + '...');
 
       // Invia la subscription al server
+      console.log('[Push Manager] Invio subscription al server...');
+      
       const response = await fetch('/push/subscribe', {
         method: 'POST',
         credentials: 'include',
@@ -260,15 +298,28 @@ class PushNotificationManager {
       });
 
       if (!response.ok) {
-        throw new Error('Errore salvataggio subscription sul server');
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('[Push Manager] ❌ Errore dal server:', response.status, errorText);
+        throw new Error(`Errore salvataggio subscription: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
-      console.log('Subscription salvata sul server:', result);
+      console.log('[Push Manager] ✅ Subscription salvata sul server:', result);
 
       return this.subscription;
+      
     } catch (error) {
-      console.error('Errore subscription:', error);
+      console.error('[Push Manager] ❌ Errore durante subscription:', error);
+      
+      // Mostra un messaggio utente-friendly per errori comuni
+      if (error.message.includes('401') || error.message.includes('non autenticato')) {
+        console.error('[Push Manager] Utente non autenticato - reindirizzare al login');
+      } else if (error.name === 'NotAllowedError') {
+        console.error('[Push Manager] Permesso negato dall\'utente');
+      } else if (error.name === 'NotSupportedError') {
+        console.error('[Push Manager] Push notifications non supportate su questo dispositivo');
+      }
+      
       throw error;
     }
   }
@@ -352,57 +403,80 @@ class PushNotificationManager {
 // Funzione helper globale per inizializzare le notifiche push
 async function initPushNotifications() {
   try {
+    console.log('[Push Init] 🚀 Inizializzazione push notifications...');
+    
     const manager = new PushNotificationManager();
     
     if (!PushNotificationManager.isSupported()) {
-      console.log('Le notifiche push non sono supportate su questo browser');
+      console.log('[Push Init] ⚠️ Le notifiche push non sono supportate su questo browser');
+      console.log('[Push Init] Browser:', navigator.userAgent);
       return null;
     }
+
+    console.log('[Push Init] ✅ Browser supporta push notifications');
 
     // Assicura che il service worker sia registrato PRIMA di chiamare ready/getSubscription
     try {
       await manager.registerServiceWorker();
-      console.log('Service worker registrato (init).');
+      console.log('[Push Init] ✅ Service worker registrato');
     } catch (err) {
-      console.warn('Impossibile registrare service worker durante init:', err);
+      console.warn('[Push Init] ⚠️ Impossibile registrare service worker:', err);
+      return null;
     }
 
     // Verifica se l'utente è già sottoscritto
     const isSubscribed = await manager.isSubscribed();
+    console.log('[Push Init] Stato subscription:', isSubscribed ? 'SOTTOSCRITTO' : 'NON SOTTOSCRITTO');
     
     if (!isSubscribed) {
       // Sottoscrivi automaticamente se non è già sottoscritto
-      await manager.subscribe();
-      console.log('Utente sottoscritto alle notifiche push');
-    } else {
-      console.log('Utente già sottoscritto alle notifiche push');
+      console.log('[Push Init] Tentativo di subscription automatica...');
+      
       try {
-        // Se l'endpoint è già presente sul client, assicurati che sia salvato anche sul server
+        await manager.subscribe();
+        console.log('[Push Init] ✅ Utente sottoscritto alle notifiche push');
+      } catch (subError) {
+        console.warn('[Push Init] ⚠️ Impossibile sottoscrivere automaticamente:', subError.message);
+        
+        // Non è un errore critico - l'utente può sottoscriversi manualmente dopo
+        if (subError.message.includes('negato')) {
+          console.log('[Push Init] L\'utente ha negato il permesso - può essere richiesto manualmente');
+        }
+      }
+    } else {
+      console.log('[Push Init] Utente già sottoscritto');
+      
+      // Se l'endpoint è già presente sul client, assicurati che sia salvato anche sul server
+      try {
         const existingSub = await manager.getSubscription();
+        
         if (existingSub) {
-          console.log('Invio subscription esistente al server per assicurare salvataggio');
-          await fetch('/push/subscribe', {
+          console.log('[Push Init] Sincronizzazione subscription esistente con il server...');
+          
+          const response = await fetch('/push/subscribe', {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(existingSub)
-          }).then(async res => {
-            if (!res.ok) {
-              const txt = await res.text();
-              console.warn('subscribe existing returned', res.status, txt);
-            } else {
-              console.log('Subscription esistente inviata al server con successo');
-            }
-          }).catch(err => console.warn('Errore invio subscription esistente al server', err));
+          });
+          
+          if (!response.ok) {
+            const txt = await response.text();
+            console.warn('[Push Init] ⚠️ Errore sincronizzazione:', response.status, txt);
+          } else {
+            console.log('[Push Init] ✅ Subscription sincronizzata con il server');
+          }
         }
       } catch (e) {
-        console.warn('Errore during ensure-subscription-save:', e);
+        console.warn('[Push Init] ⚠️ Errore durante sincronizzazione:', e);
       }
     }
 
+    console.log('[Push Init] ✅ Inizializzazione completata');
     return manager;
+    
   } catch (error) {
-    console.error('Errore inizializzazione push notifications:', error);
+    console.error('[Push Init] ❌ Errore inizializzazione push notifications:', error);
     return null;
   }
 }

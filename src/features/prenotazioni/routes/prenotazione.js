@@ -108,6 +108,58 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
     }
 });
 
+// DEBUG: crea una prenotazione finta e invia le notifiche (no auth)
+router.post('/prenotazioni/debug-create', async (req, res) => {
+    const { campo_id, utente_id, data_prenotazione, ora_inizio, ora_fine } = req.body || {};
+    if (!campo_id || !data_prenotazione || !ora_inizio || !ora_fine) {
+        return res.status(400).json({ error: 'Dati obbligatori mancanti' });
+    }
+
+    try {
+        // Costruisci un oggetto prenotazione finto
+        const fakeResult = { id: Math.floor(Math.random() * 1000000), utente_id: utente_id || null };
+
+        // Invia notifica admin (no DB lookup to avoid failures in debug mode)
+        try {
+            const campoNome = `Campo ${campo_id}`;
+            const dataFormatted = new Date(data_prenotazione).toLocaleDateString('it-IT');
+
+            await pushService.sendNotificationToAdmins({
+                title: '🔔 Nuova Prenotazione (debug)',
+                body: `${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
+                icon: '/assets/images/Logo.png',
+                url: '/admin',
+                tag: `prenotazione-${fakeResult.id}`,
+                requireInteraction: true
+            });
+        } catch (pushErr) {
+            console.error('[PUSH DEBUG] Errore invio notifica admin:', pushErr);
+        }
+
+        // Invia notifica utente (se presente utente_id)
+        try {
+            const bookingUserId = utente_id || null;
+            if (bookingUserId) {
+                await pushService.sendNotificationToUsers([bookingUserId], {
+                    title: '✅ Prenotazione Effettuata (debug)',
+                    body: `Hai prenotato: ${campo_id} - ${data_prenotazione} dalle ${ora_inizio} alle ${ora_fine}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/prenotazione/mie_prenotazioni',
+                    tag: `prenotazione-${fakeResult.id}-creata`,
+                    requireInteraction: true
+                });
+            }
+        } catch (userPushErr) {
+            console.error('[PUSH DEBUG] Errore invio notifica utente:', userPushErr);
+        }
+
+        return res.json({ success: true, created: fakeResult });
+    } catch (err) {
+        console.error('[DEBUG CREATE] Errore:', err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 // 4. Ottieni prenotazione per ID
 router.get('/prenotazioni/:id', async (req, res) => {
     const id = req.params.id;

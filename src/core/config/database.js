@@ -92,7 +92,14 @@ const db = {
             })
             .catch(err => cb && cb(err));
     },
-    close: () => pool.end()
+    // Query diretta che restituisce una Promise (utile per async/await)
+    query: (sql, params = []) => {
+        const pgSql = convertQuestionPlaceholders(sql);
+        return pool.query(pgSql, params);
+    },
+    close: () => pool.end(),
+    // Esponiamo anche il pool per operazioni avanzate
+    pool
 };
 
 // Esponiamo la Promise che indica quando la connessione iniziale è stata verificata

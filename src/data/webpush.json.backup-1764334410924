@@ -1,0 +1,14 @@
+[
+  {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/dDHk6tNeg5Y:APA91bGbQGa2zlDJ2C_UM9FMkvtlURCdfqILJjKRf6m127xzWOZCkM7jj4kIg5v1MGR1-sfQd8orT8DwIetSjVJKkiaZ8ITZQVrxtwERcIfZ-U3ad5ckfkJEie7795pGblTFKqxL8pKb",
+    "expirationTime": null,
+    "keys": {
+      "p256dh": "BNzmWXRpFFWqVheYLlbCOt6wEktZUWQNySg7TYetnsRJzwHPZIzsaUWr9dFjb2D2XuDpidEZovcuGCjDNt33pH0",
+      "auth": "GuHmCvxIY-PgDyrOg4524w"
+    },
+    "userId": 2,
+    "isAdmin": true,
+    "createdAt": "2025-11-28T12:28:19.514Z",
+    "updatedAt": "2025-11-28T12:35:04.941Z"
+  }
+]
