@@ -5,7 +5,8 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm start && npm run worker:notifications"
+
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
