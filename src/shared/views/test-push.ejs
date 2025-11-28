@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifiche Push - Borgo Vercelli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: none;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-ok { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .log-container {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 1rem;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 0.25rem;
+            word-break: break-all;
+        }
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f48771; }
+        .log-warning { color: #dcdcaa; }
+        .log-info { color: #9cdcfe; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">🔔 Test Notifiche Push</h4>
+                <small>Debug e verifica sistema notifiche</small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">Stato Browser</h6>
+                                <p class="mb-1">
+                                    <span class="status-indicator" id="browserStatus"></span>
+                                    <span id="browserStatusText">Verificando...</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">Permesso</h6>
+                                <p class="mb-1">
+                                    <span class="status-indicator" id="permissionStatus"></span>
+                                    <span id="permissionStatusText">Verificando...</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">Subscription</h6>
+                                <p class="mb-1">
+                                    <span class="status-indicator" id="subscriptionStatus"></span>
+                                    <span id="subscriptionStatusText">Verificando...</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h5>Invia Notifica Test</h5>
+                <div class="mb-3">
+                    <label class="form-label">Destinatari</label>
+                    <select class="form-select" id="targetSelect">
+                        <option value="me">Solo a me</option>
+                        <option value="admins">A tutti gli admin</option>
+                        <option value="all">A tutti gli utenti</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Titolo</label>
+                    <input type="text" class="form-control" id="titleInput" value="🔔 Notifica Test">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Messaggio</label>
+                    <textarea class="form-control" id="bodyInput" rows="2">Questa è una notifica di test dal sistema Borgo Vercelli</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">URL (opzionale)</label>
+                    <input type="text" class="form-control" id="urlInput" value="/" placeholder="/percorso/pagina">
+                </div>
+                <button class="btn btn-primary btn-lg w-100 mb-2" id="sendBtn" onclick="sendTestNotification()">
+                    📤 Invia Notifica Push (dal Server)
+                </button>
+                <button class="btn btn-success w-100 mb-2" onclick="testLocalNotification()">
+                    🧪 Test Notifica Locale (Solo Browser)
+                </button>
+                <button class="btn btn-info w-100" onclick="forceResubscribe()">
+                    🔄 Riconnetti Service Worker
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>📋 Log Console</span>
+                <button class="btn btn-sm btn-outline-light" onclick="clearLog()">Pulisci</button>
+            </div>
+            <div class="card-body p-0">
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry log-info">Sistema di log inizializzato...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-outline-light">← Torna alla Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/push-notifications.js"></script>
+    <script>
+        let pushManager = null;
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString('it-IT');
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry log-info">Log pulito...</div>';
+        }
+
+        function setStatus(elementId, status, text) {
+            const indicator = document.getElementById(elementId);
+            const textElement = document.getElementById(elementId + 'Text');
+            
+            indicator.className = 'status-indicator';
+            if (status === 'ok') {
+                indicator.classList.add('status-ok');
+            } else if (status === 'error') {
+                indicator.classList.add('status-error');
+            } else {
+                indicator.classList.add('status-warning');
+            }
+            
+            textElement.textContent = text;
+        }
+
+        async function checkStatus() {
+            log('Controllo supporto browser...', 'info');
+            
+            // Check browser support
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                setStatus('browserStatus', 'ok', 'Supportato');
+                log('✅ Browser supporta le notifiche push', 'success');
+            } else {
+                setStatus('browserStatus', 'error', 'Non supportato');
+                log('❌ Browser NON supporta le notifiche push', 'error');
+                return;
+            }
+
+            // Check permission
+            const permission = Notification.permission;
+            log(`Permesso notifiche: ${permission}`, 'info');
+            
+            if (permission === 'granted') {
+                setStatus('permissionStatus', 'ok', 'Concesso');
+                log('✅ Permesso notifiche concesso', 'success');
+            } else if (permission === 'denied') {
+                setStatus('permissionStatus', 'error', 'Negato');
+                log('❌ Permesso notifiche negato', 'error');
+            } else {
+                setStatus('permissionStatus', 'warning', 'Non richiesto');
+                log('⚠️ Permesso notifiche non ancora richiesto', 'warning');
+            }
+
+            // Check subscription
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+                
+                if (subscription) {
+                    setStatus('subscriptionStatus', 'ok', 'Attiva');
+                    log('✅ Subscription attiva', 'success');
+                    log(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`, 'info');
+                } else {
+                    setStatus('subscriptionStatus', 'warning', 'Non attiva');
+                    log('⚠️ Nessuna subscription attiva', 'warning');
+                }
+            } catch (error) {
+                setStatus('subscriptionStatus', 'error', 'Errore');
+                log(`❌ Errore verifica subscription: ${error.message}`, 'error');
+            }
+        }
+
+        async function initPushManager() {
+            try {
+                log('Inizializzazione PushNotificationManager...', 'info');
+                pushManager = new PushNotificationManager();
+                
+                if (!PushNotificationManager.isSupported()) {
+                    log('❌ Push notifications non supportate', 'error');
+                    return;
+                }
+
+                const isSubscribed = await pushManager.isSubscribed();
+                
+                if (!isSubscribed) {
+                    log('⚠️ Non sei iscritto. Tentativo di subscription...', 'warning');
+                    await pushManager.subscribe();
+                    log('✅ Subscription completata con successo!', 'success');
+                } else {
+                    log('✅ Già iscritto alle notifiche', 'success');
+                }
+
+                await checkStatus();
+            } catch (error) {
+                log(`❌ Errore inizializzazione: ${error.message}`, 'error');
+                console.error('Init error:', error);
+            }
+        }
+
+        async function sendTestNotification() {
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Invio in corso...';
+
+            const target = document.getElementById('targetSelect').value;
+            const title = document.getElementById('titleInput').value;
+            const body = document.getElementById('bodyInput').value;
+            const url = document.getElementById('urlInput').value || '/';
+
+            log(`📤 Invio notifica a: ${target}`, 'info');
+            log(`Titolo: ${title}`, 'info');
+            log(`Messaggio: ${body}`, 'info');
+
+            // PRIMA mostra una notifica locale per confermare che i permessi funzionano
+            try {
+                if (Notification.permission === 'granted') {
+                    log('🔔 Mostrando notifica locale di test...', 'info');
+                    const localNotif = new Notification('🧪 Test Locale', {
+                        body: 'Se vedi questa notifica, i permessi funzionano! Ora invio la push...',
+                        icon: '/assets/images/Logo.png',
+                        requireInteraction: false
+                    });
+                    
+                    setTimeout(() => {
+                        localNotif.close();
+                    }, 3000);
+                } else {
+                    log('⚠️ Permesso notifiche non concesso!', 'warning');
+                }
+            } catch (e) {
+                log(`❌ Errore notifica locale: ${e.message}`, 'error');
+            }
+
+            try {
+                const response = await fetch('/push/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ to: target, title, body, url })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Notifica PUSH inviata dal server con successo!', 'success');
+                    log(`Risultato: ${JSON.stringify(result)}`, 'success');
+                    log('👀 Controlla se vedi la notifica push sullo schermo!', 'success');
+                    
+                    // Show browser notification as confirmation
+                    setTimeout(() => {
+                        if (Notification.permission === 'granted') {
+                            new Notification('✅ Test Completato', {
+                                body: 'La notifica push è stata inviata. Dovresti averla vista!',
+                                icon: '/assets/images/Logo.png'
+                            });
+                        }
+                    }, 2000);
+                } else {
+                    log(`❌ Errore invio: ${result.error || 'Unknown'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Errore di rete: ${error.message}`, 'error');
+                console.error('Send error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '📤 Invia Notifica Test';
+            }
+        }
+
+        async function testLocalNotification() {
+            log('🧪 Test notifica locale diretta...', 'info');
+            
+            if (Notification.permission !== 'granted') {
+                log('❌ Permesso non concesso! Richiedilo prima.', 'error');
+                const perm = await Notification.requestPermission();
+                log(`Permesso ora: ${perm}`, perm === 'granted' ? 'success' : 'error');
+                if (perm !== 'granted') return;
+            }
+
+            try {
+                log('✅ Creando notifica locale...', 'info');
+                const notif = new Notification('🧪 Test Notifica Locale', {
+                    body: 'Se vedi questa notifica, il browser e i permessi funzionano correttamente!',
+                    icon: '/assets/images/Logo.png',
+                    badge: '/assets/images/Logo.png',
+                    tag: 'test-local',
+                    requireInteraction: false,
+                    vibrate: [200, 100, 200]
+                });
+
+                notif.onclick = function() {
+                    log('🖱️ Notifica cliccata!', 'success');
+                    window.focus();
+                    notif.close();
+                };
+
+                log('✅ Notifica locale creata! Dovresti vederla ADESSO sullo schermo!', 'success');
+                
+                setTimeout(() => {
+                    notif.close();
+                    log('🔔 Notifica locale chiusa automaticamente dopo 5 secondi', 'info');
+                }, 5000);
+            } catch (error) {
+                log(`❌ Errore creazione notifica locale: ${error.message}`, 'error');
+                console.error('Local notification error:', error);
+            }
+        }
+
+        async function forceResubscribe() {
+            log('🔄 Riconnessione service worker in corso...', 'info');
+            
+            try {
+                // Unregister old service worker
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    log(`🗑️ Rimozione vecchio service worker...`, 'info');
+                    await registration.unregister();
+                }
+
+                log('⏳ Attendi 2 secondi...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Re-register
+                log('📝 Registrazione nuovo service worker...', 'info');
+                const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                    scope: '/'
+                });
+
+                log('⏳ Attendi che il service worker sia pronto...', 'info');
+                await navigator.serviceWorker.ready;
+
+                log('✅ Service worker riconnesso!', 'success');
+                
+                // Re-init push manager
+                await initPushManager();
+                
+                log('🎉 Riconnessione completata! Prova ora a inviare una notifica.', 'success');
+            } catch (error) {
+                log(`❌ Errore riconnessione: ${error.message}`, 'error');
+                console.error('Resubscribe error:', error);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            log('Pagina caricata', 'info');
+            log('🔍 Controllo permessi sistema operativo...', 'info');
+            
+            // Check OS notification settings
+            if (navigator.permissions) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'notifications' });
+                    log(`📋 Stato permesso OS: ${result.state}`, result.state === 'granted' ? 'success' : 'warning');
+                    
+                    result.onchange = () => {
+                        log(`🔔 Permesso cambiato a: ${result.state}`, 'info');
+                    };
+                } catch (e) {
+                    log('⚠️ Impossibile controllare permessi OS', 'warning');
+                }
+            }
+            
+            await checkStatus();
+            await initPushManager();
+            
+            log('💡 SUGGERIMENTO: Clicca "Test Notifica Locale" per verificare che i permessi funzionino!', 'info');
+        });
+
+        // Ricezione messaggi dal service worker (fallback in-page quando la notifica di sistema non appare)
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                try {
+                    const msg = event.data;
+                    if (!msg) return;
+                    if (msg.type === 'push' && msg.payload) {
+                        const p = msg.payload;
+                        const title = p.title || 'Notifica';
+                        const body = p.body || '';
+                        showInPageBanner(title, body, p.url || '/');
+                        log('[SW->PAGE] Messaggio push ricevuto via postMessage', 'info');
+                    }
+                } catch (e) {
+                    console.error('Errore ricezione message dal SW:', e);
+                }
+            });
+        }
+
+        // Global error capture (temporary) - reports to server for debugging
+        window.addEventListener('error', function (event) {
+            try {
+                const payload = {
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error && event.error.stack
+                };
+                console.error('GLOBAL ERROR CAPTURE:', payload);
+                fetch('/push/subscribe-error', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'global-error', payload })
+                }).catch(() => {});
+            } catch (e) {}
+        });
+
+        window.addEventListener('unhandledrejection', function (event) {
+            try {
+                const payload = { reason: event.reason && (event.reason.stack || event.reason), type: 'unhandledrejection' };
+                console.error('UNHANDLED REJECTION:', payload);
+                fetch('/push/subscribe-error', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'promise-rejection', payload })
+                }).catch(() => {});
+            } catch (e) {}
+        });
+
+        // Mostra un banner in-page (fallback)
+        function showInPageBanner(title, body, url) {
+            const banner = document.createElement('div');
+            banner.className = 'alert alert-primary d-flex justify-content-between align-items-center';
+            banner.style.position = 'fixed';
+            banner.style.left = '50%';
+            banner.style.transform = 'translateX(-50%)';
+            banner.style.top = '12px';
+            banner.style.zIndex = 1060;
+            banner.style.maxWidth = '800px';
+            banner.innerHTML = `
+                <div>
+                    <strong>${escapeHtml(title)}</strong>
+                    <div style="font-size:0.9rem">${escapeHtml(body)}</div>
+                </div>
+                <div>
+                    <a href="${escapeAttr(url)}" class="btn btn-sm btn-light me-2">Apri</a>
+                    <button class="btn btn-sm btn-secondary">Chiudi</button>
+                </div>
+            `;
+
+            const closeBtn = banner.querySelector('button');
+            closeBtn.addEventListener('click', () => banner.remove());
+
+            document.body.appendChild(banner);
+            setTimeout(() => { if (banner.parentNode) banner.remove(); }, 8000);
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            return s.replace(/[&<>\"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]; });
+        }
+
+        function escapeAttr(s) {
+            return escapeHtml(s).replace(/\"/g, '%22');
+        }
+    </script>
+</body>
+</html>

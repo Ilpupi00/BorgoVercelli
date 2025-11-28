@@ -21,19 +21,44 @@ class PushNotificationManager {
    * Converte una chiave VAPID da base64 a Uint8Array
    */
   urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
-    
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
+    try {
+      if (!base64String || typeof base64String !== 'string') {
+        throw new Error('VAPID public key must be a string');
+      }
+      
+      // Sanitize: remove whitespace, newlines, and any non-base64url characters
+      let sanitized = base64String.trim().replace(/[\s\r\n]+/g, '');
+      
+      // Ensure only valid base64url characters (A-Z, a-z, 0-9, -, _)
+      if (!/^[A-Za-z0-9_-]+$/.test(sanitized)) {
+        console.warn('VAPID key contains invalid characters, sanitizing...');
+        sanitized = sanitized.replace(/[^A-Za-z0-9_-]/g, '');
+      }
+
+      // Add padding if needed
+      const padding = '='.repeat((4 - (sanitized.length % 4)) % 4);
+      
+      // Convert base64url to base64
+      const base64 = (sanitized + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+      // Decode base64 to binary
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+
+      console.log('[VAPID] Key conversion successful, length:', outputArray.length);
+      return outputArray;
+    } catch (e) {
+      console.error('[VAPID] Errore conversione key:', e);
+      console.error('[VAPID] Input key:', base64String);
+      console.error('[VAPID] Key length:', base64String ? base64String.length : 0);
+      throw new Error('Failed to convert VAPID key: ' + e.message);
     }
-    
-    return outputArray;
   }
 
   /**
@@ -186,10 +211,41 @@ class PushNotificationManager {
       }
 
       // Crea la subscription
-      this.subscription = await this.registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
-      });
+      try {
+        this.subscription = await this.registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
+        });
+      } catch (err) {
+        console.warn('Registration failed first attempt:', err);
+        // Fallback: normalize VAPID key and retry once (addresses subtle base64/url-safe differences)
+        try {
+          const normalized = vapidPublicKey.trim().replace(/\s+/g, '');
+          const alt = normalized.replace(/\+/g, '-').replace(/\//g, '_');
+          console.log('Retrying subscribe with normalized VAPID key');
+          this.subscription = await this.registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: this.urlBase64ToUint8Array(alt)
+          });
+        } catch (err2) {
+          console.error('Registration failed - push service error (after retry):', err2);
+          // Report error to server for debugging
+          try {
+            await fetch('/push/subscribe-error', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: (err2 && err2.message) || String(err2),
+                stack: err2 && err2.stack,
+                userAgent: navigator.userAgent,
+                vapidSample: vapidPublicKey ? vapidPublicKey.substring(0, 50) : null
+              })
+            }).catch(e => console.warn('Errore invio report subscribe-error:', e));
+          } catch (e) {}
+          throw err2;
+        }
+      }
 
       console.log('Subscription creata:', this.subscription);
 

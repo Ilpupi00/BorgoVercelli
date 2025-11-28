@@ -146,6 +146,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Normalize req.user so routes can rely on consistent role fields
+const normalizeUser = require('./core/middlewares/normalizeUser');
+app.use(normalizeUser);
+
 // ==================== MIDDLEWARE AUTENTICAZIONE ====================
 
 /**

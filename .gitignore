@@ -4,6 +4,8 @@
 .env.production
 *.env
 database/database.db
+manifest.json
+webpush.json
 
 # Upload locali (in produzione Railway usa volume /data/uploads)
 src/public/uploads/*

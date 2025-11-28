@@ -124,4 +124,20 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
   console.log('Server is running on http://localhost:' + port);
+  
+  // Log stato sistema notifiche push
+  console.log('\n========================================');
+  console.log('🔔 SISTEMA NOTIFICHE PUSH');
+  console.log('========================================');
+  const hasVapid = !!(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
+  if (hasVapid) {
+    console.log('✅ Chiavi VAPID configurate');
+    console.log(`📧 Email: ${process.env.VAPID_EMAIL || 'non configurata'}`);
+    console.log('🔗 Test page: http://localhost:' + port + '/push/test');
+  } else {
+    console.log('❌ Chiavi VAPID NON configurate!');
+    console.log('⚠️  Le notifiche push non funzioneranno.');
+    console.log('💡 Configura VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY nel file .env');
+  }
+  console.log('========================================\n');
 }
