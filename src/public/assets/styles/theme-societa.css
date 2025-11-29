@@ -156,6 +156,19 @@
     margin: 0 auto;
     border: 4px solid #ffffff !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Light mode: ensure avatar is centered */
+:root:not([data-theme="dark"]) .member-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 :root[data-theme="dark"] .member-avatar.bg-dark {

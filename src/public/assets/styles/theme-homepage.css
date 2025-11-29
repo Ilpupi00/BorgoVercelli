@@ -11,41 +11,15 @@
     overflow: visible !important;
 }
 
-/* Navbar Fixed - Only Dark Theme (overrides the above)
-   Use `sticky` instead of `fixed` to preserve document flow and
-   avoid overlaying hero/main content when switching to dark mode. */
+/* Navbar Sticky - Dark Theme (consistent with light mode)
+   Use `sticky` to preserve document flow and avoid overlaying content */
 :root[data-theme="dark"] #navbar {
     position: sticky !important;
     top: 0 !important;
     z-index: 1030 !important;
 }
 
-/* ------------------------------------------------------------------
-   Light-theme (homepage) safety overrides
-   Ensure no ancestor/container property (overflow/transform/position)
-   prevents `position: sticky` from working on #navbar in light mode.
-   This file is loaded last on the homepage so these overrides are safe
-   and scoped only to the homepage theme stylesheet.
-   ------------------------------------------------------------------ */
-/* Target the root element (html) and the body when NOT in dark theme */
-:root:not([data-theme="dark"]),
-:root:not([data-theme="dark"]) body {
-    /* Make sure the root scroll container behaves normally for sticky */
-    overflow-x: hidden !important; /* keep horizontal clipping to avoid layout shifts */
-    overflow-y: auto !important;   /* ensure vertical scrolling is on the document */
-    position: static !important;   /* avoid unexpected stacking contexts */
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1030 !important;
-    overflow: visible !important;
-    /* Explicit light-mode sticky enforcement for homepage */
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1030 !important;
-    overflow: visible !important;
-}
-
-/* Add padding to hero section only in dark mode to account for fixed navbar */
+/* Add padding to hero section only in dark mode to account for sticky navbar */
 :root[data-theme="dark"] .hero-section {
     padding-top: 70px !important;
     /* Keep a dark gradient fallback if the image cannot be loaded */

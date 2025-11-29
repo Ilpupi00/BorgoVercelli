@@ -38,14 +38,20 @@
                     </div>
                     <div class="user-badges mt-2">
                         <% if (user.tipo_utente_id === 1) { %>
-                            <span class="badge bg-danger me-1"><i class="bi bi-shield-check"></i> Admin</span>
-                        <% } else if (user.tipo_utente_id >= 2) { %>
-                            <span class="badge bg-warning me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
+                            <span class="badge bg-danger me-1 mb-1"><i class="bi bi-shield-check"></i> Admin</span>
+                        <% } else if (user.tipo_utente_id === 2) { %>
+                            <span class="badge bg-primary me-1 mb-1"><i class="bi bi-person-badge"></i> Presidente</span>
+                        <% } else if (user.tipo_utente_id === 3) { %>
+                            <span class="badge bg-success me-1 mb-1"><i class="bi bi-person-badge-fill"></i> Vice Presidente</span>
+                        <% } else if (user.tipo_utente_id === 4) { %>
+                            <span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
+                        <% } else if (user.tipo_utente_id === 5) { %>
+                            <span class="badge bg-secondary me-1 mb-1"><i class="bi bi-file-earmark-text"></i> Segretario</span>
                         <% } else { %>
-                            <span class="badge bg-success me-1"><i class="bi bi-person-check"></i> Utente</span>
+                            <span class="badge bg-info me-1 mb-1"><i class="bi bi-person-check"></i> Utente</span>
                         <% } %>
                         <% if (stats && stats.prenotazioni_totali > 10) { %>
-                            <span class="badge bg-info"><i class="bi bi-trophy"></i> Giocatore Attivo</span>
+                            <span class="badge bg-warning text-dark mb-1"><i class="bi bi-trophy"></i> Giocatore Attivo</span>
                         <% } %>
                     </div>
                       <!-- Contact lines moved here (left column) -->
@@ -280,7 +286,7 @@
                 <% } %>
 
                 <!-- Card Ruolo Dirigenziale -->
-                <% if (user.tipo_utente_id >= 2) { %>
+                <% if (user.tipo_utente_id >= 1) { %>
                 <div class="card management-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="card-title mb-0">

@@ -266,10 +266,7 @@
   /* Removed overflow-x: hidden to prevent issues */
 }
 
-body {
-  overflow-x: auto;
-  overflow-y: auto; /* Changed from hidden to auto to allow vertical scrolling */
-}
+/* Removed body overflow rules - they interfere with navbar sticky positioning */
 
 .navbar,
 nav#navbar.sticky-top,

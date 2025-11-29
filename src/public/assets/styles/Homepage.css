@@ -25,7 +25,6 @@ nav.navbar#navbar {
 }
 
 html, body {
-  overflow-x: hidden;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -43,7 +42,6 @@ img, video, canvas, svg {
 }
 
 body {
-  overflow-y: auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
 }
