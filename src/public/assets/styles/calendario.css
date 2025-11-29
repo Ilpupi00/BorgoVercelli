@@ -170,6 +170,17 @@ body {
     gap: 0.5rem;
 }
 
+.btn-export {
+    background: #10b981;
+    color: white;
+}
+
+.btn-export:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: var(--cal-shadow-md);
+}
+
 .btn-today {
     background: var(--cal-primary);
     color: white;
@@ -734,6 +745,72 @@ body {
     .booking-dot {
         height: 4px;
     }
+}
+
+/* ===== Export Form Styles ===== */
+.export-form {
+    padding: 0.5rem 0;
+}
+
+.export-form .form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--cal-text);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.export-form .form-control,
+.export-form .form-select {
+    padding: 0.75rem;
+    border: 1px solid var(--cal-border);
+    border-radius: var(--cal-radius);
+    background: var(--cal-surface);
+    color: var(--cal-text);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+}
+
+.export-form .form-control:focus,
+.export-form .form-select:focus {
+    outline: none;
+    border-color: var(--cal-primary);
+    box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.1);
+}
+
+.export-form .btn-primary {
+    background: var(--cal-primary);
+    color: white;
+    border: none;
+    padding: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--cal-radius);
+    transition: all 0.2s ease;
+}
+
+.export-form .btn-primary:hover {
+    background: var(--cal-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--cal-shadow-md);
+}
+
+.export-form .btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Dark theme adjustments for form */
+[data-theme="dark"] .export-form .form-control,
+[data-theme="dark"] .export-form .form-select {
+    background: var(--cal-surface-hover);
+    border-color: var(--cal-border);
+}
+
+[data-theme="dark"] .export-form .form-control:focus,
+[data-theme="dark"] .export-form .form-select:focus {
+    border-color: var(--cal-primary);
+    box-shadow: 0 0 0 3px rgba(107, 158, 255, 0.15);
+}
 }
 
 /* ===== Animations ===== */

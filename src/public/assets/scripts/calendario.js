@@ -109,6 +109,34 @@
             });
         }
 
+        // Export modal
+        const exportBtn = document.getElementById('exportReportBtn');
+        const exportModal = document.getElementById('exportModal');
+        const closeExportModal = document.getElementById('closeExportModal');
+        const exportForm = document.getElementById('exportForm');
+
+        if (exportBtn) {
+            exportBtn.addEventListener('click', openExportModal);
+        }
+
+        if (closeExportModal) {
+            closeExportModal.addEventListener('click', () => {
+                exportModal.style.display = 'none';
+            });
+        }
+
+        if (exportModal) {
+            exportModal.addEventListener('click', (e) => {
+                if (e.target === exportModal) {
+                    exportModal.style.display = 'none';
+                }
+            });
+        }
+
+        if (exportForm) {
+            exportForm.addEventListener('submit', handleExportSubmit);
+        }
+
         // Theme toggle
         if (elements.themeToggle) {
             elements.themeToggle.addEventListener('click', toggleTheme);
@@ -387,6 +415,96 @@
         if (elements.dayModal) {
             elements.dayModal.style.display = 'none';
             document.body.style.overflow = '';
+        }
+    }
+
+    // Export Modal Functions
+    function openExportModal() {
+        const exportModal = document.getElementById('exportModal');
+        const dataInizio = document.getElementById('dataInizio');
+        const dataFine = document.getElementById('dataFine');
+        
+        // Set default dates - current week
+        const today = new Date();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - today.getDay() + 1);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        
+        dataInizio.value = monday.toISOString().split('T')[0];
+        dataFine.value = sunday.toISOString().split('T')[0];
+        
+        exportModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    async function handleExportSubmit(e) {
+        e.preventDefault();
+        
+        const dataInizio = document.getElementById('dataInizio').value;
+        const dataFine = document.getElementById('dataFine').value;
+        const campo = document.getElementById('campoExport').value;
+        const stato = document.getElementById('statoExport').value;
+        
+        if (!dataInizio || !dataFine) {
+            alert('Inserisci data inizio e data fine');
+            return;
+        }
+        
+        if (new Date(dataInizio) > new Date(dataFine)) {
+            alert('La data di inizio deve essere precedente alla data di fine');
+            return;
+        }
+        
+        try {
+            // Build query params
+            const params = new URLSearchParams({
+                dataInizio,
+                dataFine
+            });
+            
+            if (campo) params.append('campo', campo);
+            if (stato) params.append('stato', stato);
+            
+            // Show loading
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Generazione in corso...';
+            
+            // Download file
+            const response = await fetch(`/prenotazione/export-report?${params.toString()}`);
+            
+            if (!response.ok) {
+                throw new Error('Errore durante la generazione del report');
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Report_Prenotazioni_${dataInizio}_${dataFine}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // Close modal
+            document.getElementById('exportModal').style.display = 'none';
+            document.body.style.overflow = '';
+            
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            
+        } catch (error) {
+            console.error('Errore export:', error);
+            alert('Errore durante la generazione del report: ' + error.message);
+            
+            // Reset button
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-download me-2"></i>Scarica Report Excel';
         }
     }
 

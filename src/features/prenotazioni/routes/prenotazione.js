@@ -664,4 +664,181 @@ router.post('/prenotazioni/auto-accept', async (req, res) => {
     }
 });
 
+// 12. Esporta report prenotazioni in Excel
+router.get('/export-report', async (req, res) => {
+    const { dataInizio, dataFine, campo, stato } = req.query;
+    
+    if (!dataInizio || !dataFine) {
+        return res.status(400).json({ error: 'Data inizio e data fine sono obbligatorie' });
+    }
+    
+    try {
+        const ExcelJS = require('exceljs');
+        
+        // Build query
+        let query = `
+            SELECT 
+                p.id,
+                p.data_prenotazione as data,
+                p.ora_inizio,
+                p.ora_fine,
+                p.stato,
+                p.telefono,
+                p.tipo_documento,
+                p.codice_fiscale,
+                p.numero_documento,
+                p.note,
+                p.created_at,
+                c.nome as campo_nome,
+                u.nome as utente_nome,
+                u.cognome as utente_cognome,
+                u.email as utente_email
+            FROM PRENOTAZIONI p
+            JOIN CAMPI c ON p.campo_id = c.id
+            LEFT JOIN UTENTI u ON p.utente_id = u.id
+            WHERE p.data_prenotazione >= $1 
+            AND p.data_prenotazione <= $2
+        `;
+        
+        const params = [dataInizio, dataFine];
+        let paramIndex = 3;
+        
+        if (campo) {
+            query += ` AND p.campo_id = $${paramIndex}`;
+            params.push(campo);
+            paramIndex++;
+        }
+        
+        if (stato) {
+            query += ` AND p.stato = $${paramIndex}`;
+            params.push(stato);
+            paramIndex++;
+        }
+        
+        query += ` ORDER BY p.data_prenotazione, p.ora_inizio`;
+        
+        const result = await db.query(query, params);
+        const prenotazioni = result.rows;
+        
+        // Create workbook
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Prenotazioni');
+        
+        // Set properties
+        workbook.creator = 'Borgo Vercelli';
+        workbook.created = new Date();
+        
+        // Define columns
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 8 },
+            { header: 'Data', key: 'data', width: 12 },
+            { header: 'Ora Inizio', key: 'ora_inizio', width: 12 },
+            { header: 'Ora Fine', key: 'ora_fine', width: 12 },
+            { header: 'Campo', key: 'campo_nome', width: 20 },
+            { header: 'Stato', key: 'stato', width: 15 },
+            { header: 'Utente Nome', key: 'utente_nome', width: 18 },
+            { header: 'Utente Cognome', key: 'utente_cognome', width: 18 },
+            { header: 'Email', key: 'utente_email', width: 25 },
+            { header: 'Telefono', key: 'telefono', width: 15 },
+            { header: 'Tipo Documento', key: 'tipo_documento', width: 15 },
+            { header: 'Codice Fiscale', key: 'codice_fiscale', width: 18 },
+            { header: 'N. Documento', key: 'numero_documento', width: 18 },
+            { header: 'Note', key: 'note', width: 30 },
+            { header: 'Data Creazione', key: 'created_at', width: 20 }
+        ];
+        
+        // Style header
+        worksheet.getRow(1).font = { bold: true, size: 12 };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF4472C4' }
+        };
+        worksheet.getRow(1).font.color = { argb: 'FFFFFFFF' };
+        worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.getRow(1).height = 25;
+        
+        // Add data
+        prenotazioni.forEach(p => {
+            const row = worksheet.addRow({
+                id: p.id,
+                data: p.data ? new Date(p.data).toLocaleDateString('it-IT') : '',
+                ora_inizio: p.ora_inizio,
+                ora_fine: p.ora_fine,
+                campo_nome: p.campo_nome,
+                stato: p.stato,
+                utente_nome: p.utente_nome || '',
+                utente_cognome: p.utente_cognome || '',
+                utente_email: p.utente_email || '',
+                telefono: p.telefono || '',
+                tipo_documento: p.tipo_documento || '',
+                codice_fiscale: p.codice_fiscale || '',
+                numero_documento: p.numero_documento || '',
+                note: p.note || '',
+                created_at: p.created_at ? new Date(p.created_at).toLocaleString('it-IT') : ''
+            });
+            
+            // Color code by status
+            const statoColors = {
+                'confermata': 'FFC6EFCE',
+                'in_attesa': 'FFFFD966',
+                'annullata': 'FFFFC7CE'
+            };
+            
+            if (statoColors[p.stato]) {
+                row.getCell('stato').fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: statoColors[p.stato] }
+                };
+            }
+        });
+        
+        // Add borders
+        worksheet.eachRow((row, rowNumber) => {
+            row.eachCell((cell) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+        });
+        
+        // Add summary at the bottom
+        const summaryRow = worksheet.addRow([]);
+        summaryRow.height = 5;
+        
+        const totalRow = worksheet.addRow(['TOTALE PRENOTAZIONI:', prenotazioni.length]);
+        totalRow.font = { bold: true, size: 12 };
+        totalRow.getCell(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE7E6E6' }
+        };
+        
+        // Count by status
+        const confermateCount = prenotazioni.filter(p => p.stato === 'confermata').length;
+        const attesaCount = prenotazioni.filter(p => p.stato === 'in_attesa').length;
+        const annullateCount = prenotazioni.filter(p => p.stato === 'annullata').length;
+        
+        worksheet.addRow(['Confermate:', confermateCount]);
+        worksheet.addRow(['In Attesa:', attesaCount]);
+        worksheet.addRow(['Annullate:', annullateCount]);
+        
+        // Set response headers
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=Report_Prenotazioni_${dataInizio}_${dataFine}.xlsx`);
+        
+        // Write to response
+        await workbook.xlsx.write(res);
+        res.end();
+        
+    } catch (err) {
+        console.error('Errore generazione report:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
