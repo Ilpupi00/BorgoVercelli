@@ -39,7 +39,7 @@
                     <div class="user-badges mt-2">
                         <% if (user.tipo_utente_id === 1) { %>
                             <span class="badge bg-danger me-1"><i class="bi bi-shield-check"></i> Admin</span>
-                        <% } else if (user.tipo_utente_id === 2) { %>
+                        <% } else if (user.tipo_utente_id >= 2) { %>
                             <span class="badge bg-warning me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
                         <% } else { %>
                             <span class="badge bg-success me-1"><i class="bi bi-person-check"></i> Utente</span>
@@ -280,7 +280,7 @@
                 <% } %>
 
                 <!-- Card Ruolo Dirigenziale -->
-                <% if (user.tipo_utente_id === 2) { %>
+                <% if (user.tipo_utente_id >= 2) { %>
                 <div class="card management-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="card-title mb-0">
@@ -391,7 +391,7 @@
                 </div>
 
                 <!-- Card Le Mie Notizie ed Eventi -->
-                <% if (user.tipo_utente_id === 2 || user.tipo_utente_id === 1) { %>
+                <% if (user.tipo_utente_id >= 1) { %>
                 <div class="card news-events-card animate__animated animate__fadeInRight animate__faster mt-3">
                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
