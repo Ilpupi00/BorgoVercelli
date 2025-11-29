@@ -41,20 +41,26 @@
     border: none;
     border-radius: 16px;
     box-shadow: var(--modal-shadow);
-    overflow: hidden;
+    overflow: visible;
     animation: modalSlideIn 0.3s ease-out;
     max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 #modalPrenotazioneCampo .modal-dialog {
     max-height: 90vh;
+    margin: 0.5rem;
 }
 
 #modalPrenotazioneCampo .modal-body {
     overflow-y: auto;
-    max-height: calc(90vh - 200px);
+    overflow-x: hidden;
+    max-height: calc(90vh - 180px);
+    flex: 1;
     scrollbar-width: thin;
     scrollbar-color: var(--modal-input-focus) var(--modal-section-bg);
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Scrollbar personalizzata per Webkit (Chrome, Safari, Edge) */
@@ -118,6 +124,10 @@
     background: var(--modal-section-bg);
     border-top: 1px solid var(--modal-border);
     padding: 1.5rem 2rem;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 /* ================================
@@ -324,37 +334,61 @@
 /* Mobile (default) */
 @media (max-width: 575.98px) {
     #modalPrenotazioneCampo .modal-dialog {
-        margin: 0.5rem;
+        margin: 0.25rem;
+        max-height: 98vh;
     }
     
     #modalPrenotazioneCampo .modal-content {
         border-radius: 12px;
+        max-height: 98vh;
     }
     
     #modalPrenotazioneCampo .modal-body {
-        padding: 1.5rem;
+        padding: 1.25rem;
+        max-height: calc(98vh - 140px);
+        overflow-y: auto !important;
+        overflow-x: hidden;
+    }
+    
+    #modalPrenotazioneCampo .modal-header {
+        padding: 1rem 1.25rem;
     }
     
     #modalPrenotazioneCampo .modal-footer {
-        padding: 1rem 1.5rem;
-        flex-direction: column;
+        padding: 0.75rem 1rem;
+        flex-direction: row;
+        gap: 0.5rem;
+        position: sticky;
+        bottom: 0;
+        background: var(--modal-section-bg);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
     
     #modalPrenotazioneCampo .modal-footer .btn {
-        width: 100%;
-        margin-bottom: 0.5rem;
+        flex: 1;
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
     }
     
-    #modalPrenotazioneCampo .modal-footer .btn:last-child {
-        margin-bottom: 0;
+    #modalPrenotazioneCampo .modal-footer .btn-outline-secondary {
+        flex: 0 0 auto;
+        padding: 0.65rem 0.75rem;
     }
     
     #modalPrenotazioneCampo .modal-header .modal-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     .booking-section h6 {
-        font-size: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .booking-section {
+        margin-bottom: 1.5rem !important;
+    }
+    
+    #modalPrenotazioneCampo hr {
+        margin: 1.5rem 0;
     }
 }
 
