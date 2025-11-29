@@ -32,12 +32,13 @@
                             </p>
                         <% } %>
                         <div class="search-form-container">
-                            <form role="search" action="/search" method="GET" class="d-flex justify-content-center">
-                                <div class="input-group input-group-lg" style="max-width: 500px;">
-                                    <input type="text" class="form-control" id="searchQuery" placeholder="Cerca notizie, eventi, squadre, campi..." 
-                                           name="q" value="<%= query %>" aria-label="Cerca">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search"></i>
+                            <form class="modern-search-form-page" role="search" action="/search" method="GET">
+                                <div class="modern-search-wrapper-page">
+                                    <i class="fas fa-search search-icon-page"></i>
+                                    <input class="modern-search-input-page" type="search" id="searchQuery" placeholder="Cerca notizie, eventi, squadre, campi..." 
+                                           name="q" value="<%= query %>" aria-label="Cerca" autocomplete="off">
+                                    <button class="modern-search-btn-page" type="submit" aria-label="Cerca">
+                                        <i class="fas fa-arrow-right"></i>
                                     </button>
                                 </div>
                             </form>

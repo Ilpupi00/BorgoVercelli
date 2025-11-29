@@ -274,9 +274,23 @@
                             </table>
                         </div>
                         
-                        <div class="mt-3 text-muted">
-                            <strong>Totale utenti:</strong> <span id="totalCount"><%= utenti ? utenti.length : 0 %></span>
-                            <span id="filteredCount"></span>
+                        <div class="mt-3 d-flex flex-column flex-sm-row justify-content-between align-items-center text-muted">
+                            <div>
+                                <strong>Totale utenti:</strong> <span id="totalCount"><%= utenti ? utenti.length : 0 %></span>
+                                <span id="filteredCount">(<%= utenti ? utenti.length : 0 %> filtrate)</span>
+                            </div>
+                            <div class="d-flex align-items-center mt-2 mt-sm-0">
+                                <label class="me-2 mb-0">Mostra</label>
+                                <select id="pageSizeSelect" class="form-select form-select-sm me-3" style="width:auto;">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <nav aria-label="Paginazione utenti">
+                                    <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                                </nav>
+                            </div>
                         </div>
                     </article>
                 </div>
@@ -768,6 +782,147 @@
                         this.value = '+39' + val.replace(/^0/, '');
                     }
                 });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableBody = document.getElementById('utentiTableBody');
+            const mobileContainer = document.getElementById('utentiMobileCards');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+            const paginationEl = document.getElementById('pagination');
+            const totalCountEl = document.getElementById('totalCount');
+
+            if (!tableBody) return;
+
+            let rows = Array.from(tableBody.querySelectorAll('tr')).filter(r => r.dataset && r.dataset.utenteId);
+            let cards = mobileContainer ? Array.from(mobileContainer.querySelectorAll('.admin-mobile-card')) : [];
+            let pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10, 10) || 10;
+            let currentPage = 1;
+            let visibleIndexes = [];
+
+            function applyFilter() {
+                const q = (searchInput && searchInput.value || '').trim().toLowerCase();
+                visibleIndexes = [];
+                rows.forEach((row, idx) => {
+                    let match = true;
+                    if (q) {
+                        const id = (row.dataset.utenteId||'').toLowerCase();
+                        const nome = (row.dataset.nome||'').toLowerCase();
+                        const cognome = (row.dataset.cognome||'').toLowerCase();
+                        const email = (row.dataset.email||'').toLowerCase();
+                        const telefono = (row.dataset.telefono||'').toLowerCase();
+                        match = id.includes(q) || nome.includes(q) || cognome.includes(q) || email.includes(q) || telefono.includes(q);
+                    }
+                    row.style.display = match ? '' : 'none';
+                    if (cards.length) {
+                        const card = cards[idx];
+                        if (card) card.style.display = match ? '' : 'none';
+                    }
+                    if (match) visibleIndexes.push(idx);
+                });
+                updateCounts();
+                currentPage = 1;
+                renderPagination();
+                renderPage(currentPage);
+            }
+
+            function updateCounts() {
+                const total = rows.length;
+                const filtered = visibleIndexes.length;
+                if (totalCountEl) totalCountEl.textContent = total;
+                document.querySelectorAll('#filteredCount').forEach(el => {
+                    el.textContent = `(${filtered} filtrate)`;
+                });
+            }
+
+            function renderPagination() {
+                const total = visibleIndexes.length;
+                pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10, 10) || 10;
+                const totalPages = Math.max(1, Math.ceil(total / pageSize));
+                paginationEl.innerHTML = '';
+                const makeBtn = (text, disabled, pageNum, active) => {
+                    const li = document.createElement('li');
+                    li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.dataset.page = pageNum;
+                    a.textContent = text;
+                    a.addEventListener('click', function(e){
+                        e.preventDefault();
+                        if (!disabled) {
+                            currentPage = parseInt(this.dataset.page,10);
+                            renderPage(currentPage);
+                            const main = document.querySelector('main');
+                            if (main) main.scrollIntoView({behavior:'smooth'});
+                        }
+                    });
+                    li.appendChild(a);
+                    return li;
+                };
+                paginationEl.appendChild(makeBtn('«', visibleIndexes.length===0 || currentPage<=1, Math.max(1,currentPage-1)));
+                const maxButtons = 10;
+                let start = 1, end = totalPages;
+                if (totalPages > maxButtons) {
+                    start = Math.max(1, currentPage - 4);
+                    end = Math.min(totalPages, start + maxButtons -1);
+                    if (end - start < maxButtons -1) start = Math.max(1, end - maxButtons +1);
+                }
+                for (let p=start;p<=end;p++){
+                    paginationEl.appendChild(makeBtn(String(p), false, p, p===currentPage));
+                }
+                paginationEl.appendChild(makeBtn('»', visibleIndexes.length===0 || currentPage>=totalPages, Math.min(totalPages,currentPage+1)));
+            }
+
+            function renderPage(page) {
+                const total = visibleIndexes.length;
+                pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10, 10) || 10;
+                const totalPages = Math.max(1, Math.ceil(total / pageSize));
+                if (page < 1) page = 1;
+                if (page > totalPages) page = totalPages;
+                currentPage = page;
+                const start = (page-1)*pageSize;
+                const end = start + pageSize;
+                rows.forEach((row) => row.style.display = 'none');
+                cards.forEach(c => c.style.display = 'none');
+                for (let i=start;i<end;i++){
+                    const idx = visibleIndexes[i];
+                    if (typeof idx === 'undefined') continue;
+                    const row = rows[idx];
+                    if (row) row.style.display = '';
+                    const card = cards[idx];
+                    if (card) card.style.display = '';
+                }
+                renderPagination();
+                updateCounts();
+            }
+
+            // init
+            applyFilter();
+
+            // events
+            if (searchInput) {
+                let timer;
+                searchInput.addEventListener('input', function(){
+                    clearTimeout(timer);
+                    timer = setTimeout(applyFilter, 200);
+                });
+            }
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function(){
+                    if (searchInput) { searchInput.value = ''; applyFilter(); }
+                });
+            }
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', function(){
+                    pageSize = parseInt(this.value,10) || 10;
+                    currentPage = 1;
+                    renderPage(currentPage);
+                });
+                if (rows.length <= 25) pageSizeSelect.value = '25';
             }
         });
     </script>

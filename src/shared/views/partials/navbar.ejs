@@ -4,11 +4,12 @@
       <img src="/assets/images/Logo.png" alt="Logo" class="navbar-logo d-inline-block align-text-top">
     </a>
 
-    <form class="d-flex me-auto mb-2 mb-lg-0 ms-4" role="search" action="/search" method="GET">
-      <div class="input-group">
-        <input class="form-control" type="search" id="searchInput" placeholder="Cerca notizie, eventi, squadre..." aria-label="Search" name="q">
-        <button class="btn btn-outline-light border-white" type="submit">
-          <i class="fas fa-search"></i>
+    <form class="modern-search-form d-flex me-auto mb-2 mb-lg-0 ms-4" role="search" action="/search" method="GET">
+      <div class="modern-search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input class="modern-search-input" type="search" id="searchInput" placeholder="Cerca..." aria-label="Search" name="q" autocomplete="off">
+        <button class="modern-search-btn" type="submit" aria-label="Cerca">
+          <i class="fas fa-arrow-right"></i>
         </button>
       </div>
     </form>

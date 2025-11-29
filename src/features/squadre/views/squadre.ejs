@@ -55,10 +55,11 @@
                 <h1 class="text-center mb-4 overflow-hidden" id="rosterTitle">Roster</h1>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Cerca giocatore..." id="searchPlayer">
-                            <button class="btn btn-primary" type="button" id="searchButton">
-                                <i class="fas fa-search"></i> Cerca
+                        <div class="modern-search-wrapper-inline">
+                            <i class="fas fa-search search-icon-inline"></i>
+                            <input type="text" class="modern-search-input-inline" placeholder="Cerca giocatore..." id="searchPlayer" autocomplete="off">
+                            <button class="modern-search-btn-inline" type="button" id="searchButton" aria-label="Cerca">
+                                <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                         <div id="resultsContainer" class="mt-2"></div>

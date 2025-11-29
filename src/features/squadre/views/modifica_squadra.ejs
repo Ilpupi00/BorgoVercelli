@@ -351,10 +351,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-4">
-                        <label for="searchUtente" class="form-label">
+                        <label for="searchUtente" class="form-label mb-3">
                             <i class="fas fa-search text-primary"></i> Cerca Utente Esistente
                         </label>
-                        <input type="text" id="searchUtente" class="form-control form-control-lg" placeholder="Digita nome o cognome dell'utente..." autocomplete="off" aria-autocomplete="list">
+                        <div class="modern-search-wrapper-inline">
+                            <i class="fas fa-search search-icon-inline"></i>
+                            <input type="text" id="searchUtente" class="modern-search-input-inline" placeholder="Digita nome o cognome dell'utente..." autocomplete="off" aria-autocomplete="list">
+                        </div>
                         <div id="utentiResults" class="list-group mt-3 shadow-sm" style="max-height: 220px; overflow-y: auto;" role="listbox" aria-label="Risultati ricerca utenti"></div>
                         <div class="form-text mt-2">
                             <i class="fas fa-info-circle text-info"></i>
