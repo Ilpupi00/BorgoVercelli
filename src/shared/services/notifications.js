@@ -18,20 +18,30 @@ const pushService = require('./webpush');
 async function queueNotificationForAdmins(payload, options = {}) {
     const {
         priority = 0,
-        sendAfter = new Date(),
+        sendAfter = null,
         maxAttempts = 3
     } = options;
 
     try {
+        // If no explicit sendAfter provided, let Postgres use CURRENT_TIMESTAMP to avoid
+        // any timezone conversion issues between Node and the DB driver.
+        if (!sendAfter) {
+            const result = await db.query(
+                `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+                 VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
+                 RETURNING id`,
+                ['admin', JSON.stringify(payload), 'pending', priority, maxAttempts]
+            );
+            console.log(`[NOTIFICATIONS] Notifica admin accodata con ID ${result.rows[0].id}`);
+            return { success: true, id: result.rows[0].id, queued: true };
+        }
+
         const result = await db.query(
             `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id`,
             ['admin', JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
         );
-
-        console.log(`[NOTIFICATIONS] Notifica admin accodata con ID ${result.rows[0].id}`);
-        return { success: true, id: result.rows[0].id, queued: true };
     } catch (error) {
         console.error('[NOTIFICATIONS] Errore accodamento notifica admin:', error);
         
@@ -62,20 +72,29 @@ async function queueNotificationForUsers(userIds, payload, options = {}) {
 
     const {
         priority = 0,
-        sendAfter = new Date(),
+        sendAfter = null,
         maxAttempts = 3
     } = options;
 
     try {
+        // Use DB-side CURRENT_TIMESTAMP when sendAfter not explicitly provided
+        if (!sendAfter) {
+            const result = await db.query(
+                `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
+                 VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
+                 RETURNING id`,
+                ['user', userIds, JSON.stringify(payload), 'pending', priority, maxAttempts]
+            );
+            console.log(`[NOTIFICATIONS] Notifica utenti accodata con ID ${result.rows[0].id} per ${userIds.length} utenti`);
+            return { success: true, id: result.rows[0].id, queued: true };
+        }
+
         const result = await db.query(
             `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id`,
             ['user', userIds, JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
         );
-
-        console.log(`[NOTIFICATIONS] Notifica utenti accodata con ID ${result.rows[0].id} per ${userIds.length} utenti`);
-        return { success: true, id: result.rows[0].id, queued: true };
     } catch (error) {
         console.error('[NOTIFICATIONS] Errore accodamento notifica utenti:', error);
         
@@ -100,20 +119,28 @@ async function queueNotificationForUsers(userIds, payload, options = {}) {
 async function queueNotificationForAll(payload, options = {}) {
     const {
         priority = 0,
-        sendAfter = new Date(),
+        sendAfter = null,
         maxAttempts = 3
     } = options;
 
     try {
+        if (!sendAfter) {
+            const result = await db.query(
+                `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+                 VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
+                 RETURNING id`,
+                ['all', JSON.stringify(payload), 'pending', priority, maxAttempts]
+            );
+            console.log(`[NOTIFICATIONS] Notifica broadcast accodata con ID ${result.rows[0].id}`);
+            return { success: true, id: result.rows[0].id, queued: true };
+        }
+
         const result = await db.query(
             `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id`,
             ['all', JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
         );
-
-        console.log(`[NOTIFICATIONS] Notifica broadcast accodata con ID ${result.rows[0].id}`);
-        return { success: true, id: result.rows[0].id, queued: true };
     } catch (error) {
         console.error('[NOTIFICATIONS] Errore accodamento notifica broadcast:', error);
         

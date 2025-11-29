@@ -45,7 +45,7 @@ router.post('/session', (req, res, next) => {
             }
         }
         
-        req.logIn(user, (err) => {
+            req.logIn(user, async (err) => {
             if (err) return next(err);
             
             // Se l'utente ha selezionato "Ricordami", genera un JWT token
@@ -60,9 +60,19 @@ router.post('/session', (req, res, next) => {
                 });
             }
             
+            // Controlla se l'utente ha già una subscription attiva
+            let hasSubscription = false;
+            try {
+                const pushService = require('./webpush');
+                const subscriptions = pushService.loadSubscriptions();
+                hasSubscription = subscriptions.some(s => String(s.userId) === String(user.id));
+            } catch (subErr) {
+                console.error('[LOGIN] Errore verifica subscription:', subErr);
+            }
+            
             return res.status(200).json({ 
                 message: 'Login effettuato',
-                showNotificationPrompt: true // Flag per mostrare richiesta notifiche
+                showNotificationPrompt: !hasSubscription // Mostra prompt solo se non ha subscription
             });
         });
     })(req, res, next);

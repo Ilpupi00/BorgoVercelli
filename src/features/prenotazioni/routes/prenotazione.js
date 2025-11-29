@@ -54,13 +54,98 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
         });
     }
     
-    const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note } = req.body;
+    const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento } = req.body;
     console.log('[PRENOTAZIONE] Dati ricevuti:', req.body);
     if (!campo_id || !data_prenotazione || !ora_inizio || !ora_fine) {
         return res.status(400).json({ error: 'Dati obbligatori mancanti' });
     }
+    
+    // Validazione telefono obbligatorio
+    if (!telefono || telefono.trim().length === 0) {
+        return res.status(400).json({ 
+            error: 'Numero di telefono obbligatorio',
+            field: 'telefono',
+            message: 'Devi fornire un numero di telefono per completare la prenotazione' 
+        });
+    }
+    
+    // Validazione documento di identità (se fornito)
+    if (tipo_documento) {
+        // Tipo documento deve essere 'CF' o 'ID'
+        if (tipo_documento !== 'CF' && tipo_documento !== 'ID') {
+            return res.status(400).json({
+                error: 'Tipo documento non valido',
+                field: 'tipo_documento',
+                message: 'Il tipo documento deve essere "CF" (Codice Fiscale) o "ID" (Documento Identità)'
+            });
+        }
+        
+        // Se tipo_documento='CF', richiede codice_fiscale di 16 caratteri
+        if (tipo_documento === 'CF') {
+            if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
+                return res.status(400).json({
+                    error: 'Codice fiscale non valido',
+                    field: 'codice_fiscale',
+                    message: 'Il codice fiscale deve essere esattamente 16 caratteri alfanumerici'
+                });
+            }
+            // Pattern CF italiano: 6 lettere, 2 numeri, 1 lettera, 2 numeri, 1 lettera, 3 numeri, 1 lettera
+            const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
+            if (!cfPattern.test(codice_fiscale.trim())) {
+                return res.status(400).json({
+                    error: 'Formato codice fiscale non valido',
+                    field: 'codice_fiscale',
+                    message: 'Il codice fiscale non rispetta il formato italiano standard'
+                });
+            }
+        }
+        
+        // Se tipo_documento='ID', richiede numero_documento (minimo 5 caratteri)
+        if (tipo_documento === 'ID') {
+            if (!numero_documento || numero_documento.trim().length < 5) {
+                return res.status(400).json({
+                    error: 'Numero documento non valido',
+                    field: 'numero_documento',
+                    message: 'Il numero del documento deve contenere almeno 5 caratteri'
+                });
+            }
+        }
+    }
+    
+    // Validazione data e ora: deve essere almeno 2 ore nel futuro
     try {
-        const result = await daoPrenotazione.prenotaCampo({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note });
+        const [oraH, oraM] = ora_inizio.split(':').map(Number);
+        const prenotazioneDate = new Date(data_prenotazione);
+        prenotazioneDate.setHours(oraH, oraM, 0, 0);
+        const now = new Date();
+        const minTime = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 ore da adesso
+        
+        if (prenotazioneDate < minTime) {
+            return res.status(400).json({
+                error: 'Orario non valido',
+                message: 'Le prenotazioni devono essere effettuate con almeno 2 ore di anticipo',
+                minDateTime: minTime.toISOString()
+            });
+        }
+    } catch (validationErr) {
+        console.error('[PRENOTAZIONE] Errore validazione data/ora:', validationErr);
+        return res.status(400).json({ error: 'Data o ora non valida' });
+    }
+    try {
+        const result = await daoPrenotazione.prenotaCampo({ 
+            campo_id, 
+            utente_id, 
+            squadra_id, 
+            data_prenotazione, 
+            ora_inizio, 
+            ora_fine, 
+            tipo_attivita, 
+            note,
+            telefono,
+            codice_fiscale,
+            tipo_documento,
+            numero_documento
+        });
         if (result && result.error) return res.status(409).json(result);
         
         // Invia notifica push agli admin per nuova prenotazione
@@ -86,7 +171,7 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
                         title: '✅ Prenotazione Effettuata',
                         body: `Hai prenotato: ${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
                         icon: '/assets/images/Logo.png',
-                        url: '/prenotazione/mie_prenotazioni',
+                        url: '/users/mie-prenotazioni',
                         tag: `prenotazione-${result.id}-creata`,
                         requireInteraction: true
                     });
@@ -144,7 +229,7 @@ router.post('/prenotazioni/debug-create', async (req, res) => {
                     title: '✅ Prenotazione Effettuata (debug)',
                     body: `Hai prenotato: ${campo_id} - ${data_prenotazione} dalle ${ora_inizio} alle ${ora_fine}`,
                     icon: '/assets/images/Logo.png',
-                    url: '/prenotazione/mie_prenotazioni',
+                    url: '/users/mie-prenotazioni',
                     tag: `prenotazione-${fakeResult.id}-creata`,
                     requireInteraction: true
                 });
@@ -160,7 +245,18 @@ router.post('/prenotazioni/debug-create', async (req, res) => {
     }
 });
 
-// 4. Ottieni prenotazione per ID
+// 4. Ottieni tutte le prenotazioni di un utente
+router.get('/prenotazioni/user/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const prenotazioni = await daoPrenotazione.getPrenotazioniByUserId(userId);
+        res.json(prenotazioni);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 5. Ottieni prenotazione per ID
 router.get('/prenotazioni/:id', async (req, res) => {
     const id = req.params.id;
     try {
@@ -217,65 +313,36 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
         const result = await daoPrenotazione.updateStatoPrenotazione(id, stato, annullata_da);
         console.log(`[ROUTE] Risultato DAO:`, result);
         
-        // Invia notifiche push in base al cambio di stato
-        try {
-            const campo = await daoCampi.getCampoById(prenotazione.campo_id);
-            const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
-            const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
-            const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
-            
-            if (stato === 'confermata') {
-                // Notifica all'utente che la prenotazione è stata confermata
-                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
-                    title: '✅ Prenotazione Confermata',
-                    body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
+        // Se utente annulla, notifica gli admin
+        if (stato === 'annullata' && annullata_da === 'user') {
+            try {
+                const campo = await daoCampi.getCampoById(prenotazione.campo_id);
+                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
+                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
+                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+                
+                await notifications.queueNotificationForAdmins({
+                    title: '❌ Prenotazione Annullata',
+                    body: `Utente ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
                     icon: '/assets/images/Logo.png',
-                    url: '/prenotazione/mie_prenotazioni',
-                    tag: `prenotazione-${id}-confermata`,
-                    requireInteraction: true
+                    url: '/admin/prenotazioni',
+                    tag: `prenotazione-${id}-annullata-user`,
+                    requireInteraction: false
                 });
-                console.log(`[PUSH] Notifica confermata accodata per utente ${prenotazione.utente_id}`);
-            } else if (stato === 'annullata') {
-                if (annullata_da === 'user') {
-                    // Notifica agli admin che l'utente ha annullato
-                                        const resAdmins = await notifications.queueNotificationForAdmins({
-                                                title: '❌ Prenotazione Annullata',
-                                                body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
-                                                icon: '/assets/images/Logo.png',
-                                                url: '/admin',
-                                                tag: `prenotazione-${id}-annullata-user`
-                                        });
-                                        console.log('[PUSH] Notifica annullamento utente accodata per admin', resAdmins);
-
-                                        // Invia anche una notifica di conferma all'utente che ha annullato
-                                        try {
-                                            const resUser = await notifications.queueNotificationForUsers([prenotazione.utente_id], {
-                                                title: '❌ Prenotazione Annullata',
-                                                body: `Hai annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
-                                                icon: '/assets/images/Logo.png',
-                                                url: '/prenotazione/mie_prenotazioni',
-                                                tag: `prenotazione-${id}-annullata-user`
-                                            });
-                                            console.log(`[PUSH] Notifica annullamento accodata per utente ${prenotazione.utente_id}`, resUser);
-                                        } catch(eUserPush) {
-                                            console.error('[PUSH] Errore invio notifica all\'utente che ha annullato:', eUserPush);
-                                        }
-                } else if (annullata_da === 'admin') {
-                    // Notifica all'utente che l'admin ha annullato
-                    await notifications.queueNotificationForUsers([prenotazione.utente_id], {
-                        title: '❌ Prenotazione Annullata',
-                        body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
-                        icon: '/assets/images/Logo.png',
-                        url: '/prenotazione/mie_prenotazioni',
-                        tag: `prenotazione-${id}-annullata-admin`,
-                        requireInteraction: true
-                    });
-                    console.log(`[PUSH] Notifica annullamento admin accodata per utente ${prenotazione.utente_id}`);
-                }
+                console.log(`[PUSH] Notifica annullamento utente accodata per admin`);
+                
+                // Notifica anche l'utente di conferma annullamento
+                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
+                    title: '❌ Prenotazione Annullata',
+                    body: `Hai annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/users/mie-prenotazioni',
+                    tag: `prenotazione-${id}-annullata-user-confirm`
+                });
+                console.log(`[PUSH] Notifica conferma annullamento accodata per utente ${prenotazione.utente_id}`);
+            } catch (pushErr) {
+                console.error('[PUSH] Errore invio notifica annullamento utente:', pushErr);
             }
-        } catch (pushErr) {
-            console.error('[PUSH] Errore invio notifica cambio stato:', pushErr);
-            // Non blocca la risposta se la notifica fallisce
         }
         
         res.json(result);
@@ -286,26 +353,229 @@ router.patch('/prenotazioni/:id/stato', isLoggedIn, async (req, res) => {
 });
 
 // 6. Aggiorna prenotazione
-router.put('/prenotazioni/:id', async (req, res) => {
+router.put('/prenotazioni/:id', isLoggedIn, async (req, res) => {
     const id = req.params.id;
-    const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note } = req.body;
+    const { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento, modified_by_admin } = req.body;
+    
+    // Verifica se l'utente è admin
+    const isAdmin = req.user && req.user.tipo_utente_id === 1;
+    
+    console.log(`[UPDATE PRENOTAZIONE] ID: ${id}, isAdmin: ${isAdmin}, modified_by_admin flag: ${modified_by_admin}`);
+    
+    // Validazione telefono obbligatorio
+    if (!telefono || telefono.trim().length === 0) {
+        return res.status(400).json({ 
+            error: 'Numero di telefono obbligatorio',
+            field: 'telefono',
+            message: 'Devi fornire un numero di telefono' 
+        });
+    }
+    
+    // Validazione formato telefono
+    const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
+    if (!phoneRegex.test(telefono.trim())) {
+        return res.status(400).json({
+            error: 'Formato telefono non valido',
+            field: 'telefono',
+            message: 'Il numero deve essere in formato: +39 seguito da 9-10 cifre (es: +39 3331234567)'
+        });
+    }
+    
+    // Validazione documento di identità (se fornito)
+    if (tipo_documento) {
+        if (tipo_documento !== 'CF' && tipo_documento !== 'ID') {
+            return res.status(400).json({
+                error: 'Tipo documento non valido',
+                field: 'tipo_documento',
+                message: 'Il tipo documento deve essere "CF" (Codice Fiscale) o "ID" (Documento Identità)'
+            });
+        }
+        
+        if (tipo_documento === 'CF') {
+            if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
+                return res.status(400).json({
+                    error: 'Codice fiscale non valido',
+                    field: 'codice_fiscale',
+                    message: 'Il codice fiscale deve essere esattamente 16 caratteri alfanumerici'
+                });
+            }
+            const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
+            if (!cfPattern.test(codice_fiscale.trim())) {
+                return res.status(400).json({
+                    error: 'Formato codice fiscale non valido',
+                    field: 'codice_fiscale',
+                    message: 'Il codice fiscale non rispetta il formato italiano standard'
+                });
+            }
+        }
+        
+        if (tipo_documento === 'ID') {
+            if (!numero_documento || numero_documento.trim().length < 5) {
+                return res.status(400).json({
+                    error: 'Numero documento non valido',
+                    field: 'numero_documento',
+                    message: 'Il numero del documento deve contenere almeno 5 caratteri'
+                });
+            }
+        }
+    }
+    
     try {
-        const result = await daoPrenotazione.updatePrenotazione(id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note });
-        res.json(result);
+        // Recupera prenotazione corrente per verificare lo stato e inviare notifiche
+        const prenotazioneCorrente = await daoPrenotazione.getPrenotazioneById(id);
+        
+        if (!prenotazioneCorrente) {
+            return res.status(404).json({ error: 'Prenotazione non trovata' });
+        }
+        
+        // Determina se cambiare lo stato
+        let nuovoStato = prenotazioneCorrente.stato;
+        
+        // Se l'utente (non admin) modifica una prenotazione confermata, riporta in attesa
+        if (!isAdmin && !modified_by_admin && prenotazioneCorrente.stato === 'confermata') {
+            nuovoStato = 'in_attesa';
+            console.log(`[UPDATE PRENOTAZIONE] User modifica prenotazione confermata: stato cambiato da 'confermata' a 'in_attesa'`);
+        }
+        
+        // Admin non cambia mai lo stato automaticamente
+        if (isAdmin || modified_by_admin) {
+            console.log(`[UPDATE PRENOTAZIONE] Admin modifica: stato rimane '${nuovoStato}'`);
+        }
+        
+        // Aggiorna prenotazione
+        const result = await daoPrenotazione.updatePrenotazione(id, { 
+            campo_id, 
+            utente_id, 
+            squadra_id, 
+            data_prenotazione, 
+            ora_inizio, 
+            ora_fine, 
+            tipo_attivita, 
+            note,
+            telefono,
+            codice_fiscale,
+            tipo_documento,
+            numero_documento
+        });
+        
+        // Se lo stato è cambiato (user ha modificato), aggiorna anche lo stato
+        if (nuovoStato !== prenotazioneCorrente.stato) {
+            await daoPrenotazione.updateStatoPrenotazione(id, nuovoStato, null);
+        }
+        
+        // Invia notifiche
+        try {
+            const campo = await daoCampi.getCampoById(campo_id);
+            const campoNome = campo ? campo.nome : `Campo ${campo_id}`;
+            const dataFormatted = new Date(data_prenotazione).toLocaleDateString('it-IT');
+            const oraInfo = `${ora_inizio} - ${ora_fine}`;
+            
+            if (isAdmin || modified_by_admin) {
+                // Admin ha modificato: notifica utente
+                await notifications.queueNotificationForUsers([utente_id], {
+                    title: '✏️ Prenotazione Modificata',
+                    body: `L'amministratore ha modificato la tua prenotazione: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/users/mie-prenotazioni',
+                    tag: `prenotazione-${id}-modified-admin`,
+                    requireInteraction: true
+                });
+                console.log(`[PUSH] Notifica modifica admin inviata a utente ${utente_id}`);
+            } else {
+                // User ha modificato: notifica admin che serve nuova approvazione
+                await notifications.queueNotificationForAdmins({
+                    title: '🔄 Prenotazione Modificata - Richiesta Approvazione',
+                    body: `Utente ha modificato prenotazione (torna in attesa): ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/admin/prenotazioni',
+                    tag: `prenotazione-${id}-modified-user`,
+                    requireInteraction: true
+                });
+                console.log(`[PUSH] Notifica modifica user inviata agli admin (richiesta approvazione)`);
+                
+                // Notifica anche l'utente che la prenotazione è tornata in attesa
+                await notifications.queueNotificationForUsers([utente_id], {
+                    title: '⏳ Prenotazione In Attesa di Approvazione',
+                    body: `La tua modifica è stata salvata. La prenotazione è tornata in attesa di conferma: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/users/mie-prenotazioni',
+                    tag: `prenotazione-${id}-modified-user-confirm`
+                });
+                console.log(`[PUSH] Notifica conferma modifica inviata a utente ${utente_id}`);
+            }
+        } catch (pushErr) {
+            console.error('[PUSH] Errore invio notifiche modifica prenotazione:', pushErr);
+        }
+        
+        res.json({ ...result, stato: nuovoStato });
     } catch (err) {
+        console.error('[UPDATE PRENOTAZIONE] Errore:', err);
         res.status(500).json({ error: err.message });
     }
 });
 
 // 7. Elimina prenotazione (id numerico)
-// Restringiamo :id a valori numerici per evitare che percorsi come
-// '/prenotazioni/scadute' vengano intercettati dalla route generica.
-router.delete('/prenotazioni/:id(\\d+)', async (req, res) => {
+// Se la prenotazione è attiva o confermata, deve prima essere annullata
+router.delete('/prenotazioni/:id(\\d+)', isLoggedIn, async (req, res) => {
     const id = req.params.id;
     try {
+        // Recupera la prenotazione per verificare lo stato
+        const prenotazione = await daoPrenotazione.getPrenotazioneById(id);
+        
+        if (!prenotazione) {
+            return res.status(404).json({ error: 'Prenotazione non trovata' });
+        }
+        
+        // Se la prenotazione è attiva (in_attesa o confermata), deve prima essere annullata
+        if (prenotazione.stato === 'in_attesa' || prenotazione.stato === 'confermata') {
+            // Determina chi sta annullando
+            const isAdmin = req.user && req.user.tipo_utente_id === 1;
+            const annullata_da = isAdmin ? 'admin' : 'user';
+            
+            console.log(`[DELETE PRENOTAZIONE] Prenotazione ${id} attiva, annullamento automatico da ${annullata_da}`);
+            
+            // Annulla prima di eliminare
+            await daoPrenotazione.updateStatoPrenotazione(id, 'annullata', annullata_da);
+            
+            // Invia notifiche di annullamento
+            try {
+                const campo = await daoCampi.getCampoById(prenotazione.campo_id);
+                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
+                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
+                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+                
+                if (annullata_da === 'admin') {
+                    // Admin ha annullato: notifica utente
+                    await notifications.queueNotificationForUsers([prenotazione.utente_id], {
+                        title: '❌ Prenotazione Annullata ed Eliminata',
+                        body: `L'amministratore ha annullato ed eliminato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                        icon: '/assets/images/Logo.png',
+                        url: '/users/mie-prenotazioni',
+                        tag: `prenotazione-${id}-deleted-admin`
+                    });
+                } else {
+                    // Utente ha annullato: notifica admin
+                    await notifications.queueNotificationForAdmins({
+                        title: '❌ Prenotazione Annullata ed Eliminata',
+                        body: `Utente ha annullato ed eliminato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                        icon: '/assets/images/Logo.png',
+                        url: '/admin/prenotazioni',
+                        tag: `prenotazione-${id}-deleted-user`
+                    });
+                }
+                
+                console.log(`[PUSH] Notifiche annullamento+eliminazione inviate`);
+            } catch (pushErr) {
+                console.error('[PUSH] Errore invio notifica annullamento:', pushErr);
+            }
+        }
+        
+        // Ora elimina la prenotazione
         const result = await daoPrenotazione.deletePrenotazione(id);
-        res.json(result);
+        console.log(`[DELETE PRENOTAZIONE] Prenotazione ${id} eliminata definitivamente`);
+        res.json({ ...result, annullata: (prenotazione.stato === 'in_attesa' || prenotazione.stato === 'confermata') });
     } catch (err) {
+        console.error('[DELETE PRENOTAZIONE] Errore:', err);
         res.status(500).json({ error: err.message });
     }
 });

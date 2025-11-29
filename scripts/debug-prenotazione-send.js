@@ -38,7 +38,7 @@ const db = require('../src/core/config/database');
         title: '✅ Prenotazione Effettuata (debug-script)',
         body: `Hai prenotato: ${campoNome} - ${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
         icon: '/assets/images/Logo.png',
-        url: '/prenotazione/mie_prenotazioni',
+        url: '/users/mie-prenotazioni',
         tag: `prenotazione-debug-${Date.now()}-user`,
         requireInteraction: true
       });

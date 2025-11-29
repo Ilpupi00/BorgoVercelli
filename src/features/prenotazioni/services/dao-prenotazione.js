@@ -225,15 +225,15 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
  * @throws {Error} In caso di errore DB
  */
 // Prenota un campo
-exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
+exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento }) => {
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
         db.get(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ? AND ora_inizio = ? AND ora_fine = ?`, [campo_id, dataNorm, ora_inizio, ora_fine], (err, row) => {
             if (err) return reject(err);
             if (row) return resolve({ error: 'Orario già prenotato' });
             // Nuove prenotazioni iniziano con stato 'in_attesa' e devono essere accettate dall'admin
-            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW()) RETURNING id`,
-                [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null], function (err, result) {
+            db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW()) RETURNING id`,
+                [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, telefono, codice_fiscale || null, tipo_documento || null, numero_documento || null], function (err, result) {
                     if (err) return reject(err);
                     resolve({ success: true, id: result.rows[0].id });
                 }
@@ -353,11 +353,11 @@ exports.updateStatoPrenotazione = async (id, stato, annullata_da = null) => {
  * @returns {Promise<Object>} { success: true, changes }
  * @throws {Error} In caso di errore DB
  */
-exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note }) => {
+exports.updatePrenotazione = async (id, { campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento }) => {
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
-        db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, updated_at = NOW() WHERE id = ?`,
-            [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, id], function (err, result) {
+        db.run(`UPDATE PRENOTAZIONI SET campo_id = ?, utente_id = ?, squadra_id = ?, data_prenotazione = ?, ora_inizio = ?, ora_fine = ?, tipo_attivita = ?, note = ?, telefono = ?, codice_fiscale = ?, tipo_documento = ?, numero_documento = ?, updated_at = NOW() WHERE id = ?`,
+            [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, telefono || null, codice_fiscale || null, tipo_documento || null, numero_documento || null, id], function (err, result) {
                 if (err) return reject(err);
                 const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
                 resolve({ success: true, changes });

@@ -148,15 +148,69 @@ async function visualizzaPrenotazione(id) {
         const data = await parseJsonSafe(response);
         
         if (response.ok) {
-            // Mostra modal con dettagli
+            // Prepara documento identità
+            let docIdentita = '<span class="text-muted">Non fornito</span>';
+            if (data.tipo_documento === 'CF' && data.codice_fiscale) {
+                docIdentita = `<span class="badge bg-info">CF</span> ${data.codice_fiscale}`;
+            } else if (data.tipo_documento === 'ID' && data.numero_documento) {
+                docIdentita = `<span class="badge bg-info">ID</span> ${data.numero_documento}`;
+            }
+            
+            // Prepara badge stato
+            let statoBadge = '';
+            if (data.stato === 'confermata') statoBadge = '<span class="badge bg-success">Confermata</span>';
+            else if (data.stato === 'in_attesa') statoBadge = '<span class="badge bg-warning">In Attesa</span>';
+            else if (data.stato === 'annullata') statoBadge = '<span class="badge bg-danger">Annullata</span>';
+            else if (data.stato === 'scaduta') statoBadge = '<span class="badge bg-secondary">Scaduta</span>';
+            else if (data.stato === 'completata') statoBadge = '<span class="badge bg-info">Completata</span>';
+            else statoBadge = `<span class="badge bg-secondary">${data.stato || '-'}</span>`;
+            
+            // Info annullamento
+            let annullataInfo = '';
+            if (data.stato === 'annullata' && data.annullata_da) {
+                const annullataDa = data.annullata_da === 'admin' ? 'Amministratore' : 'Utente';
+                annullataInfo = `<p><strong>Annullata da:</strong> <span class="text-danger">${annullataDa}</span></p>`;
+            }
+            
+            // Mostra modal con dettagli completi
             const modalHtml = `
-                <p><strong>Campo:</strong> ${data.campo_nome || 'N/A'}</p>
-                <p><strong>Utente:</strong> ${data.utente_nome || ''} ${data.utente_cognome || ''}</p>
-                <p><strong>Squadra:</strong> ${data.squadra_nome || 'N/A'}</p>
-                <p><strong>Data:</strong> ${data.data_prenotazione ? new Date(data.data_prenotazione).toLocaleDateString('it-IT') : '-'}</p>
-                <p><strong>Orario:</strong> ${data.ora_inizio || '-'} - ${data.ora_fine || '-'}</p>
-                <p><strong>Tipo Attività:</strong> ${data.tipo_attivita || 'N/A'}</p>
-                <p><strong>Stato:</strong> ${data.stato || '-'}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Informazioni Prenotazione</h6>
+                        <p><strong>ID:</strong> #${data.id}</p>
+                        <p><strong>Campo:</strong> <span class="badge bg-primary">${data.campo_nome || 'Campo ' + data.campo_id}</span></p>
+                        <p><strong>Data:</strong> ${data.data_prenotazione ? new Date(data.data_prenotazione).toLocaleDateString('it-IT') : '-'}</p>
+                        <p><strong>Orario:</strong> <i class="bi bi-clock me-1"></i>${data.ora_inizio || '-'} - ${data.ora_fine || '-'}</p>
+                        <p><strong>Tipo Attività:</strong> ${data.tipo_attivita || '<span class="text-muted">Non specificato</span>'}</p>
+                        <p><strong>Stato:</strong> ${statoBadge}</p>
+                        ${annullataInfo}
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3"><i class="bi bi-person-circle me-2"></i>Dati Utente</h6>
+                        <p><strong>Utente:</strong> ${data.utente_nome || ''} ${data.utente_cognome || '<span class="text-muted">N/A</span>'}</p>
+                        <p><strong>Squadra:</strong> ${data.squadra_nome || '<span class="text-muted">Nessuna</span>'}</p>
+                        <p><strong><i class="bi bi-telephone me-1"></i>Telefono:</strong> ${data.telefono || '<span class="text-muted">Non fornito</span>'}</p>
+                        <p><strong><i class="bi bi-card-text me-1"></i>Documento:</strong> ${docIdentita}</p>
+                    </div>
+                </div>
+                ${data.note ? `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-secondary mb-2"><i class="bi bi-chat-left-text me-2"></i>Note</h6>
+                        <div class="alert alert-light mb-0">${data.note}</div>
+                    </div>
+                </div>
+                ` : ''}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <hr>
+                        <small class="text-muted">
+                            <i class="bi bi-clock-history me-1"></i>
+                            Creata il: ${data.created_at ? new Date(data.created_at).toLocaleString('it-IT') : 'N/A'}
+                            ${data.updated_at ? ` | Aggiornata: ${new Date(data.updated_at).toLocaleString('it-IT')}` : ''}
+                        </small>
+                    </div>
+                </div>
             `;
 
             const bodyEl = document.getElementById('modalPrenotazioneBody');
@@ -267,7 +321,154 @@ async function annullaPrenotazione(id) {
 }
 
 async function modificaPrenotazione(id) {
-    window.AdminGlobal.ToastManager.show('Funzionalità in sviluppo', 'info');
+    try {
+        const loadingToast = window.AdminGlobal.ToastManager.show('Caricamento dati...', 'info');
+        
+        // Fetch prenotazione data
+        const response = await fetch(`/prenotazione/prenotazioni/${id}`);
+        if (!response.ok) throw new Error('Errore nel recupero dei dati');
+        const prenotazione = await response.json();
+        
+        // Fetch campi disponibili
+        const campiResponse = await fetch('/prenotazione/campi');
+        if (!campiResponse.ok) throw new Error('Errore nel recupero dei campi');
+        const campi = await campiResponse.json();
+        
+        // Popola select campi
+        const campoSelect = document.getElementById('modPrenCampo');
+        campoSelect.innerHTML = campi.map(campo => 
+            `<option value="${campo.id}" ${campo.id === prenotazione.campo_id ? 'selected' : ''}>
+                ${campo.nome}
+            </option>`
+        ).join('');
+        
+        // Popola form
+        document.getElementById('modPrenId').value = prenotazione.id;
+        document.getElementById('modPrenUtenteId').value = prenotazione.utente_id;
+        document.getElementById('modPrenData').value = prenotazione.data;
+        document.getElementById('modPrenOraInizio').value = prenotazione.ora_inizio;
+        document.getElementById('modPrenOraFine').value = prenotazione.ora_fine;
+        document.getElementById('modPrenTelefono').value = prenotazione.telefono || '';
+        document.getElementById('modPrenNote').value = prenotazione.note || '';
+        
+        // Gestisci tipo documento
+        const tipoDocSelect = document.getElementById('modPrenTipoDoc');
+        const cfContainer = document.getElementById('modPrenCFContainer');
+        const idContainer = document.getElementById('modPrenIDContainer');
+        const cfInput = document.getElementById('modPrenCodiceFiscale');
+        const idInput = document.getElementById('modPrenNumeroDoc');
+        
+        if (prenotazione.tipo_documento === 'CF') {
+            tipoDocSelect.value = 'CF';
+            cfContainer.style.display = 'block';
+            idContainer.style.display = 'none';
+            cfInput.value = prenotazione.codice_fiscale || '';
+            cfInput.required = true;
+            idInput.required = false;
+        } else if (prenotazione.tipo_documento === 'ID') {
+            tipoDocSelect.value = 'ID';
+            cfContainer.style.display = 'none';
+            idContainer.style.display = 'block';
+            idInput.value = prenotazione.numero_documento || '';
+            cfInput.required = false;
+            idInput.required = true;
+        } else {
+            tipoDocSelect.value = '';
+            cfContainer.style.display = 'none';
+            idContainer.style.display = 'none';
+            cfInput.required = false;
+            idInput.required = false;
+        }
+        
+        // Mostra modal
+        const modal = new bootstrap.Modal(document.getElementById('modificaPrenotazioneModal'));
+        modal.show();
+        
+        loadingToast.hide();
+        
+    } catch (error) {
+        console.error('Errore modifica prenotazione:', error);
+        window.AdminGlobal.ToastManager.show('Errore nel caricamento dei dati: ' + error.message, 'error');
+    }
+}
+
+async function salvaModificaPrenotazione() {
+    try {
+        const form = document.getElementById('modificaPrenotazioneForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const id = document.getElementById('modPrenId').value;
+        const telefono = document.getElementById('modPrenTelefono').value;
+        const tipoDoc = document.getElementById('modPrenTipoDoc').value;
+        
+        // Validazione telefono
+        const phonePattern = /^\+39\s?[0-9]{9,10}$/;
+        if (!phonePattern.test(telefono)) {
+            window.AdminGlobal.ToastManager.show('Formato telefono non valido. Richiesto: +39 seguito da 9-10 cifre', 'error');
+            return;
+        }
+        
+        // Validazione documento se presente
+        if (tipoDoc === 'CF') {
+            const cf = document.getElementById('modPrenCodiceFiscale').value;
+            const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
+            if (!cf || !cfPattern.test(cf)) {
+                window.AdminGlobal.ToastManager.show('Codice fiscale non valido', 'error');
+                return;
+            }
+        } else if (tipoDoc === 'ID') {
+            const numDoc = document.getElementById('modPrenNumeroDoc').value;
+            if (!numDoc || numDoc.length < 5) {
+                window.AdminGlobal.ToastManager.show('Numero documento deve essere di almeno 5 caratteri', 'error');
+                return;
+            }
+        }
+        
+        // Normalizza telefono
+        const telefonoNormalizzato = telefono.replace(/\s/g, '');
+        
+        // Prepara dati
+        const dati = {
+            campo_id: parseInt(document.getElementById('modPrenCampo').value),
+            data: document.getElementById('modPrenData').value,
+            ora_inizio: document.getElementById('modPrenOraInizio').value,
+            ora_fine: document.getElementById('modPrenOraFine').value,
+            telefono: telefonoNormalizzato,
+            tipo_documento: tipoDoc || null,
+            codice_fiscale: tipoDoc === 'CF' ? document.getElementById('modPrenCodiceFiscale').value.toUpperCase() : null,
+            numero_documento: tipoDoc === 'ID' ? document.getElementById('modPrenNumeroDoc').value.toUpperCase() : null,
+            note: document.getElementById('modPrenNote').value || null,
+            modified_by_admin: true
+        };
+        
+        const loadingToast = window.AdminGlobal.ToastManager.show('Salvataggio in corso...', 'info');
+        
+        const response = await fetch(`/prenotazione/prenotazioni/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dati)
+        });
+        
+        const result = await response.json();
+        
+        loadingToast.hide();
+        
+        if (response.ok) {
+            window.AdminGlobal.ToastManager.show('Prenotazione modificata con successo', 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modificaPrenotazioneModal'));
+            modal.hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            window.AdminGlobal.ToastManager.show(result.error || 'Errore durante il salvataggio', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Errore salvataggio:', error);
+        window.AdminGlobal.ToastManager.show('Errore di connessione: ' + error.message, 'error');
+    }
 }
 
 async function eliminaPrenotazione(id) {

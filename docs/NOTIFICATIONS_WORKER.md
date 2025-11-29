@@ -82,7 +82,7 @@ await notifications.queueNotificationForAdmins({
 await notifications.queueNotificationForUsers([userId1, userId2], {
     title: '✅ Prenotazione Confermata',
     body: 'La tua prenotazione è stata confermata',
-    url: '/prenotazione/mie_prenotazioni'
+    url: '/users/mie-prenotazioni'
 });
 
 // Notifica a tutti (broadcast)

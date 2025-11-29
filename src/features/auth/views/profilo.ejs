@@ -527,8 +527,14 @@
             <input type="email" class="form-control" id="editEmail" name="email" value="<%= user.email %>" autocomplete="email">
           </div>
           <div class="mb-3">
-            <label for="editTelefono" class="form-label">Telefono</label>
-            <input type="text" class="form-control" id="editTelefono" name="telefono" value="<%= user.telefono || '' %>" autocomplete="tel">
+            <label for="editTelefono" class="form-label">Telefono <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" id="editTelefono" name="telefono" value="<%= user.telefono || '' %>" 
+                   placeholder="+39 3xx xxxxxxx (10 cifre dopo +39)" 
+                   pattern="^\+39\s?[0-9]{9,10}$"
+                   title="Formato: +39 seguito da 9-10 cifre (es: +39 3331234567)"
+                   required autocomplete="tel">
+            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Formato italiano: +39 seguito da 9-10 cifre</div>
+            <div class="invalid-feedback">Inserisci un numero valido: +39 seguito da 9-10 cifre (es: +39 3331234567)</div>
           </div>
           <div class="border-top pt-3">
             <h6 class="text-muted mb-3">Preferenze Sportive</h6>
@@ -717,6 +723,49 @@
             new Profilo(document.getElementById('page'));
         </script>
         <script>
+          // Validazione telefono in tempo reale nel form modifica profilo
+          document.addEventListener('DOMContentLoaded', function() {
+            const telefonoInput = document.getElementById('editTelefono');
+            if (telefonoInput) {
+              // Auto-normalizza con +39
+              telefonoInput.addEventListener('input', function() {
+                let val = this.value.trim();
+                // Auto-aggiungi +39 se l'utente inizia a digitare numeri
+                if (val.length > 0 && !val.startsWith('+')) {
+                  this.value = '+39' + val.replace(/^0/, '');
+                }
+                // Rimuovi caratteri non validi (permetti solo +, numeri e spazi)
+                this.value = this.value.replace(/[^+0-9\\s]/g, '');
+              });
+              
+              // Valida al blur
+              telefonoInput.addEventListener('blur', function() {
+                let val = this.value.trim();
+                if (val && !val.startsWith('+39')) {
+                  this.value = '+39' + val.replace(/^0/, '');
+                }
+                // Valida il formato
+                const phoneRegex = /^\\+39\\s?[0-9]{9,10}$/;
+                if (val && !phoneRegex.test(this.value)) {
+                  this.classList.add('is-invalid');
+                  this.classList.remove('is-valid');
+                } else if (val) {
+                  this.classList.remove('is-invalid');
+                  this.classList.add('is-valid');
+                }
+              });
+              
+              // Pre-normalizza il valore esistente
+              if (telefonoInput.value) {
+                let tel = telefonoInput.value.trim();
+                if (tel && !tel.startsWith('+39')) {
+                  telefonoInput.value = '+39' + tel.replace(/^0/, '');
+                }
+              }
+            }
+          });
+        </script>
+        <script>
           // Show notification enable modal from Profile page
           (function(){
             function createNotificationModal() {
@@ -761,14 +810,34 @@
 
             async function showProfileNotificationPrompt() {
               if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                return; // browser non supportato
+                showNotificationResult('error', 'Browser non supportato', 'Il tuo browser non supporta le notifiche push.');
+                return;
               }
 
               if (Notification.permission === 'granted') {
-                if (window.initPushNotifications) await window.initPushNotifications();
+                // Verifica se già subscription esiste
+                try {
+                  const checkRes = await fetch('/push/my-subscriptions', { credentials: 'include' });
+                  const checkData = await checkRes.json();
+                  if (checkData.count > 0) {
+                    showNotificationResult('info', 'Notifiche già abilitate', 'Hai già abilitato le notifiche per questo dispositivo.');
+                    return;
+                  }
+                  // Non ha subscription, inizializza
+                  if (window.initPushNotifications) {
+                    await window.initPushNotifications();
+                    showNotificationResult('success', 'Notifiche abilitate!', 'Riceverai notifiche per aggiornamenti importanti.');
+                  }
+                } catch (err) {
+                  console.error('Errore verifica subscription:', err);
+                  if (window.initPushNotifications) await window.initPushNotifications();
+                }
                 return;
               }
-              if (Notification.permission === 'denied') return;
+              if (Notification.permission === 'denied') {
+                showNotificationResult('error', 'Permessi negati', 'Hai bloccato le notifiche. Abilitale nelle impostazioni del browser.');
+                return;
+              }
 
               createNotificationModal();
               const modalEl = document.getElementById('notificationModal');
@@ -781,9 +850,11 @@
                 try {
                   if (window.initPushNotifications) {
                     await window.initPushNotifications();
+                    showNotificationResult('success', 'Notifiche abilitate!', 'Riceverai notifiche per aggiornamenti importanti.');
                   }
                 } catch (err) {
                   console.error('Errore attivazione notifiche:', err);
+                  showNotificationResult('error', 'Errore attivazione', 'Si è verificato un errore. Riprova più tardi.');
                 }
               }, { once: true });
 
@@ -791,6 +862,32 @@
                 bsModal.hide();
               }, { once: true });
 
+              modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
+              bsModal.show();
+            }
+            
+            function showNotificationResult(type, title, message) {
+              const iconMap = { success: 'check-circle-fill', error: 'x-circle-fill', info: 'info-circle-fill' };
+              const colorMap = { success: 'success', error: 'danger', info: 'primary' };
+              const resultHtml = `
+                <div class="modal fade" id="notificationResultModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-body text-center py-4">
+                        <i class="bi bi-${iconMap[type]} text-${colorMap[type]}" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 fw-bold">${title}</h5>
+                        <p class="text-muted">${message}</p>
+                        <button type="button" class="btn btn-${colorMap[type]} mt-2" data-bs-dismiss="modal">OK</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              const existingModal = document.getElementById('notificationResultModal');
+              if (existingModal) existingModal.remove();
+              document.body.insertAdjacentHTML('beforeend', resultHtml);
+              const modalEl = document.getElementById('notificationResultModal');
+              const bsModal = new bootstrap.Modal(modalEl);
               modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
               bsModal.show();
             }

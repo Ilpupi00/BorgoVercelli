@@ -203,13 +203,13 @@ async function getSubscriptionByEndpoint(endpoint) {
  * @param {Object} payload - Dati della notifica
  * @returns {Promise<Object>} Risultato dell'invio
  */
-async function sendNotificationToUsers(userIds, payload) {
+async function sendNotificationToUsers(userIds, payload, subscriptionsParam = null) {
   try {
     console.log('[WEBPUSH] 📤 sendNotificationToUsers chiamato');
     console.log('[WEBPUSH] Target userIds:', userIds);
     console.log('[WEBPUSH] Payload:', JSON.stringify(payload, null, 2));
     
-    const subscriptions = await loadSubscriptions();
+    const subscriptions = subscriptionsParam || await loadSubscriptions();
     console.log('[WEBPUSH] Subscriptions totali caricate:', subscriptions.length);
     
     // Match userIds robustly by stringifying both sides to avoid type mismatch (number vs string)
@@ -260,18 +260,30 @@ async function sendNotificationToUsers(userIds, payload) {
         }).catch(async (err) => {
           console.error(`[WEBPUSH] ❌ Errore invio notifica ${idx + 1}:`, err.message);
           console.error(`[WEBPUSH] Status Code:`, err.statusCode);
-          console.error(`[WEBPUSH] Body:`, err.body);
+          if (err.body) console.error(`[WEBPUSH] Body:`, err.body);
           
-          // Rimuovi subscription non valide (410 = Gone, 404 = Not Found)
+          // Classifica errore per handling appropriato
           if (err.statusCode === 410 || err.statusCode === 404) {
-            console.log(`[WEBPUSH] 🗑️ Rimozione subscription scaduta/non valida`);
+            console.log(`[WEBPUSH] 🗑️ Subscription scaduta/rimossa (${err.statusCode}) - rimozione`);
             await removeSubscription(sub.endpoint);
-            return { removed: sub.endpoint };
+            return { removed: sub.endpoint, reason: 'expired' };
+          } else if (err.statusCode === 403) {
+            console.error(`[WEBPUSH] 🚫 Errore 403 - possibile VAPID mismatch o subscription non valida`);
+            console.error(`[WEBPUSH] Endpoint: ${sub.endpoint.substring(0, 80)}...`);
+            await incrementErrorCount(sub.endpoint);
+            throw new Error(`VAPID mismatch o subscription invalida: ${err.message}`);
+          } else if (err.statusCode === 401) {
+            console.error(`[WEBPUSH] 🔒 Errore 401 - autenticazione VAPID fallita`);
+            throw new Error(`VAPID authentication failed: ${err.message}`);
+          } else if (err.statusCode >= 500) {
+            console.error(`[WEBPUSH] 💥 Errore server push service (${err.statusCode}) - retry possibile`);
+            await incrementErrorCount(sub.endpoint);
+            throw new Error(`Push service error ${err.statusCode}: ${err.message}`);
+          } else {
+            console.error(`[WEBPUSH] ⚠️ Errore generico (${err.statusCode || 'unknown'})`);
+            await incrementErrorCount(sub.endpoint);
+            throw err;
           }
-          
-          // Incrementa contatore errori per altri errori
-          await incrementErrorCount(sub.endpoint);
-          throw err;
         });
       })
     );
@@ -308,12 +320,12 @@ async function sendNotificationToUsers(userIds, payload) {
  * @param {Object} payload - Dati della notifica
  * @returns {Promise<Object>} Risultato dell'invio
  */
-async function sendNotificationToAdmins(payload) {
+async function sendNotificationToAdmins(payload, subscriptionsParam = null) {
   try {
     console.log('[WEBPUSH] 👑 sendNotificationToAdmins chiamato');
     console.log('[WEBPUSH] Payload:', JSON.stringify(payload, null, 2));
     
-    const subscriptions = await loadSubscriptions();
+    const subscriptions = subscriptionsParam || await loadSubscriptions();
     console.log('[WEBPUSH] Subscriptions totali caricate:', subscriptions.length);
     
     const adminSubs = subscriptions.filter(s => s.isAdmin === true);
@@ -367,16 +379,27 @@ async function sendNotificationToAdmins(payload) {
         }).catch(async (err) => {
           console.error(`[WEBPUSH] ❌ Errore invio notifica admin ${idx + 1}:`, err.message);
           console.error(`[WEBPUSH] Status Code:`, err.statusCode);
-          console.error(`[WEBPUSH] Body:`, err.body);
+          if (err.body) console.error(`[WEBPUSH] Body:`, err.body);
           
           if (err.statusCode === 410 || err.statusCode === 404) {
-            console.log(`[WEBPUSH] 🗑️ Rimozione subscription admin scaduta/non valida`);
+            console.log(`[WEBPUSH] 🗑️ Subscription admin scaduta (${err.statusCode}) - rimozione`);
             await removeSubscription(sub.endpoint);
-            return { removed: sub.endpoint };
+            return { removed: sub.endpoint, reason: 'expired' };
+          } else if (err.statusCode === 403) {
+            console.error(`[WEBPUSH] 🚫 Admin subscription - errore 403 VAPID mismatch`);
+            await incrementErrorCount(sub.endpoint);
+            throw new Error(`VAPID mismatch (admin): ${err.message}`);
+          } else if (err.statusCode === 401) {
+            console.error(`[WEBPUSH] 🔒 Admin subscription - errore 401 auth VAPID`);
+            throw new Error(`VAPID authentication failed (admin): ${err.message}`);
+          } else if (err.statusCode >= 500) {
+            console.error(`[WEBPUSH] 💥 Push service error ${err.statusCode} (admin) - retry possibile`);
+            await incrementErrorCount(sub.endpoint);
+            throw new Error(`Push service error ${err.statusCode} (admin): ${err.message}`);
+          } else {
+            await incrementErrorCount(sub.endpoint);
+            throw err;
           }
-          
-          await incrementErrorCount(sub.endpoint);
-          throw err;
         });
       })
     );
@@ -412,11 +435,11 @@ async function sendNotificationToAdmins(payload) {
  * @param {Object} payload - Dati della notifica
  * @returns {Promise<Object>} Risultato dell'invio
  */
-async function sendNotificationToAll(payload) {
+async function sendNotificationToAll(payload, subscriptionsParam = null) {
   try {
     console.log('[WEBPUSH] 📢 sendNotificationToAll chiamato');
     
-    const subscriptions = await loadSubscriptions();
+    const subscriptions = subscriptionsParam || await loadSubscriptions();
     
     if (subscriptions.length === 0) {
       console.log('[WEBPUSH] Nessuna subscription trovata');

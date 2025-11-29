@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node ./src/server/www",
     "worker:notifications": "node scripts/worker-notifications.js",
+    "test:notifications": "node scripts/test-notification-system.js",
+    "test:notifications:queue": "TEST_QUEUE=true node scripts/test-notification-system.js",
     "verify-uploads": "node scripts/verify-upload-config.js",
     "check-image-paths": "node scripts/check-image-paths.js",
     "fix-image-paths": "node scripts/fix-image-paths.js",

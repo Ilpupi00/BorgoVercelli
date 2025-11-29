@@ -140,4 +140,19 @@ function onListening() {
     console.log('💡 Configura VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY nel file .env');
   }
   console.log('========================================\n');
+  
+  // Avvia worker booking reminder (notifications worker già avviato in app.js)
+  console.log('========================================');
+  console.log('🚀 AVVIO BOOKING REMINDER WORKER');
+  console.log('========================================');
+  
+  try {
+    const bookingReminderWorker = require('./workers/booking-reminder-worker');
+    bookingReminderWorker.start();
+    console.log('✅ Booking Reminder Worker avviato');
+  } catch (error) {
+    console.error('❌ Errore avvio Booking Reminder Worker:', error.message);
+  }
+  
+  console.log('========================================\n');
 }

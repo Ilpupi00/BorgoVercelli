@@ -300,6 +300,32 @@ class PushNotificationManager {
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
         console.error('[Push Manager] ❌ Errore dal server:', response.status, errorText);
+
+        // Fallback per testing: se non autenticato, prova a salvare come anon (route /push/subscribe-anon)
+        if (response.status === 401) {
+          try {
+            console.warn('[Push Manager] Utente non autenticato: provo fallback anon (/push/subscribe-anon) per test');
+            const anonResp = await fetch('/push/subscribe-anon', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.subscription)
+            });
+            if (anonResp.ok) {
+              const anonResult = await anonResp.json().catch(() => ({ success: true }));
+              console.log('[Push Manager] ✅ Subscription anon salvata per test:', anonResult);
+              return this.subscription;
+            } else {
+              const anonText = await anonResp.text().catch(() => 'Unknown error');
+              console.error('[Push Manager] ❌ Fallback anon fallito:', anonResp.status, anonText);
+              throw new Error(`Errore salvataggio subscription anon: ${anonResp.status} - ${anonText}`);
+            }
+          } catch (e) {
+            console.error('[Push Manager] Errore durante fallback anon:', e);
+            throw e;
+          }
+        }
+
         throw new Error(`Errore salvataggio subscription: ${response.status} - ${errorText}`);
       }
 

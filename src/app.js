@@ -31,6 +31,9 @@ const routesSendEmail = require('./shared/routes/email');
 const routesSitemap = require('./shared/routes/sitemap');
 const routesPush = require('./shared/routes/push');
 
+// Worker notifiche push integrato
+const notificationsWorker = require('./server/workers/notifications-worker');
+
 // Route features
 const routesNotizie = require('./features/notizie/routes/notizie');
 const routesEventi = require('./features/eventi/routes/eventi');
@@ -341,6 +344,38 @@ app.use(function(req, res, next) {
 app.use((req, res) => {
   res.statusCode = 404;
   res.end('Not Found');
+});
+
+// ==================== AVVIO WORKER NOTIFICHE ====================
+
+/**
+ * Avvia il worker per processare notifiche push in background
+ * Il worker si avvia automaticamente dopo un breve delay per permettere
+ * al server di completare l'inizializzazione
+ */
+setImmediate(async () => {
+  try {
+    console.log('[APP] 🚀 Avvio worker notifiche push...');
+    await notificationsWorker.startWorker();
+    console.log('[APP] ✅ Worker notifiche push avviato con successo');
+  } catch (error) {
+    console.error('[APP] ❌ Errore avvio worker notifiche:', error.message);
+    console.error('[APP] Le notifiche push non verranno processate automaticamente');
+  }
+});
+
+/**
+ * Gestione graceful shutdown del worker
+ */
+process.on('SIGTERM', async () => {
+  console.log('[APP] Ricevuto SIGTERM, arresto worker notifiche...');
+  await notificationsWorker.stopWorker();
+});
+
+process.on('SIGINT', async () => {
+  console.log('[APP] Ricevuto SIGINT, arresto worker notifiche...');
+  await notificationsWorker.stopWorker();
+  process.exit(0);
 });
 
 // ==================== EXPORT ====================

@@ -16,6 +16,7 @@ const prenotazioniDao = require('../../prenotazioni/services/dao-prenotazione');
 const dirigenteDao = require('../../squadre/services/dao-dirigenti-squadre');
 const campionatiDao = require('../../campionati/services/dao-campionati');
 const adminDao = require('../services/dao-admin');
+const notifications = require('../../../shared/services/notifications');
 
 /**
  * Admin Routes per la gestione del sito
@@ -209,7 +210,21 @@ router.delete('/admin/recensioni/:id', isLoggedIn, isAdmin, async (req, res) => 
     }
 });
 
-// Route per ottenere i dettagli di un utente
+// Route per ottenere i dettagli di un utente (API JSON)
+router.get('/api/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const utente = await userDao.getUserById(userId);
+        const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
+        utente.immagine_profilo = imageUrl;
+        res.json(utente);
+    } catch (err) {
+        console.error('Errore nel caricamento dei dettagli utente:', err);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+});
+
+// Route per ottenere i dettagli di un utente (backward compatibility)
 router.get('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const userId = req.params.id;
@@ -352,9 +367,33 @@ router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
 router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const id = req.params.id;
+        const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
+        if (!prenotazione) {
+            return res.status(404).json({ success: false, error: 'Prenotazione non trovata' });
+        }
+        
         // usa l'API esistente del DAO per aggiornare lo stato
         const result = await prenotazioniDao.updateStatoPrenotazione(id, 'confermata', null);
         if (result && result.success) {
+            // Invia notifica all'utente
+            try {
+                const campo = await campiDao.getCampoById(prenotazione.campo_id);
+                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
+                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
+                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+                
+                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
+                    title: '✅ Prenotazione Confermata',
+                    body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/users/mie-prenotazioni',
+                    tag: `prenotazione-${id}-confermata`,
+                    requireInteraction: true
+                });
+                console.log(`[ADMIN] Notifica conferma accodata per utente ${prenotazione.utente_id}`);
+            } catch (pushErr) {
+                console.error('[ADMIN] Errore invio notifica conferma:', pushErr);
+            }
             return res.json({ success: true, message: 'Prenotazione confermata con successo' });
         }
         res.status(500).json({ success: false, error: 'Impossibile confermare la prenotazione' });
@@ -383,9 +422,33 @@ router.delete('/admin/prenotazioni/:id', isLoggedIn, isAdmin, async (req, res) =
 router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, res) => {
     try {
         const id = req.params.id;
+        const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
+        if (!prenotazione) {
+            return res.status(404).json({ success: false, error: 'Prenotazione non trovata' });
+        }
+        
         // Admin annulla - imposta annullata_da = 'admin'
         const result = await prenotazioniDao.updateStatoPrenotazione(id, 'annullata', 'admin');
         if (result && result.success) {
+            // Invia notifica all'utente
+            try {
+                const campo = await campiDao.getCampoById(prenotazione.campo_id);
+                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
+                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
+                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+                
+                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
+                    title: '❌ Prenotazione Annullata',
+                    body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+                    icon: '/assets/images/Logo.png',
+                    url: '/users/mie-prenotazioni',
+                    tag: `prenotazione-${id}-annullata-admin`,
+                    requireInteraction: true
+                });
+                console.log(`[ADMIN] Notifica annullamento accodata per utente ${prenotazione.utente_id}`);
+            } catch (pushErr) {
+                console.error('[ADMIN] Errore invio notifica annullamento:', pushErr);
+            }
             return res.json({ success: true, message: 'Prenotazione annullata con successo' });
         }
         res.status(500).json({ success: false, error: 'Impossibile annullare la prenotazione' });

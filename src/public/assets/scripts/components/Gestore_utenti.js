@@ -101,11 +101,90 @@ class GestoreUtente {
 
     static async visualizzaUtente(id) {
         try {
-            const response = await fetch(`/admin/utenti/${id}`);
-            if (!response.ok) {
+            // Carica dati utente - usa endpoint API per JSON
+            const responseUtente = await fetch(`/api/admin/utenti/${id}`);
+            if (!responseUtente.ok) {
                 throw new Error('Errore nel caricamento dei dettagli utente');
             }
-            const utente = await response.json();
+            const utente = await responseUtente.json();
+            
+            // Carica prenotazioni utente
+            const responsePrenotazioni = await fetch(`/prenotazione/prenotazioni/user/${id}`);
+            let prenotazioni = [];
+            if (responsePrenotazioni.ok) {
+                prenotazioni = await responsePrenotazioni.json();
+            }
+            
+            // Genera HTML prenotazioni
+            let prenotazioniHTML = '';
+            if (prenotazioni && prenotazioni.length > 0) {
+                prenotazioniHTML = `
+                    <div class="mt-4">
+                        <h5><i class="bi bi-calendar-check me-2"></i>Prenotazioni (${prenotazioni.length})</h5>
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead class="sticky-top bg-light">
+                                    <tr>
+                                        <th>Campo</th>
+                                        <th>Data</th>
+                                        <th>Orario</th>
+                                        <th>Stato</th>
+                                        <th>Telefono</th>
+                                        <th>Documento</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${prenotazioni.map(p => {
+                                        const stato = p.stato || 'in_attesa';
+                                        const statoBadge = {
+                                            'in_attesa': '<span class="badge bg-warning">In Attesa</span>',
+                                            'confermata': '<span class="badge bg-success">Confermata</span>',
+                                            'annullata': '<span class="badge bg-danger">Annullata</span>',
+                                            'completata': '<span class="badge bg-info">Completata</span>',
+                                            'scaduta': '<span class="badge bg-secondary">Scaduta</span>'
+                                        }[stato] || `<span class="badge bg-secondary">${stato}</span>`;
+                                        
+                                        const dataFormatted = new Date(p.data_prenotazione).toLocaleDateString('it-IT');
+                                        const telefono = p.telefono || 'N/D';
+                                        
+                                        let documentoInfo = 'N/D';
+                                        if (p.tipo_documento === 'CF' && p.codice_fiscale) {
+                                            documentoInfo = `<small>CF: ${p.codice_fiscale}</small>`;
+                                        } else if (p.tipo_documento === 'ID' && p.numero_documento) {
+                                            documentoInfo = `<small>ID: ${p.numero_documento}</small>`;
+                                        }
+                                        
+                                        return `
+                                            <tr>
+                                                <td>${p.campo_nome || 'Campo ' + p.campo_id}</td>
+                                                <td>${dataFormatted}</td>
+                                                <td>${p.ora_inizio} - ${p.ora_fine}</td>
+                                                <td>${statoBadge}</td>
+                                                <td><small>${telefono}</small></td>
+                                                <td>${documentoInfo}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="GestoreUtente.modificaPrenotazioneAdmin(${p.id})" title="Modifica">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                prenotazioniHTML = `
+                    <div class="mt-4 text-center text-muted">
+                        <i class="bi bi-calendar-x fs-1"></i>
+                        <p>Nessuna prenotazione trovata</p>
+                    </div>
+                `;
+            }
+            
             const content = `
                 <div class="row">
                     <div class="col-md-8">
@@ -119,6 +198,7 @@ class GestoreUtente {
                         <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" alt="Foto profilo" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                 </div>
+                ${prenotazioniHTML}
             `;
             document.getElementById('visualizzaContent').innerHTML = content;
             const modal = new bootstrap.Modal(document.getElementById('visualizzaModal'));
@@ -528,6 +608,129 @@ class GestoreUtente {
                 GestoreUtente.showNotification('Revoca completata con successo', 'success');
                 setTimeout(() => location.reload(), 1500);
             }
+        } catch (error) {
+            console.error('Errore:', error);
+            GestoreUtente.showNotification(error.message, 'error');
+        }
+    }
+
+    // ==================== GESTIONE MODIFICA PRENOTAZIONE ADMIN ====================
+    
+    static async modificaPrenotazioneAdmin(prenotazioneId) {
+        try {
+            // Carica dati prenotazione
+            const responsePrenotazione = await fetch(`/api/prenotazioni/${prenotazioneId}`);
+            if (!responsePrenotazione.ok) {
+                throw new Error('Errore nel caricamento della prenotazione');
+            }
+            const prenotazione = await responsePrenotazione.json();
+            
+            // Carica lista campi
+            const responseCampi = await fetch('/api/prenotazioni/campi');
+            if (!responseCampi.ok) {
+                throw new Error('Errore nel caricamento dei campi');
+            }
+            const campi = await responseCampi.json();
+            
+            // Popola select campi
+            const campoSelect = document.getElementById('modPrenCampo');
+            campoSelect.innerHTML = campi.map(c => 
+                `<option value="${c.id}" ${c.id === prenotazione.campo_id ? 'selected' : ''}>${c.nome}</option>`
+            ).join('');
+            
+            // Popola form con dati prenotazione
+            document.getElementById('modPrenId').value = prenotazione.id;
+            document.getElementById('modPrenUtenteId').value = prenotazione.utente_id;
+            document.getElementById('modPrenData').value = prenotazione.data_prenotazione.split('T')[0];
+            document.getElementById('modPrenOraInizio').value = prenotazione.ora_inizio;
+            document.getElementById('modPrenOraFine').value = prenotazione.ora_fine;
+            document.getElementById('modPrenTelefono').value = prenotazione.telefono || '';
+            document.getElementById('modPrenNote').value = prenotazione.note || '';
+            
+            // Gestione tipo documento
+            const tipoDocSelect = document.getElementById('modPrenTipoDoc');
+            tipoDocSelect.value = prenotazione.tipo_documento || '';
+            
+            // Trigger change per mostrare campi corretti
+            tipoDocSelect.dispatchEvent(new Event('change'));
+            
+            if (prenotazione.tipo_documento === 'CF') {
+                document.getElementById('modPrenCodiceFiscale').value = prenotazione.codice_fiscale || '';
+            } else if (prenotazione.tipo_documento === 'ID') {
+                document.getElementById('modPrenNumeroDoc').value = prenotazione.numero_documento || '';
+            }
+            
+            // Mostra modal
+            const modal = new bootstrap.Modal(document.getElementById('modificaPrenotazioneModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Errore:', error);
+            GestoreUtente.showNotification(error.message, 'error');
+        }
+    }
+    
+    static async salvaModificaPrenotazioneAdmin() {
+        const form = document.getElementById('modificaPrenotazioneForm');
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            GestoreUtente.showNotification('Compila tutti i campi obbligatori correttamente', 'warning');
+            return;
+        }
+        
+        const id = document.getElementById('modPrenId').value;
+        const utenteId = document.getElementById('modPrenUtenteId').value;
+        const campoId = document.getElementById('modPrenCampo').value;
+        const data = document.getElementById('modPrenData').value;
+        const oraInizio = document.getElementById('modPrenOraInizio').value;
+        const oraFine = document.getElementById('modPrenOraFine').value;
+        const telefono = document.getElementById('modPrenTelefono').value;
+        const tipoDoc = document.getElementById('modPrenTipoDoc').value;
+        const codiceFiscale = tipoDoc === 'CF' ? document.getElementById('modPrenCodiceFiscale').value : null;
+        const numeroDoc = tipoDoc === 'ID' ? document.getElementById('modPrenNumeroDoc').value : null;
+        const note = document.getElementById('modPrenNote').value;
+        
+        // Validazione telefono
+        const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
+        if (!phoneRegex.test(telefono)) {
+            GestoreUtente.showNotification('Formato telefono non valido. Richiesto: +39 seguito da 9-10 cifre', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/prenotazioni/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    campo_id: campoId,
+                    utente_id: utenteId,
+                    data_prenotazione: data,
+                    ora_inizio: oraInizio,
+                    ora_fine: oraFine,
+                    telefono: telefono,
+                    tipo_documento: tipoDoc || null,
+                    codice_fiscale: codiceFiscale,
+                    numero_documento: numeroDoc,
+                    note: note,
+                    modified_by_admin: true  // Flag per indicare modifica da admin
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Errore nella modifica della prenotazione');
+            }
+            
+            const result = await response.json();
+            
+            bootstrap.Modal.getInstance(document.getElementById('modificaPrenotazioneModal')).hide();
+            GestoreUtente.showNotification('Prenotazione modificata con successo. Utente notificato.', 'success');
+            
+            // Ricarica il modal visualizza utente per aggiornare la lista
+            setTimeout(() => {
+                GestoreUtente.visualizzaUtente(utenteId);
+            }, 1000);
+            
         } catch (error) {
             console.error('Errore:', error);
             GestoreUtente.showNotification(error.message, 'error');

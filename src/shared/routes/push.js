@@ -147,6 +147,28 @@ router.post('/push/unsubscribe', express.json(), async (req, res) => {
 
     await pushService.removeSubscription(endpoint);
 
+    // Invia notifica agli admin se un utente autenticato ha rimosso la subscription
+    if (isAuthenticated && sub.user_id && sub.user_id !== 0) {
+      try {
+        const notifications = require('../services/notifications');
+        const username = req.user.username || req.user.email || `Utente ${req.user.id}`;
+        
+        await notifications.queueNotificationForAdmins({
+          title: '🔔 Notifiche Disattivate',
+          body: `${username} ha disattivato le notifiche push dell'applicazione`,
+          icon: '/assets/images/Logo.png',
+          url: '/admin/users',
+          tag: `unsubscribe-${sub.user_id}-${Date.now()}`,
+          requireInteraction: false
+        });
+        
+        console.log(`[PUSH] Notifica disattivazione inviata agli admin per utente ${sub.user_id}`);
+      } catch (notifErr) {
+        console.error('[PUSH] Errore invio notifica disattivazione agli admin:', notifErr);
+        // Non blocca la risposta se la notifica fallisce
+      }
+    }
+
     res.json({ 
       success: true,
       message: 'Subscription rimossa con successo' 

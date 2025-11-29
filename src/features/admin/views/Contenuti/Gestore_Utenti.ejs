@@ -587,6 +587,126 @@
         </div>
     </div>
 
+    <!-- Modal Modifica Prenotazione Admin -->
+    <div class="modal fade" id="modificaPrenotazioneModal" tabindex="-1" aria-labelledby="modificaPrenotazioneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modificaPrenotazioneModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Modifica Prenotazione (Admin)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modificaPrenotazioneForm">
+                        <input type="hidden" id="modPrenId">
+                        <input type="hidden" id="modPrenUtenteId">
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Nota Admin:</strong> Come amministratore, puoi modificare tutti i campi senza cambiare lo stato della prenotazione.
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Campo -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenCampo" class="form-label"><i class="bi bi-geo-alt me-1"></i>Campo *</label>
+                                <select class="form-select" id="modPrenCampo" required>
+                                    <!-- Caricato dinamicamente -->
+                                </select>
+                            </div>
+                            
+                            <!-- Data -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenData" class="form-label"><i class="bi bi-calendar me-1"></i>Data *</label>
+                                <input type="date" class="form-control" id="modPrenData" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Ora Inizio -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenOraInizio" class="form-label"><i class="bi bi-clock me-1"></i>Ora Inizio *</label>
+                                <input type="time" class="form-control" id="modPrenOraInizio" required>
+                            </div>
+                            
+                            <!-- Ora Fine -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenOraFine" class="form-label"><i class="bi bi-clock-fill me-1"></i>Ora Fine *</label>
+                                <input type="time" class="form-control" id="modPrenOraFine" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Telefono -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenTelefono" class="form-label"><i class="bi bi-telephone me-1"></i>Telefono *</label>
+                                <input type="tel" class="form-control" id="modPrenTelefono" 
+                                       pattern="^\+39\s?[0-9]{9,10}$" 
+                                       placeholder="+39 3xx xxxxxxx (10 cifre dopo +39)" required>
+                                <div class="invalid-feedback">
+                                    Formato richiesto: +39 seguito da 9-10 cifre (es: +39 3331234567)
+                                </div>
+                            </div>
+                            
+                            <!-- Tipo Documento -->
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenTipoDoc" class="form-label"><i class="bi bi-card-text me-1"></i>Tipo Documento</label>
+                                <select class="form-select" id="modPrenTipoDoc">
+                                    <option value="">Nessuno</option>
+                                    <option value="CF">Codice Fiscale</option>
+                                    <option value="ID">Documento Identità</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Codice Fiscale -->
+                            <div class="col-md-6 mb-3" id="modPrenCFContainer" style="display:none;">
+                                <label for="modPrenCodiceFiscale" class="form-label"><i class="bi bi-person-vcard me-1"></i>Codice Fiscale</label>
+                                <input type="text" class="form-control text-uppercase" id="modPrenCodiceFiscale" 
+                                       maxlength="16" pattern="[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]"
+                                       placeholder="RSSMRA80A01H501X">
+                                <div class="invalid-feedback">
+                                    Formato CF non valido (16 caratteri alfanumerici)
+                                </div>
+                            </div>
+                            
+                            <!-- Numero Documento -->
+                            <div class="col-md-6 mb-3" id="modPrenIDContainer" style="display:none;">
+                                <label for="modPrenNumeroDoc" class="form-label"><i class="bi bi-credit-card me-1"></i>Numero Documento</label>
+                                <input type="text" class="form-control text-uppercase" id="modPrenNumeroDoc" 
+                                       minlength="5" placeholder="AA1234567">
+                                <div class="invalid-feedback">
+                                    Numero documento deve contenere almeno 5 caratteri
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Note -->
+                        <div class="mb-3">
+                            <label for="modPrenNote" class="form-label"><i class="bi bi-chat-left-text me-1"></i>Note</label>
+                            <textarea class="form-control" id="modPrenNote" rows="3" placeholder="Note aggiuntive..."></textarea>
+                        </div>
+                        
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Attenzione:</strong> L'utente riceverà una notifica della modifica.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Annulla
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="GestoreUtente.salvaModificaPrenotazioneAdmin()">
+                        <i class="bi bi-check-circle me-1"></i>Salva Modifiche
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page"></div>
 
     <!-- Scripts -->
@@ -596,5 +716,60 @@
     <script type="module" src="/assets/scripts/utils/showModal.js"></script>
     <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/components/Gestore_utenti.js"></script>
+    
+    <script>
+        // Gestione toggle tipo documento nel modal modifica prenotazione
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoDocSelect = document.getElementById('modPrenTipoDoc');
+            if (tipoDocSelect) {
+                tipoDocSelect.addEventListener('change', function() {
+                    const cfContainer = document.getElementById('modPrenCFContainer');
+                    const idContainer = document.getElementById('modPrenIDContainer');
+                    const cfInput = document.getElementById('modPrenCodiceFiscale');
+                    const idInput = document.getElementById('modPrenNumeroDoc');
+                    
+                    if (this.value === 'CF') {
+                        cfContainer.style.display = 'block';
+                        idContainer.style.display = 'none';
+                        cfInput.required = true;
+                        idInput.required = false;
+                        idInput.value = '';
+                    } else if (this.value === 'ID') {
+                        cfContainer.style.display = 'none';
+                        idContainer.style.display = 'block';
+                        cfInput.required = false;
+                        idInput.required = true;
+                        cfInput.value = '';
+                    } else {
+                        cfContainer.style.display = 'none';
+                        idContainer.style.display = 'none';
+                        cfInput.required = false;
+                        idInput.required = false;
+                        cfInput.value = '';
+                        idInput.value = '';
+                    }
+                });
+            }
+            
+            // Auto-normalizzazione telefono
+            const telefonoInput = document.getElementById('modPrenTelefono');
+            if (telefonoInput) {
+                telefonoInput.addEventListener('input', function() {
+                    let val = this.value.trim();
+                    if (val.length > 0 && !val.startsWith('+')) {
+                        this.value = '+39' + val.replace(/^0/, '');
+                    }
+                    this.value = this.value.replace(/[^+0-9\s]/g, '');
+                });
+                
+                telefonoInput.addEventListener('blur', function() {
+                    let val = this.value.trim();
+                    if (val && !val.startsWith('+39')) {
+                        this.value = '+39' + val.replace(/^0/, '');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -20,18 +20,23 @@ const pushService = require('../src/shared/services/webpush');
 
 // Configurazione
 const CONFIG = {
-    POLL_INTERVAL_MS: 5000,        // Controlla ogni 5 secondi
-    BATCH_SIZE: 10,                 // Processa max 10 notifiche per volta
-    RETRY_DELAY_BASE_MS: 1000,     // Base per backoff esponenziale (1s, 2s, 4s, 8s...)
-    MAX_RETRY_DELAY_MS: 60000,     // Max 1 minuto di delay
-    CLEANUP_INTERVAL_MS: 3600000,  // Cleanup ogni ora
-    CLEANUP_AFTER_DAYS: 7          // Rimuovi notifiche vecchie di 7 giorni
+    POLL_INTERVAL_MS: 1000,         // Controlla ogni 1 secondo (più reattivo)
+    BATCH_SIZE: 30,                  // Processa max 30 notifiche per volta
+    CONCURRENCY: 12,                 // Numero massimo di invii web-push concorrenti
+    RETRY_DELAY_BASE_MS: 2000,       // Base per backoff esponenziale (2s, 4s, 8s, 16s...)
+    MAX_RETRY_DELAY_MS: 120000,      // Max 2 minuti di delay
+    CLEANUP_INTERVAL_MS: 3600000,    // Cleanup ogni ora
+    CLEANUP_AFTER_DAYS: 7,           // Rimuovi notifiche vecchie di 7 giorni
+    PROCESSING_TIMEOUT_MS: 30000,    // Timeout per processamento singola notifica (30s)
+    MAX_STUCK_MINUTES: 10            // Notifiche in "sending" da più di 10 min = stuck
 };
 
 let isProcessing = false;
 let shouldStop = false;
 let processedCount = 0;
 let failedCount = 0;
+// Cached subscriptions for the current batch - loaded once per fetch cycle to reduce DB hits
+let subscriptionsCache = null;
 
 /**
  * Calcola il delay di retry con backoff esponenziale
@@ -42,13 +47,27 @@ function calculateRetryDelay(attempts) {
 }
 
 /**
- * Processa una singola notifica
+ * Processa una singola notifica con timeout e validazione
  */
 async function processNotification(notification) {
     const { id, type, user_ids, payload, attempts } = notification;
     
     try {
-        console.log(`[WORKER] Processando notifica ${id} (tipo: ${type}, attempt: ${attempts + 1})`);
+        const timestamp = new Date().toISOString();
+        console.log(`[WORKER ${timestamp}] 📋 Processando notifica ${id}`);
+        console.log(`[WORKER] Dettagli: tipo=${type}, attempt=${attempts + 1}/${notification.max_attempts}`);
+        
+        // Valida payload
+        let payloadObj;
+        try {
+            payloadObj = typeof payload === 'string' ? JSON.parse(payload) : payload;
+            if (!payloadObj.title || !payloadObj.body) {
+                throw new Error('Payload deve avere title e body');
+            }
+            console.log(`[WORKER] Payload validato: "${payloadObj.title}" - ${payloadObj.body.substring(0, 50)}...`);
+        } catch (parseError) {
+            throw new Error(`Payload non valido: ${parseError.message}`);
+        }
         
         // Marca come "sending"
         await db.query(
@@ -56,26 +75,34 @@ async function processNotification(notification) {
             ['sending', id]
         );
         
-        const payloadObj = typeof payload === 'string' ? JSON.parse(payload) : payload;
         let result;
         
-        // Invia in base al tipo
-        switch (type) {
-            case 'admin':
-                result = await pushService.sendNotificationToAdmins(payloadObj);
-                break;
-            case 'user':
-                if (!user_ids || user_ids.length === 0) {
-                    throw new Error('No user_ids specified for user notification');
-                }
-                result = await pushService.sendNotificationToUsers(user_ids, payloadObj);
-                break;
-            case 'all':
-                result = await pushService.sendNotificationToAll(payloadObj);
-                break;
-            default:
-                throw new Error(`Unknown notification type: ${type}`);
-        }
+        // Crea promise con timeout
+        const sendPromise = (async () => {
+            switch (type) {
+                case 'admin':
+                    console.log(`[WORKER] Invio a tutti gli admin...`);
+                    return await pushService.sendNotificationToAdmins(payloadObj, subscriptionsCache);
+                case 'user':
+                    if (!user_ids || user_ids.length === 0) {
+                        throw new Error('No user_ids specified for user notification');
+                    }
+                    console.log(`[WORKER] Invio a ${user_ids.length} utent${user_ids.length === 1 ? 'e' : 'i'}: [${user_ids.join(', ')}]`);
+                    return await pushService.sendNotificationToUsers(user_ids, payloadObj, subscriptionsCache);
+                case 'all':
+                    console.log(`[WORKER] Broadcast a tutti gli utenti...`);
+                    return await pushService.sendNotificationToAll(payloadObj, subscriptionsCache);
+                default:
+                    throw new Error(`Unknown notification type: ${type}`);
+            }
+        })();
+        
+        // Applica timeout
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout processamento notifica')), CONFIG.PROCESSING_TIMEOUT_MS)
+        );
+        
+        result = await Promise.race([sendPromise, timeoutPromise]);
         
         // Marca come inviata
         await db.query(
@@ -86,43 +113,68 @@ async function processNotification(notification) {
         );
         
         processedCount++;
-        console.log(`[WORKER] ✅ Notifica ${id} inviata con successo`);
+        console.log(`[WORKER] ✅ Notifica ${id} inviata con successo (sent: ${result?.sent || 0}, failed: ${result?.failed || 0})`);
         
         return { success: true, result };
         
     } catch (error) {
         console.error(`[WORKER] ❌ Errore processando notifica ${id}:`, error.message);
         
+        // Classifica l'errore per miglior handling
+        let errorType = 'generic';
+        let shouldRetry = true;
+        
+        if (error.message.includes('VAPID') || error.message.includes('403')) {
+            errorType = 'vapid';
+            console.error(`[WORKER] ⚠️ Errore VAPID - verificare configurazione chiavi`);
+        } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+            errorType = 'auth';
+            console.error(`[WORKER] ⚠️ Errore autenticazione push service`);
+        } else if (error.message.includes('Timeout')) {
+            errorType = 'timeout';
+            console.error(`[WORKER] ⏱️ Timeout - operazione troppo lenta`);
+        } else if (error.message.includes('Payload non valido')) {
+            errorType = 'validation';
+            shouldRetry = false; // Payload sbagliato non si risolve con retry
+            console.error(`[WORKER] 🚫 Payload non valido - notifica verrà marcata come failed`);
+        }
+        
+        console.error(`[WORKER] Tipo errore: ${errorType}, Retry: ${shouldRetry}`);
+        
         const newAttempts = attempts + 1;
         const notification_row = await db.query('SELECT max_attempts FROM notifications WHERE id = $1', [id]);
         const maxAttempts = notification_row.rows[0]?.max_attempts || 3;
         
-        if (newAttempts >= maxAttempts) {
-            // Raggiunto il massimo dei tentativi, marca come failed
+        // Se non retry-able o superato max attempts, marca come failed
+        if (!shouldRetry || newAttempts >= maxAttempts) {
+            const errorMsg = `[${errorType}] ${error.message}`;
             await db.query(
                 `UPDATE notifications 
                  SET status = $1, last_error = $2, attempts = $3, updated_at = NOW()
                  WHERE id = $4`,
-                ['failed', error.message, newAttempts, id]
+                ['failed', errorMsg.substring(0, 500), newAttempts, id]
             );
             failedCount++;
-            console.log(`[WORKER] 💀 Notifica ${id} fallita dopo ${newAttempts} tentativi`);
+            console.log(`[WORKER] 💀 Notifica ${id} marcata FAILED`);
+            console.log(`[WORKER]    Motivo: ${!shouldRetry ? 'errore non recuperabile' : `${newAttempts}/${maxAttempts} tentativi esauriti`}`);
         } else {
-            // Riprogramma per retry con backoff
+            // Riprogramma per retry con backoff esponenziale
             const retryDelay = calculateRetryDelay(newAttempts);
             const sendAfter = new Date(Date.now() + retryDelay);
+            const errorMsg = `[${errorType}] ${error.message}`;
             
             await db.query(
                 `UPDATE notifications 
                  SET status = $1, last_error = $2, attempts = $3, send_after = $4, updated_at = NOW()
                  WHERE id = $5`,
-                ['pending', error.message, newAttempts, sendAfter, id]
+                ['pending', errorMsg.substring(0, 500), newAttempts, sendAfter, id]
             );
             
-            console.log(`[WORKER] 🔄 Notifica ${id} riprogrammata per retry tra ${Math.round(retryDelay/1000)}s`);
+            const nextRetryIn = Math.round(retryDelay/1000);
+            console.log(`[WORKER] 🔄 Notifica ${id} -> PENDING (retry ${newAttempts}/${maxAttempts} tra ${nextRetryIn}s)`);
         }
         
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, errorType };
     }
 }
 
@@ -131,18 +183,48 @@ async function processNotification(notification) {
  */
 async function fetchPendingNotifications() {
     try {
-        const result = await db.query(
-            `SELECT id, type, user_ids, payload, attempts, max_attempts
-             FROM notifications
-             WHERE status = 'pending' 
-               AND send_after <= NOW()
-             ORDER BY priority DESC, created_at ASC
-             LIMIT $1
-             FOR UPDATE SKIP LOCKED`,
-            [CONFIG.BATCH_SIZE]
-        );
-        
-        return result.rows;
+        // Use a transaction to lock and mark rows as 'sending' to avoid races
+        const client = await db.pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const selectSql = `
+                SELECT id
+                FROM notifications
+                WHERE status = 'pending'
+                  AND send_after <= NOW()
+                ORDER BY priority DESC, created_at ASC
+                LIMIT $1
+                FOR UPDATE SKIP LOCKED
+            `;
+
+            const sel = await client.query(selectSql, [CONFIG.BATCH_SIZE]);
+            if (!sel.rows || sel.rows.length === 0) {
+                await client.query('COMMIT');
+                return [];
+            }
+
+            const ids = sel.rows.map(r => r.id);
+
+            // Mark selected rows as 'sending' within the same transaction
+            const updateSql = `
+                UPDATE notifications
+                SET status = 'sending', updated_at = NOW()
+                WHERE id = ANY($1::int[])
+                RETURNING id, type, user_ids, payload, attempts, max_attempts
+            `;
+
+            const updated = await client.query(updateSql, [ids]);
+            await client.query('COMMIT');
+
+            return updated.rows;
+        } catch (txErr) {
+            try { await client.query('ROLLBACK'); } catch (e) {}
+            console.error('[WORKER] Errore transazione fetchPendingNotifications:', txErr);
+            return [];
+        } finally {
+            client.release();
+        }
     } catch (error) {
         console.error('[WORKER] Errore recupero notifiche:', error);
         return [];
@@ -159,14 +241,44 @@ async function processLoop() {
     
     try {
         const notifications = await fetchPendingNotifications();
-        
-        if (notifications.length > 0) {
-            console.log(`[WORKER] Trovate ${notifications.length} notifiche da processare`);
-            
-            // Processa in parallelo con limite di concorrenza
-            const promises = notifications.map(n => processNotification(n));
-            await Promise.allSettled(promises);
+
+        if (notifications.length === 0) {
+            // nothing to do
+            return;
         }
+
+        // Load subscriptions once per batch to reduce DB load (cache for this processing cycle)
+        try {
+            subscriptionsCache = await pushService.loadSubscriptions();
+            console.log(`[WORKER] Subscriptions cache caricata: ${subscriptionsCache.length}`);
+        } catch (e) {
+            console.error('[WORKER] Errore caricamento subscriptions cache:', e && e.message);
+            subscriptionsCache = null;
+        }
+
+        console.log(`[WORKER] Trovate ${notifications.length} notifiche da processare`);
+
+        // Process with concurrency limit
+        const concurrency = CONFIG.CONCURRENCY || 4;
+        let idx = 0;
+        const workers = [];
+
+        const runNext = async () => {
+            if (idx >= notifications.length) return;
+            const n = notifications[idx++];
+            try {
+                await processNotification(n);
+            } catch (e) {
+                console.error('[WORKER] Errore durante processNotification:', e && e.message);
+            }
+            return runNext();
+        };
+
+        for (let i = 0; i < Math.min(concurrency, notifications.length); i++) {
+            workers.push(runNext());
+        }
+
+        await Promise.allSettled(workers);
     } catch (error) {
         console.error('[WORKER] Errore nel ciclo principale:', error);
     } finally {
@@ -175,29 +287,53 @@ async function processLoop() {
 }
 
 /**
- * Cleanup notifiche vecchie e subscriptions fallite
+ * Cleanup notifiche vecchie, stuck e subscriptions fallite
  */
 async function cleanupOldNotifications() {
     try {
-        console.log('[WORKER] Pulizia notifiche vecchie...');
+        console.log('[WORKER] 🧹 Avvio pulizia...');
         
-        // Rimuovi notifiche sent/failed vecchie di X giorni
-        const result = await db.query(
-            `DELETE FROM notifications
-             WHERE status IN ('sent', 'failed')
-               AND updated_at < NOW() - INTERVAL '${CONFIG.CLEANUP_AFTER_DAYS} days'`
+        // 1. Reset notifiche stuck in "sending" troppo a lungo
+        const stuckResult = await db.query(
+            `UPDATE notifications
+             SET status = 'pending', 
+                 last_error = 'Reset da cleanup - stuck in sending',
+                 updated_at = NOW()
+             WHERE status = 'sending'
+               AND updated_at < NOW() - INTERVAL '${CONFIG.MAX_STUCK_MINUTES} minutes'
+             RETURNING id`
         );
         
-        const deleted = result.rowCount || 0;
-        if (deleted > 0) {
-            console.log(`[WORKER] 🗑️  Rimosse ${deleted} notifiche vecchie`);
+        const resetCount = stuckResult.rowCount || 0;
+        if (resetCount > 0) {
+            console.log(`[WORKER] 🔓 Reset ${resetCount} notifiche stuck in 'sending'`);
+            stuckResult.rows.forEach(row => {
+                console.log(`[WORKER]    - Notifica ${row.id} resettata a pending`);
+            });
         }
         
-        // Cleanup subscriptions fallite
+        // 2. Rimuovi notifiche sent/failed vecchie di X giorni
+        const deleteResult = await db.query(
+            `DELETE FROM notifications
+             WHERE status IN ('sent', 'failed')
+               AND updated_at < NOW() - INTERVAL '${CONFIG.CLEANUP_AFTER_DAYS} days'
+             RETURNING id`
+        );
+        
+        const deleted = deleteResult.rowCount || 0;
+        if (deleted > 0) {
+            console.log(`[WORKER] 🗑️  Rimosse ${deleted} notifiche vecchie (>${CONFIG.CLEANUP_AFTER_DAYS} giorni)`);
+        }
+        
+        // 3. Cleanup subscriptions fallite
         await pushService.cleanupFailedSubscriptions(10);
         
+        if (resetCount === 0 && deleted === 0) {
+            console.log('[WORKER] ✨ Cleanup completato - nessuna notifica da pulire');
+        }
+        
     } catch (error) {
-        console.error('[WORKER] Errore durante cleanup:', error);
+        console.error('[WORKER] ❌ Errore durante cleanup:', error);
     }
 }
 
