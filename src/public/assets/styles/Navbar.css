@@ -452,6 +452,48 @@ nav#navbar.sticky-top,
   color: #adb5bd !important;
 }
 
+/* Dark theme: ensure the search icon remains visible inside the navbar,
+   remove the wrapper background while typing (focus-within) but keep
+   the input text color light. These selectors are deliberately more
+   specific and use !important to override broader rules like
+   `nav#navbar .modern-search-wrapper .modern-search-input { color: unset !important; }`. */
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper,
+:root[data-theme="dark"] .modern-search-wrapper {
+  background: rgba(33,37,41,0.95) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper:focus-within,
+:root[data-theme="dark"] .modern-search-wrapper:focus-within {
+  /* Keep the same dark background while typing so the page doesn't
+     visually shift. Only adjust input/icon colors for readability. */
+  background: rgba(33,37,41,0.95) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important; /* subtle shadow */
+}
+
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper .search-icon,
+:root[data-theme="dark"] .modern-search-wrapper .search-icon {
+  color: #cfd8dc !important; /* visible muted light gray by default */
+  opacity: 0.95;
+}
+
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper:focus-within .search-icon,
+:root[data-theme="dark"] .modern-search-wrapper:focus-within .search-icon {
+  color: #f8f9fa !important; /* bright icon color while typing */
+}
+
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper .modern-search-input,
+:root[data-theme="dark"] .modern-search-wrapper .modern-search-input {
+  color: #f8f9fa !important; /* input text stays light */
+  background: transparent !important; /* ensure input itself is transparent */
+}
+
+:root[data-theme="dark"] nav#navbar .modern-search-wrapper .modern-search-input::placeholder,
+:root[data-theme="dark"] .modern-search-wrapper .modern-search-input::placeholder {
+  color: #9aa0a6 !important; /* slightly darker placeholder */
+}
+
 /* Legacy form-control styles (keep for other forms, not search) */
 @media(max-width: 992px) {
   .form-control:not(.modern-search-input) {
