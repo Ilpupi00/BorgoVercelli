@@ -9,8 +9,9 @@
    ================================ */
 :root {
     --modal-bg: #ffffff;
-    --modal-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --modal-header-bg: linear-gradient(135deg, #0d6efd 0%, #2668da 50%, #496edc 100%);
     --modal-text: #2d3748;
+    --modal-header-text: #ffffff;
     --modal-text-muted: #718096;
     --modal-border: #e2e8f0;
     --modal-input-bg: #ffffff;
@@ -24,6 +25,7 @@
     --modal-bg: #1a202c;
     --modal-header-bg: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
     --modal-text: #e2e8f0;
+    --modal-header-text: #ffffff;
     --modal-text-muted: #a0aec0;
     --modal-border: #2d3748;
     --modal-input-bg: #2d3748;
@@ -50,7 +52,10 @@
 
 #modalPrenotazioneCampo .modal-dialog {
     max-height: 90vh;
-    margin: 0.5rem;
+    margin: 1.75rem auto;
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 3.5rem);
 }
 
 #modalPrenotazioneCampo .modal-body {
@@ -97,8 +102,15 @@
 /* Header con gradiente */
 #modalPrenotazioneCampo .modal-header {
     background: var(--modal-header-bg);
+    color: var(--modal-header-text);
     padding: 1.5rem;
     border: none;
+}
+
+/* Applica la variabile anche a tutto il testo/icone all'interno dell'header */
+#modalPrenotazioneCampo .modal-header,
+#modalPrenotazioneCampo .modal-header * {
+    color: var(--modal-header-text) !important;
 }
 
 #modalPrenotazioneCampo .modal-header .modal-title {

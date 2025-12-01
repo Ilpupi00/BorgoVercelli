@@ -98,6 +98,47 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ==================== DARK THEME SUPPORT ==================== */
+
+/* Tabella in dark mode */
+:root[data-theme="dark"] #utentiTable {
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #utentiTable thead {
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #utentiTable thead th {
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #utentiTable tbody tr {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #utentiTable tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+:root[data-theme="dark"] #utentiTable tbody td {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Container tabella in dark mode */
+:root[data-theme="dark"] .table-responsive {
+    background: var(--card-bg);
+    border-radius: 12px;
+}
+
+/* Badge in dark mode mantengono i loro colori */
+:root[data-theme="dark"] .badge {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* ==================== ANIMATIONS ==================== */
 
 @keyframes fadeInRow {
@@ -125,7 +166,50 @@
 
 /* ==================== RESPONSIVE ==================== */
 
+/* Assicurati che le card mobili siano sempre nascoste */
+.admin-mobile-cards {
+    display: none !important;
+}
+
+/* Mostra sempre solo la tabella */
+.table-responsive {
+    display: block !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+/* Ottimizzazione tabella per mobile */
+@media (max-width: 991px) {
+    /* Assicura che l'article contenga la tabella */
+    .content-card {
+        overflow-x: auto;
+        width: 100%;
+    }
+    
+    .table-responsive {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    #utentiTable {
+        width: 100%;
+        min-width: 800px; /* Permette scroll orizzontale */
+    }
+}
+
 @media (max-width: 767px) {
+    .content-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .table-responsive {
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+    }
+    
     .table td, .table th { 
         font-size: 0.875rem; 
         padding: 1rem 0.75rem; 
@@ -140,15 +224,32 @@
     .truncate-col { 
         max-width: 100px; 
     }
+    
+    #utentiTable {
+        min-width: 900px;
+    }
 }
 
 @media (max-width: 576px) {
+    .content-card {
+        padding: 1rem 0.25rem;
+    }
+    
+    .table-responsive {
+        margin: 0 -0.25rem;
+        padding: 0 0.25rem;
+    }
+    
     #utentiTable .btn-group {
-        flex-direction: column;
+        flex-wrap: wrap;
         gap: 2px;
     }
     
     #utentiTable .btn-group .btn {
-        width: 100%;
+        min-width: 32px;
+    }
+    
+    #utentiTable {
+        min-width: 1000px;
     }
 }

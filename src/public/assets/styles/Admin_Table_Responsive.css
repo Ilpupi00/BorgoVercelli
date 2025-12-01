@@ -1,16 +1,16 @@
 /* ==================== MOBILE-FIRST RESPONSIVE TABLES ==================== */
 /* Sistema responsive per tabelle admin con card su mobile e tabella su desktop */
 
-/* Mobile First: Cards su dispositivi mobili (default) */
+/* Mobile First: Mostra sempre solo la tabella responsive */
 @media (max-width: 991px) {
-    /* Nascondi la tabella tradizionale su mobile */
+    /* Mostra la tabella anche su mobile */
     .admin-table-container .table-responsive {
-        display: none;
+        display: block;
     }
     
-    /* Mostra le cards su mobile */
+    /* Nascondi sempre le cards mobili */
     .admin-mobile-cards {
-        display: block;
+        display: none !important;
     }
     
     /* Stile delle card mobili */
