@@ -139,3 +139,62 @@
         margin: 0 auto;
     }
 }
+
+/* Dark mode overrides: use theme variables so elevated surfaces are scuri */
+:root[data-theme="dark"] .review-form-card,
+body[data-theme="dark"] .review-form-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+}
+
+:root[data-theme="dark"] .review-form-card .card-body,
+body[data-theme="dark"] .review-form-card .card-body {
+    background: transparent; /* card background handled on parent */
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .review-form-card .form-label,
+body[data-theme="dark"] .review-form-card .form-label {
+    color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .review-form-card .form-control,
+body[data-theme="dark"] .review-form-card .form-control {
+    background: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+:root[data-theme="dark"] .review-form-card .form-text,
+body[data-theme="dark"] .review-form-card .form-text {
+    color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .review-form-card .rating-stars i,
+body[data-theme="dark"] .review-form-card .rating-stars i {
+    color: #394259; /* subtle star color in dark mode */
+}
+
+:root[data-theme="dark"] .review-form-card .rating-stars i.active,
+body[data-theme="dark"] .review-form-card .rating-stars i.active {
+    color: var(--accent-color);
+}
+
+:root[data-theme="dark"] .review-form-card .card-header,
+body[data-theme="dark"] .review-form-card .card-header {
+    /* keep header vivid but ensure text remains readable */
+    color: var(--text-on-primary);
+}
+
+/* Ensure stars appear yellow in dark mode for hover/active/solid icons */
+:root[data-theme="dark"] .review-form-card .rating-stars i:hover,
+:root[data-theme="dark"] .review-form-card .rating-stars i.active,
+:root[data-theme="dark"] .review-form-card .rating-stars i.fas,
+:root[data-theme="dark"] .review-form-card .rating-stars i.fas:hover,
+body[data-theme="dark"] .review-form-card .rating-stars i:hover,
+body[data-theme="dark"] .review-form-card .rating-stars i.active,
+body[data-theme="dark"] .review-form-card .rating-stars i.fas,
+body[data-theme="dark"] .review-form-card .rating-stars i.fas:hover {
+    color: var(--accent-color) !important;
+}
