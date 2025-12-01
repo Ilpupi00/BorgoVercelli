@@ -91,7 +91,7 @@ All'avvio del server dovresti vedere:
 🔔 SISTEMA NOTIFICHE PUSH
 ========================================
 ✅ Chiavi VAPID configurate
-📧 Email: lucalupi03@gmail.com
+📧 Email: info.asdborgovercelli2022@gmail.com
 🔗 Test page: http://localhost:8080/push/test
 ========================================
 ```

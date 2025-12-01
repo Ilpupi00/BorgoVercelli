@@ -168,7 +168,7 @@ CREATE TABLE UTENTI (
   updated_at TEXT,
   FOREIGN KEY (tipo_utente_id) REFERENCES TIPI_UTENTE (id)
 );
-INSERT INTO UTENTI VALUES(1,'lucalupi03@gmail.com','$2b$10$MmIoRrmybBAl3/0qrx2Xf./c/klwWW3pJvO5oY7GeN2BO7VSY9wcW','Luca','Lupi','',0,'2025-06-06 16:36:49','2025-06-06 16:36:49','2025-06-06 16:36:49');
+INSERT INTO UTENTI VALUES(1,'info.asdborgovercelli2022@gmail.com','$2b$10$MmIoRrmybBAl3/0qrx2Xf./c/klwWW3pJvO5oY7GeN2BO7VSY9wcW','Luca','Lupi','',0,'2025-06-06 16:36:49','2025-06-06 16:36:49','2025-06-06 16:36:49');
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('TIPI_UTENTE',0);
 INSERT INTO sqlite_sequence VALUES('UTENTI',1);

@@ -23,7 +23,7 @@ Il file `.env` è stato aggiunto al `.gitignore` per proteggerlo.
 Aggiungi le seguenti variabili:
 
 ```bash
-GMAIL_USER=lucalupi03@gmail.com
+GMAIL_USER=info.asdborgovercelli2022@gmail.com
 GMAIL_APP_PASSWORD=ukio kwap dmtr qmhx
 BASE_URL=https://tuo-dominio.railway.app
 NODE_ENV=production

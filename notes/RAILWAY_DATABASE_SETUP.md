@@ -89,8 +89,7 @@ Su Railway, nella tab **Variables** dell'**App Node.js**, configura:
 DATABASE_URL=postgresql://postgres:password@roundhouse.proxy.rlwy.net:45678/railway
 
 # Email Service (per invio email)
-GMAIL_USER=lucalupi03@gmail.com
-GMAIL_APP_PASSWORD=ukio kwap dmtr qmhx
+GMAIL_USER=info.asdborgovercelli2022@gmail.com
 
 # Ambiente
 NODE_ENV=production
