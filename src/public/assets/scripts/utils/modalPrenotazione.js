@@ -38,6 +38,42 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
                     <option value="">-- Caricamento orari --</option>
                   </select>
                   <div class="invalid-feedback">Seleziona un orario disponibile</div>
+                  <div class="mt-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm w-100" id="linkOrarioCustom">
+                      <i class="bi bi-clock-history me-2"></i>Inserisci un orario personalizzato
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Custom time inputs (hidden by default) -->
+                <div class="col-12 d-none" id="customTimeSection">
+                  <div class="alert alert-info d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <div>
+                      Inserisci un orario personalizzato. L'orario verrà verificato per evitare sovrapposizioni.
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="oraInizioCustom" class="form-label fw-semibold">
+                        <i class="bi bi-clock me-1"></i>Ora Inizio <span class="text-danger">*</span>
+                      </label>
+                      <input type="time" class="form-control form-control-lg" id="oraInizioCustom" name="oraInizioCustom">
+                      <div class="invalid-feedback">Inserisci un orario valido</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="oraFineCustom" class="form-label fw-semibold">
+                        <i class="bi bi-clock me-1"></i>Ora Fine <span class="text-danger">*</span>
+                      </label>
+                      <input type="time" class="form-control form-control-lg" id="oraFineCustom" name="oraFineCustom">
+                      <div class="invalid-feedback">Inserisci un orario valido</div>
+                    </div>
+                    <div class="col-12">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTornaSelectOrario">
+                        <i class="bi bi-arrow-left me-1"></i>Torna alla selezione orari predefiniti
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -53,7 +89,7 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
                 </label>
                 <input type="tel" class="form-control form-control-lg" id="telefonoPrenotazione" name="telefonoPrenotazione" required 
                        placeholder="+39 3xx xxxxxxx (10 cifre dopo +39)" 
-                       pattern="^\+39\s?[0-9]{9,10}$"
+                       pattern="^\\+39\\s?[0-9]{9,10}$"
                        title="Formato: +39 seguito da 9-10 cifre (es: +39 3331234567)">
                 <div class="form-text"><i class="bi bi-info-circle me-1"></i>Formato italiano: +39 seguito da 9-10 cifre</div>
                 <div class="invalid-feedback">Inserisci un numero valido: +39 seguito da 9-10 cifre (es: +39 3331234567)</div>
@@ -204,6 +240,43 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
         });
     }
 
+    // Gestione toggle orario custom vs predefinito
+    const linkOrarioCustom = modal.querySelector('#linkOrarioCustom');
+    const btnTornaSelect = modal.querySelector('#btnTornaSelectOrario');
+    const customTimeSection = modal.querySelector('#customTimeSection');
+    const orarioSelect = modal.querySelector('#orarioPrenotazione');
+    const oraInizioCustom = modal.querySelector('#oraInizioCustom');
+    const oraFineCustom = modal.querySelector('#oraFineCustom');
+    
+    let isCustomMode = false;
+    
+    linkOrarioCustom?.addEventListener('click', (e) => {
+        e.preventDefault();
+        isCustomMode = true;
+        console.log('Modalità custom attivata');
+        orarioSelect.removeAttribute('required');
+        orarioSelect.value = '';
+        orarioSelect.classList.remove('is-invalid');
+        orarioSelect.closest('.col-md-6').classList.add('d-none');
+        customTimeSection.classList.remove('d-none');
+        oraInizioCustom.setAttribute('required', 'required');
+        oraFineCustom.setAttribute('required', 'required');
+    });
+    
+    btnTornaSelect?.addEventListener('click', () => {
+        isCustomMode = false;
+        console.log('Modalità predefiniti attivata');
+        oraInizioCustom.removeAttribute('required');
+        oraFineCustom.removeAttribute('required');
+        oraInizioCustom.value = '';
+        oraFineCustom.value = '';
+        oraInizioCustom.classList.remove('is-invalid');
+        oraFineCustom.classList.remove('is-invalid');
+        customTimeSection.classList.add('d-none');
+        orarioSelect.closest('.col-md-6').classList.remove('d-none');
+        orarioSelect.setAttribute('required', 'required');
+    });
+    
     // Gestione toggle dei campi documento
     const tipoDocSelect = modal.querySelector('#tipoDocumentoPrenotazione');
     const cfGroup = modal.querySelector('#codiceFiscaleGroup');
@@ -217,7 +290,8 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
         cfGroup: !!cfGroup,
         cfInput: !!cfInput,
         numDocGroup: !!numDocGroup,
-        numDocInput: !!numDocInput
+        numDocInput: !!numDocInput,
+        customTimeElements: !!linkOrarioCustom && !!btnTornaSelect
     });
     
     if (!tipoDocSelect || !cfGroup || !cfInput || !numDocGroup || !numDocInput) {
@@ -256,26 +330,128 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
     numDocInput.addEventListener('input', function() {
         this.value = this.value.toUpperCase();
     });
+    
+    // Validazione real-time per orari custom
+    oraInizioCustom?.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+    });
+    
+    oraFineCustom?.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+    });
 
     // Gestione submit con validazione Bootstrap
     const form = modal.querySelector('#formPrenotazioneCampo');
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Validazione Bootstrap
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
+        const data = modal.querySelector('#dataPrenotazione').value;
+        let ora_inizio, ora_fine;
+        
+        // Determina se usare orario custom o predefinito
+        if (isCustomMode) {
+            ora_inizio = oraInizioCustom.value;
+            ora_fine = oraFineCustom.value;
+            
+            if (!ora_inizio || !ora_fine) {
+                if (!ora_inizio) oraInizioCustom.classList.add('is-invalid');
+                if (!ora_fine) oraFineCustom.classList.add('is-invalid');
+                return;
+            }
+            
+            // Validazione client-side: inizio < fine
+            if (ora_inizio >= ora_fine) {
+                oraFineCustom.classList.add('is-invalid');
+                oraFineCustom.nextElementSibling.textContent = 'L\'orario di fine deve essere successivo all\'inizio';
+                return;
+            }
+            
+            // Validazione anticipo minimo 2 ore
+            const [h, m] = ora_inizio.split(':').map(Number);
+            const bookingDateTime = new Date(data);
+            bookingDateTime.setHours(h, m, 0, 0);
+            const now = new Date();
+            const minTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            
+            if (bookingDateTime < minTime) {
+                oraInizioCustom.classList.add('is-invalid');
+                oraInizioCustom.nextElementSibling.textContent = 'Devi prenotare con almeno 2 ore di anticipo';
+                return;
+            }
+            
+            // Controllo duplicato esatto contro orari visualizzati nella pagina
+            const existingBadges = Array.from(document.querySelectorAll(`#orariDisponibili-${campo.id} .badge`));
+            const customSlot = `${ora_inizio}-${ora_fine}`;
+            const isDuplicate = existingBadges.some(badge => {
+                const text = badge.textContent.trim();
+                return text === customSlot;
+            });
+            
+            if (isDuplicate) {
+                oraInizioCustom.classList.add('is-invalid');
+                oraInizioCustom.nextElementSibling.textContent = 'Orario già presente tra quelli disponibili';
+                return;
+            }
+            
+            // Chiamata al server per verifica definitiva
+            try {
+                console.log('[MODAL] Controllo disponibilità orario custom:', { campo_id: campo.id, data, ora_inizio, ora_fine });
+                const checkRes = await fetch('/prenotazione/prenotazioni/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        campo_id: campo.id,
+                        data: data,
+                        inizio: ora_inizio,
+                        fine: ora_fine
+                    })
+                });
+                
+                const checkResult = await checkRes.json();
+                console.log('[MODAL] Risposta check:', checkResult);
+                
+                if (!checkResult.ok) {
+                    // Mostra errore specifico
+                    console.warn('[MODAL] Orario rifiutato:', checkResult.message);
+                    oraInizioCustom.classList.add('is-invalid');
+                    oraInizioCustom.nextElementSibling.textContent = checkResult.message || 'Orario non disponibile';
+                    return;
+                }
+                console.log('[MODAL] Orario custom validato con successo');
+            } catch (checkErr) {
+                console.error('Errore controllo orario:', checkErr);
+                oraInizioCustom.classList.add('is-invalid');
+                oraInizioCustom.nextElementSibling.textContent = 'Errore di rete durante la verifica';
+                return;
+            }
+            
+        } else {
+            // Modalità select predefinito
+            const orarioVal = modal.querySelector('#orarioPrenotazione').value;
+            if (!orarioVal || orarioVal === '' || orarioVal === '-- Caricamento orari --') {
+                modal.querySelector('#orarioPrenotazione').classList.add('is-invalid');
+                return;
+            }
+            const parts = orarioVal.split('|');
+            if (parts.length !== 2) {
+                console.error('Formato orario invalido:', orarioVal);
+                modal.querySelector('#orarioPrenotazione').classList.add('is-invalid');
+                return;
+            }
+            [ora_inizio, ora_fine] = parts;
+            console.log('Orario predefinito selezionato:', ora_inizio, '-', ora_fine);
+        }
+        
+        // Validazione data
+        if (!data) {
+            const dataInput = modal.querySelector('#dataPrenotazione');
+            dataInput.classList.add('is-invalid');
             return;
         }
         
-        const data = modal.querySelector('#dataPrenotazione').value;
-        const orarioVal = modal.querySelector('#orarioPrenotazione').value;
-        if (!orarioVal || orarioVal === '') {
-            modal.querySelector('#orarioPrenotazione').classList.add('is-invalid');
-            return;
-        }
-        const [ora_inizio, ora_fine] = orarioVal.split('|');
+        console.log('Dati prenotazione pronti:', { campo_id: campo.id, data, ora_inizio, ora_fine });
+        
         const note = modal.querySelector('#notePrenotazione').value;
         const telefono = modal.querySelector('#telefonoPrenotazione').value.trim();
         const tipo_documento = tipoDocSelect.value || null;
@@ -334,19 +510,6 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
     // Rimuovi il modal dal DOM quando viene chiuso
     modal.addEventListener('hidden.bs.modal', () => {
         modal.remove();
-    });
-
-    // Miglioramento accessibilità: gestione focus
-    modal.addEventListener('shown.bs.modal', () => {
-        const dataInput = modal.querySelector('#dataPrenotazione');
-        const closeBtn = modal.querySelector('.btn-close');
-        if (closeBtn) closeBtn.focus(); // Porta il focus sul bottone chiudi
-        aggiornaOrariDisponibili(dataInput.value);
-        dataInput.addEventListener('change', function(e) {
-            console.log('Evento change data:', e.target.value);
-            aggiornaOrariDisponibili(e.target.value);
-        });
-        console.log('Listener change su dataPrenotazione AGGIUNTO');
     });
 
     // Miglioramento UX: mostra orari con info aggiuntive
@@ -413,16 +576,21 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
     console.log('Select aggiornata, opzioni:', Array.from(select.options).map(opt => opt.value));
     }
 
-    // Inizializza la select orari con la data di default
+    // Miglioramento accessibilità e inizializzazione orari
     modal.addEventListener('shown.bs.modal', () => {
         const dataInput = modal.querySelector('#dataPrenotazione');
+        const closeBtn = modal.querySelector('.btn-close');
+        if (closeBtn) closeBtn.focus(); // Porta il focus sul bottone chiudi
+        
+        // Inizializza la select orari con la data di default
         aggiornaOrariDisponibili(dataInput.value);
+        
         // Listener change: aggiorna sempre la select orari
         dataInput.addEventListener('change', function(e) {
             console.log('Evento change data:', e.target.value);
             aggiornaOrariDisponibili(e.target.value);
         });
-        // Log: controllo che il listener sia attivo
+        
         console.log('Listener change su dataPrenotazione AGGIUNTO');
-    }, 100);
+    });
 }

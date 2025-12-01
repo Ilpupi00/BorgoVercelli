@@ -1,5 +1,5 @@
-import { setupEmailFormListener } from './send_email.js';
 import ShowModal from '../utils/showModal.js';
+import { setupEmailFormListener } from './send_email.js';
 
 class Prenotazione {
     constructor(page) {
@@ -127,11 +127,13 @@ class Prenotazione {
                     utenteId = null;
                 }
                 try {
+                    console.log('[PRENOTAZIONE] Invio dati:', { ...datiPrenotazione, utente_id: utenteId });
                     const res = await fetch('/prenotazione/prenotazioni', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ ...datiPrenotazione, utente_id: utenteId })
                     });
+                    console.log('[PRENOTAZIONE] Status risposta:', res.status);
                     if (res.status === 401) {
                         if (ShowModal && typeof ShowModal.showLoginRequiredModal === 'function') {
                             ShowModal.showLoginRequiredModal('Devi essere loggato per prenotare');
@@ -140,10 +142,15 @@ class Prenotazione {
                     }
                     if (!res.ok) {
                         let msg = 'Errore nella prenotazione';
+                        let details = null;
                         try {
                             const errJson = await res.json();
-                            msg = errJson.error || msg;
-                        } catch(e) {}
+                            console.log('[PRENOTAZIONE] Dettagli errore:', errJson);
+                            msg = errJson.error || errJson.message || msg;
+                            details = errJson;
+                        } catch(e) {
+                            console.error('[PRENOTAZIONE] Errore parsing risposta:', e);
+                        }
                         if (ShowModal && typeof ShowModal.showModalError === 'function') {
                             ShowModal.showModalError(msg, 'Errore nella prenotazione');
                         }

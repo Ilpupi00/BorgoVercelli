@@ -29,6 +29,67 @@ router.get('/campi/:id/disponibilita', async (req, res) => {
     }
 });
 
+// 2b. Controlla disponibilità orario custom (prima di prenotare)
+router.post('/prenotazioni/check', isLoggedIn, async (req, res) => {
+    const { campo_id, data, inizio, fine } = req.body;
+    
+    if (!campo_id || !data || !inizio || !fine) {
+        return res.status(400).json({ 
+            ok: false, 
+            message: 'Dati obbligatori mancanti: campo_id, data, inizio, fine' 
+        });
+    }
+    
+    // Validazione formato orari (HH:MM)
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!timeRegex.test(inizio) || !timeRegex.test(fine)) {
+        return res.status(400).json({ 
+            ok: false, 
+            message: 'Formato orario non valido. Usa HH:MM' 
+        });
+    }
+    
+    // Validazione ordine orari (inizio < fine)
+    if (inizio >= fine) {
+        return res.status(400).json({ 
+            ok: false, 
+            message: 'Intervallo non valido: l\'orario di inizio deve essere precedente alla fine' 
+        });
+    }
+    
+    // Validazione anticipo minimo 2 ore
+    try {
+        const [oraH, oraM] = inizio.split(':').map(Number);
+        const prenotazioneDate = new Date(data);
+        prenotazioneDate.setHours(oraH, oraM, 0, 0);
+        const now = new Date();
+        const minTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+        
+        if (prenotazioneDate < minTime) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Devi prenotare con almeno 2 ore di anticipo'
+            });
+        }
+    } catch (validationErr) {
+        return res.status(400).json({ 
+            ok: false, 
+            message: 'Data o ora non valida' 
+        });
+    }
+    
+    try {
+        const result = await daoPrenotazione.checkOrarioCustom(campo_id, data, inizio, fine);
+        res.json(result);
+    } catch (err) {
+        console.error('[CHECK ORARIO] Errore:', err);
+        res.status(500).json({ 
+            ok: false, 
+            message: 'Errore server durante la verifica' 
+        });
+    }
+});
+
 // 3. Prenota un campo
 router.post('/prenotazioni', isLoggedIn, async (req, res) => {
     // Verifica stato utente
@@ -112,9 +173,29 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
         }
     }
     
+    // Validazione formato orari (HH:MM)
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:\d{2})?$/;
+    if (!timeRegex.test(ora_inizio) || !timeRegex.test(ora_fine)) {
+        return res.status(400).json({ 
+            error: 'Formato orario non valido. Usa HH:MM' 
+        });
+    }
+    
+    // Normalizza gli orari rimuovendo i secondi se presenti
+    const ora_inizio_norm = ora_inizio.substring(0, 5);
+    const ora_fine_norm = ora_fine.substring(0, 5);
+    
+    // Validazione ordine orari (inizio < fine)
+    if (ora_inizio_norm >= ora_fine_norm) {
+        return res.status(400).json({ 
+            error: 'Intervallo non valido',
+            message: 'L\'orario di inizio deve essere precedente alla fine' 
+        });
+    }
+    
     // Validazione data e ora: deve essere almeno 2 ore nel futuro
     try {
-        const [oraH, oraM] = ora_inizio.split(':').map(Number);
+        const [oraH, oraM] = ora_inizio_norm.split(':').map(Number);
         const prenotazioneDate = new Date(data_prenotazione);
         prenotazioneDate.setHours(oraH, oraM, 0, 0);
         const now = new Date();
@@ -131,14 +212,31 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
         console.error('[PRENOTAZIONE] Errore validazione data/ora:', validationErr);
         return res.status(400).json({ error: 'Data o ora non valida' });
     }
+    
+    // Validazione server-side: controlla duplicati e sovrapposizioni
+    try {
+        console.log('[PRENOTAZIONE] Check disponibilità:', { campo_id, data_prenotazione, ora_inizio_norm, ora_fine_norm });
+        const checkResult = await daoPrenotazione.checkOrarioCustom(campo_id, data_prenotazione, ora_inizio_norm, ora_fine_norm);
+        console.log('[PRENOTAZIONE] Risultato check:', checkResult);
+        if (!checkResult.ok) {
+            console.log('[PRENOTAZIONE] Conflitto rilevato:', checkResult.message);
+            return res.status(409).json({ 
+                error: checkResult.message,
+                conflict: true
+            });
+        }
+    } catch (checkErr) {
+        console.error('[PRENOTAZIONE] Errore controllo disponibilità:', checkErr);
+        // Continua comunque, il vincolo DB catturerà eventuali conflitti
+    }
     try {
         const result = await daoPrenotazione.prenotaCampo({ 
             campo_id, 
             utente_id, 
             squadra_id, 
             data_prenotazione, 
-            ora_inizio, 
-            ora_fine, 
+            ora_inizio: ora_inizio_norm, 
+            ora_fine: ora_fine_norm, 
             tipo_attivita, 
             note,
             telefono,
@@ -146,7 +244,16 @@ router.post('/prenotazioni', isLoggedIn, async (req, res) => {
             tipo_documento,
             numero_documento
         });
-        if (result && result.error) return res.status(409).json(result);
+        if (result && result.error) {
+            // Check if it's a constraint violation (exclusion constraint)
+            if (result.error.includes('overlap') || result.error.includes('sovrappo') || result.error.includes('prenotazioni_no_overlap')) {
+                return res.status(409).json({ 
+                    error: 'Orario si sovrappone a una prenotazione esistente',
+                    conflict: true 
+                });
+            }
+            return res.status(409).json(result);
+        }
         
         // Invia notifica push agli admin per nuova prenotazione
         try {

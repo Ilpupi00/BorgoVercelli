@@ -4,19 +4,8 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
-// Optional SendGrid fallback
-/*let sgMail;
-const sendgridApiKey = process.env.SENDGRID_API_KEY;
-if (sendgridApiKey) {
-    try {
-        sgMail = require('@sendgrid/mail');
-        sgMail.setApiKey(sendgridApiKey);
-        if (process.env.EMAIL_DEBUG) console.log('SendGrid enabled as email provider');
-    } catch (e) {
-        console.warn('SendGrid package not installed or failed to initialize:', e && e.message);
-        sgMail = null;
-    }
-}*/
+// Optional SendGrid fallback - DISABLED (not used)
+let sgMail = null;
 
 // Optional Resend provider (https://resend.com)
 let resendClient;
@@ -207,6 +196,14 @@ async function sendViaResend(mailOptions) {
         subject: mailOptions.subject,
         html: mailOptions.html
     };
+    
+    console.log('[RESEND] Payload:', {
+        from: payload.from,
+        to: payload.to,
+        subject: payload.subject,
+        htmlLength: payload.html ? payload.html.length : 0,
+        htmlPreview: payload.html ? payload.html.substring(0, 200) + '...' : 'EMPTY'
+    });
 
     if (Array.isArray(mailOptions.attachments) && mailOptions.attachments.length > 0) {
         payload.attachments = [];

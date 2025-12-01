@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Prenotazione Orari Custom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .test-card {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-scenario {
+            border-left: 4px solid #0d6efd;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        .expected {
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card test-card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-clipboard-check me-2"></i>
+                    Test Sistema Prenotazione Orari Personalizzati
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Istruzioni:</strong> Utilizza questo documento per testare manualmente tutte le funzionalità del sistema di prenotazione con orari custom.
+                </div>
+
+                <h5 class="mt-4 mb-3">📋 Test Cases da Eseguire</h5>
+
+                <div class="test-scenario">
+                    <h6>✅ Test 1: Orario Custom Valido</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Vai a <code>/prenotazione</code></li>
+                        <li>Clicca "Prenota ora" su un campo</li>
+                        <li>Seleziona data: <strong>domani</strong></li>
+                        <li>Clicca "inserisci un orario personalizzato"</li>
+                        <li>Inserisci: Inizio <code>15:00</code>, Fine <code>16:30</code></li>
+                        <li>Compila telefono: <code>+39 3331234567</code></li>
+                        <li>Clicca "Conferma Prenotazione"</li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ✅ Messaggio "Prenotazione in attesa di approvazione"
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>❌ Test 2: Duplicato Esatto</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Ripeti Test 1 con <strong>stessi orari</strong> (15:00-16:30)</li>
+                        <li>Stessa data e stesso campo</li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ❌ Errore "Orario già prenotato (duplicato esatto)"
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>❌ Test 3: Sovrapposizione Parziale</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Apri modal prenotazione</li>
+                        <li>Seleziona orario custom</li>
+                        <li>Inserisci: Inizio <code>15:30</code>, Fine <code>17:00</code></li>
+                        <li>(Questo si sovrappone a 15:00-16:30 esistente)</li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ❌ Errore "Orario si sovrappone a una prenotazione esistente"
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>✅ Test 4: Orari Adiacenti (OK)</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Inserisci orario custom</li>
+                        <li>Inizio <code>16:30</code> (fine del precedente), Fine <code>18:00</code></li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ✅ Prenotazione creata (gli adiacenti sono permessi)
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>❌ Test 5: Anticipo Insufficiente</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Seleziona data: <strong>oggi</strong></li>
+                        <li>Inserisci orario tra 1 ora da ora corrente</li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ❌ Errore "Devi prenotare con almeno 2 ore di anticipo"
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>❌ Test 6: Ordine Orari Invalido</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Inserisci Inizio <code>16:00</code>, Fine <code>15:00</code></li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ❌ Errore "L'orario di fine deve essere successivo all'inizio"
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>✅ Test 7: Toggle UI</h6>
+                    <p><strong>Azione:</strong></p>
+                    <ol>
+                        <li>Clicca "inserisci un orario personalizzato"</li>
+                        <li>Verifica che la select orari venga nascosta</li>
+                        <li>Verifica che appaiano i campi time</li>
+                        <li>Clicca "Torna alla selezione orari predefiniti"</li>
+                        <li>Verifica che riappaia la select</li>
+                    </ol>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ✅ Toggle funziona correttamente, campi mostrati/nascosti
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>🔄 Test 8: API Check Endpoint</h6>
+                    <p><strong>Azione:</strong> Apri Console Browser (F12) e esegui:</p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>fetch('/prenotazione/prenotazioni/check', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    campo_id: 1,
+    data: '2025-12-15',
+    inizio: '14:00',
+    fine: '15:30'
+  })
+}).then(r => r.json()).then(console.log)</code></pre>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> <code>{ "ok": true }</code> o <code>{ "ok": false, "message": "..." }</code>
+                    </div>
+                </div>
+
+                <h5 class="mt-5 mb-3">🔍 Verifiche Database</h5>
+                
+                <div class="test-scenario">
+                    <h6>SQL: Verifica Constraint Attivo</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>SELECT conname, contype 
+FROM pg_constraint 
+WHERE conrelid = 'prenotazioni'::regclass 
+  AND conname = 'prenotazioni_no_overlap';</code></pre>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> 1 riga con <code>contype = 'x'</code> (exclusion)
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>SQL: Verifica Timestamp Automatici</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>SELECT id, data_prenotazione, ora_inizio, ora_fine,
+       inizio_timestamp, fine_timestamp
+FROM prenotazioni
+WHERE id = (SELECT MAX(id) FROM prenotazioni);</code></pre>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> Le colonne timestamp devono essere popolate automaticamente
+                    </div>
+                </div>
+
+                <div class="test-scenario">
+                    <h6>SQL: Test Constraint Diretto</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>-- Questo deve fallire se già esiste una prenotazione 10:00-12:00
+INSERT INTO prenotazioni 
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
+VALUES (1, '2025-12-20', '11:00', '13:00', 'in_attesa', '+39 3331234567', NOW(), NOW());</code></pre>
+                    <div class="expected">
+                        <strong>Risultato Atteso:</strong> ❌ ERROR: conflicting key value violates exclusion constraint "prenotazioni_no_overlap"
+                    </div>
+                </div>
+
+                <h5 class="mt-5 mb-3">📝 Checklist Finale</h5>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check1">
+                    <label class="form-check-label" for="check1">
+                        Migration eseguita senza errori
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check2">
+                    <label class="form-check-label" for="check2">
+                        Estensione btree_gist attiva
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check3">
+                    <label class="form-check-label" for="check3">
+                        Constraint prenotazioni_no_overlap presente
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check4">
+                    <label class="form-check-label" for="check4">
+                        Link "inserisci orario personalizzato" visibile nel modal
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check5">
+                    <label class="form-check-label" for="check5">
+                        Campi time input appaiono dopo click
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check6">
+                    <label class="form-check-label" for="check6">
+                        Validazione client-side funziona (anticipo, ordine)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check7">
+                    <label class="form-check-label" for="check7">
+                        Endpoint /check risponde correttamente
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check8">
+                    <label class="form-check-label" for="check8">
+                        Prenotazione custom si crea con successo
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check9">
+                    <label class="form-check-label" for="check9">
+                        Duplicati e sovrapposizioni vengono bloccati
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check10">
+                    <label class="form-check-label" for="check10">
+                        Messaggi di errore sono chiari e user-friendly
+                    </label>
+                </div>
+
+                <div class="alert alert-success mt-4">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>Tutto OK?</strong> Se tutti i test passano, il sistema è pronto per l'uso in produzione!
+                </div>
+
+                <div class="mt-4">
+                    <a href="/prenotazione" class="btn btn-primary btn-lg">
+                        <i class="bi bi-arrow-right-circle me-2"></i>
+                        Vai alla Pagina Prenotazioni
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

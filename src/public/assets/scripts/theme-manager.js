@@ -3,6 +3,11 @@
  * Manages theme switching with localStorage persistence
  */
 
+// Previeni dichiarazioni multiple
+if (typeof ThemeManager !== 'undefined') {
+    console.warn('ThemeManager già caricato, skip ridefinizione');
+} else {
+
 class ThemeManager {
     constructor() {
         this.THEME_KEY = 'site-theme-preference';
@@ -350,6 +355,8 @@ try {
 } catch (e) {
     // ignore
 }
+
+} // Fine blocco if ThemeManager check
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {

@@ -228,14 +228,20 @@ exports.getDisponibilitaCampo=async (campoId, data) => {
 exports.prenotaCampo = async ({ campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento }) => {
     const dataNorm = normalizeDate(data_prenotazione);
     return new Promise((resolve, reject) => {
-        db.get(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ? AND ora_inizio = ? AND ora_fine = ?`, [campo_id, dataNorm, ora_inizio, ora_fine], (err, row) => {
+        db.get(`SELECT * FROM PRENOTAZIONI WHERE campo_id = ? AND data_prenotazione = ? AND ora_inizio = ? AND ora_fine = ? AND stato != 'annullata' AND stato != 'rifiutata'`, [campo_id, dataNorm, ora_inizio, ora_fine], (err, row) => {
             if (err) return reject(err);
-            if (row) return resolve({ error: 'Orario già prenotato' });
+            if (row) return resolve({ error: 'Orario già prenotato (duplicato esatto)' });
             // Nuove prenotazioni iniziano con stato 'in_attesa' e devono essere accettate dall'admin
             db.run(`INSERT INTO PRENOTAZIONI (campo_id, utente_id, squadra_id, data_prenotazione, ora_inizio, ora_fine, tipo_attivita, note, telefono, codice_fiscale, tipo_documento, numero_documento, stato, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_attesa', NOW(), NOW()) RETURNING id`,
                 [campo_id, utente_id || null, squadra_id || null, dataNorm, ora_inizio, ora_fine, tipo_attivita || null, note || null, telefono, codice_fiscale || null, tipo_documento || null, numero_documento || null], function (err, result) {
-                    if (err) return reject(err);
-                    resolve({ success: true, id: result.rows[0].id });
+                    if (err) {
+                        // Check for exclusion constraint violation (PostgreSQL error code 23P01)
+                        if (err.code === '23P01' || (err.message && err.message.includes('prenotazioni_no_overlap'))) {
+                            return resolve({ error: 'Orario si sovrappone a una prenotazione esistente' });
+                        }
+                        return reject(err);
+                    }
+                    resolve({ success: true, id: result.rows[0].id, utente_id: utente_id });
                 }
             );
         });
@@ -533,6 +539,68 @@ exports.autoAcceptPendingBookings = async () => {
 
 
 
+
+/**
+ * Controlla se un orario personalizzato è valido per la prenotazione
+ * Verifica duplicati esatti e sovrapposizioni con prenotazioni esistenti e orari default
+ * 
+ * @async
+ * @param {number} campo_id - ID del campo
+ * @param {string} data - Data della prenotazione (YYYY-MM-DD)
+ * @param {string} ora_inizio - Ora di inizio (HH:MM)
+ * @param {string} ora_fine - Ora di fine (HH:MM)
+ * @returns {Promise<Object>} { ok: true } se valido, { ok: false, message: string } se non valido
+ */
+exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
+    const dataNorm = normalizeDate(data);
+    
+    // 1. Controllo duplicato esatto
+    const duplicato = await new Promise((resolve, reject) => {
+        db.get(
+            `SELECT id FROM PRENOTAZIONI 
+             WHERE campo_id = ? AND data_prenotazione = ? 
+             AND ora_inizio = ? AND ora_fine = ? 
+             AND stato != 'annullata' AND stato != 'rifiutata'
+             LIMIT 1`,
+            [campo_id, dataNorm, ora_inizio, ora_fine],
+            (err, row) => {
+                if (err) return reject(err);
+                resolve(row);
+            }
+        );
+    });
+    
+    if (duplicato) {
+        return { ok: false, message: 'Orario già prenotato (duplicato esatto)' };
+    }
+    
+    // 2. Controllo sovrapposizione con prenotazioni esistenti
+    // Due intervalli [s1,f1) e [s2,f2) si sovrappongono se NOT (f1 <= s2 OR s1 >= f2)
+    const sovrapposizione = await new Promise((resolve, reject) => {
+        db.get(
+            `SELECT id FROM PRENOTAZIONI 
+             WHERE campo_id = ? AND data_prenotazione = ? 
+             AND stato != 'annullata' AND stato != 'rifiutata'
+             AND NOT (ora_fine <= ? OR ora_inizio >= ?)
+             LIMIT 1`,
+            [campo_id, dataNorm, ora_inizio, ora_fine],
+            (err, row) => {
+                if (err) return reject(err);
+                resolve(row);
+            }
+        );
+    });
+    
+    if (sovrapposizione) {
+        return { ok: false, message: 'Orario si sovrappone a una prenotazione esistente' };
+    }
+    
+    // Gli orari custom sono dinamici - l'admin li accetterà o rifiuterà
+    // Non blocchiamo in base agli ORARI_CAMPI (che sono solo suggerimenti per gli orari predefiniti)
+    console.log('[DAO] Orario custom validato: nessun duplicato o sovrapposizione trovata');
+    
+    return { ok: true };
+};
 
 // Esporta l'oggetto exports per compatibilità e chiarezza
 module.exports = exports;
