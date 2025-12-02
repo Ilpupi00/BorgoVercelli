@@ -145,22 +145,17 @@ footer#footer .btn::before {
 }
 
 footer#footer .btn::after {
-  content: 'Invia';
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 999;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 0;
   display: block;
   pointer-events: none;
-  width: 100%;
-  text-align: center;
-  white-space: nowrap;
-  font-size: inherit;
-  line-height: 1;
-  font-weight: 700;
 }
 
 footer#footer .btn:hover {
@@ -176,9 +171,7 @@ footer#footer .btn:hover::before {
 }
 
 footer#footer .btn:hover::after {
-  /* subtle overlay on hover; no text so no duplication */
-  opacity: 0.06;
-  transform: scale(1.01);
+  opacity: 0;
 }
 
 footer#footer .d-flex {

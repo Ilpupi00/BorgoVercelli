@@ -253,6 +253,7 @@ try {
 
 exports.sendEmail = async function({ fromName, fromEmail, subject, message, phone, to = 'info.asdborgovercelli2022@gmail.com' }) {
     try {
+    console.log('[emailService.sendEmail] Received phone:', phone);
     const defaultFrom = process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
     // Costruisce l'HTML completo dell'email di notifica.
     // Note:

@@ -41,8 +41,11 @@ export function setupEmailFormListener() {
       name: formData.get('name'),
       email: formData.get('email'),
       subject: formData.get('subject'),
-      message: formData.get('message')
+      message: formData.get('message'),
+      phone: formData.get('phone')
     };
+    
+    console.log('[send_email.js] Sending data:', data);
 
     try {
       // Usa la stessa route del footer (/contatti)
