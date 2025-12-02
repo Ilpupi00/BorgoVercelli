@@ -479,10 +479,10 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, phon
                                             <strong>📧 Email</strong>
                                             <div class="field-value">${fromEmail}</div>
                                         </div>
-                                        ${phone ? `<div class="field">
+                                        <div class="field">
                                             <strong>📞 Telefono</strong>
-                                            <div class="field-value">${phone}</div>
-                                        </div>` : ''}
+                                            <div class="field-value">${phone || 'Non fornito'}</div>
+                                        </div>
                                         <div class="field">
                                             <strong>💬 Messaggio</strong>
                                             <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
