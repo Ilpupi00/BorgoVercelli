@@ -243,23 +243,24 @@ footer#footer .social-icons a:hover::after {
   opacity: 1;
 }
 
-footer#footer .bi-facebook:hover {
+/* Hover effect quando passi sopra il link (cerchio) */
+footer#footer .social-icons a:hover .bi-facebook {
   color: #4267B2 !important;
   text-shadow: 0 0 10px #4267B2;
 }
 
-footer#footer .bi-instagram:hover {
+footer#footer .social-icons a:hover .bi-instagram {
   color: #E1306C !important;
   text-shadow: 0 0 10px #E1306C;
 }
 
-footer#footer .bi-twitter-x:hover {
+footer#footer .social-icons a:hover .bi-twitter-x {
   color: #1DA1F2 !important;
   text-shadow: 0 0 10px #1DA1F2;
 }
 
 /* GitHub icon hover: use GitHub dark color and subtle glow */
-footer#footer .bi-github:hover {
+footer#footer .social-icons a:hover .bi-github {
   color: #111 !important;
   text-shadow: 0 0 10px rgba(17,17,17,0.6);
 }

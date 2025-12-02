@@ -84,13 +84,19 @@ class Galleria{
     addImage(immagini) {
         const galleryRow = this.page.querySelector('.gallery-container');
         if (!galleryRow) return;
-        immagini.forEach((img) => {
+        immagini.forEach((img, localIndex) => {
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
+            
+            // Calcola l'indice globale
+            const globalIndex = this.imagesShown - immagini.length + localIndex;
+            galleryItem.setAttribute('data-image-index', globalIndex);
 
             const button = document.createElement('button');
             button.className = 'image-wrapper p-0 border-0 bg-transparent w-100';
             button.type = 'button';
+            button.dataset.imageUrl = img.url;
+            button.dataset.imageAlt = img.descrizione || 'Immagine della galleria';
 
             const imgElement = document.createElement('img');
             imgElement.src = img.url;
@@ -102,17 +108,26 @@ class Galleria{
 
             const span = document.createElement('span');
             span.className = 'btn btn-primary btn-sm';
-            span.textContent = 'Visualizza';
+            span.innerHTML = '<i class="bi bi-eye"></i> Visualizza';
 
             // Click handler
-            span.addEventListener('click', (e) => {
+            button.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Salva la posizione corrente
+                const scrollPosition = window.pageYOffset;
+                sessionStorage.setItem('galleryScrollPosition', scrollPosition);
+                sessionStorage.setItem('galleryImageIndex', globalIndex);
+                
                 const headerImg = this.page.querySelector('header .centered-image');
                 if (headerImg) {
                     headerImg.src = img.url;
                     headerImg.alt = img.descrizione || 'Immagine della galleria';
                 }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Setup del pulsante per tornare alla galleria
+                this.setupReturnToGallery(globalIndex);
             });
 
             overlay.appendChild(span);
@@ -183,20 +198,74 @@ class Galleria{
     setupImageClicks() {
         // For existing images in EJS
         const buttons = this.page.querySelectorAll('.image-wrapper');
-        buttons.forEach(button => {
+        buttons.forEach((button, index) => {
+            // Aggiungi attributo per identificare la posizione
+            const galleryItem = button.closest('.gallery-item');
+            if (galleryItem) {
+                galleryItem.setAttribute('data-image-index', index);
+            }
+            
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 const imageUrl = button.dataset.imageUrl;
                 const imageAlt = button.dataset.imageAlt;
+
+                // Salva la posizione corrente
+                const scrollPosition = window.pageYOffset;
+                sessionStorage.setItem('galleryScrollPosition', scrollPosition);
+                sessionStorage.setItem('galleryImageIndex', index);
 
                 // Cambia l'immagine nell'header
                 const headerImage = this.page.querySelector('.centered-image');
                 if (headerImage) {
                     headerImage.src = imageUrl;
                     headerImage.alt = imageAlt;
+                    
+                    // Scroll in alto per vedere l'immagine
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Aggiungi listener per tornare alla posizione
+                    this.setupReturnToGallery(index);
                 }
             });
         });
+    }
+    
+    setupReturnToGallery(imageIndex) {
+        // Aggiungi pulsante o listener per tornare alla galleria
+        const header = this.page.querySelector('header');
+        if (!header) return;
+        
+        // Rimuovi eventuali pulsanti precedenti
+        const existingBtn = header.querySelector('.return-to-gallery-btn');
+        if (existingBtn) existingBtn.remove();
+        
+        // Crea pulsante per tornare alla galleria
+        const returnBtn = document.createElement('button');
+        returnBtn.className = 'btn btn-secondary return-to-gallery-btn';
+        returnBtn.innerHTML = '<i class="bi bi-arrow-down"></i> Torna alla Galleria';
+        returnBtn.style.cssText = 'position: absolute; bottom: 20px; right: 20px; z-index: 10;';
+        
+        returnBtn.addEventListener('click', () => {
+            const savedIndex = sessionStorage.getItem('galleryImageIndex');
+            const targetIndex = savedIndex || imageIndex;
+            
+            // Trova l'elemento della galleria
+            const galleryItem = this.page.querySelector(`[data-image-index="${targetIndex}"]`);
+            if (galleryItem) {
+                galleryItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Rimuovi il pulsante
+            returnBtn.remove();
+            
+            // Pulisci sessionStorage
+            sessionStorage.removeItem('galleryScrollPosition');
+            sessionStorage.removeItem('galleryImageIndex');
+        });
+        
+        header.style.position = 'relative';
+        header.appendChild(returnBtn);
     }
 }
 export default Galleria;

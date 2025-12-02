@@ -251,7 +251,7 @@ try {
     logoImgSrc = logoImgSrc || `${process.env.BASE_URL || 'http://localhost:3000'}/images/Logo.png`;
 }
 
-exports.sendEmail = async function({ fromName, fromEmail, subject, message, to = 'info.asdborgovercelli2022@gmail.com' }) {
+exports.sendEmail = async function({ fromName, fromEmail, subject, message, phone, to = 'info.asdborgovercelli2022@gmail.com' }) {
     try {
     const defaultFrom = process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
     // Costruisce l'HTML completo dell'email di notifica.
@@ -479,6 +479,10 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, to =
                                             <strong>📧 Email</strong>
                                             <div class="field-value">${fromEmail}</div>
                                         </div>
+                                        ${phone ? `<div class="field">
+                                            <strong>📞 Telefono</strong>
+                                            <div class="field-value">${phone}</div>
+                                        </div>` : ''}
                                         <div class="field">
                                             <strong>💬 Messaggio</strong>
                                             <div class="message-content">${message.replace(/\n/g, '<br>')}</div>

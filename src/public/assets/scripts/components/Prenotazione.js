@@ -57,10 +57,29 @@ class Prenotazione {
 
     async updateOrariDisponibili(campoId, data) {
         try {
+            const resultDiv = this.page.querySelector(`#orariDisponibili-${campoId}`);
+            
+            // Controlla se la data selezionata è sabato o domenica
+            const selectedDate = new Date(data);
+            const dayOfWeek = selectedDate.getDay(); // 0 = Domenica, 6 = Sabato
+            
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-warning d-flex align-items-center w-100" role="alert">
+                        <i class="bi bi-telephone-fill me-2"></i>
+                        <div>
+                            <strong>Prenotazioni Weekend</strong><br>
+                            Per prenotazioni nel weekend (sabato e domenica), si prega di contattare telefonicamente la struttura al 
+                            <a href="tel:+393520380073" class="alert-link fw-bold">+39 352 0380073</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
             const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${data}`);
             const orari = await res.json();
             const now = new Date();
-            const resultDiv = this.page.querySelector(`#orariDisponibili-${campoId}`);
             let filteredOrari = Array.isArray(orari) ? orari.filter(o => {
                 if (typeof o.prenotato !== 'undefined' && o.prenotato) return false;
                 const [h, m] = o.inizio.split(":");
@@ -101,6 +120,22 @@ class Prenotazione {
     async openPrenotaModal(campoId) {
         const campo = this.campi.find(c => c.id == campoId);
         const inputData = this.page.querySelector(`.input-orari-campo[data-campo-id='${campoId}']`)?.value || new Date().toISOString().slice(0,10);
+        
+        // Controlla se la data selezionata è sabato o domenica
+        const selectedDate = new Date(inputData);
+        const dayOfWeek = selectedDate.getDay(); // 0 = Domenica, 6 = Sabato
+        
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            if (ShowModal && typeof ShowModal.showModalInfo === 'function') {
+                ShowModal.showModalInfo(
+                    'Per prenotazioni nel weekend (sabato e domenica), si prega di contattare telefonicamente il centro sportivo.',
+                    'Prenotazione Weekend'
+                );
+            } else {
+                alert('Per prenotazioni nel weekend (sabato e domenica), si prega di contattare telefonicamente il centro sportivo.');
+            }
+            return;
+        }
         try {
             const res = await fetch(`/prenotazione/campi/${campoId}/disponibilita?data=${inputData}`);
             const orari = await res.json();
@@ -115,7 +150,7 @@ class Prenotazione {
                 return true;
             });
             const { showModalPrenotazione } = await import('../utils/modalPrenotazione.js');
-            showModalPrenotazione(campo, filteredOrari, async (datiPrenotazione) => {
+            showModalPrenotazione(campo, filteredOrari, inputData, async (datiPrenotazione) => {
                 let utenteId = null;
                 try {
                     const resUser = await fetch('/session/user');

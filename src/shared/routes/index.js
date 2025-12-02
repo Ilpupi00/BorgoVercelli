@@ -341,9 +341,9 @@ router.get('/regolamento', (req, res) => {
 // Endpoint POST per invio contatti (API)
 router.post('/contatti', async (req, res) => {
     try {
-        const { name, email, message, subject } = req.body;
+        const { name, email, message, subject, phone } = req.body;
         // Log incoming contact payload for debugging (will appear in server logs)
-        console.log('[POST /contatti] payload:', { name, email, subject, hasMessage: !!message });
+        console.log('[POST /contatti] payload:', { name, email, subject, phone, hasMessage: !!message });
 
         // semplice validazione server-side
         if (!name || !email || !message || !subject) {
@@ -355,7 +355,8 @@ router.post('/contatti', async (req, res) => {
             fromName: name,
             fromEmail: email,
             subject: subject,
-            message: message
+            message: message,
+            phone: phone
         });
         if (process.env.EMAIL_DEBUG) console.log('[POST /contatti] sendEmail result:', info);
 

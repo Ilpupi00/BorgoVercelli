@@ -2,9 +2,10 @@
  * Mostra un modal per la prenotazione di un campo
  * @param {Object} campo - Dati del campo selezionato
  * @param {Array} orariDisponibili - Orari disponibili per la prenotazione
+ * @param {String} dataSelezionata - Data selezionata dall'utente (formato YYYY-MM-DD)
  * @param {Function} onSubmit - Funzione da chiamare al submit
  */
-export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
+export function showModalPrenotazione(campo, orariDisponibili, dataSelezionata, onSubmit) {
     // Crea il contenitore del modal
     let modal = document.createElement('div');
     modal.className = 'modal fade';
@@ -27,7 +28,7 @@ export function showModalPrenotazione(campo, orariDisponibili, onSubmit) {
                   <label for="dataPrenotazione" class="form-label fw-semibold">
                     <i class="bi bi-calendar3 me-1"></i>Data <span class="text-danger">*</span>
                   </label>
-                  <input type="date" class="form-control form-control-lg" id="dataPrenotazione" name="dataPrenotazione" required value="${new Date().toISOString().slice(0,10)}">
+                  <input type="date" class="form-control form-control-lg" id="dataPrenotazione" name="dataPrenotazione" required value="${dataSelezionata || new Date().toISOString().slice(0,10)}">
                   <div class="invalid-feedback">Seleziona una data valida</div>
                 </div>
                 <div class="col-md-6">
