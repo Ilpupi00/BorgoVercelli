@@ -7,7 +7,7 @@ class Homepage {
     }
 
     init() {
-        document.title = "Homepage - Asd BorgoVercelli 2022";
+        document.title = "Homepage - A.S.D. Borgo Vercelli 2022";
         setupEmailFormListener();
         this.setupModalListeners();
         this.setupRecensioneLink();

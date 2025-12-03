@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= evento.titolo %> - Asd BorgoVercelli 2022</title>
+    <title><%= evento.titolo %> - A.S.D. Borgo Vercelli 2022</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,8 +17,8 @@
     <%- include('../../shared/views/partials/theme-includes') %></script>
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="<%= evento.titolo %> - Asd BorgoVercelli 2022">
-    <meta property="og:description" content="<%= evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Scopri questo evento organizzato da Asd BorgoVercelli 2022' %>">
+    <meta property="og:title" content="<%= evento.titolo %> - A.S.D. Borgo Vercelli 2022">
+    <meta property="og:description" content="<%= evento.descrizione ? evento.descrizione.substring(0, 150) + '...' : 'Scopri questo evento organizzato da A.S.D. Borgo Vercelli 2022' %>">
     <meta property="og:image" content="<%= evento.immagine_url || '/assets/images/Campo.png' %>">
     <meta property="og:url" content="/evento/<%= evento.id %>">
     <meta property="og:type" content="article">

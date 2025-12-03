@@ -1,4 +1,4 @@
--- Membri della società ASD BorgoVercelli
+-- Membri della società A.S.D. Borgo Vercelli
 INSERT INTO UTENTI (email, password_hash, nome, cognome, telefono, tipo_utente_id, data_registrazione, created_at, updated_at)
 VALUES
 ('presidente@borgovercelli.it', '$2a$04$hashedpassword', 'Mario', 'Rossi', '+39 0123 456789', 2, '2020-01-01', '2020-01-01', '2025-01-01'),

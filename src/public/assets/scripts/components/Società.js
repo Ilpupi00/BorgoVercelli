@@ -7,7 +7,7 @@ class Societa {
     }
 
     init() {
-        document.title = "Società - ASD BorgoVercelli";
+        document.title = "Società - A.S.D. Borgo Vercelli";
         this.setupEventListeners();
         setupEmailFormListener();
         this.setupAnimations();
@@ -73,10 +73,10 @@ class Societa {
 
     contattaMembro(email) {
         // Apri client email con template precompilato
-        const subject = encodeURIComponent('Contatto ASD BorgoVercelli');
+        const subject = encodeURIComponent('Contatto A.S.D. Borgo Vercelli');
         const body = encodeURIComponent(`Salve,
 
-Mi rivolgo a lei in qualità di membro dell'ASD BorgoVercelli.
+Mi rivolgo a lei in qualità di membro dell'A.S.D. Borgo Vercelli.
 
 Scrivo per...
 
@@ -208,7 +208,7 @@ Cordiali saluti`);
                                     ` : ''}
                                     <div class="mt-4">
                                         <p class="text-muted">
-                                            Membro attivo dell'ASD BorgoVercelli, contribuisce attivamente
+                                            Membro attivo dell'A.S.D. Borgo Vercelli, contribuisce attivamente
                                             allo sviluppo e alla crescita della nostra società sportiva.
                                         </p>
                                     </div>

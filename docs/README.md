@@ -599,7 +599,7 @@ Configurazioni sistema.
 - [x] Design system mobile-first unificato
 
 ### 🔄 Fase 2: Espansione (In Corso)
-- [ ] Notifiche push real-time
+- [x] Notifiche push real-time
 - [ ] Sistema messaggistica interna
 - [ ] Dashboard analytics avanzata
 - [ ] App mobile (React Native)

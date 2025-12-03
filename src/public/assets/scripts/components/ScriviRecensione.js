@@ -8,7 +8,7 @@ class ScriviRecensione {
     }
 
     init() {
-        document.title = "Scrivi Recensione - Asd BorgoVercelli 2022";
+        document.title = "Scrivi Recensione - A.S.D. Borgo Vercelli 2022";
         this.setupRatingStars();
         this.setupFormValidation();
         this.setupCharCounter();
