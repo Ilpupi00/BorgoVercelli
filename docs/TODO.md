@@ -4,20 +4,25 @@ Questo file contiene la lista delle attività principali del progetto.
 
 ## Come usare
 - Segnare lo stato delle attività aggiornando questo file o usando il tracker del task (se presente).
-- Formato: `- [ ]` non iniziata, `- [x]` completata.
+- Formato: `- [ ]` non iniziata, `- [x]` completata. 
+
+## Cose da implementare nel Futuro
+
+## Priotità Altissima
+- [ ] Più dati personali degli utenti per venitare duplicazione di profili.
 
 ## Priorità alta
-- [x] Mettere a posto il gestore squadra implemenatando tutte le funzionalita dal backend al forntend, mettendo a posto lo stile della pagina  in linea con tutto lo stile del sito
-- [x] Mettere nei vari gestori il showModal per tutte le azioni e conferme importanti e pure i messaggi di errore,successo ecc..
-- [x] Sistemare tutt il gestore Campionati mettendolo in linea con il database e con le funzionalita richieste, creare una pagina per modifica/ creazione campionato con stile moderno,sofisticato e Web 2.0 in linea con lo stile del sito e implementare tutte le funzionalita mancanti e mettere le route corrette.
+- [ ] Gestione migliorata dei campi a disposizione
+- [ ] Gestione migliorata dei giocatori e delle squadre
+- [ ] Migliorare gli eventi mettendo il fatto di partecipare 
 
 ## Priorità media
-- [x] mettere un grandezzza predefinita nella pagina prenotazioni per l'immagini del campo
-- [x] Pulire i log e rimuovere informazioni sensibili da `server.log`
+
+- [ ] Mettere a posto vari bug visivi di minore importanza
 
 ## Priorità bassa
-- [x] Aggiungere README per tenere aggiornati gli script aggiuntivi e le api aggiunte
-- [x] Migliorare i commenti e la documentazione delle API
+
+- [ ] Aggiornare il README.md 
 
 ---
 
