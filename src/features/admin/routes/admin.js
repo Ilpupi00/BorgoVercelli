@@ -498,6 +498,12 @@ router.get('/admin/statistiche/data', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
+// Endpoint per esportare statistiche in Excel
+const ExportStatisticheController = require('../controllers/ExportStatisticheController');
+router.get('/admin/statistiche/export/excel', isLoggedIn, isAdmin, async (req, res) => {
+    await ExportStatisticheController.esportaExcel(req, res);
+});
+
 // Route per gestire orari campi
 router.get('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
     try {
