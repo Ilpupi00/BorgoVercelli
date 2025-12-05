@@ -185,17 +185,88 @@ class GestoreUtente {
                 `;
             }
             
-            const content = `
-                <div class="row">
-                    <div class="col-md-8">
-                        <h4>${utente.nome} ${utente.cognome}</h4>
-                        <p><strong>Email:</strong> ${utente.email}</p>
-                        <p><strong>Telefono:</strong> ${utente.telefono || 'Non specificato'}</p>
-                        <p><strong>Tipo Utente:</strong> ${GestoreUtente.getTipoUtenteLabel(utente.tipo_utente_id)}</p>
-                        <p><strong>Data Registrazione:</strong> ${new Date(utente.data_registrazione).toLocaleDateString('it-IT')}</p>
+            // Determina stato utente
+            let statoHTML = '';
+            if (utente.stato === 'bannato') {
+                statoHTML = `
+                    <div class="alert alert-danger mb-3">
+                        <h6 class="alert-heading"><i class="bi bi-ban me-2"></i>Utente Bannato</h6>
+                        <p class="mb-1"><strong>Motivo:</strong> ${utente.motivo_sospensione || 'Non specificato'}</p>
+                        ${utente.data_inizio_sospensione ? `<p class="mb-0"><small>Data ban: ${new Date(utente.data_inizio_sospensione).toLocaleDateString('it-IT')}</small></p>` : ''}
                     </div>
-                    <div class="col-md-4 text-center">
-                        <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" alt="Foto profilo" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                `;
+            } else if (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date()) {
+                const dataFine = new Date(utente.data_fine_sospensione);
+                statoHTML = `
+                    <div class="alert alert-warning mb-3">
+                        <h6 class="alert-heading"><i class="bi bi-clock-history me-2"></i>Utente Sospeso</h6>
+                        <p class="mb-1"><strong>Motivo:</strong> ${utente.motivo_sospensione || 'Non specificato'}</p>
+                        <p class="mb-1"><strong>Fino al:</strong> ${dataFine.toLocaleDateString('it-IT')} ${dataFine.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</p>
+                        ${utente.data_inizio_sospensione ? `<p class="mb-0"><small>Data inizio: ${new Date(utente.data_inizio_sospensione).toLocaleDateString('it-IT')}</small></p>` : ''}
+                    </div>
+                `;
+            } else {
+                statoHTML = `
+                    <div class="alert alert-success mb-3">
+                        <h6 class="alert-heading mb-0"><i class="bi bi-check-circle me-2"></i>Utente Attivo</h6>
+                    </div>
+                `;
+            }
+
+            const content = `
+                ${statoHTML}
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <h4 class="mb-3"><i class="bi bi-person-circle me-2"></i>${utente.nome} ${utente.cognome}</h4>
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-envelope me-2 text-primary"></i>Email:</strong>
+                                    <span class="ms-4 text-break">${utente.email}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-telephone me-2 text-success"></i>Telefono:</strong>
+                                    <span class="ms-4">${utente.telefono || '<span class="text-muted">Non specificato</span>'}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-person-badge me-2 text-info"></i>Tipo Utente:</strong>
+                                    <span class="ms-4">${GestoreUtente.getTipoUtenteLabel(utente.tipo_utente_id)}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-calendar-check me-2 text-warning"></i>Data Registrazione:</strong>
+                                    <span class="ms-4">${new Date(utente.data_registrazione).toLocaleDateString('it-IT')}</span>
+                                </div>
+                            </div>
+                            ${utente.ruolo_preferito ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-trophy me-2 text-primary"></i>Ruolo Preferito:</strong>
+                                    <span class="ms-4">${utente.ruolo_preferito}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.piede_preferito ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column">
+                                    <strong class="mb-1"><i class="bi bi-shoe me-2 text-success"></i>Piede Preferito:</strong>
+                                    <span class="ms-4">${utente.piede_preferito}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center d-flex flex-column align-items-center">
+                        <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" 
+                             alt="Foto profilo" 
+                             class="img-fluid rounded-circle shadow mb-2" 
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                        <small class="text-muted">ID: #${utente.id}</small>
                     </div>
                 </div>
                 ${prenotazioniHTML}

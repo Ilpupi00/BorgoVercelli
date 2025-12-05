@@ -70,6 +70,16 @@
     line-height: 1;
 }
 
+.stats-card-label {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+.stats-card-label .small {
+    color: rgba(0, 0, 0, 0.8) !important;
+    font-weight: 500;
+}
+
 /* Varianti colore stats cards */
 .stats-card-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -214,6 +224,11 @@
     color: #fff;
 }
 
+.stats-card-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+}
+
 /* === KPI Section === */
 .kpi-section {
     margin-bottom: 3rem;
@@ -323,6 +338,10 @@
 
 [data-theme="dark"] .stats-card-pink {
     background: linear-gradient(135deg, #da3c86 0%, #dc354c 100%);
+}
+
+[data-theme="dark"] .stats-card-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 [data-theme="dark"] .chart-header {

@@ -837,25 +837,32 @@ button {
     background-color: var(--bg-secondary);
 }
 
-/* Modals */
-.modal-content {
-    background-color: var(--card-bg) !important;
+/* Modals (scoped to dark theme) */
+:root[data-theme="dark"] .modal-content {
+    background-color: #1e293b !important;
+    background-image: none !important;
     color: var(--text-primary) !important;
     border-color: var(--border-color) !important;
     box-shadow: var(--shadow-2xl);
 }
 
-.modal-header,
-.modal-footer {
-    background-color: var(--bg-secondary) !important;
+:root[data-theme="dark"] .modal-body {
+    background-color: #1e293b !important;
+    background-image: none !important;
+}
+
+:root[data-theme="dark"] .modal-header,
+:root[data-theme="dark"] .modal-footer {
+    background-color: #1a2332 !important;
+    background-image: none !important;
     border-color: var(--border-color) !important;
 }
 
-.modal-header .btn-close {
+:root[data-theme="dark"] .modal-header .btn-close {
     filter: var(--bs-btn-close-white-filter);
 }
 
-.modal-title {
+:root[data-theme="dark"] .modal-title {
     color: var(--text-primary) !important;
 }
 

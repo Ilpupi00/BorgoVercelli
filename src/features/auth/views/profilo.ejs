@@ -931,11 +931,24 @@
               bsModal.show();
             }
 
+            // Esponi dati utente globalmente per Profilo.js
+            window.currentUser = {
+              id: <%= user.id %>,
+              nome: '<%= user.nome %>',
+              cognome: '<%= user.cognome %>',
+              email: '<%= user.email %>',
+              telefono: '<%= user.telefono || "" %>',
+              data_nascita: '<%= user.data_nascita || "" %>',
+              codice_fiscale: '<%= user.codice_fiscale || "" %>',
+              ruolo_preferito: '<%= user.ruolo_preferito || "" %>',
+              piede_preferito: '<%= user.piede_preferito || "" %>'
+            };
+
             document.addEventListener('DOMContentLoaded', function(){
               const btn = document.getElementById('enablePushBtn');
               if (btn) btn.addEventListener('click', showProfileNotificationPrompt);
               
-              // Precompila le select del form profilo con i valori attuali
+              // Precompila TUTTI i campi del form profilo con i valori attuali
               const ruoloPreferito = '<%= user.ruolo_preferito || "" %>';
               const piedePreferito = '<%= user.piede_preferito || "" %>';
               

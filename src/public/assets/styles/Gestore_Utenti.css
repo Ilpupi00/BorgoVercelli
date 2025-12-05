@@ -98,6 +98,184 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ==================== MODAL VISUALIZZA UTENTE ==================== */
+
+#visualizzaModal .modal-body {
+    padding: 1.5rem;
+}
+
+#visualizzaModal .alert {
+    border-radius: 0.5rem;
+    border-left: 4px solid;
+    margin-bottom: 1.5rem;
+}
+
+#visualizzaModal .alert-danger {
+    border-left-color: #dc2626;
+}
+
+#visualizzaModal .alert-warning {
+    border-left-color: #f59e0b;
+}
+
+#visualizzaModal .alert-success {
+    border-left-color: #10b981;
+}
+
+#visualizzaModal .alert-heading {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+#visualizzaModal h4 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #1e293b;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+#visualizzaModal .row.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+#visualizzaModal p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+#visualizzaModal p strong {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+#visualizzaModal .ms-4 {
+    margin-left: 1.5rem !important;
+    padding-left: 0.5rem;
+    border-left: 2px solid #e2e8f0;
+}
+
+#visualizzaModal .text-muted {
+    font-style: italic;
+}
+
+#visualizzaModal .img-fluid {
+    border: 3px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#visualizzaModal .table-responsive {
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+#visualizzaModal .table {
+    margin-bottom: 0;
+}
+
+#visualizzaModal .table thead {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#visualizzaModal .table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: #475569;
+    padding: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+#visualizzaModal .table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    font-size: 0.875rem;
+}
+
+#visualizzaModal .table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Dark theme per modal visualizza */
+:root[data-theme="dark"] #visualizzaModal h4 {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-danger {
+    background: rgba(220, 38, 38, 0.15);
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+}
+
+:root[data-theme="dark"] #visualizzaModal p {
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .ms-4 {
+    border-left-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .img-fluid {
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table-responsive {
+    border-color: var(--border-color);
+    background: var(--card-bg);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table thead {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table th {
+    color: var(--text-secondary);
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table td {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table-hover tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+:root[data-theme="dark"] #visualizzaModal .modal-content {
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .modal-header {
+    background: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+}
+
 /* ==================== DARK THEME SUPPORT ==================== */
 
 /* Tabella in dark mode */

@@ -675,18 +675,12 @@ exports.getStatistiche = async () => {
 
         // Foto in galleria
         statistiche.fotoGalleria = await safeQuery('fotoGalleria', 
-            'SELECT COUNT(*) as count FROM IMMAGINI');
+            "SELECT COUNT(*) as count FROM IMMAGINI WHERE tipo = 'upload della Galleria'");
 
-        // Utenti attivi ultimi 30 giorni (con prenotazioni o recensioni)
+        // Utenti attivi ultimi 30 giorni (basato su updated_at che traccia ultimo accesso)
         statistiche.utentiAttivi30gg = await safeQuery('utentiAttivi30gg', `
-            SELECT COUNT(DISTINCT utente_id) as count 
-            FROM (
-                SELECT utente_id FROM PRENOTAZIONI 
-                WHERE created_at >= (NOW() - INTERVAL '30 days')
-                UNION
-                SELECT utente_id FROM RECENSIONI 
-                WHERE created_at >= (NOW() - INTERVAL '30 days')
-            ) as attivi
+            SELECT COUNT(*) as count FROM UTENTI
+            WHERE updated_at >= (NOW() - INTERVAL '30 days')
         `);
 
         // Eventi totali (passati + attivi)
@@ -709,6 +703,127 @@ exports.getStatistiche = async () => {
             FROM PRENOTAZIONI 
             WHERE created_at >= (NOW() - INTERVAL '30 days')
         `, '0.0');
+
+        // Prenotazioni con note
+        statistiche.prenotazioniConNote = await safeQuery('prenotazioniConNote', `
+            SELECT COUNT(*) as count FROM PRENOTAZIONI 
+            WHERE note IS NOT NULL AND note != ''
+        `);
+
+        // Prenotazioni annullate
+        statistiche.prenotazioniAnnullate = await safeQuery('prenotazioniAnnullate', `
+            SELECT COUNT(*) as count FROM PRENOTAZIONI 
+            WHERE stato = 'annullata'
+        `);
+
+        // Tasso di annullamento (percentuale)
+        if (statistiche.prenotazioniTotali > 0) {
+            statistiche.tassoAnnullamento = ((statistiche.prenotazioniAnnullate / statistiche.prenotazioniTotali) * 100).toFixed(1);
+        } else {
+            statistiche.tassoAnnullamento = '0.0';
+        }
+
+        // Utenti bannati
+        statistiche.utentiBannati = await safeQuery('utentiBannati', `
+            SELECT COUNT(*) as count FROM UTENTI 
+            WHERE stato = 'bannato'
+        `);
+
+        // Utenti sospesi
+        statistiche.utentiSospesi = await safeQuery('utentiSospesi', `
+            SELECT COUNT(*) as count FROM UTENTI 
+            WHERE stato = 'sospeso'
+        `);
+
+        // Campo più popolare (con più prenotazioni)
+        try {
+            const campoPopolare = await new Promise((resolve, reject) => {
+                sqlite.query(`
+                    SELECT c.nome, COUNT(p.id) as count
+                    FROM PRENOTAZIONI p
+                    JOIN CAMPI c ON p.campo_id = c.id
+                    GROUP BY p.campo_id, c.nome
+                    ORDER BY count DESC
+                    LIMIT 1
+                `, (err, result) => {
+                    if (err) {
+                        console.error('Errore campoPopolare:', err);
+                        reject(err);
+                    } else {
+                        resolve(result.rows && result.rows[0] ? result.rows[0] : null);
+                    }
+                });
+            });
+            statistiche.campoPopolare = campoPopolare;
+        } catch (error) {
+            console.error('Fallback campoPopolare:', error.message);
+            statistiche.campoPopolare = null;
+        }
+
+        // Nuovi utenti ultimi 30 giorni
+        statistiche.nuoviUtenti30gg = await safeQuery('nuoviUtenti30gg', `
+            SELECT COUNT(*) as count FROM UTENTI
+            WHERE data_registrazione >= (NOW() - INTERVAL '30 days')
+        `);
+
+        // Prenotazioni confermate (include anche le scadute che erano confermate)
+        // Prenotazioni effettivamente confermate (attive o concluse)
+        statistiche.prenotazioniConfermate = await safeQuery('prenotazioniConfermate', `
+            SELECT COUNT(*) as count FROM PRENOTAZIONI 
+            WHERE stato IN ('confermata', 'scaduta')
+        `);
+
+        // Prenotazioni concluse che erano state confermate
+        // Include: confermate attive, scadute (erano confermate), annullate dall'admin (erano confermate)
+        statistiche.prenotazioniConcluse = await safeQuery('prenotazioniConcluse', `
+            SELECT COUNT(*) as count FROM PRENOTAZIONI 
+            WHERE stato IN ('confermata', 'scaduta') 
+               OR (stato = 'annullata' AND annullata_da = 'admin')
+        `);
+
+        // Tasso di conferma: (confermate+scadute) / (confermate+scadute+annullate_da_admin)
+        // Rappresenta la percentuale di prenotazioni confermate che sono state completate vs annullate dall'admin
+        if (statistiche.prenotazioniConcluse > 0) {
+            statistiche.tassoConferma = ((statistiche.prenotazioniConfermate / statistiche.prenotazioniConcluse) * 100).toFixed(1);
+        } else {
+            statistiche.tassoConferma = '0.0';
+        }
+
+        // Eventi totali (inclusi passati)
+        statistiche.eventiTotaliStorico = await safeQuery('eventiTotaliStorico', 
+            'SELECT COUNT(*) as count FROM EVENTI');
+
+        // Notizie ultimi 7 giorni
+        statistiche.notizie7gg = await safeQuery('notizie7gg', `
+            SELECT COUNT(*) as count FROM NOTIZIE 
+            WHERE data_pubblicazione >= (NOW() - INTERVAL '7 days') AND pubblicata = true
+        `);
+
+        // Eventi prossimi 7 giorni
+        statistiche.eventiProssimi7gg = await safeQuery('eventiProssimi7gg', `
+            SELECT COUNT(*) as count FROM EVENTI 
+            WHERE data_inizio >= CURRENT_DATE 
+            AND data_inizio <= (CURRENT_DATE + INTERVAL '7 days')
+            AND pubblicato = true
+        `);
+
+        // Prenotazioni oggi
+        statistiche.prenotazioniOggi = await safeQuery('prenotazioniOggi', `
+            SELECT COUNT(*) as count FROM PRENOTAZIONI 
+            WHERE data_prenotazione = CURRENT_DATE
+        `);
+
+        // Squadre totali
+        statistiche.squadreTotali = await safeQuery('squadreTotali', 
+            'SELECT COUNT(*) as count FROM SQUADRE');
+
+        // Campi totali
+        statistiche.campiTotali = await safeQuery('campiTotali', 
+            'SELECT COUNT(*) as count FROM CAMPI');
+
+        // Campi attivi
+        statistiche.campiAttivi = await safeQuery('campiAttivi', 
+            'SELECT COUNT(*) as count FROM CAMPI WHERE attivo = true');
 
         // Distribuzione utenti per tipo
         try {
@@ -874,6 +989,23 @@ exports.getStatistiche = async () => {
             notizieTotali: 0,
             prenotazioniCompletate: 0,
             mediaPrenotazioniGiornaliere: 0,
+            prenotazioniConNote: 0,
+            prenotazioniAnnullate: 0,
+            tassoAnnullamento: '0.0',
+            utentiBannati: 0,
+            utentiSospesi: 0,
+            campoPopolare: null,
+            nuoviUtenti30gg: 0,
+            prenotazioniConfermate: 0,
+            prenotazioniConcluse: 0,
+            tassoConferma: '0.0',
+            eventiTotaliStorico: 0,
+            notizie7gg: 0,
+            eventiProssimi7gg: 0,
+            prenotazioniOggi: 0,
+            squadreTotali: 0,
+            campiTotali: 0,
+            campiAttivi: 0,
             distribuzioneUtenti: [],
             attivitaRecenti: [],
             tendenzeMensili: []

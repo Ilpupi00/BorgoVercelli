@@ -558,9 +558,13 @@ body {
     border-radius: var(--radius-2xl);
     border: none;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-    /* Use a solid white background for modal panels to avoid gray/translucent appearance */
     background: #ffffff !important;
     overflow: hidden;
+}
+
+/* Assicura sfondo solido anche per backdrop e overlay */
+.modal-backdrop {
+    opacity: 0.5 !important;
 }
 
 .modal-header {

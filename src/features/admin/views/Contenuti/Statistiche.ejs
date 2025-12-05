@@ -165,6 +165,100 @@
                         </div>
                     </section>
 
+                    <!-- Cards statistiche sicurezza -->
+                    <section class="stats-cards-section fade-in mt-4">
+                        <h2 class="section-subtitle mb-4"><i class="bi bi-shield-check me-2"></i>Sicurezza e Moderazione</h2>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-danger">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Utenti Bannati</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.utentiBannati !== undefined) { %>
+                                                <%= statistiche.utentiBannati %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="text-muted small">Utenti bloccati</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-warning">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-pause-circle-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Utenti Sospesi</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.utentiSospesi !== undefined) { %>
+                                                <%= statistiche.utentiSospesi %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="text-muted small">Temporaneamente disabilitati</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-info">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Prenotazioni Annullate</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.prenotazioniAnnullate !== undefined) { %>
+                                                <%= statistiche.prenotazioniAnnullate %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <% if (statistiche && statistiche.tassoAnnullamento !== undefined) { %>
+                                                <span class="badge badge-warning"><i class="bi bi-percent"></i> <%= statistiche.tassoAnnullamento %>% tasso</span>
+                                            <% } else { %>
+                                                <span class="text-muted">Tasso N/D</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-success">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-file-text-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Note Prenotazioni</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.prenotazioniConNote !== undefined) { %>
+                                                <%= statistiche.prenotazioniConNote %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="text-muted small">Con informazioni extra</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Cards statistiche aggiuntive -->
                     <section class="stats-cards-section fade-in mt-4">
                         <h2 class="section-subtitle mb-4"><i class="bi bi-graph-up-arrow me-2"></i>Metriche Dettagliate</h2>
@@ -252,6 +346,219 @@
                                         </p>
                                         <p class="stats-card-label">
                                             <span class="text-muted small">Prenotazioni/giorno</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-primary">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-trophy-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Campo Più Popolare</h3>
+                                        <p class="stats-card-value" style="font-size: 1.2rem;">
+                                            <% if (statistiche && statistiche.campoPopolare && statistiche.campoPopolare.nome) { %>
+                                                <%= statistiche.campoPopolare.nome %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <% if (statistiche && statistiche.campoPopolare && statistiche.campoPopolare.count) { %>
+                                                <span class="badge badge-primary"><i class="bi bi-calendar-check"></i> <%= statistiche.campoPopolare.count %> prenotazioni</span>
+                                            <% } else { %>
+                                                <span class="text-muted small">Nessun dato</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Statistiche Tempo Reale -->
+                    <section class="stats-cards-section fade-in mt-4">
+                        <h2 class="section-subtitle mb-4"><i class="bi bi-clock-history me-2"></i>Attività Recente</h2>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-info">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-calendar-today"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Prenotazioni Oggi</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.prenotazioniOggi !== undefined) { %>
+                                                <%= statistiche.prenotazioniOggi %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">In programma oggi</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-success">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-person-plus-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Nuovi Utenti</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.nuoviUtenti30gg !== undefined) { %>
+                                                <%= statistiche.nuoviUtenti30gg %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">Ultimi 30 giorni</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-warning">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-newspaper"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Notizie Recenti</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.notizie7gg !== undefined) { %>
+                                                <%= statistiche.notizie7gg %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">Ultimi 7 giorni</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-primary">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Eventi in Arrivo</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.eventiProssimi7gg !== undefined) { %>
+                                                <%= statistiche.eventiProssimi7gg %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">Prossimi 7 giorni</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Statistiche Sistema -->
+                    <section class="stats-cards-section fade-in mt-4">
+                        <h2 class="section-subtitle mb-4"><i class="bi bi-gear-fill me-2"></i>Risorse Sistema</h2>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-teal">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Campi Totali</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.campiTotali !== undefined) { %>
+                                                <%= statistiche.campiTotali %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <% if (statistiche && statistiche.campiAttivi !== undefined) { %>
+                                                <span class="small"><%= statistiche.campiAttivi %> attivi</span>
+                                            <% } else { %>
+                                                <span class="small">Strutture disponibili</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-purple">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-shield-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Squadre Registrate</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.squadreTotali !== undefined) { %>
+                                                <%= statistiche.squadreTotali %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">Totale squadre</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-success">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Tasso Conferma</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.tassoConferma !== undefined) { %>
+                                                <%= statistiche.tassoConferma %>%
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <% if (statistiche && statistiche.prenotazioniConfermate !== undefined) { %>
+                                                <span class="small"><%= statistiche.prenotazioniConfermate %> confermate</span>
+                                            <% } else { %>
+                                                <span class="small">Prenotazioni</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="stats-card stats-card-indigo">
+                                    <div class="stats-card-icon">
+                                        <i class="bi bi-calendar3"></i>
+                                    </div>
+                                    <div class="stats-card-content">
+                                        <h3 class="stats-card-title">Eventi Totali</h3>
+                                        <p class="stats-card-value">
+                                            <% if (statistiche && statistiche.eventiTotaliStorico !== undefined) { %>
+                                                <%= statistiche.eventiTotaliStorico %>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="stats-card-label">
+                                            <span class="small">Totale storico</span>
                                         </p>
                                     </div>
                                 </div>
@@ -402,7 +709,7 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Questo mese</td>
+                                        <td>Totale storico</td>
                                     </tr>
                                     <tr>
                                         <td>Notizie Pubblicate</td>
@@ -425,7 +732,7 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Questo mese</td>
+                                        <td>Totale pubblicate</td>
                                     </tr>
                                     <tr>
                                         <td>Eventi Organizzati</td>
@@ -448,7 +755,7 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Questo mese</td>
+                                        <td>Attivi e futuri</td>
                                     </tr>
                                     <tr>
                                         <td>Prenotazioni Campo</td>
@@ -471,7 +778,7 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Questa settimana</td>
+                                        <td>Da oggi in poi</td>
                                     </tr>
                                     <tr>
                                         <td>Recensioni Totali</td>
@@ -489,7 +796,7 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Media valutazioni</td>
+                                        <td>Totale storico</td>
                                     </tr>
                                     <tr>
                                         <td>Foto in Galleria</td>
@@ -523,13 +830,13 @@
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
                                         </td>
-                                        <td>Engagement recente</td>
+                                        <td>Ultimi 30 giorni</td>
                                     </tr>
                                     <tr>
                                         <td>Media Prenotazioni/Giorno</td>
                                         <td>
                                             <% if (statistiche && statistiche.mediaPrenotazioniGiornaliere !== undefined) { %>
-                                                <strong><%= statistiche.mediaPrenotazioniGiornaliere %></strong>
+                                                <strong><%= parseFloat(statistiche.mediaPrenotazioniGiornaliere).toFixed(1) %></strong>
                                             <% } else { %>
                                                 <span class="text-muted">N/D</span>
                                             <% } %>
@@ -537,7 +844,215 @@
                                         <td>
                                             <span class="badge badge-info">Ultimi 30 giorni</span>
                                         </td>
-                                        <td>Performance booking</td>
+                                        <td>Ultimi 30 giorni</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Prenotazioni con Note</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.prenotazioniConNote !== undefined) { %>
+                                                <strong><%= statistiche.prenotazioniConNote %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.prenotazioniTotali > 0 && statistiche.prenotazioniConNote !== undefined) { 
+                                                const percNote = ((statistiche.prenotazioniConNote / statistiche.prenotazioniTotali) * 100).toFixed(1);
+                                            %>
+                                                <span class="badge badge-info"><%= percNote %>% del totale</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Totale storico</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Prenotazioni Annullate</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.prenotazioniAnnullate !== undefined) { %>
+                                                <strong class="text-danger"><%= statistiche.prenotazioniAnnullate %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.tassoAnnullamento !== undefined) { %>
+                                                <span class="badge badge-warning"><%= statistiche.tassoAnnullamento %>% tasso</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Totale storico</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Utenti Bannati</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.utentiBannati !== undefined) { %>
+                                                <strong class="text-danger"><%= statistiche.utentiBannati %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.utentiTotali > 0 && statistiche.utentiBannati !== undefined) { 
+                                                const percBan = ((statistiche.utentiBannati / statistiche.utentiTotali) * 100).toFixed(2);
+                                            %>
+                                                <span class="badge badge-danger"><%= percBan %>% utenti</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Stato attuale</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Utenti Sospesi</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.utentiSospesi !== undefined) { %>
+                                                <strong class="text-warning"><%= statistiche.utentiSospesi %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.utentiTotali > 0 && statistiche.utentiSospesi !== undefined) { 
+                                                const percSosp = ((statistiche.utentiSospesi / statistiche.utentiTotali) * 100).toFixed(2);
+                                            %>
+                                                <span class="badge badge-warning"><%= percSosp %>% utenti</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Stato attuale</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Campo Più Popolare</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.campoPopolare && statistiche.campoPopolare.nome) { %>
+                                                <strong class="text-success"><%= statistiche.campoPopolare.nome %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.campoPopolare && statistiche.campoPopolare.count) { %>
+                                                <span class="badge badge-success"><%= statistiche.campoPopolare.count %> prenotazioni</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Totale storico</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nuovi Utenti (30gg)</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.nuoviUtenti30gg !== undefined) { %>
+                                                <strong class="text-primary"><%= statistiche.nuoviUtenti30gg %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.utentiTotali > 0 && statistiche.nuoviUtenti30gg !== undefined) { 
+                                                const percNuovi = ((statistiche.nuoviUtenti30gg / statistiche.utentiTotali) * 100).toFixed(1);
+                                            %>
+                                                <span class="badge badge-primary"><%= percNuovi %>% del totale</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Ultimi 30 giorni</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Prenotazioni Oggi</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.prenotazioniOggi !== undefined) { %>
+                                                <strong class="text-info"><%= statistiche.prenotazioniOggi %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info">In corso</span>
+                                        </td>
+                                        <td>Oggi</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tasso Conferma Prenotazioni</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.tassoConferma !== undefined) { %>
+                                                <strong class="text-success"><%= statistiche.tassoConferma %>%</strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.prenotazioniConfermate !== undefined) { %>
+                                                <span class="badge badge-success"><%= statistiche.prenotazioniConfermate %> confermate</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Totale storico</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Campi Sportivi</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.campiTotali !== undefined) { %>
+                                                <strong><%= statistiche.campiTotali %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (statistiche && statistiche.campiAttivi !== undefined) { %>
+                                                <span class="badge badge-success"><%= statistiche.campiAttivi %> attivi</span>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>Strutture disponibili</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Squadre Registrate</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.squadreTotali !== undefined) { %>
+                                                <strong><%= statistiche.squadreTotali %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary">Totale</span>
+                                        </td>
+                                        <td>Totale storico</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Notizie Recenti</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.notizie7gg !== undefined) { %>
+                                                <strong class="text-warning"><%= statistiche.notizie7gg %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-warning">Ultime pubblicate</span>
+                                        </td>
+                                        <td>Ultimi 7 giorni</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Eventi in Arrivo</td>
+                                        <td>
+                                            <% if (statistiche && statistiche.eventiProssimi7gg !== undefined) { %>
+                                                <strong class="text-primary"><%= statistiche.eventiProssimi7gg %></strong>
+                                            <% } else { %>
+                                                <span class="text-muted">N/D</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-primary">In programma</span>
+                                        </td>
+                                        <td>Prossimi 7 giorni</td>
                                     </tr>
                                 </tbody>
                             </table>
