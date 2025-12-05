@@ -242,6 +242,7 @@ body {
         position: relative;
         min-height: auto;
         padding: 15px;
+        z-index: 1;
     }
     
     .admin-sidebar .sidebar-header h5 {
@@ -253,8 +254,39 @@ body {
         font-size: 0.9rem;
     }
 
+    /* Fix dropdown in mobile - aumenta z-index e visibilità */
+    .sidebar-nav .collapse,
+    .sidebar-nav .collapsing {
+        background: rgba(0, 0, 0, 0.95) !important;
+        position: relative;
+        z-index: 1050;
+        border-radius: 8px;
+        margin-top: 5px;
+        padding: 8px 0;
+    }
+
+    .sidebar-nav .submenu {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        margin: 2px 10px;
+        border-radius: 6px;
+        padding: 8px 20px;
+    }
+
     .btn-group .btn {
         padding: 0.25rem 0.4rem;
         font-size: 0.8rem;
     }
+}
+
+/* Dark theme fix per dropdown */
+[data-theme="dark"] .sidebar-nav .collapse,
+[data-theme="dark"] .sidebar-nav .collapsing {
+    background: rgba(30, 41, 59, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .sidebar-nav .submenu {
+    background: rgba(100, 116, 139, 0.3) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
 }

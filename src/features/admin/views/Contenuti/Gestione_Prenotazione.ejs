@@ -68,6 +68,7 @@
                                         <th>Data</th>
                                         <th>Orario</th>
                                         <th>Tipo Attività</th>
+                                        <th>Note</th>
                                         <th>Stato</th>
                                         <th>Azioni</th>
                                     </tr>
@@ -89,6 +90,15 @@
                                                             <td><%= prenotazione.data_prenotazione ? new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') : '-' %></td>
                                                             <td><%= prenotazione.ora_inizio %> - <%= prenotazione.ora_fine %></td>
                                                             <td><%= prenotazione.tipo_attivita || '-' %></td>
+                                                            <td>
+                                                                <% if (prenotazione.note && prenotazione.note.trim() !== '') { %>
+                                                                    <span class="text-truncate d-inline-block" style="max-width: 150px;" title="<%= prenotazione.note %>">
+                                                                        <%= prenotazione.note %>
+                                                                    </span>
+                                                                <% } else { %>
+                                                                    <span class="text-muted">-</span>
+                                                                <% } %>
+                                                            </td>
                                                             <td>
                                                                 <% if (prenotazione.stato === 'confermata') { %>
                                                                     <span class="badge badge-success">Confermata</span>

@@ -192,12 +192,14 @@ export function showModalPrenotazione(campo, orariDisponibili, dataSelezionata, 
     let bsModal = new bootstrap.Modal(modal);
     bsModal.show();
 
-    // Pre-popola il telefono dall'utente se disponibile
+    // Pre-popola il telefono e codice fiscale dall'utente se disponibile
     (async () => {
       try {
         const resUser = await fetch('/session/user');
         if (resUser.ok) {
           const user = await resUser.json();
+          
+          // Precompila telefono
           const telefonoInput = modal.querySelector('#telefonoPrenotazione');
           if (user.telefono && telefonoInput) {
             // Normalizza il telefono aggiungendo +39 se manca
@@ -206,6 +208,18 @@ export function showModalPrenotazione(campo, orariDisponibili, dataSelezionata, 
               tel = '+39' + tel.replace(/^0/, ''); // rimuove lo 0 iniziale se presente
             }
             telefonoInput.value = tel;
+          }
+          
+          // Precompila codice fiscale se presente
+          const codiceFiscaleInput = modal.querySelector('#codiceFiscalePrenotazione');
+          const tipoDocumentoSelect = modal.querySelector('#tipoDocumentoPrenotazione');
+          if (user.codice_fiscale && codiceFiscaleInput && tipoDocumentoSelect) {
+            // Seleziona automaticamente "CF" come tipo documento
+            tipoDocumentoSelect.value = 'CF';
+            // Trigger change event per mostrare il campo
+            tipoDocumentoSelect.dispatchEvent(new Event('change'));
+            // Precompila il codice fiscale
+            codiceFiscaleInput.value = user.codice_fiscale.toUpperCase();
           }
         }
       } catch (e) {

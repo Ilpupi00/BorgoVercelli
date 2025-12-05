@@ -31,7 +31,7 @@ class User{
      * @param {string|null} data_fine_sospensione - Data fine sospensione (ISO format)
      * @param {number|null} admin_sospensione_id - ID dell'admin che ha sospeso l'utente
      */
-    constructor(id,nome,cognome,email,telefono,tipo_utente,ruolo_preferito,piede_preferito,stato,motivo_sospensione,data_inizio_sospensione,data_fine_sospensione,admin_sospensione_id){
+    constructor(id,nome,cognome,email,telefono,tipo_utente,ruolo_preferito,piede_preferito,stato,motivo_sospensione,data_inizio_sospensione,data_fine_sospensione,admin_sospensione_id,data_nascita,codice_fiscale){
         this.id=id;
         this.nome = nome;
         this.cognome = cognome;
@@ -45,6 +45,8 @@ class User{
         this.data_inizio_sospensione = data_inizio_sospensione;
         this.data_fine_sospensione = data_fine_sospensione;
         this.admin_sospensione_id = admin_sospensione_id;
+        this.data_nascita = data_nascita || null;
+        this.codice_fiscale = codice_fiscale || null;
     }
 
     // ==================== METODI STATICI ====================

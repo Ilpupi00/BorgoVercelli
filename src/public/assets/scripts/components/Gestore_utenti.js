@@ -185,19 +185,231 @@ class GestoreUtente {
                 `;
             }
             
-            const content = `
-                <div class="row">
-                    <div class="col-md-8">
-                        <h4>${utente.nome} ${utente.cognome}</h4>
-                        <p><strong>Email:</strong> ${utente.email}</p>
-                        <p><strong>Telefono:</strong> ${utente.telefono || 'Non specificato'}</p>
-                        <p><strong>Tipo Utente:</strong> ${GestoreUtente.getTipoUtenteLabel(utente.tipo_utente_id)}</p>
-                        <p><strong>Data Registrazione:</strong> ${new Date(utente.data_registrazione).toLocaleDateString('it-IT')}</p>
+            // Determina stato utente
+            let statoHTML = '';
+            if (utente.stato === 'bannato') {
+                statoHTML = `
+                    <div class="alert alert-danger mb-3">
+                        <h6 class="alert-heading"><i class="bi bi-ban me-2"></i>Utente Bannato</h6>
+                        <p class="mb-1"><strong>Motivo:</strong> ${utente.motivo_sospensione || 'Non specificato'}</p>
+                        ${utente.data_inizio_sospensione ? `<p class="mb-0"><small>Data ban: ${new Date(utente.data_inizio_sospensione).toLocaleDateString('it-IT')}</small></p>` : ''}
                     </div>
-                    <div class="col-md-4 text-center">
-                        <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" alt="Foto profilo" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                `;
+            } else if (utente.stato === 'sospeso' && utente.data_fine_sospensione && new Date(utente.data_fine_sospensione) > new Date()) {
+                const dataFine = new Date(utente.data_fine_sospensione);
+                statoHTML = `
+                    <div class="alert alert-warning mb-3">
+                        <h6 class="alert-heading"><i class="bi bi-clock-history me-2"></i>Utente Sospeso</h6>
+                        <p class="mb-1"><strong>Motivo:</strong> ${utente.motivo_sospensione || 'Non specificato'}</p>
+                        <p class="mb-1"><strong>Fino al:</strong> ${dataFine.toLocaleDateString('it-IT')} ${dataFine.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</p>
+                        ${utente.data_inizio_sospensione ? `<p class="mb-0"><small>Data inizio: ${new Date(utente.data_inizio_sospensione).toLocaleDateString('it-IT')}</small></p>` : ''}
+                    </div>
+                `;
+            } else {
+                statoHTML = `
+                    <div class="alert alert-success mb-3">
+                        <h6 class="alert-heading mb-0"><i class="bi bi-check-circle me-2"></i>Utente Attivo</h6>
+                    </div>
+                `;
+            }
+
+            // Calcola statistiche prenotazioni
+            const prenotazioniStats = {
+                totali: prenotazioni.length,
+                confermate: prenotazioni.filter(p => p.stato === 'confermata').length,
+                inAttesa: prenotazioni.filter(p => p.stato === 'in_attesa').length,
+                annullate: prenotazioni.filter(p => p.stato === 'annullata').length,
+                completate: prenotazioni.filter(p => p.stato === 'completata').length
+            };
+
+            // Calcola durata account
+            const dataRegistrazione = new Date(utente.data_registrazione);
+            const oggi = new Date();
+            const differenzaGiorni = Math.floor((oggi - dataRegistrazione) / (1000 * 60 * 60 * 24));
+            let durataAccount = '';
+            if (differenzaGiorni === 0) {
+                durataAccount = 'Oggi';
+            } else if (differenzaGiorni === 1) {
+                durataAccount = '1 giorno fa';
+            } else if (differenzaGiorni < 30) {
+                durataAccount = `${differenzaGiorni} giorni fa`;
+            } else if (differenzaGiorni < 365) {
+                const mesi = Math.floor(differenzaGiorni / 30);
+                durataAccount = `${mesi} ${mesi === 1 ? 'mese' : 'mesi'} fa`;
+            } else {
+                const anni = Math.floor(differenzaGiorni / 365);
+                durataAccount = `${anni} ${anni === 1 ? 'anno' : 'anni'} fa`;
+            }
+
+            const content = `
+                ${statoHTML}
+                
+                <!-- Profilo principale -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <h4 class="mb-3"><i class="bi bi-person-circle me-2"></i>${utente.nome} ${utente.cognome}</h4>
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-envelope me-2 text-primary"></i>Email:</strong>
+                                    <span class="ms-4 text-break small">${utente.email}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-telephone me-2 text-success"></i>Telefono:</strong>
+                                    <span class="ms-4 small">${utente.telefono || '<span class="text-muted">Non specificato</span>'}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-person-badge me-2 text-info"></i>Tipo Utente:</strong>
+                                    <span class="ms-4 small">${GestoreUtente.getTipoUtenteLabel(utente.tipo_utente_id)}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-hash me-2 text-secondary"></i>ID Utente:</strong>
+                                    <span class="ms-4 small">#${utente.id}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-calendar-check me-2 text-warning"></i>Registrato:</strong>
+                                    <span class="ms-4 small">${dataRegistrazione.toLocaleDateString('it-IT')} <span class="text-muted">(${durataAccount})</span></span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-shield-check me-2 text-primary"></i>Stato:</strong>
+                                    <span class="ms-4 small">${utente.stato === 'bannato' ? '<span class="badge bg-danger">Bannato</span>' : utente.stato === 'sospeso' ? '<span class="badge bg-warning">Sospeso</span>' : '<span class="badge bg-success">Attivo</span>'}</span>
+                                </div>
+                            </div>
+                            ${utente.data_nascita ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-calendar-event me-2 text-danger"></i>Data di Nascita:</strong>
+                                    <span class="ms-4 small">${new Date(utente.data_nascita).toLocaleDateString('it-IT')}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.codice_fiscale ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-person-vcard me-2 text-secondary"></i>Codice Fiscale:</strong>
+                                    <span class="ms-4 small text-uppercase">${utente.codice_fiscale}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.ruolo_preferito ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-trophy me-2 text-primary"></i>Ruolo Preferito:</strong>
+                                    <span class="ms-4 small">${utente.ruolo_preferito}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.piede_preferito ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-shoe me-2 text-success"></i>Piede Preferito:</strong>
+                                    <span class="ms-4 small">${utente.piede_preferito}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.livello_abilita ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-star me-2 text-warning"></i>Livello:</strong>
+                                    <span class="ms-4 small">${utente.livello_abilita}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.eta ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-cake me-2 text-danger"></i>Età:</strong>
+                                    <span class="ms-4 small">${utente.eta} anni</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${utente.citta ? `
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex flex-column p-2 bg-light rounded">
+                                    <strong class="mb-1"><i class="bi bi-geo-alt me-2 text-info"></i>Città:</strong>
+                                    <span class="ms-4 small">${utente.citta}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center d-flex flex-column align-items-center">
+                        <img src="${utente.immagine_profilo || '/assets/images/Logo.png'}" 
+                             alt="Foto profilo" 
+                             class="img-fluid rounded-circle shadow-lg mb-3" 
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #f8f9fa;">
+                        <h5 class="mb-1">${utente.nome} ${utente.cognome}</h5>
+                        <small class="text-muted">ID: #${utente.id}</small>
+                        ${utente.ultimo_accesso ? `
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="bi bi-clock-history me-1"></i>
+                                Ultimo accesso: ${new Date(utente.ultimo_accesso).toLocaleString('it-IT')}
+                            </small>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
+
+                <!-- Statistiche Prenotazioni -->
+                ${prenotazioniStats.totali > 0 ? `
+                <div class="row mb-4 g-3">
+                    <div class="col-12">
+                        <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Statistiche Prenotazioni</h5>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-3">
+                                <h3 class="mb-1 text-primary">${prenotazioniStats.totali}</h3>
+                                <small class="text-muted">Totali</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-3">
+                                <h3 class="mb-1 text-success">${prenotazioniStats.confermate}</h3>
+                                <small class="text-muted">Confermate</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-3">
+                                <h3 class="mb-1 text-warning">${prenotazioniStats.inAttesa}</h3>
+                                <small class="text-muted">In Attesa</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-3">
+                                <h3 class="mb-1 text-info">${prenotazioniStats.completate}</h3>
+                                <small class="text-muted">Completate</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-3">
+                                <h3 class="mb-1 text-danger">${prenotazioniStats.annullate}</h3>
+                                <small class="text-muted">Annullate</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
                 ${prenotazioniHTML}
             `;
             document.getElementById('visualizzaContent').innerHTML = content;
