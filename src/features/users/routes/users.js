@@ -13,7 +13,9 @@ router.put('/update', isLoggedIn, async (req, res) => {
       email: req.body.email,
       telefono: req.body.telefono,
       ruolo_preferito: req.body.ruolo_preferito,
-      piede_preferito: req.body.piede_preferito
+      piede_preferito: req.body.piede_preferito,
+      data_nascita: req.body.data_nascita,
+      codice_fiscale: req.body.codice_fiscale
     };
 
     await daoUser.updateUser(userId, updateData);

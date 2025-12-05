@@ -13,7 +13,12 @@ class StatisticheManager {
             info: 'rgba(59, 130, 246, 0.8)',
             danger: 'rgba(239, 68, 68, 0.8)',
             secondary: 'rgba(107, 114, 128, 0.8)',
+            purple: 'rgba(168, 85, 247, 0.8)',
+            teal: 'rgba(20, 184, 166, 0.8)',
+            indigo: 'rgba(99, 102, 241, 0.8)',
+            pink: 'rgba(236, 72, 153, 0.8)',
         };
+        this.charts = {};
         this.init();
     }
 
@@ -24,16 +29,47 @@ class StatisticheManager {
             return;
         }
 
-        // Configurazione globale Chart.js
-        Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
-        Chart.defaults.plugins.legend.position = 'bottom';
-        Chart.defaults.plugins.legend.labels.usePointStyle = true;
-        Chart.defaults.plugins.legend.labels.padding = 15;
+        // Configurazione globale Chart.js con supporto tema
+        this.updateChartDefaults();
 
         // Inizializza grafici con dati reali
         this.initActivityChart();
         this.initUserDistributionChart();
         this.initTrendsChart();
+
+        // Osserva cambiamenti tema
+        this.observeThemeChanges();
+    }
+
+    updateChartDefaults() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDark ? '#f8fafc' : '#1e293b';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+
+        Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+        Chart.defaults.color = textColor;
+        Chart.defaults.plugins.legend.position = 'bottom';
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.legend.labels.padding = 15;
+        Chart.defaults.plugins.legend.labels.color = textColor;
+        Chart.defaults.scale.grid.color = gridColor;
+        Chart.defaults.scale.ticks.color = textColor;
+    }
+
+    observeThemeChanges() {
+        const observer = new MutationObserver(() => {
+            this.updateChartDefaults();
+            // Ricrea tutti i grafici per applicare il nuovo tema
+            Object.values(this.charts).forEach(chart => chart.destroy());
+            this.charts = {};
+            this.initActivityChart();
+            this.initUserDistributionChart();
+            this.initTrendsChart();
+        });
+        observer.observe(document.documentElement, { 
+            attributes: true, 
+            attributeFilter: ['data-theme'] 
+        });
     }
 
     showErrorMessage() {
@@ -49,6 +85,9 @@ class StatisticheManager {
     initActivityChart() {
         const ctx = document.getElementById('activityChart');
         if (!ctx) return;
+
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const tooltipBg = isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(0, 0, 0, 0.8)';
 
         // Prepara dati attività recenti dalla risposta del server
         const attivita = this.stats.attivitaRecenti || [];
@@ -66,7 +105,7 @@ class StatisticheManager {
             if (item.tipo === 'notizia') notizieData[dayIndex] = item.count;
         });
 
-        new Chart(ctx, {
+        this.charts.activity = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: giorni,
@@ -99,7 +138,7 @@ class StatisticheManager {
                 plugins: {
                     legend: { display: true },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        backgroundColor: tooltipBg,
                         padding: 12,
                         cornerRadius: 8,
                     }
@@ -107,7 +146,6 @@ class StatisticheManager {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: { grid: { display: false } }
                 }
@@ -119,26 +157,32 @@ class StatisticheManager {
         const ctx = document.getElementById('userDistributionChart');
         if (!ctx) return;
 
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const tooltipBg = isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(0, 0, 0, 0.8)';
+        const borderColor = isDark ? '#1e293b' : '#fff';
+
         const distribuzione = this.stats.distribuzioneUtenti || [];
         const labels = distribuzione.map(item => item.tipo || 'Sconosciuto');
         const data = distribuzione.map(item => item.count || 0);
         const colors = [
             this.colors.primary,
             this.colors.success,
-            this.colors.danger,
-            this.colors.secondary,
+            this.colors.purple,
+            this.colors.teal,
             this.colors.warning,
-            this.colors.info
+            this.colors.info,
+            this.colors.indigo,
+            this.colors.pink
         ];
 
-        new Chart(ctx, {
+        this.charts.userDistribution = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
                     data: data,
                     backgroundColor: colors.slice(0, labels.length),
-                    borderColor: '#fff',
+                    borderColor: borderColor,
                     borderWidth: 3,
                 }]
             },
@@ -148,7 +192,7 @@ class StatisticheManager {
                 plugins: {
                     legend: { display: true },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        backgroundColor: tooltipBg,
                         padding: 12,
                         cornerRadius: 8,
                         callbacks: {
@@ -170,12 +214,16 @@ class StatisticheManager {
         const ctx = document.getElementById('trendsChart');
         if (!ctx) return;
 
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const tooltipBg = isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(0, 0, 0, 0.8)';
+        const pointBg = isDark ? '#1e293b' : '#fff';
+
         const tendenze = this.stats.tendenzeMensili || [];
         const labels = tendenze.map(item => item.mese || '');
         const utentiData = tendenze.map(item => item.nuovi_utenti || 0);
         const prenotazioniData = tendenze.map(item => item.prenotazioni || 0);
 
-        new Chart(ctx, {
+        this.charts.trends = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
@@ -189,7 +237,7 @@ class StatisticheManager {
                     borderWidth: 3,
                     pointRadius: 5,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#fff',
+                    pointBackgroundColor: pointBg,
                     pointBorderWidth: 2,
                 }, {
                     label: 'Prenotazioni',
@@ -201,7 +249,7 @@ class StatisticheManager {
                     borderWidth: 3,
                     pointRadius: 5,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#fff',
+                    pointBackgroundColor: pointBg,
                     pointBorderWidth: 2,
                 }]
             },
@@ -211,7 +259,7 @@ class StatisticheManager {
                 plugins: {
                     legend: { display: true },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        backgroundColor: tooltipBg,
                         padding: 12,
                         cornerRadius: 8,
                         mode: 'index',
@@ -221,7 +269,6 @@ class StatisticheManager {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: { grid: { display: false } }
                 }

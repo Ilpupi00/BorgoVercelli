@@ -63,6 +63,19 @@ class Profilo {
             document.getElementById('editCognome').value = this.currentUser.cognome || '';
             document.getElementById('editEmail').value = this.currentUser.email || '';
             document.getElementById('editTelefono').value = this.currentUser.telefono || '';
+            
+            // Data di nascita (converte da timestamp a formato YYYY-MM-DD)
+            if (this.currentUser.data_nascita) {
+                const dataNascita = new Date(this.currentUser.data_nascita);
+                document.getElementById('editDataNascita').value = dataNascita.toISOString().split('T')[0];
+            }
+            
+            // Codice fiscale
+            if (this.currentUser.codice_fiscale) {
+                document.getElementById('editCodiceFiscale').value = this.currentUser.codice_fiscale.toUpperCase();
+            }
+            
+            // Preferenze sportive
             document.getElementById('ruoloPreferito').value = this.currentUser.ruolo_preferito || '';
             document.getElementById('piedePreferito').value = this.currentUser.piede_preferito || '';
         }
@@ -427,22 +440,7 @@ class Profilo {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
 
-        // Validazione telefono
-        const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
-        if (data.telefono && !phoneRegex.test(data.telefono.trim())) {
-            document.getElementById('editProfileMsg').innerHTML =
-                '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>Numero di telefono non valido. Usa il formato: +39 seguito da 9-10 cifre (es: +39 3331234567)</div>';
-            return;
-        }
-        
-        // Normalizza il telefono
-        if (data.telefono) {
-            let tel = data.telefono.trim();
-            if (!tel.startsWith('+39')) {
-                tel = '+39' + tel.replace(/^0/, '');
-            }
-            data.telefono = tel;
-        }
+        // La validazione è già gestita dal pattern HTML5 del form
 
         try {
             const response = await fetch('/users/update', {
