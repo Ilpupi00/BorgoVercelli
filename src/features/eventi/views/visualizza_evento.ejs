@@ -36,9 +36,9 @@
                     <div class="event-type-badge-hero mb-4 pt-4">
                         <span class="badge fs-6 px-3 py-2"><%= evento.tipo_evento || 'Evento' %></span>
                     </div>
-                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown"><%= evento.titolo %></h1>
+                    <h1 class="display-4 fw-bold mb-4 reveal reveal--text-mask"><%= evento.titolo %></h1>
                     <div class="event-meta-hero mb-4">
-                        <div class="meta-item">
+                        <div class="meta-item reveal reveal--fade-up reveal--delay-1">
                             <i class="fas fa-calendar-alt me-2"></i>
                             <span><%= new Date(evento.data_inizio).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span>
                         </div>
@@ -180,6 +180,8 @@
 
     <%- include('partials/footer') %>
 
+    <!-- Scroll reveal animations -->
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script type="module">
         import EventoView from '/assets/scripts/components/EventoView.js';
 

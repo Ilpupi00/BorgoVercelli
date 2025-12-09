@@ -370,9 +370,14 @@ class NotizieManager {
             return;
         }
 
-        newsToShow.forEach(notizia => {
-            const article = this.createNewsCard(notizia);
-            container.appendChild(article);
+        newsToShow.forEach((notizia, index) => {
+            const col = this.createNewsCard(notizia);
+            // applica stagger usando transitionDelay sull'elemento .notizia-card
+            const card = col.querySelector('.notizia-card');
+            if (card) {
+                card.style.transitionDelay = `${index * 0.08}s`;
+            }
+            container.appendChild(col);
         });
 
         if (this.filteredNews.length > this.loadedNews) {
@@ -381,6 +386,17 @@ class NotizieManager {
             this.hideLoadMoreButton();
         }
         console.log('News rendered successfully');
+
+        // Segnala al controller delle reveal che ci sono nuovi elementi dinamici
+        try {
+            if (window.ScrollReveal && typeof window.ScrollReveal.refresh === 'function') {
+                window.ScrollReveal.refresh();
+            } else if (window.ScrollReveal && typeof window.ScrollReveal.init === 'function') {
+                window.ScrollReveal.init();
+            }
+        } catch (e) {
+            console.debug('[Notizie] Errore chiamando ScrollReveal.refresh()', e);
+        }
     }
 
     createNewsCard(notizia) {
@@ -388,7 +404,8 @@ class NotizieManager {
         colDiv.className = 'col-12 col-md-6 col-lg-4';
 
         const article = document.createElement('article');
-        article.className = 'notizia-card animate__animated animate__fadeInUp';
+        // Aggiungi classi reveal per supportare ScrollReveal (invece di Animate.css)
+        article.className = 'notizia-card reveal reveal--fade-up';
 
         const imageUrl = notizia.immagine && notizia.immagine.url && notizia.immagine.url.trim() !== '' 
             ? notizia.immagine.url 

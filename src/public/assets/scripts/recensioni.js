@@ -99,8 +99,9 @@ class Reviews {
         }
         filtered.slice(0, this.shownReviews).forEach((review, index) => {
             const card = document.createElement('div');
-            card.className = 'review-card animate__animated animate__fadeInUp';
-            card.style.animationDelay = `${index * 0.1}s`;
+            card.className = 'review-card reveal reveal--fade-up';
+            // stagger tramite transition-delay così il controller CSS può applicare l'effetto
+            card.style.transitionDelay = `${index * 0.08}s`;
             card.setAttribute('data-rating', review.valutazione);
 
             const hasImage = review.immagine_utente && review.immagine_utente.trim() && review.immagine_utente !== 'null';
@@ -127,6 +128,18 @@ class Reviews {
             `;
             this.reviewsContainer.appendChild(card);
         });
+        // Segnala al controller delle reveal che ci sono nuovi elementi dinamici
+        try {
+            if (window.ScrollReveal && typeof window.ScrollReveal.refresh === 'function') {
+                window.ScrollReveal.refresh();
+            } else if (window.ScrollReveal && typeof window.ScrollReveal.init === 'function') {
+                // fallback compatibile con versioni precedenti
+                window.ScrollReveal.init();
+            }
+        } catch (e) {
+            // non bloccare il rendering in caso di errore
+            console.debug('[Recensioni] Errore chiamando ScrollReveal.refresh()', e);
+        }
         if (this.loadMoreBtn) {
             this.loadMoreBtn.style.display = filtered.length > this.shownReviews ? 'inline-block' : 'none';
         }

@@ -279,6 +279,16 @@ class EventiManager {
 
         this.eventsGrid.appendChild(fragment);
 
+        // Segnala al controller delle reveal che ci sono nuovi elementi dinamici
+        try {
+            if (window.ScrollReveal && typeof window.ScrollReveal.refresh === 'function') {
+                window.ScrollReveal.refresh();
+            } else if (window.ScrollReveal && typeof window.ScrollReveal.init === 'function') {
+                window.ScrollReveal.init();
+            }
+        } catch (e) {
+            console.debug('[EventiManager] Errore chiamando ScrollReveal.refresh()', e);
+        }
         // Update load more button visibility
         if (this.loadMoreBtn) {
             if (this.hasMoreEvents && this.filteredEvents.length > this.currentPage * 12) {
@@ -292,6 +302,13 @@ class EventiManager {
     createEventCard(event, template, index) {
         const cardClone = template.content.cloneNode(true);
         const card = cardClone.querySelector('.col-12');
+
+        // Aggiungi classi reveal per ScrollReveal e applica delay per lo stagger
+        if (card && card.classList) {
+            card.classList.add('reveal', 'reveal--fade-up');
+            // fallback: impostiamo transitionDelay basato sull'indice
+            card.style.transitionDelay = `${index * 0.08}s`;
+        }
 
         // Set animation delay
         card.style.setProperty('--index', index);

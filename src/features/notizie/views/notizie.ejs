@@ -22,12 +22,12 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6 text-center">
-                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">
-                        <i class="bi bi-newspaper me-3"></i>Notizie del Borgo
-                    </h1>
-                    <p class="lead fs-5 mb-0 animate__animated animate__fadeInUp animate__delay-1s">
-                        Rimani aggiornato sulle ultime novità della nostra società
-                    </p>
+                        <h1 class="display-4 fw-bold mb-4 reveal reveal--text-mask">
+                            <i class="bi bi-newspaper me-3"></i>Notizie del Borgo
+                        </h1>
+                        <p class="lead fs-5 mb-0 reveal reveal--fade-up reveal--delay-1">
+                            Rimani aggiornato sulle ultime novità della nostra società
+                        </p>
                 </div>
             </div>
         </div>
@@ -90,14 +90,14 @@
             <!-- News Grid -->
             <div id="newsGrid" class="row g-4">
                 <% if (typeof notizie !== 'undefined' && notizie && notizie.length > 0) { %>
-                    <% notizie.slice(0, 6).forEach(notizia => { %>
+                    <% notizie.slice(0, 6).forEach((notizia, index) => { %>
                         <div class="col-12 col-md-6 col-lg-4">
-                            <div class="notizia-card h-100 animate__animated animate__fadeInUp">
+                            <div class="notizia-card h-100 reveal reveal--fade-up">
                                 <div class="card-image">
-                            <img src="<%= (notizia.immagine_url && notizia.immagine_url.trim() !== '') ? notizia.immagine_url : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png') %>"
-                                 alt="<%= notizia.titolo %>"
-                                 class="card-img"
-                                 onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
+                                    <img src="<%= (notizia.immagine_url && notizia.immagine_url.trim() !== '') ? notizia.immagine_url : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png') %>"
+                                         alt="<%= notizia.titolo %>"
+                                         class="card-img"
+                                         onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
                                     <div class="card-overlay">
                                         <span class="read-more-btn">
                                             <i class="bi bi-eye"></i> Leggi
@@ -180,7 +180,8 @@
     </template>
 
    
-
+    <!-- Scroll reveal animations -->
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script type="module" src="/assets/scripts/notizie.js"></script>
 </body>
 </html>

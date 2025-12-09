@@ -34,11 +34,11 @@
                                 <li class="breadcrumb-item active" aria-current="page"><%= notizia.titolo %></li>
                             </ol>
                         </nav>
-                        <h1 class="display-4 fw-bold text-primary animate__animated animate__fadeInDown"><%= notizia.titolo %></h1>
+                        <h1 class="display-4 fw-bold text-primary reveal reveal--text-mask"><%= notizia.titolo %></h1>
                         <% if (notizia.sottotitolo) { %>
-                            <p class="lead text-muted animate__animated animate__fadeInUp animate__delay-1s"><%= notizia.sottotitolo %></p>
+                            <p class="lead text-muted reveal reveal--fade-up reveal--delay-1"><%= notizia.sottotitolo %></p>
                         <% } %>
-                        <div class="d-flex align-items-center mt-3 animate__animated animate__fadeInUp animate__delay-2s flex-wrap">
+                        <div class="d-flex align-items-center mt-3 reveal reveal--fade-up reveal--delay-2 flex-wrap">
                             <i class="bi bi-person-circle me-2 text-primary"></i>
                             <span class="me-3"><%= notizia.autore || 'Autore sconosciuto' %></span>
                             <i class="bi bi-calendar-event me-2 text-primary"></i>
@@ -56,7 +56,7 @@
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
-                        <article class="notizia-article animate__animated animate__fadeInUp">
+                        <article class="notizia-article reveal reveal--fade-up reveal--delay-1">
                             <div class="notizia-immagine mb-4">
                                 <img src="<%= (notizia.immagine_url && notizia.immagine_url.trim() !== '') ? notizia.immagine_url : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png') %>"
                                      alt="<%= notizia.titolo %>" class="img-fluid rounded shadow"
@@ -94,5 +94,8 @@
     </main>
 
     <%- include('partials/footer') %>
+
+    <!-- Scroll reveal animations -->
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>
