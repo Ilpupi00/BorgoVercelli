@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <%- include('partials/theme-includes') %>
+    <!-- Ensure reveal CSS selectors targeting .has-reveal-js will match early -->
+    <script>try{document.documentElement.classList.add('has-reveal-js')}catch(e){}</script>
     <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
@@ -25,8 +27,8 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6 text-center">
-                    <h1 class="display-1 fw-bold mb-4 animate__animated animate__fadeInDown">A.S.D. Borgo Vercelli 2022</h1>
-                    <p class="lead fs-4 mb-5 animate__animated animate__fadeInUp animate__delay-1s">La società del futuro</p>
+                    <h1 class="display-1 fw-bold mb-4 reveal reveal--fade-up">A.S.D. Borgo Vercelli 2022</h1>
+                    <p class="lead fs-4 mb-5 reveal reveal--fade-up reveal--delay-1">La società del futuro</p>
                 </div>
             </div>
         </div>
@@ -39,14 +41,14 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Notizie</h2>
-                    <p class="lead text-muted">Le ultime novità dalla nostra società</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Notizie</h2>
+                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Le ultime novità dalla nostra società</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% notizie.slice(0, 3).forEach((notizia, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="news-card h-100 animate__animated animate__fadeInUp" style="--index: <%= index %>;">
+                        <div class="news-card h-100 reveal reveal--fade-up reveal--delay-<%= index + 1 %>">
                             <div class="card-img-container">
                                 <% 
                                 const notiziaImgSrc = (notizia.immagine_url && notizia.immagine_url.trim()) 
@@ -82,7 +84,7 @@
                     </div>
                 <% }); %>
             </div>
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 reveal reveal--fade-up reveal--delay-2">
                 <a href="/notizie/all" class="btn btn-outline-primary btn-lg px-4 py-2">
                     <i class="fas fa-list me-2"></i>Vedi tutte le notizie
                 </a>
@@ -95,14 +97,14 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Eventi</h2>
-                    <p class="lead text-muted">Partecipa ai nostri eventi sportivi</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Eventi</h2>
+                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Partecipa ai nostri eventi sportivi</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% eventi.slice(0, 3).forEach((evento, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="news-card h-100 animate__animated animate__fadeInUp" style="--index: <%= index %>;">
+                        <div class="news-card h-100 reveal reveal--fade-up reveal--delay-<%= index + 1 %>">
                             <div class="card-img-container">
                                 <% 
                                 const eventoImgSrc = (evento.immagine_url && evento.immagine_url.trim()) 
@@ -135,7 +137,7 @@
                     </div>
                 <% }); %>
             </div>
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 reveal reveal--fade-up reveal--delay-2">
                 <a href="/eventi" class="btn btn-outline-primary btn-lg px-4 py-2">
                     <i class="fas fa-calendar me-2"></i>Vedi tutti gli eventi
                 </a>
@@ -148,14 +150,14 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Recensioni</h2>
-                    <p class="lead text-muted">Cosa dicono i nostri utenti</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Recensioni</h2>
+                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Cosa dicono i nostri utenti</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% recensioni.slice(0, 6).forEach((recensione, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="review-card h-100 animate__animated animate__fadeInUp" style="--index: <%= index %>;">
+                        <div class="review-card h-100 reveal reveal--fade-up reveal--delay-<%= Math.min(index + 1, 5) %>">
                             <div class="review-content">
                                 <div class="review-stars mb-3">
                                     <% for (let i = 1; i <= 5; i++) { %>
@@ -184,7 +186,7 @@
                     </div>
                 <% }); %>
             </div>
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 reveal reveal--fade-up reveal--delay-2">
                 <a href="/recensioni/all" class="btn btn-outline-primary btn-lg px-4 py-2 me-3">
                     <i class="fas fa-star me-2"></i>Vedi tutte le recensioni
                 </a>

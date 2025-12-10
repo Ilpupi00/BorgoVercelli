@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
@@ -21,7 +22,7 @@
     <main class="container-fluid px-4 py-5">
         <div class="row justify-content-center">
             <div class="col-12 col-md-8 col-lg-6">
-                <div class="review-form-card">
+                <div class="review-form-card reveal reveal--scale-up">
                     <div class="card-header text-center">
                         <h1 class="h3 mb-0">Scrivi una Recensione</h1>
                         <p class="text-muted mt-2">Condividi la tua esperienza con noi</p>
@@ -85,6 +86,7 @@
 
     <%- include('partials/footer') %>
 
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script type="module">
         import ScriviRecensione from '/assets/scripts/components/ScriviRecensione.js';
 

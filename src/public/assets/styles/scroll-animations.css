@@ -26,6 +26,18 @@
     opacity: 1;
 }
 
+/* Safety: headings that DO NOT opt-in to reveal should remain visible
+   even when the reveal system is active. This prevents accidental
+   hiding of page titles when pages don't use .reveal on headings. */
+.has-reveal-js h1:not(.reveal),
+.has-reveal-js h2:not(.reveal),
+.has-reveal-js h3:not(.reveal),
+.has-reveal-js h4:not(.reveal),
+.has-reveal-js h5:not(.reveal) {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 /* Disabilita animazioni se l'utente preferisce movimento ridotto */
 @media (prefers-reduced-motion: reduce) {
     .reveal,

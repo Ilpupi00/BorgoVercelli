@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Search.css">
@@ -18,7 +19,7 @@
     <%- include('partials/navbar') %>
 
     <!-- Search Header -->
-    <section class="search-header bg-light text-dark py-5">
+    <section class="search-header bg-light text-dark py-5 reveal reveal--fade-up">
         <div class="container-fluid px-4">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6">
@@ -263,5 +264,6 @@
 
 
     <%- include('partials/footer') %>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>

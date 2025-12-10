@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
@@ -28,7 +29,7 @@
                 <div class="admin-container">
 
                     <!-- Header con profilo -->
-                    <header class="admin-page-header slide-up">
+                    <header class="admin-page-header reveal reveal--fade-up">
                         <div class="admin-page-header-content">
                             <h1><i class="bi bi-people-fill"></i> Gestore Utenti</h1>
                             <p class="admin-page-subtitle">Gestisci e monitora tutti gli utenti del sistema</p>
@@ -44,7 +45,7 @@
                     </header>
 
                     <!-- Contenuto principale -->
-                    <article class="content-card fade-in">
+                    <article class="content-card reveal reveal--fade-up reveal--delay-1">
                         <div class="section-header">
                             <h2 class="section-title mb-0"><i class="bi bi-list-ul me-2"></i>Tutti gli Utenti</h2>
                         </div>
@@ -57,7 +58,7 @@
                         </div>
 
                             <!-- Barra di ricerca -->
-                            <div class="card mb-4">
+                            <div class="card mb-4 reveal reveal--scale-up reveal--delay-2">
                                 <div class="card-body">
                                     <div class="row g-3">
                                         <div class="col-md-8">
@@ -82,7 +83,7 @@
                             </div>
 
                         <!-- Mobile Cards View (nascosta su desktop) -->
-                        <div class="admin-mobile-cards" id="utentiMobileCards">
+                        <div class="admin-mobile-cards reveal reveal--fade-up reveal--delay-3" id="utentiMobileCards">
                             <% if (utenti && utenti.length > 0) { %>
                                 <% utenti.forEach(utente => { %>
                                     <div class="admin-mobile-card" 
@@ -182,7 +183,7 @@
                         </div>
 
                         <!-- Desktop Table View (nascosta su mobile) -->
-                        <div class="table-responsive">
+                        <div class="table-responsive reveal reveal--fade-up reveal--delay-3">
                             <table class="table table-hover align-middle" id="utentiTable">
                                 <thead>
                                     <tr>
@@ -926,5 +927,6 @@
             }
         });
     </script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>

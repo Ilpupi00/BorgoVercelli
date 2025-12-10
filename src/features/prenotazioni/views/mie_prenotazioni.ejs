@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/styles/MiePrenotazioni.css">
@@ -23,7 +24,7 @@
 
     <main class="prenotazioni-container">
         <!-- Header -->
-        <header class="page-header animate__animated animate__fadeInDown">
+        <header class="page-header reveal reveal--fade-up">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -44,7 +45,7 @@
 
         <div class="container mt-5 mb-5">
             <!-- Stats Cards -->
-            <section class="row mb-4 animate__animated animate__fadeInUp" aria-label="Statistiche prenotazioni">
+            <section class="row mb-4 reveal reveal--fade-up reveal--delay-1" aria-label="Statistiche prenotazioni">
                 <article class="col-md-3 mb-3">
                     <div class="stat-card stat-card-success">
                         <div class="stat-icon" aria-hidden="true">
@@ -159,5 +160,6 @@
     <%- include('partials/footer') %>
 
     <div id="page"></div>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>

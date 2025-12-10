@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
     <link rel="stylesheet" href="/assets/styles/theme-admin.css">
@@ -43,7 +44,7 @@
                     </header>
 
                     <!-- Cards statistiche principali -->
-                    <section class="stats-cards-section fade-in">
+                    <section class="stats-cards-section fade-in reveal reveal--fade-up">
                         <h2 class="section-subtitle mb-4"><i class="bi bi-speedometer2 me-2"></i>Metriche Principali</h2>
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
@@ -107,7 +108,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-warning">
+                                <div class="stats-card stats-card-warning reveal reveal--scale-up reveal--delay-3">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-calendar-event-fill"></i>
                                     </div>
@@ -137,7 +138,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-info">
+                                <div class="stats-card stats-card-info reveal reveal--scale-up reveal--delay-4">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-calendar-check-fill"></i>
                                     </div>
@@ -169,11 +170,11 @@
                     </section>
 
                     <!-- Cards statistiche sicurezza -->
-                    <section class="stats-cards-section fade-in mt-4">
+                    <section class="stats-cards-section fade-in mt-4 reveal reveal--fade-up">
                         <h2 class="section-subtitle mb-4"><i class="bi bi-shield-check me-2"></i>Sicurezza e Moderazione</h2>
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-danger">
+                                <div class="stats-card stats-card-danger reveal reveal--scale-up reveal--delay-1">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-exclamation-triangle-fill"></i>
                                     </div>
@@ -194,7 +195,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-warning">
+                                <div class="stats-card stats-card-warning reveal reveal--scale-up reveal--delay-2">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-pause-circle-fill"></i>
                                     </div>
@@ -215,7 +216,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-info">
+                                <div class="stats-card stats-card-info reveal reveal--scale-up reveal--delay-3">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-x-circle-fill"></i>
                                     </div>
@@ -240,7 +241,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-success">
+                                <div class="stats-card stats-card-success reveal reveal--scale-up reveal--delay-4">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-file-text-fill"></i>
                                     </div>
@@ -263,11 +264,11 @@
                     </section>
 
                     <!-- Cards statistiche aggiuntive -->
-                    <section class="stats-cards-section fade-in mt-4">
+                    <section class="stats-cards-section fade-in mt-4 reveal reveal--fade-up">
                         <h2 class="section-subtitle mb-4"><i class="bi bi-graph-up-arrow me-2"></i>Metriche Dettagliate</h2>
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-purple">
+                                <div class="stats-card stats-card-purple reveal reveal--scale-up reveal--delay-1">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-star-fill"></i>
                                     </div>
@@ -292,7 +293,7 @@
                             </div>
 
                             <div class="col-md-6 col-lg-3">
-                                <div class="stats-card stats-card-teal">
+                                <div class="stats-card stats-card-teal reveal reveal--scale-up reveal--delay-2">
                                     <div class="stats-card-icon">
                                         <i class="bi bi-images"></i>
                                     </div>
@@ -1074,6 +1075,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
     <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/components/AdminGlobal.js"></script>
     <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/Statistiche.js"></script>

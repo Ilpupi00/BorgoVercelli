@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <!-- Stili globali admin -->
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
@@ -28,7 +29,7 @@
                 <div class="admin-container">
 
                     <!-- Header -->
-                    <header class="admin-page-header slide-up">
+                    <header class="admin-page-header reveal reveal--fade-up">
                         <div class="admin-page-header-content">
                             <h1>
                                 <i class="bi bi-people-fill"></i>
@@ -49,7 +50,7 @@
                     </header>
 
                     <!-- Section Header -->
-                    <section class="section-header fade-in">
+                    <section class="section-header reveal reveal--fade-up reveal--delay-1">
                         <h2 class="section-title mb-0">
                             <i class="bi bi-list-ul me-2"></i>
                             Tutte le Squadre
@@ -239,6 +240,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
     <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/components/AdminGlobal.js"></script>
     <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/components/GestioneSquadreAdmin.js"></script>

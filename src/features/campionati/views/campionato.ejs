@@ -9,6 +9,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="/assets/styles/Campionato.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
@@ -19,16 +20,16 @@
     <div id="page">
         <br>
         <header class="container-fluid d-flex flex-column justify-content-center align-items-center">
-            <h1 class="mb-4 text-center">Classifica Campionato</h1>
+            <h1 class="mb-4 text-center reveal reveal--fade-up">Classifica Campionato</h1>
             <!-- Menu a tendina con margine sotto -->
-            <div class="select-container">
+            <div class="select-container reveal reveal--fade-up reveal--delay-1">
                 <select class="form-select form-select-sm custom-select" id="campionatoSelect" aria-label="Select menu">
                     <% campionati.forEach(campionato => { %>
                         <option value="<%= campionato.id %>" <%= selectedCampionato === campionato.id ? 'selected="selected"' : '' %>><%= campionato.nome %> - <%= campionato.stagione %></option>
                     <% }); %>
                 </select>
             </div>
-            <div class="table-responsive w-75">
+            <div class="table-responsive w-75 reveal reveal--fade-up reveal--delay-2">
                 <table class="table table-sm">
                     <thead class="table-primary">
                         <tr>
@@ -93,7 +94,7 @@
         
         new Campionato(document.getElementById('page'));
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous">
-    <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>

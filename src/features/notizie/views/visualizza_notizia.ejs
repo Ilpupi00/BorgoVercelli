@@ -10,6 +10,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/Notizie.css">
@@ -34,7 +35,7 @@
                                 <li class="breadcrumb-item active" aria-current="page"><%= notizia.titolo %></li>
                             </ol>
                         </nav>
-                        <h1 class="display-4 fw-bold text-primary reveal reveal--text-mask"><%= notizia.titolo %></h1>
+                        <h1 class="display-4 fw-bold text-primary reveal reveal--fade-up"><%= notizia.titolo %></h1>
                         <% if (notizia.sottotitolo) { %>
                             <p class="lead text-muted reveal reveal--fade-up reveal--delay-1"><%= notizia.sottotitolo %></p>
                         <% } %>
@@ -68,7 +69,7 @@
                         </article>
 
                         <!-- Social Share Buttons -->
-                        <div class="social-share mt-5 pt-4 border-top">
+                        <div class="social-share mt-5 pt-4 border-top reveal reveal--fade-up">
                             <h5 class="mb-3">Condividi questa notizia</h5>
                             <div class="d-flex gap-2 flex-wrap">
                                 <button class="btn btn-outline-primary btn-sm share-btn" data-platform="facebook">

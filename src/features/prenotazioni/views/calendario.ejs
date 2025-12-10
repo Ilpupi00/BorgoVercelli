@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/calendario.css">
 </head>
 <body>
     <div class="calendario-wrapper">
         <!-- Header -->
-        <header class="calendario-header">
+        <header class="calendario-header reveal reveal--fade-up">
             <div class="header-content">
                 <div class="header-left">
                     <a href="/admin/prenotazioni" class="btn-back" title="Torna indietro">
@@ -38,7 +39,7 @@
         </header>
 
         <!-- Filters & Navigation -->
-        <section class="calendario-controls">
+        <section class="calendario-controls reveal reveal--fade-up reveal--delay-1">
             <div class="controls-wrapper">
                 <!-- Month Navigation -->
                 <div class="month-navigation">
@@ -210,6 +211,7 @@
         window.campiData = <%- JSON.stringify(campi || []) %>;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/calendario.js"></script>
 </body>
 </html>

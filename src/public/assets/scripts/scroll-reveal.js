@@ -95,9 +95,112 @@
     }
 
     // ============================================================
+    // AUTO-TAG HEADINGS
+    // ============================================================
+    function applyAnimationsToHeadings() {
+        // Seleziona tutti i titoli h1-h5
+        // include anche titoli annidati in header/hero/page-header
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, .page-header h1, .hero-section h1');
+        headings.forEach(heading => {
+            // Se l'elemento non ha già la classe reveal, aggiungila
+            if (heading && !heading.classList.contains('reveal')) {
+                heading.classList.add('reveal', 'reveal--fade-up');
+            }
+        });
+    }
+
+    // ============================================================
+    // AUTO-TAG COMMON COMPONENTS + STAGGER
+    // ============================================================
+    function applyAnimationsToComponents() {
+        try {
+            // Mapping selector -> default effect
+            const mapping = {
+                '.card': 'reveal--fade-up-subtle',
+                '.feature-card': 'reveal--fade-up-subtle',
+                '.stat-card': 'reveal--scale-up',
+                '.section-title': 'reveal--text-mask',
+                '.news-item': 'reveal--fade-up',
+                '.notizia-card': 'reveal--fade-up',
+                '.news-card': 'reveal--fade-up',
+                '.event-card': 'reveal--fade-up',
+                '.eventi-card': 'reveal--fade-up',
+                '.gallery-item': 'reveal--zoom-out-subtle',
+                '.gallery-photo': 'reveal--zoom-out-subtle',
+                '.profile-info': 'reveal--fade-up-subtle',
+                '.member-card': 'reveal--fade-up-subtle',
+                '.review-card': 'reveal--fade-up',
+                '.recensione-card': 'reveal--fade-up',
+                '.enti-card': 'reveal--fade-up',
+                '.entity-card': 'reveal--fade-up',
+                '.page-header': 'reveal--text-mask',
+                '.hero-section': 'reveal--zoom-out'
+            };
+
+            Object.keys(mapping).forEach(selector => {
+                const nodes = document.querySelectorAll(selector);
+                nodes.forEach((node, idx) => {
+                    // skip if already has reveal
+                    if (node.classList && node.classList.contains('reveal')) return;
+
+                    // apply base class + effect
+                    if (node.classList) {
+                        node.classList.add('reveal', mapping[selector]);
+
+                        // stagger: small delay based on index for visual rhythm
+                        const delay = Math.min(600, idx * 80); // cap delay
+                        try { node.style.transitionDelay = delay + 'ms'; } catch (e) {}
+                        try { node.style.animationDelay = delay + 'ms'; } catch (e) {}
+                    }
+                });
+            });
+
+            // Special: headings inside lists/cards should use text-mask
+            const cardHeadings = document.querySelectorAll('.card h1, .card h2, .news-item h2, .notizia-card h2');
+            cardHeadings.forEach(h => {
+                if (!h.classList.contains('reveal')) {
+                    h.classList.add('reveal', 'reveal--text-mask');
+                }
+            });
+        } catch (e) {
+            if (CONFIG.debug) console.warn('[ScrollReveal] applyAnimationsToComponents failed', e);
+        }
+    }
+
+    // ============================================================
+    // INITIAL VISIBILITY CHECK (fallback)
+    // ============================================================
+    // Some pages may render headings before the observer attaches and
+    // race conditions can leave elements hidden. This function forces
+    // elements that are currently in the viewport to receive the
+    // visible class immediately as a safe fallback.
+    function applyInitialVisibilityCheck() {
+        try {
+            const elements = document.querySelectorAll(CONFIG.selector);
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                // consider visible if any part is within viewport (a small margin)
+                if (rect.top < viewportHeight && rect.bottom > 0) {
+                    el.classList.add(CONFIG.visibleClass);
+                }
+            });
+        } catch (e) {
+            if (CONFIG.debug) console.warn('[ScrollReveal] initial visibility check failed', e);
+        }
+    }
+
+    // ============================================================
     // INIZIALIZZAZIONE
     // ============================================================
     function init() {
+        // Applica animazioni ai titoli automaticamente
+        applyAnimationsToHeadings();
+        // Controllo iniziale: mostra immediatamente gli elementi già visibili
+        applyInitialVisibilityCheck();
+        // Applica animazioni ai componenti più comuni (cards, gallery, news)
+        applyAnimationsToComponents();
+
         // Verifica supporto Intersection Observer
         if (!('IntersectionObserver' in window)) {
             console.warn('[ScrollReveal] IntersectionObserver non supportato. Fallback: elementi visibili.');
@@ -206,14 +309,8 @@
             mutations.forEach(mutation => {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1) { // Element node
-                        if (node.classList && node.classList.contains('reveal')) {
-                            hasNewElements = true;
-                        } else if (node.querySelectorAll) {
-                            const newReveals = node.querySelectorAll(CONFIG.selector);
-                            if (newReveals.length > 0) {
-                                hasNewElements = true;
-                            }
-                        }
+                        // If any element is added, trigger component tagging
+                        hasNewElements = true;
                     }
                 });
             });
@@ -222,6 +319,9 @@
                 if (CONFIG.debug) {
                     console.log('[ScrollReveal] Nuovi elementi rilevati, reinizializzo...');
                 }
+                // Ensure new components get tagged before init attaches observers
+                applyAnimationsToHeadings();
+                applyAnimationsToComponents();
                 init();
             }
         });

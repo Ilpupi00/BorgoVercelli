@@ -8,6 +8,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
     <link rel="stylesheet" href="/assets/styles/theme-admin.css">
@@ -23,7 +24,7 @@
             <!-- Contenuto principale -->
             <main class="col-lg-9 col-xl-10 px-4 py-5">
                 <div class="admin-container">
-                    <header class="admin-page-header slide-up">
+                    <header class="admin-page-header reveal reveal--fade-up">
                         <div class="admin-page-header-content">
                             <h1><i class="bi bi-clock-fill"></i> Orari Campo: <%= campo.nome %></h1>
                             <p class="admin-page-subtitle">Gestione orari disponibili per prenotazioni</p>
@@ -39,7 +40,7 @@
                     </header>
 
                     <!-- Orari Default -->
-                    <section class="content-card fade-in mb-4">
+                    <section class="content-card reveal reveal--fade-up reveal--delay-1 mb-4">
                         <div class="section-header">
                             <h2 class="section-title mb-0"><i class="bi bi-calendar-week me-2"></i>Orari Default (tutti i giorni)</h2>
                             <button class="btn btn-success btn-sm" data-action="add-default">
@@ -167,6 +168,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
     <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/components/AdminGlobal.js"></script>
     <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/GestioneOrariCampi.js"></script>

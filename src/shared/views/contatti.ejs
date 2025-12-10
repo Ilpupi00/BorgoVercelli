@@ -12,6 +12,7 @@
     <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/Contatti.css">
@@ -26,8 +27,8 @@
         <div class="container-fluid px-4 py-5">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6 text-center">
-                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">Contattaci</h1>
-                    <p class="lead fs-5 mb-5 animate__animated animate__fadeInUp animate__delay-1s">Siamo qui per rispondere alle tue domande</p>
+                    <h1 class="display-4 fw-bold mb-4 reveal reveal--fade-up">Contattaci</h1>
+                    <p class="lead fs-5 mb-5 reveal reveal--fade-up reveal--delay-1">Siamo qui per rispondere alle tue domande</p>
                 </div>
             </div>
         </div>
@@ -39,10 +40,10 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-10 col-lg-8">
-                    <h2 class="text-center mb-5 text-primary">I nostri contatti</h2>
+                    <h2 class="text-center mb-5 text-primary reveal reveal--fade-up">I nostri contatti</h2>
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm">
+                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm reveal reveal--scale-up reveal--delay-1">
                                 <div class="icon-wrapper mb-3">
                                     <i class="fas fa-phone fa-2x text-primary"></i>
                                 </div>
@@ -53,7 +54,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm">
+                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm reveal reveal--scale-up reveal--delay-2">
                                 <div class="icon-wrapper mb-3">
                                     <i class="fas fa-envelope fa-2x text-primary"></i>
                                 </div>
@@ -64,7 +65,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm">
+                            <div class="contact-info-card text-center p-4 h-100 bg-white rounded shadow-sm reveal reveal--scale-up reveal--delay-3">
                                 <div class="icon-wrapper mb-3">
                                     <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
                                 </div>
@@ -83,7 +84,7 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6">
-                    <div class="contact-card shadow-lg p-4 animate__animated animate__fadeInUp">
+                    <div class="contact-card shadow-lg p-4 reveal reveal--fade-up reveal--delay-1">
                         <h2 class="text-center mb-4 text-primary">Invia un messaggio</h2>
                         <form id="contactForm">
                             <div class="mb-4">
@@ -141,6 +142,7 @@
 
     <%- include('partials/footer') %>
 
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/contatti.js" defer></script>
 </body>
 </html>

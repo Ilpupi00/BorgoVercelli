@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
     <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/Prenotazione.css">
@@ -45,7 +46,7 @@
                     immaginiHtml = `<img src="/assets/images/Campo.png" alt="Campo" class="img-fluid w-100 mb-2 rounded">`;
                 }
                 %>
-                <section class="campo-prenotazione">
+                <section class="campo-prenotazione reveal reveal--fade-up">
                     <div class="container py-5">
                         <div class="row align-items-center">
                             <div class="col-lg-5 col-md-6 mb-4 mb-md-0">
@@ -119,5 +120,6 @@
         new Prenotazione(document.getElementById('page'));
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>
 </html>
