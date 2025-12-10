@@ -22,8 +22,8 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 col-lg-6 text-center">
-                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">Eventi</h1>
-                    <p class="lead fs-5 mb-0 animate__animated animate__fadeInUp animate__delay-1s">Scopri tutti i nostri eventi sportivi e sociali</p>
+                    <h1 class="display-4 fw-bold mb-4 reveal reveal--text-mask">Eventi</h1>
+                    <p class="lead fs-5 mb-0 reveal reveal--fade-up reveal--delay-1">Scopri tutti i nostri eventi sportivi e sociali</p>
                 </div>
             </div>
         </div>
@@ -90,9 +90,9 @@
             <!-- Events Grid -->
             <div id="eventsGrid" class="row g-4">
                 <% if (typeof eventi !== 'undefined' && eventi && eventi.length > 0) { %>
-                    <% eventi.slice(0, 6).forEach(evento => { %>
+                    <% eventi.slice(0, 6).forEach((evento, idx) => { %>
                         <div class="col-12 col-md-6 col-lg-4">
-                            <div class="event-card h-100 animate__animated animate__fadeInUp">
+                            <div class="event-card h-100 reveal reveal--fade-up">
                                 <div class="card-img-container">
                                     <img src="<%= (evento.immagine_url && evento.immagine_url.trim() !== '') ? evento.immagine_url : (evento.immagine && evento.immagine.url ? evento.immagine.url : '/assets/images/Campo.png') %>" alt="<%= evento.titolo %>" class="img-fluid"
                                          onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
@@ -194,6 +194,8 @@
 
     <%- include('partials/footer') %>
 
+    <!-- Scroll reveal animations -->
+    <script src="/assets/scripts/scroll-reveal.js"></script>
     <script type="module">
         import EventiManager from '/assets/scripts/eventiManager.js';
         new EventiManager(document.body);

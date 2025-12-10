@@ -1,0 +1,249 @@
+/**
+ * ============================================================
+ * SCROLL-TRIGGERED ANIMATIONS - Stile Apple/Linear
+ * ============================================================
+ * Sistema modulare per animazioni on-scroll performanti.
+ * Usa SOLO transform e opacity per garantire 60fps (GPU accelerato).
+ * 
+ * UTILIZZO:
+ *   1. Aggiungi la classe base: .reveal
+ *   2. Aggiungi il tipo di animazione: .reveal--fade-up | .reveal--text-mask | .reveal--zoom-out
+ *   3. (Opzionale) Aggiungi delay: .reveal--delay-1, .reveal--delay-2, .reveal--delay-3
+ *   4. L'elemento riceverà automaticamente .is-visible quando entra nel viewport
+ */
+
+/* ============================================================
+   BASE: Stato iniziale per tutti gli elementi animati
+   ============================================================ */
+.has-reveal-js .reveal {
+    will-change: transform, opacity;
+    /* Elementi invisibili di default (solo quando lo script è presente) */
+    opacity: 0;
+}
+
+/* Base visibility state when in viewport (scoped to quando lo script è attivo) */
+.has-reveal-js .reveal.is-visible {
+    opacity: 1;
+}
+
+/* Disabilita animazioni se l'utente preferisce movimento ridotto */
+@media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal--fade-up,
+    .reveal--text-mask,
+    .reveal--zoom-out {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================================
+   EFFETTO 1: FADE UP MORBIDO
+   ============================================================
+   L'elemento parte traslato verso il basso e trasparente,
+   poi sale dolcemente diventando visibile.
+   
+   Esempio: <div class="reveal reveal--fade-up">...</div>
+*/
+.has-reveal-js .reveal--fade-up {
+    opacity: 0;
+    transform: translateY(60px) translateZ(0);
+    transition: 
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+}
+
+/* Variante più sottile (meno spostamento) */
+.has-reveal-js .reveal--fade-up-subtle {
+    opacity: 0;
+    transform: translateY(30px) translateZ(0);
+    transition: 
+        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--fade-up-subtle.is-visible {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+}
+
+/* ============================================================
+   EFFETTO 2: TEXT REVEAL MASK
+   ============================================================
+   Il testo emerge da una "maschera" invisibile usando clip-path.
+   Effetto elegante per titoli e headline.
+   
+   Esempio: <h1 class="reveal reveal--text-mask">Titolo</h1>
+*/
+.has-reveal-js .reveal--text-mask {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(20px) translateZ(0);
+    transition: 
+        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--text-mask.is-visible {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0) translateZ(0);
+}
+
+/* Variante: reveal da sinistra */
+.has-reveal-js .reveal--text-mask-left {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-20px) translateZ(0);
+    transition: 
+        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--text-mask-left.is-visible {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0) translateZ(0);
+}
+
+/* ============================================================
+   EFFETTO 3: IMAGE ZOOM OUT
+   ============================================================
+   L'immagine parte leggermente ingrandita e torna a scala normale.
+   Effetto cinematografico per hero images e gallery.
+   
+   Esempio: <img class="reveal reveal--zoom-out" src="..." alt="...">
+*/
+.has-reveal-js .reveal--zoom-out {
+    opacity: 0;
+    transform: scale(1.15) translateZ(0);
+    transition: 
+        opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--zoom-out.is-visible {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+}
+
+/* Variante più sottile */
+.has-reveal-js .reveal--zoom-out-subtle {
+    opacity: 0;
+    transform: scale(1.08) translateZ(0);
+    transition: 
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--zoom-out-subtle.is-visible {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+}
+
+/* ============================================================
+   EFFETTI EXTRA (Bonus)
+   ============================================================ */
+
+/* Fade semplice (solo opacità) */
+.has-reveal-js .reveal--fade {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--fade.is-visible {
+    opacity: 1;
+}
+
+/* Slide da sinistra */
+.has-reveal-js .reveal--slide-left {
+    opacity: 0;
+    transform: translateX(-80px) translateZ(0);
+    transition: 
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--slide-left.is-visible {
+    opacity: 1;
+    transform: translateX(0) translateZ(0);
+}
+
+/* Slide da destra */
+.has-reveal-js .reveal--slide-right {
+    opacity: 0;
+    transform: translateX(80px) translateZ(0);
+    transition: 
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--slide-right.is-visible {
+    opacity: 1;
+    transform: translateX(0) translateZ(0);
+}
+
+/* Scale up (parte piccolo) */
+.has-reveal-js .reveal--scale-up {
+    opacity: 0;
+    transform: scale(0.9) translateZ(0);
+    transition: 
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.has-reveal-js .reveal--scale-up.is-visible {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+}
+
+/* ============================================================
+   DELAY UTILITIES
+   ============================================================
+   Per creare effetti staggered (elementi che appaiono in sequenza).
+   
+   Esempio: 
+   <div class="reveal reveal--fade-up reveal--delay-1">Primo</div>
+   <div class="reveal reveal--fade-up reveal--delay-2">Secondo</div>
+*/
+.reveal--delay-1 { transition-delay: 0.1s; }
+.reveal--delay-2 { transition-delay: 0.2s; }
+.reveal--delay-3 { transition-delay: 0.3s; }
+.reveal--delay-4 { transition-delay: 0.4s; }
+.reveal--delay-5 { transition-delay: 0.5s; }
+
+/* ============================================================
+   DURATION UTILITIES
+   ============================================================
+   Per controllare la velocità dell'animazione.
+*/
+.reveal--fast {
+    transition-duration: 0.4s !important;
+}
+
+.reveal--slow {
+    transition-duration: 1.2s !important;
+}
+
+/* ============================================================
+   EASING ALTERNATIVES
+   ============================================================
+   La curva di default è "expo-out" (0.16, 1, 0.3, 1) - molto smooth.
+   Queste sono alternative se vuoi effetti diversi.
+*/
+.reveal--ease-out {
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.reveal--ease-spring {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
