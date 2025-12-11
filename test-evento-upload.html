@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload Immagini Evento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/styles/evento-upload.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: #f8fafc;
+            transition: background 0.3s ease;
+        }
+        
+        [data-theme="dark"] {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] .test-container {
+            background: #1e293b;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+        
+        [data-theme="dark"] .section-title {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-outline-primary theme-toggle" onclick="toggleTheme()">
+        <i class="bi bi-moon-stars" id="themeIcon"></i>
+        <span id="themeText">Dark</span>
+    </button>
+
+    <div class="test-container">
+        <h1 class="text-center mb-4">🎨 Test Upload Immagini Evento</h1>
+        
+        <div class="mb-4">
+            <h2 class="section-title">
+                <i class="bi bi-image me-2"></i>Area Upload Nuova
+            </h2>
+            
+            <div id="uploadArea" class="upload-area">
+                <input type="file" id="immagineInput" accept="image/*" class="d-none">
+                <div class="upload-area-content" id="dropZone">
+                    <i class="bi bi-cloud-upload upload-icon"></i>
+                    <p class="upload-text mb-2">Trascina un'immagine qui o clicca per selezionare</p>
+                    <p class="upload-subtext text-muted">PNG, JPG, GIF fino a 5MB</p>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="selectImageBtn">
+                        <i class="bi bi-folder2-open me-1"></i>Seleziona File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="newImagePreview" class="image-preview-container d-none">
+            <h2 class="section-title">
+                <i class="bi bi-eye me-2"></i>Preview
+            </h2>
+            <div class="image-preview-wrapper">
+                <img id="previewImg" src="" alt="Preview" class="img-fluid rounded">
+                <button type="button" class="btn btn-danger btn-sm" id="removePreviewBtn">
+                    <i class="bi bi-x-circle"></i> Rimuovi
+                </button>
+            </div>
+            <div class="upload-progress mt-3">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%"></div>
+                </div>
+                <p class="text-center mt-2 text-muted">Caricamento in corso...</p>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <h2 class="section-title">
+                <i class="bi bi-info-circle me-2"></i>Istruzioni Test
+            </h2>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Clicca su "Seleziona File" o nell'area evidenziata
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Trascina un'immagine nell'area upload
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Testa il tema scuro con il pulsante in alto a destra
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Verifica la responsiveness ridimensionando il browser
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Testa hover, animazioni e feedback visivo
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            
+            if (newTheme === 'dark') {
+                icon.className = 'bi bi-sun';
+                text.textContent = 'Light';
+            } else {
+                icon.className = 'bi bi-moon-stars';
+                text.textContent = 'Dark';
+            }
+        }
+
+        // Upload functionality
+        const immagineInput = document.getElementById('immagineInput');
+        const selectImageBtn = document.getElementById('selectImageBtn');
+        const dropZone = document.getElementById('dropZone');
+        const uploadArea = document.getElementById('uploadArea');
+        const newImagePreview = document.getElementById('newImagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removePreviewBtn = document.getElementById('removePreviewBtn');
+
+        selectImageBtn.addEventListener('click', () => {
+            immagineInput.click();
+        });
+
+        dropZone.addEventListener('click', () => {
+            immagineInput.click();
+        });
+
+        immagineInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFileSelect(file);
+            }
+        });
+
+        removePreviewBtn.addEventListener('click', () => {
+            immagineInput.value = '';
+            newImagePreview.classList.add('d-none');
+            uploadArea.classList.remove('d-none', 'success', 'error');
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                uploadArea.classList.add('error');
+                setTimeout(() => uploadArea.classList.remove('error'), 3000);
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                uploadArea.classList.add('error');
+                setTimeout(() => uploadArea.classList.remove('error'), 3000);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                uploadArea.classList.add('d-none');
+                newImagePreview.classList.remove('d-none');
+                
+                // Simulate success
+                setTimeout(() => {
+                    uploadArea.classList.add('success');
+                }, 2000);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Log viewport size for responsive testing
+        window.addEventListener('resize', () => {
+            console.log('Viewport:', window.innerWidth, 'x', window.innerHeight);
+        });
+    </script>
+</body>
+</html>

@@ -70,15 +70,15 @@ exports.getEventiPubblicati = function(){
 }
 
 /**
- * Recupera un evento per ID
+ * Recupera un evento per ID con immagini
  * @async
  * @param {number} id - ID evento
- * @returns {Promise<Evento>} Istanza Evento
+ * @returns {Promise<Evento>} Istanza Evento con array immagini
  */
 exports.getEventoById = function(id) {
     const sql = 'SELECT * FROM EVENTI WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id], (err, evento) => {
+        sqlite.get(sql, [id], async (err, evento) => {
             if (err) {
                 console.error('Errore SQL get evento by id:', err);
                 return reject({ error: 'Error retrieving event: ' + err.message });
@@ -86,7 +86,21 @@ exports.getEventoById = function(id) {
             if (!evento) {
                 return reject({ error: 'Event not found' });
             }
-            resolve(makeEvento(evento));
+            
+            const eventoObj = makeEvento(evento);
+            
+            // Recupera immagini associate
+            const imgSql = 'SELECT * FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ? ORDER BY ordine';
+            sqlite.all(imgSql, ['evento', id], (err, immagini) => {
+                if (err) {
+                    console.warn('Errore recupero immagini evento:', err);
+                    eventoObj.immagini = [];
+                } else {
+                    eventoObj.immagini = immagini || [];
+                    eventoObj.immagine_principale = immagini && immagini.length > 0 ? immagini[0].url : null;
+                }
+                resolve(eventoObj);
+            });
         });
     });
 }

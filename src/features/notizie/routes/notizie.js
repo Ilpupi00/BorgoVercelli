@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const dao = require('../services/dao-notizie');
 const daoGalleria = require('../../galleria/services/dao-galleria');
+const daoAdmin = require('../../admin/services/dao-admin');
 const { isLoggedIn, isAdminOrDirigente, isAdmin, canEditNotizia } = require('../../../core/middlewares/auth');
 const multer = require('multer');
 const { upload } = require('../../../core/config/multer');
@@ -286,6 +287,69 @@ router.get('/notizie/edit/:id', canEditNotizia, async (req, res) => {
   const id = parseIdParam(req.params.id);
   if (!id) return res.status(400).render('error', { message: 'ID notizia non valido', error: { status: 400 } });
   res.redirect(`/crea-notizie?id=${id}`);
+});
+
+// Upload immagine per notizia
+router.post('/notizia/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req, res, next) => {
+  upload.single('immagine')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File troppo grande. Dimensione massima: 5MB' });
+      }
+    } else if (err) {
+      return res.status(400).json({ error: err.message || 'Errore durante il caricamento del file' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    const notiziaId = parseIdParam(req.params.id);
+    if (!notiziaId) return res.status(400).json({ error: 'ID notizia non valido' });
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nessun file caricato' });
+    }
+
+    // Verifica che la notizia esista
+    const notizia = await dao.getNotiziaById(notiziaId);
+    if (!notizia) {
+      return res.status(404).json({ error: 'Notizia non trovata' });
+    }
+
+    // Crea il path dell'immagine
+    const imageUrl = '/uploads/' + req.file.filename;
+    
+    // Inserisci l'immagine nella tabella IMMAGINI
+    await daoAdmin.insertImmagine(imageUrl, 'notizia', 'notizia', notiziaId, 1);
+    
+    res.json({ 
+      success: true, 
+      message: 'Immagine caricata con successo',
+      imageUrl: imageUrl
+    });
+  } catch (error) {
+    console.error('Errore upload immagine notizia:', error);
+    res.status(500).json({ error: 'Errore durante il caricamento dell\'immagine' });
+  }
+});
+
+// Elimina immagine notizia
+router.delete('/notizia/:id/immagine', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+  try {
+    const notiziaId = parseIdParam(req.params.id);
+    if (!notiziaId) return res.status(400).json({ error: 'ID notizia non valido' });
+    
+    // Elimina tutte le immagini associate alla notizia
+    await daoAdmin.deleteImmaginiByEntita('notizia', notiziaId);
+    
+    res.json({ 
+      success: true, 
+      message: 'Immagine eliminata con successo'
+    });
+  } catch (error) {
+    console.error('Errore eliminazione immagine notizia:', error);
+    res.status(500).json({ error: 'Errore durante l\'eliminazione dell\'immagine' });
+  }
 });
 
 module.exports = router;

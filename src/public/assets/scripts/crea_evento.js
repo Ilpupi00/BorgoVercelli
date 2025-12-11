@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializeDateValidation();
     initializeQuill();
+    initializeImageUpload();
 });
 
 function initializeFormValidation() {
@@ -284,4 +285,224 @@ function submitQuillContent() {
     }
 
     return submitted;
+}
+
+// ===================================
+// IMAGE UPLOAD FUNCTIONALITY
+// ===================================
+
+function initializeImageUpload() {
+    const immagineInput = document.getElementById('immagineInput');
+    const selectImageBtn = document.getElementById('selectImageBtn');
+    const dropZone = document.getElementById('dropZone');
+    const uploadArea = document.getElementById('uploadArea');
+    const newImagePreview = document.getElementById('newImagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const removePreviewBtn = document.getElementById('removePreviewBtn');
+    const deleteImageBtns = document.querySelectorAll('.delete-image-btn');
+
+    if (!immagineInput) return;
+
+    let selectedFile = null;
+
+    // Click to select file
+    if (selectImageBtn) {
+        selectImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            immagineInput.click();
+        });
+    }
+
+    if (dropZone) {
+        dropZone.addEventListener('click', () => {
+            immagineInput.click();
+        });
+    }
+
+    // File input change
+    immagineInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileSelect(file);
+        }
+    });
+
+    // Drag and drop
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFileSelect(file);
+            } else {
+                showImageError('Per favore, seleziona un file immagine valido');
+            }
+        });
+    }
+
+    // Remove preview
+    if (removePreviewBtn) {
+        removePreviewBtn.addEventListener('click', () => {
+            selectedFile = null;
+            immagineInput.value = '';
+            newImagePreview.classList.add('d-none');
+            uploadArea.classList.remove('d-none');
+            uploadArea.classList.remove('success', 'error');
+        });
+    }
+
+    // Delete existing image
+    deleteImageBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const eventoId = btn.dataset.eventoId;
+            
+            if (confirm('Sei sicuro di voler eliminare questa immagine?')) {
+                await deleteEventoImage(eventoId);
+            }
+        });
+    });
+
+    // Handle file selection
+    function handleFileSelect(file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showImageError('Per favore, seleziona un file immagine valido');
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showImageError('Il file è troppo grande. Dimensione massima: 5MB');
+            return;
+        }
+
+        selectedFile = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            uploadArea.classList.add('d-none');
+            newImagePreview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+
+        // Auto-upload if editing existing event
+        const form = document.getElementById('eventoForm');
+        const eventoId = form.getAttribute('data-evento-id');
+        
+        if (eventoId) {
+            uploadImageToServer(file, eventoId);
+        }
+    }
+
+    // Upload image to server
+    async function uploadImageToServer(file, eventoId) {
+        const formData = new FormData();
+        formData.append('immagine', file);
+
+        const progressBar = newImagePreview.querySelector('.progress-bar');
+        const uploadProgress = newImagePreview.querySelector('.upload-progress');
+        
+        if (uploadProgress) {
+            uploadProgress.classList.remove('d-none');
+        }
+
+        try {
+            const response = await fetch(`/evento/${eventoId}/upload-immagine`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+
+            setTimeout(() => {
+                if (uploadProgress) {
+                    uploadProgress.classList.add('d-none');
+                }
+            }, 500);
+
+            if (result.success) {
+                showSuccessMessage('Immagine caricata con successo!');
+                uploadArea.classList.add('success');
+                
+                // Reload after short delay to show updated image
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showImageError(result.error || 'Errore durante il caricamento');
+                uploadArea.classList.add('error');
+            }
+        } catch (error) {
+            console.error('Errore upload:', error);
+            showImageError('Errore di connessione durante il caricamento');
+            uploadArea.classList.add('error');
+            
+            if (uploadProgress) {
+                uploadProgress.classList.add('d-none');
+            }
+        }
+    }
+
+    // Delete image from server
+    async function deleteEventoImage(eventoId) {
+        try {
+            const response = await fetch(`/evento/${eventoId}/immagine`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccessMessage('Immagine eliminata con successo!');
+                
+                // Hide current preview and show upload area
+                const currentImagePreview = document.getElementById('currentImagePreview');
+                if (currentImagePreview) {
+                    currentImagePreview.remove();
+                }
+                
+                uploadArea.classList.remove('d-none');
+            } else {
+                showImageError(result.error || 'Errore durante l\'eliminazione');
+            }
+        } catch (error) {
+            console.error('Errore eliminazione:', error);
+            showImageError('Errore di connessione durante l\'eliminazione');
+        }
+    }
+
+    // Show error message for image operations
+    function showImageError(message) {
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+            uploadArea.classList.add('error');
+            setTimeout(() => {
+                uploadArea.classList.remove('error');
+            }, 3000);
+        }
+        
+        showErrors([message]);
+    }
 }

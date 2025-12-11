@@ -3,7 +3,10 @@ const router = express.Router();
 const dao = require('../services/dao-eventi');
 const daoSquadre = require('../../squadre/services/dao-squadre');
 const daoCampi = require('../../prenotazioni/services/dao-campi');
+const daoAdmin = require('../../admin/services/dao-admin');
 const { isLoggedIn, isAdminOrDirigente } = require('../../../core/middlewares/auth');
+const multer = require('multer');
+const { upload } = require('../../../core/config/multer');
 
 // Route per eventi/all gestita dal router
 
@@ -180,6 +183,65 @@ router.get('/eventi/miei', isLoggedIn, async (req,res)=>
     }
 });
 
+// Upload immagine per evento
+router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req, res, next) => {
+  upload.single('immagine')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File troppo grande. Dimensione massima: 5MB' });
+      }
+    } else if (err) {
+      return res.status(400).json({ error: err.message || 'Errore durante il caricamento del file' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    const eventoId = req.params.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nessun file caricato' });
+    }
 
+    // Verifica che l'evento esista
+    const evento = await dao.getEventoById(eventoId);
+    if (!evento) {
+      return res.status(404).json({ error: 'Evento non trovato' });
+    }
+
+    // Crea il path dell'immagine
+    const imageUrl = '/uploads/' + req.file.filename;
+    
+    // Inserisci l'immagine nella tabella IMMAGINI
+    await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
+    
+    res.json({ 
+      success: true, 
+      message: 'Immagine caricata con successo',
+      imageUrl: imageUrl
+    });
+  } catch (error) {
+    console.error('Errore upload immagine evento:', error);
+    res.status(500).json({ error: 'Errore durante il caricamento dell\'immagine' });
+  }
+});
+
+// Elimina immagine evento
+router.delete('/evento/:id/immagine', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+  try {
+    const eventoId = req.params.id;
+    
+    // Elimina tutte le immagini associate all'evento
+    await daoAdmin.deleteImmaginiByEntita('evento', eventoId);
+    
+    res.json({ 
+      success: true, 
+      message: 'Immagine eliminata con successo'
+    });
+  } catch (error) {
+    console.error('Errore eliminazione immagine evento:', error);
+    res.status(500).json({ error: 'Errore durante l\'eliminazione dell\'immagine' });
+  }
+});
 
 module.exports = router;
