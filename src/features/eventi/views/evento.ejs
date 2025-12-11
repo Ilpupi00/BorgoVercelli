@@ -22,8 +22,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <%- include('../../shared/views/partials/theme-includes') %>
+    <script src="/assets/scripts/image-editor-common.js"></script>
     <script src="/assets/scripts/crea_evento.js" defer></script>
-    <script src="/assets/scripts/image-editor-common.js" defer></script>
 </head>
 <body>
     <%- include('partials/navbar') %>
@@ -151,10 +151,10 @@
                                 </label>
                                 
                                 <!-- Preview Immagine Esistente -->
-                                <% if (evento && evento.immagini && evento.immagini.length > 0) { %>
+                                <% if (evento && evento.immagini && Array.isArray(evento.immagini) && evento.immagini.length > 0 && evento.immagini[0].url) { %>
                                     <div id="currentImagePreview" class="image-preview-container mb-3">
                                         <div class="image-preview-wrapper">
-                                            <img src="<%= evento.immagini[0].url %>" alt="Immagine evento" class="img-fluid rounded">
+                                            <img src="<%= evento.immagini[0].url %>" alt="Immagine evento" class="img-fluid rounded" onerror="this.onerror=null; this.src='/assets/images/placeholder.png'; console.error('Immagine non caricata:', '<%= evento.immagini[0].url %>');">
                                             <div class="image-actions">
                                                 <button type="button" class="btn btn-sm btn-success replace-image-btn">
                                                     <i class="bi bi-arrow-repeat"></i> Sostituisci

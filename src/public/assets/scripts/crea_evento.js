@@ -292,6 +292,8 @@ function submitQuillContent() {
 // ===================================
 
 function initializeImageUpload() {
+    console.log('🖼️ Inizializzazione upload immagini...');
+    
     const immagineInput = document.getElementById('immagineInput');
     const selectImageBtn = document.getElementById('selectImageBtn');
     const dropZone = document.getElementById('dropZone');
@@ -305,7 +307,22 @@ function initializeImageUpload() {
     const editImageBtns = document.querySelectorAll('.edit-image-btn');
     const currentImagePreview = document.getElementById('currentImagePreview');
 
-    if (!immagineInput) return;
+    console.log('📋 Elementi trovati:', {
+        immagineInput: !!immagineInput,
+        selectImageBtn: !!selectImageBtn,
+        dropZone: !!dropZone,
+        uploadArea: !!uploadArea,
+        newImagePreview: !!newImagePreview,
+        currentImagePreview: !!currentImagePreview,
+        deleteImageBtns: deleteImageBtns.length,
+        replaceImageBtn: !!replaceImageBtn,
+        editImageBtns: editImageBtns.length
+    });
+
+    if (!immagineInput) {
+        console.error('❌ immagineInput non trovato!');
+        return;
+    }
 
     let selectedFile = null;
     let currentImageUrl = null;
@@ -377,30 +394,44 @@ function initializeImageUpload() {
 
     // Replace existing image
     if (replaceImageBtn) {
+        console.log('✅ Pulsante Sostituisci trovato, aggiungo listener');
         replaceImageBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            console.log('🔄 Click su Sostituisci');
             immagineInput.click();
         });
+    } else {
+        console.log('⚠️ Pulsante Sostituisci non trovato');
     }
 
     // Edit preview
     if (editPreviewBtn) {
+        console.log('✅ Pulsante Modifica Preview trovato');
         editPreviewBtn.addEventListener('click', () => {
+            console.log('✂️ Click su Modifica Preview, URL:', currentImageUrl);
             if (currentImageUrl) {
                 if (typeof openImageEditor === 'function') {
                     openImageEditor(currentImageUrl);
+                } else {
+                    console.error('❌ Funzione openImageEditor non disponibile');
                 }
+            } else {
+                console.warn('⚠️ Nessun URL immagine disponibile');
             }
         });
     }
 
     // Edit existing image
-    editImageBtns.forEach(btn => {
+    editImageBtns.forEach((btn, index) => {
+        console.log(`✅ Pulsante Modifica Esistente ${index + 1} trovato`);
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const imageUrl = btn.dataset.imageUrl;
+            console.log('✂️ Click su Modifica Immagine Esistente, URL:', imageUrl);
             if (typeof openImageEditor === 'function') {
                 openImageEditor(imageUrl);
+            } else {
+                console.error('❌ Funzione openImageEditor non disponibile');
             }
         });
     });
@@ -419,18 +450,23 @@ function initializeImageUpload() {
 
     // Handle file selection
     function handleFileSelect(file) {
+        console.log('📁 File selezionato:', { name: file.name, type: file.type, size: file.size });
+        
         // Validate file type
         if (!file.type.startsWith('image/')) {
+            console.error('❌ Tipo file non valido:', file.type);
             showImageError('Per favore, seleziona un file immagine valido');
             return;
         }
 
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
+            console.error('❌ File troppo grande:', file.size);
             showImageError('Il file è troppo grande. Dimensione massima: 5MB');
             return;
         }
 
+        console.log('✅ Validazione passata');
         selectedFile = file;
 
         // Hide current image preview if exists
@@ -459,6 +495,7 @@ function initializeImageUpload() {
 
     // Upload image to server
     async function uploadImageToServer(file, eventoId) {
+        console.log('📤 Upload immagine al server...', { fileName: file.name, eventoId });
         const formData = new FormData();
         formData.append('immagine', file);
 
@@ -475,7 +512,9 @@ function initializeImageUpload() {
                 body: formData
             });
 
+            console.log('📥 Risposta server:', response.status);
             const result = await response.json();
+            console.log('📊 Risultato:', result);
 
             if (progressBar) {
                 progressBar.style.width = '100%';
