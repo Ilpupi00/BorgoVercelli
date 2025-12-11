@@ -221,11 +221,21 @@ router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req,
     // Inserisci l'immagine nella tabella IMMAGINI
     const risultato = await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
     console.log('[UPLOAD EVENTO] ✅ Immagine salvata nel DB:', risultato);
-    
+    // Se possibile, aggiorna la colonna immagine_id nella tabella EVENTI
+    try {
+      if (risultato && risultato.id) {
+        await dao.setImmagineEvento(eventoId, risultato.id);
+        console.log('[UPLOAD EVENTO] ✅ immagine_id impostata su EVENTI:', risultato.id);
+      }
+    } catch (setErr) {
+      console.warn('[UPLOAD EVENTO] ⚠️ Impossibile impostare immagine_id su EVENTI:', setErr);
+    }
+
     res.json({ 
       success: true, 
       message: 'Immagine caricata con successo',
-      imageUrl: imageUrl
+      imageUrl: imageUrl,
+      imageId: risultato && risultato.id ? risultato.id : null
     });
   } catch (error) {
     console.error('[UPLOAD EVENTO] ❌ Errore:', error);

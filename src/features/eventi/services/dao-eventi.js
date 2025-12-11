@@ -234,6 +234,27 @@ exports.togglePubblicazioneEvento = function(id) {
 }
 
 /**
+ * Imposta l'immagine principale per un evento (colonna `immagine_id`)
+ * @async
+ * @param {number} id - ID evento
+ * @param {number} immagineId - ID immagine
+ * @returns {Promise<Object>} { success }
+ */
+exports.setImmagineEvento = function(id, immagineId) {
+    const sql = `UPDATE EVENTI SET immagine_id = ?, updated_at = NOW() WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+        sqlite.run(sql, [immagineId, id], function(err, result) {
+            if (err) {
+                console.error('Errore SQL set immagine evento:', err);
+                return reject({ error: 'Error setting event image: ' + err.message });
+            }
+            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
+            resolve({ success: true, changes });
+        });
+    });
+}
+
+/**
  * Cerca eventi pubblicati per titolo/descrizione/luogo
  * @async
  * @param {string} searchTerm - Term per LIKE
