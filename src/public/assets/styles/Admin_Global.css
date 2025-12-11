@@ -1255,6 +1255,38 @@ table .btn-danger {
     border-left-color: var(--info);
 }
 
+/* Ensure alerts inside card bodies remain readable even when parent
+   rules (e.g., theme overrides) apply `!important` colors to .card-body. */
+.card-body .alert {
+    /* Keep the alert background and text explicit so it contrasts with the card */
+    background: inherit !important;
+    color: inherit !important;
+}
+
+.card-body .alert-success {
+    background: rgba(16, 185, 129, 0.08) !important;
+    color: var(--success-dark) !important;
+    border-left-color: var(--success) !important;
+}
+
+.card-body .alert-danger {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: var(--danger-dark) !important;
+    border-left-color: var(--danger) !important;
+}
+
+.card-body .alert-warning {
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: var(--warning-dark) !important;
+    border-left-color: var(--warning) !important;
+}
+
+.card-body .alert-info {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: var(--info-dark) !important;
+    border-left-color: var(--info) !important;
+}
+
 /* ==================== FILTERS ==================== */
 
 .filters-section {

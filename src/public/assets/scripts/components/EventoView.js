@@ -87,7 +87,21 @@ class EventoView {
     }
 
     showNotification(message) {
-        // Simple notification system
+        // Prefer global ToastManager for consistent UI
+        try {
+            if (window.AdminGlobal && window.AdminGlobal.ToastManager && typeof window.AdminGlobal.ToastManager.success === 'function') {
+                window.AdminGlobal.ToastManager.success(message);
+                return;
+            }
+            if (typeof toastManager !== 'undefined' && typeof toastManager.success === 'function') {
+                toastManager.success(message);
+                return;
+            }
+        } catch (e) {
+            // fallback to DOM alert
+        }
+
+        // Fallback: simple DOM alert
         const notification = document.createElement('div');
         notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
         notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
@@ -98,11 +112,8 @@ class EventoView {
 
         document.body.appendChild(notification);
 
-        // Auto remove after 3 seconds
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
+            if (notification.parentNode) notification.remove();
         }, 3000);
     }
 }

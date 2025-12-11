@@ -409,7 +409,23 @@ class EventiManager {
     showError(message) {
         console.error('Errore EventiManager:', message);
 
-        // Mostra un messaggio di errore nell'interfaccia invece di un alert
+        // Usa il ToastManager globale quando disponibile per coerenza visiva
+        try {
+            if (window.AdminGlobal && window.AdminGlobal.ToastManager && typeof window.AdminGlobal.ToastManager.error === 'function') {
+                window.AdminGlobal.ToastManager.error(message);
+                return;
+            }
+            // Fallback su variabile globale toastManager
+            if (typeof toastManager !== 'undefined' && typeof toastManager.error === 'function') {
+                toastManager.error(message);
+                return;
+            }
+        } catch (e) {
+            // fallthrough to legacy behaviour
+            console.warn('ToastManager non disponibile, uso fallback alert DOM');
+        }
+
+        // Fallback legacy: crea un alert posizionato
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
         errorDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';

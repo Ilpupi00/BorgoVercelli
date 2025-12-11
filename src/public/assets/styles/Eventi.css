@@ -21,20 +21,21 @@
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+    background: var(--hero-gradient-start, linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%));
     position: relative;
     overflow: hidden;
+    color: var(--hero-text, var(--white));
 }
 
-.hero-section::before {
+hero-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.1;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.06)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.06)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.06)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.06;
 }
 
 /* Search and Filters Section */
@@ -43,7 +44,7 @@
     top: 76px; /* Height of navbar */
     z-index: 100;
     backdrop-filter: blur(10px);
-    background-color: rgba(248, 249, 250, 0.95);
+    background-color: var(--bg-elevated, rgba(248, 249, 250, 0.95));
 }
 
 .form-label {
@@ -102,7 +103,7 @@
 
 /* Events Grid */
 .event-card {
-    background: var(--white);
+    background: var(--card-bg, var(--white));
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -160,14 +161,14 @@
 }
 
 .card-title {
-    color: var(--dark-color);
+    color: var(--text-primary, var(--dark-color));
     font-size: 1.25rem;
     line-height: 1.4;
     margin-bottom: 1rem;
 }
 
 .card-text {
-    color: var(--secondary-color);
+    color: var(--text-secondary, var(--secondary-color));
     line-height: 1.6;
     margin-bottom: 1rem;
 }
@@ -180,7 +181,7 @@
 .detail-item {
     display: flex;
     align-items: center;
-    color: var(--secondary-color);
+    color: var(--text-secondary, var(--secondary-color));
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
 }
@@ -213,7 +214,7 @@
 .event-hero-section {
     min-height: 60vh;
     position: relative;
-    color: var(--white);
+    color: var(--hero-text, var(--white));
 }
 
 .hero-overlay {
@@ -222,7 +223,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 100%);
+    background: var(--hero-overlay, linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 100%));
     z-index: 1;
 }
 
@@ -243,9 +244,9 @@
 }
 
 .event-type-badge-hero .badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--white);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: var(--glass-bg, rgba(255,255,255,0.08));
+    color: var(--hero-text, var(--white));
+    border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(10px);
 }
 
@@ -266,11 +267,12 @@
 
 .meta-item i {
     margin-right: 0.5rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-on-primary, rgba(255, 255, 255, 0.9));
 }
 
 .event-content-section {
-    background: var(--light-color);
+    background: var(--bg-secondary, var(--light-color));
+    color: var(--text-primary);
 }
 
 .event-details-card {
@@ -304,7 +306,7 @@
 }
 
 .event-description {
-    color: var(--dark-color);
+    color: var(--text-primary, var(--dark-color));
     line-height: 1.8;
     font-size: 1.1rem;
 }
@@ -335,7 +337,7 @@
 }
 
 .back-to-events-section {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--border-color, #e9ecef);
 }
 
 /* Loading and States */

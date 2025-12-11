@@ -158,6 +158,54 @@
     color: var(--text-on-primary) !important;
   }
 
+  /* Alerts placed inside the navbar (error messages injected into navbar area)
+     Ensure high contrast in both light and dark themes. Use !important to
+     override other theme-specific rules that may color .card-body or .alert. */
+  .navbar .alert {
+    /* Solid red background for alerts in navbar, white text for contrast */
+    background: var(--danger, #ef4444) !important;
+    color: var(--text-on-primary, #ffffff) !important;
+    border-left-color: #b91c1c !important;
+    padding: 0.5rem 0.75rem !important;
+    margin: 0.25rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  :root[data-theme="dark"] .navbar .alert,
+  body[data-theme="dark"] .navbar .alert {
+    background: rgba(255,255,255,0.06) !important;
+    color: var(--text-on-primary, #ffffff) !important;
+    border-left-color: var(--danger, #ef4444) !important;
+  }
+
+  /* Ensure icon, strong label and close button are visible in navbar alerts */
+  .navbar .alert i {
+    color: var(--danger, #ef4444) !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+  }
+
+  .navbar .alert strong {
+    color: inherit !important;
+    margin-right: 0.25rem !important;
+  }
+
+  .navbar .alert .btn-close {
+    background: transparent !important;
+    border: none !important;
+    color: var(--gray-700, #4b5563) !important;
+    opacity: 1 !important;
+  }
+
+  :root[data-theme="dark"] .navbar .alert i,
+  body[data-theme="dark"] .navbar .alert i {
+    color: var(--danger, #ef4444) !important;
+  }
+
+  :root:not([data-theme="dark"]) .navbar .alert {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+  }
+
   /* avoid active nav-link showing full white block on mobile (links often full-width) */
   .navbar-nav .nav-link:active,
   .navbar-nav .nav-link.active {
@@ -171,6 +219,84 @@
     background: var(--navbar-bg) !important;
     border-color: rgba(255,255,255,0.08) !important;
   }
+}
+/* Alerts placed inside the navbar (global) - ensure high contrast in both themes */
+  .navbar .alert {
+  background: var(--danger, #ef4444) !important;
+  color: var(--text-on-primary, #ffffff) !important;
+  border-left-color: #b91c1c !important;
+  padding: 0.5rem 0.75rem !important;
+  margin: 0.25rem !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+}
+
+:root[data-theme="dark"] .navbar .alert,
+body[data-theme="dark"] .navbar .alert {
+  /* Keep alerts visible in dark theme as well: use danger color but slightly toned */
+  background: linear-gradient(90deg, rgba(239,68,68,0.95), rgba(185,28,28,0.95)) !important;
+  color: var(--text-on-primary, #ffffff) !important;
+  border-left-color: #7f1d1d !important;
+}
+
+.navbar .alert i {
+  /* default: use on-primary text color (white) so icons contrast on red background */
+  color: var(--text-on-primary, #ffffff) !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  margin-right: 0.4rem !important;
+}
+
+.navbar .alert strong {
+  color: inherit !important;
+  margin-right: 0.25rem !important;
+}
+
+.navbar .alert .btn-close {
+  background: transparent !important;
+  border: none !important;
+  /* use theme-aware secondary text color for close button */
+  color: var(--text-secondary, #4b5563) !important;
+  opacity: 1 !important;
+}
+
+/* Explicit: ensure non-dark (light) theme navbar alerts always use readable text color
+   This guards against cases where the navbar itself becomes light/white and
+   other styles would make the alert contents blend into the background. */
+:root:not([data-theme="dark"]) .navbar .alert,
+body:not([data-theme="dark"]) .navbar .alert {
+  /* Light theme: red alert box with white text */
+  background: var(--danger, #ef4444) !important;
+  color: var(--text-on-primary, #ffffff) !important;
+  border-left-color: #b91c1c !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+}
+
+/* Light-theme: ensure icons and close button are white */
+:root:not([data-theme="dark"]) .navbar .alert i,
+body:not([data-theme="dark"]) .navbar .alert i {
+  color: var(--text-on-primary, #ffffff) !important;
+}
+
+:root:not([data-theme="dark"]) .navbar .alert .btn-close,
+body:not([data-theme="dark"]) .navbar .alert .btn-close {
+  color: var(--text-on-primary, #ffffff) !important;
+}
+
+/* Dark-theme: keep icon colored to danger for emphasis */
+:root[data-theme="dark"] .navbar .alert i,
+body[data-theme="dark"] .navbar .alert i {
+  color: var(--danger, #ef4444) !important;
+}
+
+/* also ensure position-fixed alerts (top-right) have visible text/icons */
+.alert.position-fixed {
+  color: var(--text-primary, #111827) !important;
+}
+
+:root[data-theme="dark"] .alert.position-fixed,
+body[data-theme="dark"] .alert.position-fixed {
+  color: var(--text-on-primary, #fff) !important;
 }
 @keyframes fadeInUp {
   from {

@@ -347,12 +347,38 @@ class GestioneNotizie {
                     window.ShowModal.showModalInfo(message, 'Informazione');
             }
         } else {
-            // Fallback all'alert originale se ShowModal non è disponibile
-            // Rimuovi alert esistenti
+            // Prefer global ToastManager when available
+            try {
+                if (window.AdminGlobal && window.AdminGlobal.ToastManager) {
+                    const tm = window.AdminGlobal.ToastManager;
+                    switch (type) {
+                        case 'success': tm.success(message); break;
+                        case 'danger':
+                        case 'error': tm.error(message); break;
+                        case 'warning': tm.warning(message); break;
+                        default: tm.info(message); break;
+                    }
+                    return;
+                }
+                if (typeof toastManager !== 'undefined') {
+                    const tm = toastManager;
+                    switch (type) {
+                        case 'success': tm.success(message); break;
+                        case 'danger':
+                        case 'error': tm.error(message); break;
+                        case 'warning': tm.warning(message); break;
+                        default: tm.info(message); break;
+                    }
+                    return;
+                }
+            } catch (e) {
+                console.warn('ToastManager non disponibile, uso fallback DOM alert', e);
+            }
+
+            // Fallback original DOM alert
             const existingAlerts = document.querySelectorAll('.alert');
             existingAlerts.forEach(alert => alert.remove());
 
-            // Crea nuovo alert
             const alert = document.createElement('div');
             alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
             alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
@@ -364,11 +390,8 @@ class GestioneNotizie {
 
             document.body.appendChild(alert);
 
-            // Auto-rimuovi dopo 5 secondi
             setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.remove();
-                }
+                if (alert.parentNode) alert.remove();
             }, 5000);
         }
     }
