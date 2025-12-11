@@ -198,22 +198,29 @@ router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req,
 }, async (req, res) => {
   try {
     const eventoId = req.params.id;
+    console.log('[UPLOAD EVENTO] ID evento:', eventoId);
     
     if (!req.file) {
+      console.log('[UPLOAD EVENTO] ❌ Nessun file ricevuto');
       return res.status(400).json({ error: 'Nessun file caricato' });
     }
+
+    console.log('[UPLOAD EVENTO] ✅ File ricevuto:', req.file.filename, 'Path:', req.file.path);
 
     // Verifica che l'evento esista
     const evento = await dao.getEventoById(eventoId);
     if (!evento) {
+      console.log('[UPLOAD EVENTO] ❌ Evento non trovato:', eventoId);
       return res.status(404).json({ error: 'Evento non trovato' });
     }
 
     // Crea il path dell'immagine
     const imageUrl = '/uploads/' + req.file.filename;
+    console.log('[UPLOAD EVENTO] 📸 URL immagine:', imageUrl);
     
     // Inserisci l'immagine nella tabella IMMAGINI
-    await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
+    const risultato = await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
+    console.log('[UPLOAD EVENTO] ✅ Immagine salvata nel DB:', risultato);
     
     res.json({ 
       success: true, 
@@ -221,7 +228,7 @@ router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req,
       imageUrl: imageUrl
     });
   } catch (error) {
-    console.error('Errore upload immagine evento:', error);
+    console.error('[UPLOAD EVENTO] ❌ Errore:', error);
     res.status(500).json({ error: 'Errore durante il caricamento dell\'immagine' });
   }
 });

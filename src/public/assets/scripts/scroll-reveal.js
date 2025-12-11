@@ -100,11 +100,14 @@
     function applyAnimationsToHeadings() {
         // Seleziona tutti i titoli h1-h5
         // include anche titoli annidati in header/hero/page-header
-        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, .page-header h1, .hero-section h1');
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, .page-header h1, .hero-section h1, .section-title');
         headings.forEach(heading => {
             // Se l'elemento non ha già la classe reveal, aggiungila
             if (heading && !heading.classList.contains('reveal')) {
                 heading.classList.add('reveal', 'reveal--fade-up');
+                if (CONFIG.debug) {
+                    console.log('[ScrollReveal] Aggiunta animazione a heading:', heading.textContent.substring(0, 30));
+                }
             }
         });
     }
@@ -226,6 +229,12 @@
 
         // Trova tutti gli elementi da animare
         const elements = document.querySelectorAll(CONFIG.selector);
+        
+        if (CONFIG.debug) {
+            console.log('[ScrollReveal] Elementi .reveal trovati:', elements.length);
+            const sectionTitles = document.querySelectorAll('.section-title');
+            console.log('[ScrollReveal] Elementi .section-title trovati:', sectionTitles.length);
+        }
         
         if (elements.length === 0) {
             if (CONFIG.debug) {
