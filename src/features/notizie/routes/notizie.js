@@ -127,7 +127,7 @@ router.get('/crea-notizie', isAdminOrDirigente, async (req, res) => {
 router.post('/notizie/nuova', isAdminOrDirigente, isLoggedIn, upload.single('immagine_principale'), async (req, res) => {
   try {
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
-    const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
+    const templateName = 'notizia';
 
     if (!titolo || !contenuto) {
       return res.render(templateName, { user: req.user, notizia: null, error: 'Titolo e contenuto sono obbligatori' });
@@ -188,7 +188,7 @@ router.post('/notizie/:id', canEditNotizia, upload.single('immagine_principale')
     const id = parseIdParam(req.params.id);
     if (!id) return res.status(400).render('error', { message: 'ID notizia non valido', error: { status: 400 } });
     const { titolo, contenuto, sottotitolo, immagine_principale_id, pubblicata, template } = req.body;
-    const templateName = template === 'semplice' ? 'Notizie/notizia_semplice' : 'Notizie/notizia';
+    const templateName = 'notizia';
 
     if (!titolo || !contenuto) {
       const notizia = await dao.getNotiziaById(id);
