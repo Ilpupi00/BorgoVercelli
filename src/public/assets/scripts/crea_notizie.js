@@ -72,13 +72,17 @@ class NewsEditor {
      */
     loadExistingContent() {
         if (window.notiziaData && window.notiziaData.contenuto) {
+            console.log('📝 Caricamento contenuto esistente:', window.notiziaData.contenuto.substring(0, 100) + '...');
             this.quill.root.innerHTML = window.notiziaData.contenuto;
             this.lastContent = this.quill.getContents();
             // Aggiorna anche il campo hidden
             const contenutoElement = document.getElementById('contenuto');
             if (contenutoElement) {
                 contenutoElement.value = window.notiziaData.contenuto;
+                console.log('✅ Campo hidden aggiornato con contenuto esistente');
             }
+        } else {
+            console.log('ℹ️ Nessun contenuto esistente da caricare (nuova notizia)');
         }
     }
 
@@ -111,11 +115,20 @@ class NewsEditor {
             // Trasferisci sempre il contenuto prima dell'invio
             form.addEventListener('submit', (e) => {
                 console.log('Form submit triggered');
+                
+                // SEMPRE aggiorna il campo hidden prima di validare/inviare
+                const contenutoElement = document.getElementById('contenuto');
+                if (contenutoElement && this.quill) {
+                    const contenutoHtml = this.quill.root.innerHTML;
+                    contenutoElement.value = contenutoHtml;
+                    console.log('✅ Contenuto aggiornato prima del submit:', contenutoHtml.substring(0, 100) + '...');
+                }
+                
                 if (!this.validateForm()) {
                     e.preventDefault();
                     console.log('Form validation failed');
                 } else {
-                    console.log('Form validation passed');
+                    console.log('Form validation passed - submitting...');
                 }
             });
         }

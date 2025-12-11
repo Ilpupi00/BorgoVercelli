@@ -1,5 +1,8 @@
 // crea_evento.js - Gestione della pagina di creazione/modifica eventi
 
+// Variabile globale per tenere traccia del file immagine selezionato
+let selectedFile = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializeDateValidation();
@@ -66,6 +69,12 @@ async function handleFormSubmit(event) {
         }
 
         if (result && result.success) {
+            // Se c'è un'immagine selezionata e siamo in creazione, caricala ora
+            if (selectedFile && result.eventoId && method === 'POST') {
+                console.log('📤 Caricamento immagine per nuovo evento ID:', result.eventoId);
+                await uploadImageToServer(selectedFile, result.eventoId);
+            }
+            
             // Mostra messaggio di successo
             showSuccessMessage(result.message || 'Salvataggio avvenuto con successo');
             // Reindirizza dopo un breve delay
@@ -324,7 +333,7 @@ function initializeImageUpload() {
         return;
     }
 
-    let selectedFile = null;
+    // selectedFile è ora una variabile globale dichiarata all'inizio del file
     let currentImageUrl = null;
 
     // Click to select file

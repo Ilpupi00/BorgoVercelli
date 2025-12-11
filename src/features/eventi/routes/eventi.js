@@ -76,12 +76,12 @@ router.post('/evento/nuovo', isLoggedIn, isAdminOrDirigente, async (req, res) =>
       pubblicato: req.body.pubblicato === 'true' || req.body.pubblicato === true
     };
 
-    await dao.createEvento(eventoData);
+    const nuovoEvento = await dao.createEvento(eventoData);
     const user = req.user;
     const redirectUrl = user.tipo_utente_id === 1 ? '/admin/eventi' : '/profilo';
     // If request comes from AJAX/fetch (expects JSON), return JSON so client can handle redirect
     if (req.xhr || (req.headers && req.headers['x-requested-with'] === 'XMLHttpRequest') || (req.headers.accept && req.headers.accept.includes('application/json'))) {
-      return res.json({ success: true, redirectUrl });
+      return res.json({ success: true, redirectUrl, eventoId: nuovoEvento.id });
     }
     return res.redirect(redirectUrl);
   } catch (error) {
