@@ -1090,7 +1090,53 @@ button::-webkit-scrollbar,
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-/* Stili per il bottone modifica foto */
+/* Stili per i pulsanti immagine profilo */
+.profile-image-buttons {
+    display: flex !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    z-index: 10 !important;
+}
+
+.profile-image-buttons .btn {
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+.profile-image-buttons .btn:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.profile-image-buttons .btn span {
+    font-size: 18px !important;
+    color: white !important;
+}
+
+.profile-image-buttons .btn-success {
+    background: #10b981 !important;
+    border: none !important;
+}
+
+.profile-image-buttons .btn-success:hover {
+    background: #059669 !important;
+}
+
+.profile-image-buttons .btn-primary {
+    background: #3b82f6 !important;
+    border: none !important;
+}
+
+.profile-image-buttons .btn-primary:hover {
+    background: #2563eb !important;
+}
+
+/* Compatibilità con stili esistenti */
 #editPicBtn {
     width: 40px !important;
     height: 40px !important;
@@ -1098,7 +1144,7 @@ button::-webkit-scrollbar,
 }
 
 #editPicBtn .bi-camera-fill {
-    font-size: 20px !important;
+    font-size: 18px !important;
     color: white !important;
 }
 
@@ -1300,4 +1346,48 @@ button::-webkit-scrollbar,
     background-color: #6b7280 !important;
     border-color: #6b7280 !important;
     color: white !important;
+}
+
+/* ====================================
+   RESPONSIVE - PULSANTI PROFILO
+   ==================================== */
+
+/* Mobile - pulsanti più grandi per touch */
+@media (max-width: 767px) {
+    .profile-image-buttons {
+        gap: 0.75rem !important;
+    }
+    
+    .profile-image-buttons .btn {
+        width: 44px !important;
+        height: 44px !important;
+    }
+    
+    .profile-image-buttons .btn span {
+        font-size: 20px !important;
+    }
+}
+
+/* Tablet e superiori */
+@media (min-width: 768px) {
+    .profile-image-buttons {
+        gap: 0.5rem !important;
+    }
+    
+    .profile-image-buttons .btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* Touch devices - pulsanti sempre ben spaziati */
+@media (hover: none) and (pointer: coarse) {
+    .profile-image-buttons {
+        gap: 0.875rem !important;
+    }
+    
+    .profile-image-buttons .btn {
+        width: 46px !important;
+        height: 46px !important;
+    }
 }

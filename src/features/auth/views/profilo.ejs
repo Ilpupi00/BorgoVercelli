@@ -37,9 +37,9 @@
                             <% } else { %>
                                 <i class="bi bi-person-circle profile-img-main"></i>
                             <% } %>
-                            <div class="position-absolute bottom-0 end-0">
+                            <div class="profile-image-buttons position-absolute bottom-0 end-0 d-flex gap-2">
                                 <% if (imageUrl) { %>
-                                <button type="button" class="btn btn-success btn-sm rounded-circle p-2 shadow me-1" title="Modifica foto" onclick="window.openImageEditor('<%= imageUrl %>')">
+                                <button type="button" class="btn btn-success btn-sm rounded-circle p-2 shadow" title="Modifica foto" onclick="window.openImageEditor('<%= imageUrl %>')">
                                     <span class="bi bi-scissors"></span>
                                 </button>
                                 <% } %>
