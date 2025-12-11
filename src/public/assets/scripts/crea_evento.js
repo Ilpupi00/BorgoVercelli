@@ -299,11 +299,16 @@ function initializeImageUpload() {
     const newImagePreview = document.getElementById('newImagePreview');
     const previewImg = document.getElementById('previewImg');
     const removePreviewBtn = document.getElementById('removePreviewBtn');
+    const editPreviewBtn = document.getElementById('editPreviewBtn');
     const deleteImageBtns = document.querySelectorAll('.delete-image-btn');
+    const replaceImageBtn = document.querySelector('.replace-image-btn');
+    const editImageBtns = document.querySelectorAll('.edit-image-btn');
+    const currentImagePreview = document.getElementById('currentImagePreview');
 
     if (!immagineInput) return;
 
     let selectedFile = null;
+    let currentImageUrl = null;
 
     // Click to select file
     if (selectImageBtn) {
@@ -356,12 +361,49 @@ function initializeImageUpload() {
     if (removePreviewBtn) {
         removePreviewBtn.addEventListener('click', () => {
             selectedFile = null;
+            currentImageUrl = null;
             immagineInput.value = '';
             newImagePreview.classList.add('d-none');
-            uploadArea.classList.remove('d-none');
+            
+            // Mostra l'immagine corrente se esiste, altrimenti mostra l'area upload
+            if (currentImagePreview) {
+                currentImagePreview.classList.remove('d-none');
+            } else {
+                uploadArea.classList.remove('d-none');
+            }
             uploadArea.classList.remove('success', 'error');
         });
     }
+
+    // Replace existing image
+    if (replaceImageBtn) {
+        replaceImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            immagineInput.click();
+        });
+    }
+
+    // Edit preview
+    if (editPreviewBtn) {
+        editPreviewBtn.addEventListener('click', () => {
+            if (currentImageUrl) {
+                if (typeof openImageEditor === 'function') {
+                    openImageEditor(currentImageUrl);
+                }
+            }
+        });
+    }
+
+    // Edit existing image
+    editImageBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const imageUrl = btn.dataset.imageUrl;
+            if (typeof openImageEditor === 'function') {
+                openImageEditor(imageUrl);
+            }
+        });
+    });
 
     // Delete existing image
     deleteImageBtns.forEach(btn => {
@@ -391,10 +433,16 @@ function initializeImageUpload() {
 
         selectedFile = file;
 
+        // Hide current image preview if exists
+        if (currentImagePreview) {
+            currentImagePreview.classList.add('d-none');
+        }
+
         // Show preview
         const reader = new FileReader();
         reader.onload = (e) => {
-            previewImg.src = e.target.result;
+            currentImageUrl = e.target.result;
+            previewImg.src = currentImageUrl;
             uploadArea.classList.add('d-none');
             newImagePreview.classList.remove('d-none');
         };
@@ -443,10 +491,10 @@ function initializeImageUpload() {
                 showSuccessMessage('Immagine caricata con successo!');
                 uploadArea.classList.add('success');
                 
-                // Reload after short delay to show updated image
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                // Aggiorna l'immagine nella preview senza reload
+                if (result.imageUrl) {
+                    previewImg.src = result.imageUrl;
+                }
             } else {
                 showImageError(result.error || 'Errore durante il caricamento');
                 uploadArea.classList.add('error');

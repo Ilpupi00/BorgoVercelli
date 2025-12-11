@@ -80,6 +80,9 @@
                                         <div class="image-preview-wrapper">
                                             <img src="<%= notizia.immagine.url %>" alt="Immagine notizia" class="img-fluid rounded">
                                             <div class="image-actions">
+                                                <button type="button" class="btn btn-sm btn-success replace-image-btn">
+                                                    <i class="bi bi-arrow-repeat"></i> Sostituisci
+                                                </button>
                                                 <button type="button" class="btn btn-sm btn-primary edit-image-btn" data-notizia-id="<%= notizia.id %>" data-image-url="<%= notizia.immagine.url %>">
                                                     <i class="bi bi-scissors"></i> Modifica
                                                 </button>

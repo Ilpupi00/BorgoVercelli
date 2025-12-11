@@ -325,6 +325,8 @@ function initializeImageUpload() {
     const editPreviewBtn = document.getElementById('editPreviewBtn');
     const deleteImageBtns = document.querySelectorAll('.delete-image-btn');
     const editImageBtns = document.querySelectorAll('.edit-image-btn');
+    const replaceImageBtn = document.querySelector('.replace-image-btn');
+    const currentImagePreview = document.getElementById('currentImagePreview');
 
     if (!immagineInput) return;
 
@@ -385,7 +387,22 @@ function initializeImageUpload() {
             currentImageUrl = null;
             immagineInput.value = '';
             newImagePreview.classList.add('d-none');
-            uploadArea.classList.remove('d-none', 'success', 'error');
+            
+            // Mostra l'immagine corrente se esiste, altrimenti mostra l'area upload
+            if (currentImagePreview) {
+                currentImagePreview.classList.remove('d-none');
+            } else {
+                uploadArea.classList.remove('d-none');
+            }
+            uploadArea.classList.remove('success', 'error');
+        });
+    }
+
+    // Replace existing image
+    if (replaceImageBtn) {
+        replaceImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            immagineInput.click();
         });
     }
 
@@ -434,6 +451,11 @@ function initializeImageUpload() {
         }
 
         selectedFile = file;
+
+        // Hide current image preview if exists
+        if (currentImagePreview) {
+            currentImagePreview.classList.add('d-none');
+        }
 
         // Show preview
         const reader = new FileReader();
@@ -486,10 +508,11 @@ function initializeImageUpload() {
                 showSuccessMessage('Immagine caricata con successo!');
                 uploadArea.classList.add('success');
                 
-                // Reload after short delay
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                // Aggiorna l'immagine nella preview senza reload
+                if (result.imageUrl) {
+                    currentImageUrl = result.imageUrl;
+                    previewImg.src = result.imageUrl;
+                }
             } else {
                 showImageError(result.error || 'Errore durante il caricamento');
                 uploadArea.classList.add('error');
