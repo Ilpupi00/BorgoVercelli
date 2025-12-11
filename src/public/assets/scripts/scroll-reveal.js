@@ -137,7 +137,10 @@
                 '.enti-card': 'reveal--fade-up',
                 '.entity-card': 'reveal--fade-up',
                 '.page-header': 'reveal--text-mask',
-                '.hero-section': 'reveal--zoom-out'
+                '.hero-section': 'reveal--zoom-out',
+                // Sections
+                '.privacy-section': 'reveal--fade-up',
+                '.regolamento-section': 'reveal--fade-up'
             };
 
             Object.keys(mapping).forEach(selector => {
@@ -181,12 +184,29 @@
         try {
             const elements = document.querySelectorAll(CONFIG.selector);
             const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+            // Collect visible elements first, then add the class asynchronously
+            const visibleNow = [];
             elements.forEach(el => {
                 const rect = el.getBoundingClientRect();
-                // consider visible if any part is within viewport (a small margin)
                 if (rect.top < viewportHeight && rect.bottom > 0) {
-                    el.classList.add(CONFIG.visibleClass);
+                    visibleNow.push(el);
                 }
+            });
+
+            if (visibleNow.length === 0) return;
+
+            // Use requestAnimationFrame + small timeout to ensure browser registers
+            // the added classes and triggers CSS transitions.
+            requestAnimationFrame(() => {
+                // Small timeout to allow layout to settle (helps on heavy pages)
+                setTimeout(() => {
+                    visibleNow.forEach((el, idx) => {
+                        // optional stagger for nicer effect
+                        const stagger = Math.min(300, idx * 40);
+                        setTimeout(() => el.classList.add(CONFIG.visibleClass), stagger);
+                    });
+                    if (CONFIG.debug) console.log('[ScrollReveal] Applied initial visibility to', visibleNow.length, 'elements');
+                }, 16); // ~1 frame
             });
         } catch (e) {
             if (CONFIG.debug) console.warn('[ScrollReveal] initial visibility check failed', e);

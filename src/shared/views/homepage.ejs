@@ -41,25 +41,25 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Notizie</h2>
-                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Le ultime novità dalla nostra società</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Notizie</h2>
+                    <p class="lead text-muted">Le ultime novità dalla nostra società</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% notizie.slice(0, 3).forEach((notizia, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="news-card h-100 reveal reveal--fade-up reveal--delay-<%= index + 1 %>">
+                        <div class="news-card h-100">
                             <div class="card-img-container">
                                 <% 
                                 const notiziaImgSrc = (notizia.immagine_url && notizia.immagine_url.trim()) 
                                     ? notizia.immagine_url 
                                     : (notizia.immagine && notizia.immagine.url ? notizia.immagine.url : '/assets/images/Campo.png');
                                 %>
-                          <img src="<%= notiziaImgSrc %>" alt="<%= notizia.titolo || 'Notizia' %>" class="img-fluid reveal reveal--zoom-out-subtle reveal--delay-<%= index + 1 %>"
+                          <img src="<%= notiziaImgSrc %>" alt="<%= notizia.titolo || 'Notizia' %>" class="img-fluid"
                               onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
                             </div>
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold reveal reveal--text-mask reveal--delay-<%= index + 1 %>"><%= notizia.titolo || 'Senza titolo' %></h5>
+                                <h5 class="card-title fw-bold"><%= notizia.titolo || 'Senza titolo' %></h5>
                                 <% if (notizia.sottotitolo) { %>
                                     <h6 class="card-subtitle mb-3 text-muted"><%= notizia.sottotitolo %></h6>
                                 <% } %>
@@ -97,25 +97,25 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Eventi</h2>
-                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Partecipa ai nostri eventi sportivi</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Eventi</h2>
+                    <p class="lead text-muted">Partecipa ai nostri eventi sportivi</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% eventi.slice(0, 3).forEach((evento, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="news-card h-100 reveal reveal--fade-up reveal--delay-<%= index + 1 %>">
+                        <div class="news-card h-100">
                             <div class="card-img-container">
                                 <% 
                                 const eventoImgSrc = (evento.immagine_url && evento.immagine_url.trim()) 
                                     ? evento.immagine_url 
                                     : (evento.immagine && evento.immagine.url ? evento.immagine.url : '/assets/images/Campo.png');
                                 %>
-                          <img src="<%= eventoImgSrc %>" alt="<%= evento.titolo || 'Evento' %>" class="img-fluid reveal reveal--zoom-out-subtle reveal--delay-<%= index + 1 %>"
+                          <img src="<%= eventoImgSrc %>" alt="<%= evento.titolo || 'Evento' %>" class="img-fluid"
                               onerror="this.onerror=null; this.src='/assets/images/Campo.png'; this.alt='';">
                             </div>
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold reveal reveal--text-mask reveal--delay-<%= index + 1 %>"><%= evento.titolo || 'Senza titolo' %></h5>
+                                <h5 class="card-title fw-bold"><%= evento.titolo || 'Senza titolo' %></h5>
                                 <p class="card-text flex-grow-1"><%= ((evento.descrizione || '').replace(/<[^>]*>/g, '')).substring(0, 150) %>...</p>
                                 <p class="card-text">
                                     <small class="text-muted">
@@ -150,14 +150,14 @@
         <div class="container-fluid px-4">
             <div class="row justify-content-center mb-5">
                 <div class="col-12 col-md-8 text-center">
-                    <h2 class="section-title display-4 fw-bold text-primary mb-3 reveal reveal--fade-up">Recensioni</h2>
-                    <p class="lead text-muted reveal reveal--fade-up reveal--delay-1">Cosa dicono i nostri utenti</p>
+                    <h2 class="section-title display-4 fw-bold text-primary mb-3">Recensioni</h2>
+                    <p class="lead text-muted">Cosa dicono i nostri utenti</p>
                 </div>
             </div>
             <div class="row g-4">
                 <% recensioni.slice(0, 6).forEach((recensione, index) => { %>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="review-card h-100 reveal reveal--fade-up reveal--delay-<%= Math.min(index + 1, 5) %>">
+                        <div class="review-card h-100">
                             <div class="review-content">
                                 <div class="review-stars mb-3">
                                     <% for (let i = 1; i <= 5; i++) { %>
@@ -167,9 +167,9 @@
                                 <p class="review-text mb-4">"<%= recensione.contenuto %>"</p>
                                 <div class="reviewer-info d-flex align-items-center">
                                     <% if (recensione.immagine_utente && String(recensione.immagine_utente).trim()) { %>
-                                        <img src="<%= recensione.immagine_utente %>" alt="<%= recensione.nome_utente %> <%= recensione.cognome_utente %>" class="reviewer-image rounded-circle me-3 reveal reveal--scale-up reveal--delay-<%= Math.min(index + 1, 5) %>" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
+                                        <img src="<%= recensione.immagine_utente %>" alt="<%= recensione.nome_utente %> <%= recensione.cognome_utente %>" class="reviewer-image rounded-circle me-3" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
                                     <% } else { %>
-                                        <div class="reviewer-icon rounded-circle d-flex align-items-center justify-content-center me-3 reveal reveal--scale-up reveal--delay-<%= Math.min(index + 1, 5) %>" style="width: 50px; height: 50px;">
+                                        <div class="reviewer-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                                                 <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                                                 <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 1 0 0 14A7 7 0 0 0 8 1z"/>
