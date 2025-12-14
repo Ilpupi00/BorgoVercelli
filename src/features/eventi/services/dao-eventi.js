@@ -3,6 +3,11 @@
 /**
  * @fileoverview DAO per la gestione degli eventi
  * Fornisce CRUD e ricerche per eventi
+ * 
+ * NOTA IMPORTANTE: Le funzioni di recupero eventi includono automaticamente
+ * l'URL dell'immagine principale tramite LEFT JOIN con la tabella IMMAGINI.
+ * L'URL viene esposto come proprietà 'immagine_url' nell'oggetto evento.
+ * 
  * @module features/eventi/services/dao-eventi
  */
 
@@ -37,13 +42,31 @@ exports.getEventi = function(){
     return new Promise((resolve, reject) => {
     // Return only published events by default to avoid exposing drafts in public lists
     // Use boolean true for Postgres boolean column
-    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true ORDER BY data_inizio DESC;';
+    // JOIN con IMMAGINI per recuperare l'URL dell'immagine principale
+    const sql = `
+        SELECT 
+            e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
+            e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+            e.pubblicato, e.created_at, e.updated_at,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        WHERE e.pubblicato = true 
+        ORDER BY e.data_inizio DESC
+    `;
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Error retrieving events: ' + err.message });
             }
-            const risultato = eventi.map(makeEvento) || [];
+            const risultato = eventi.map(row => {
+                const evento = makeEvento(row);
+                // Aggiungi l'URL dell'immagine se presente
+                if (row.immagine_url) {
+                    evento.immagine_url = row.immagine_url;
+                }
+                return evento;
+            }) || [];
             resolve(risultato);
         });
     });
@@ -57,13 +80,31 @@ exports.getEventi = function(){
 exports.getEventiPubblicati = function(){
     return new Promise((resolve, reject) => {
     // Ensure consistent ordering and boolean-based published check
-    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI WHERE pubblicato = true ORDER BY data_inizio DESC;';
+    // JOIN con IMMAGINI per recuperare l'URL dell'immagine principale
+    const sql = `
+        SELECT 
+            e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
+            e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+            e.pubblicato, e.created_at, e.updated_at,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        WHERE e.pubblicato = true 
+        ORDER BY e.data_inizio DESC
+    `;
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL:', err);
                 return reject({ error: 'Error retrieving published events: ' + err.message });
             }
-            const risultato = eventi.map(makeEvento) || [];
+            const risultato = eventi.map(row => {
+                const evento = makeEvento(row);
+                // Aggiungi l'URL dell'immagine se presente
+                if (row.immagine_url) {
+                    evento.immagine_url = row.immagine_url;
+                }
+                return evento;
+            }) || [];
             resolve(risultato);
         });
     });
@@ -76,7 +117,16 @@ exports.getEventiPubblicati = function(){
  * @returns {Promise<Evento>} Istanza Evento con array immagini
  */
 exports.getEventoById = function(id) {
-    const sql = 'SELECT * FROM EVENTI WHERE id = ?';
+    const sql = `
+        SELECT 
+            e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
+            e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+            e.pubblicato, e.created_at, e.updated_at,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        WHERE e.id = ?
+    `;
     return new Promise((resolve, reject) => {
         sqlite.get(sql, [id], async (err, evento) => {
             if (err) {
@@ -88,8 +138,12 @@ exports.getEventoById = function(id) {
             }
             
             const eventoObj = makeEvento(evento);
+            // Aggiungi l'URL dell'immagine se presente
+            if (evento.immagine_url) {
+                eventoObj.immagine_url = evento.immagine_url;
+            }
             
-            // Recupera immagini associate
+            // Recupera tutte le immagini associate per eventuali gallerie
             const imgSql = 'SELECT * FROM IMMAGINI WHERE entita_riferimento = ? AND entita_id = ? ORDER BY ordine';
             sqlite.all(imgSql, ['evento', id], (err, immagini) => {
                 if (err) {
@@ -97,7 +151,6 @@ exports.getEventoById = function(id) {
                     eventoObj.immagini = [];
                 } else {
                     eventoObj.immagini = immagini || [];
-                    eventoObj.immagine_principale = immagini && immagini.length > 0 ? immagini[0].url : null;
                 }
                 resolve(eventoObj);
             });
@@ -262,10 +315,15 @@ exports.setImmagineEvento = function(id, immagineId) {
  */
 exports.searchEventi = async function(searchTerm) {
     const sql = `
-        SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at
-        FROM EVENTI
-    WHERE pubblicato = true AND (titolo LIKE ? OR descrizione LIKE ? OR luogo LIKE ?)
-    ORDER BY data_inizio DESC
+        SELECT 
+            e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
+            e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+            e.pubblicato, e.created_at, e.updated_at,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        WHERE e.pubblicato = true AND (e.titolo LIKE ? OR e.descrizione LIKE ? OR e.luogo LIKE ?)
+        ORDER BY e.data_inizio DESC
         LIMIT 10
     `;
     return new Promise((resolve, reject) => {
@@ -274,7 +332,17 @@ exports.searchEventi = async function(searchTerm) {
                 console.error('Errore SQL search eventi:', err);
                 return reject({ error: 'Error searching events: ' + err.message });
             }
-            resolve(eventi.map(makeEvento) || []);
+            const risultato = eventi.map(row => {
+                const evento = makeEvento(row);
+                if (row.immagine_url) {
+                    evento.immagine_url = row.immagine_url;
+                }
+                return evento;
+            }) || [];
+            resolve(risultato);
+        });
+    });
+}
         });
     });
 }
@@ -286,27 +354,58 @@ exports.searchEventi = async function(searchTerm) {
  * @returns {Promise<Array<Evento>>}
  */
 exports.getEventiPersonali= async function(utenteId){
-    const sql = `SELECT * FROM EVENTI WHERE autore_id = ?`;
+    const sql = `
+        SELECT 
+            e.*,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        WHERE e.autore_id = ?
+        ORDER BY e.data_inizio DESC
+    `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, [utenteId], (err, eventi) => {
             if (err) {
                 console.error('Errore SQL get eventi personali:', err);
                 return reject({ error: 'Error getting personal events: ' + err.message });
             }
-            resolve(eventi.map(makeEvento) || []);
+            const risultato = eventi.map(row => {
+                const evento = makeEvento(row);
+                if (row.immagine_url) {
+                    evento.immagine_url = row.immagine_url;
+                }
+                return evento;
+            }) || [];
+            resolve(risultato);
         });
     });
 }
 
 exports.getEventiAll = function(){
-    const sql = 'SELECT id, titolo, descrizione, data_inizio, data_fine, luogo, tipo_evento, autore_id, squadra_id, campo_id, max_partecipanti, pubblicato, created_at, updated_at FROM EVENTI ORDER BY data_inizio DESC;';
+    const sql = `
+        SELECT 
+            e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
+            e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+            e.pubblicato, e.created_at, e.updated_at,
+            i.url as immagine_url
+        FROM EVENTI e
+        LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'evento' AND i.entita_id = e.id AND i.ordine = 1
+        ORDER BY e.data_inizio DESC
+    `;
     return new Promise((resolve, reject) => {
         sqlite.all(sql, (err, eventi) => {
             if (err) {
                 console.error('Errore SQL get eventi all:', err);
                 return reject({ error: 'Error getting all events: ' + err.message });
             }
-            resolve(eventi.map(makeEvento) || []);
+            const risultato = eventi.map(row => {
+                const evento = makeEvento(row);
+                if (row.immagine_url) {
+                    evento.immagine_url = row.immagine_url;
+                }
+                return evento;
+            }) || [];
+            resolve(risultato);
         });
     });
 }
