@@ -1,0 +1,222 @@
+/**
+ * Stili per il modal delle feste italiane
+ * Sistema automatico che si adatta alle diverse festività durante l'anno
+ */
+
+#modalFeste .modal-dialog {
+    max-width: 600px;
+}
+
+#modalFeste .modal-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#modalFeste .modal-header {
+    background: linear-gradient(135deg, var(--festa-color-primary, #c41e3a) 0%, var(--festa-color-secondary, #165b33) 100%);
+    border: none;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#modalFeste .modal-header::before {
+    content: var(--festa-icon-1, '❄️');
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.1;
+    top: -10px;
+    right: 20px;
+    animation: icon-float 3s ease-in-out infinite;
+}
+
+#modalFeste .modal-header::after {
+    content: var(--festa-icon-2, '🎄');
+    position: absolute;
+    font-size: 3rem;
+    opacity: 0.1;
+    bottom: -10px;
+    left: 20px;
+    animation: icon-float 4s ease-in-out infinite;
+}
+
+#modalFeste .modal-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 0;
+    z-index: 1;
+    position: relative;
+}
+
+#modalFeste .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+#modalFeste .btn-close:hover {
+    opacity: 1;
+}
+
+#modalFeste .modal-body {
+    padding: 2.5rem 2rem;
+    background: white;
+    text-align: center;
+}
+
+[data-theme="dark"] #modalFeste .modal-body {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+#modalFeste .festa-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    animation: pulse-icon 2s ease-in-out infinite;
+}
+
+#modalFeste .festa-message {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] #modalFeste .festa-message {
+    color: #e0e0e0;
+}
+
+#modalFeste .festa-greeting {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--festa-color-primary, #c41e3a) 0%, var(--festa-color-secondary, #165b33) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+[data-theme="dark"] #modalFeste .festa-greeting {
+    background: linear-gradient(135deg, var(--festa-color-primary-dark, #ff6b6b) 0%, var(--festa-color-secondary-dark, #4ecdc4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#modalFeste .festa-submessage {
+    font-size: 1rem;
+    color: #666;
+    font-style: italic;
+}
+
+[data-theme="dark"] #modalFeste .festa-submessage {
+    color: #999;
+}
+
+#modalFeste .modal-footer {
+    border: none;
+    padding: 1.5rem 2rem;
+    background: #f8f9fa;
+    justify-content: center;
+}
+
+[data-theme="dark"] #modalFeste .modal-footer {
+    background: #2a2a2a;
+}
+
+#modalFeste .btn-festa {
+    background: linear-gradient(135deg, var(--festa-color-primary, #c41e3a) 0%, var(--festa-color-secondary, #165b33) 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#modalFeste .btn-festa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+#modalFeste .btn-festa:active {
+    transform: translateY(0);
+}
+
+/* Animazioni */
+@keyframes icon-float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Effetti decorativi (neve, coriandoli, etc) */
+#modalFeste .decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#modalFeste .decoration-item {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    animation: decoration-fall linear infinite;
+}
+
+@keyframes decoration-fall {
+    0% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(200px);
+        opacity: 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    #modalFeste .modal-title {
+        font-size: 1.4rem;
+    }
+    
+    #modalFeste .festa-icon {
+        font-size: 3rem;
+    }
+    
+    #modalFeste .festa-message {
+        font-size: 1rem;
+    }
+    
+    #modalFeste .festa-greeting {
+        font-size: 1.3rem;
+    }
+    
+    #modalFeste .modal-body {
+        padding: 2rem 1.5rem;
+    }
+}

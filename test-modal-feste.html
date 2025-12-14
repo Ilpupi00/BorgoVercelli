@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Feste</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/modalFeste.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            padding: 50px;
+            font-family: Arial, sans-serif;
+        }
+        .test-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-info h2 {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+        .btn-test {
+            margin: 10px 5px;
+        }
+        #console-log {
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Test Sistema Modal Feste</h1>
+        
+        <div class="test-info">
+            <h2>Informazioni Sistema</h2>
+            <p><strong>Data corrente:</strong> <span id="current-date"></span></p>
+            <p><strong>Festa corrente:</strong> <span id="current-festa"></span></p>
+            <p><strong>LocalStorage disponibile:</strong> <span id="storage-check"></span></p>
+        </div>
+
+        <div class="test-info">
+            <h2>Azioni di Test</h2>
+            <button class="btn btn-primary btn-test" onclick="testModalFesta()">
+                <i class="fas fa-play"></i> Mostra Modal Festa Corrente
+            </button>
+            <button class="btn btn-warning btn-test" onclick="resetStorage()">
+                <i class="fas fa-trash"></i> Reset LocalStorage Feste
+            </button>
+            <button class="btn btn-info btn-test" onclick="showStorageKeys()">
+                <i class="fas fa-list"></i> Mostra Chiavi Storage
+            </button>
+            <button class="btn btn-success btn-test" onclick="forceShowNatale()">
+                <i class="fas fa-tree"></i> Forza Modal Natale
+            </button>
+        </div>
+
+        <div class="test-info">
+            <h2>Console Log</h2>
+            <div id="console-log">Console del browser...\n</div>
+        </div>
+    </div>
+
+    <script>
+        // Intercetta console.log per mostrarlo nella pagina
+        const consoleDiv = document.getElementById('console-log');
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        function addLog(type, ...args) {
+            const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
+            consoleDiv.textContent += `[${type}] ${msg}\n`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog('LOG', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog('WARN', ...args);
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog('ERROR', ...args);
+        };
+
+        // Aggiorna info pagina
+        function updateInfo() {
+            const oggi = new Date();
+            document.getElementById('current-date').textContent = oggi.toLocaleDateString('it-IT', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Check storage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                document.getElementById('storage-check').innerHTML = '<span class="badge bg-success">✓ Disponibile</span>';
+            } catch (e) {
+                document.getElementById('storage-check').innerHTML = '<span class="badge bg-danger">✗ Non disponibile</span>';
+            }
+
+            // Check festa corrente
+            const mese = oggi.getMonth();
+            const giorno = oggi.getDate();
+            let festaCorrente = 'Nessuna festa rilevata';
+
+            if (mese === 11 && giorno >= 1) {
+                festaCorrente = '🎄 Natale (1-31 dicembre)';
+            } else if (mese === 11 && giorno === 8) {
+                festaCorrente = '⭐ Immacolata Concezione (8 dicembre)';
+            } else if (mese === 0 && giorno === 1) {
+                festaCorrente = '🎊 Capodanno';
+            } else if (mese === 0 && giorno === 6) {
+                festaCorrente = '🧙‍♀️ Epifania';
+            }
+
+            document.getElementById('current-festa').innerHTML = `<strong>${festaCorrente}</strong>`;
+        }
+
+        function testModalFesta() {
+            console.log('=== TEST MODAL FESTA ===');
+            console.log('Ricarico la pagina per testare il modal...');
+            location.reload();
+        }
+
+        function resetStorage() {
+            console.log('=== RESET STORAGE ===');
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('festa_')) {
+                    keys.push(key);
+                }
+            }
+            
+            keys.forEach(key => {
+                localStorage.removeItem(key);
+                console.log(`Rimossa chiave: ${key}`);
+            });
+            
+            console.log(`✓ Rimosse ${keys.length} chiavi`);
+            alert(`Storage pulito! Rimosse ${keys.length} chiavi.`);
+        }
+
+        function showStorageKeys() {
+            console.log('=== CHIAVI STORAGE ===');
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('festa_')) {
+                    keys.push(`${key} = ${localStorage.getItem(key)}`);
+                }
+            }
+            
+            if (keys.length === 0) {
+                console.log('Nessuna chiave festa_ trovata in localStorage');
+            } else {
+                keys.forEach(k => console.log(k));
+            }
+        }
+
+        function forceShowNatale() {
+            console.log('=== FORZA MODAL NATALE ===');
+            
+            // Rimuovi la chiave del natale per l'anno corrente
+            const anno = new Date().getFullYear();
+            const key = `festa_natale_${anno}`;
+            localStorage.removeItem(key);
+            console.log(`Rimossa chiave: ${key}`);
+            
+            // Ricarica la pagina
+            console.log('Ricarico la pagina...');
+            setTimeout(() => location.reload(), 500);
+        }
+
+        // Aggiorna info all'avvio
+        updateInfo();
+
+        console.log('Pagina di test caricata!');
+        console.log('Data: ' + new Date().toLocaleString('it-IT'));
+    </script>
+
+    <!-- Carica il sistema modal feste -->
+    <script src="/assets/scripts/modalFeste.js"></script>
+</body>
+</html>
