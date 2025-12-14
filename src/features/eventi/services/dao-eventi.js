@@ -343,8 +343,6 @@ exports.searchEventi = async function(searchTerm) {
         });
     });
 }
-        });
-    });
 }
 
 /**
