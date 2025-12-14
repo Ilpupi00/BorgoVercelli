@@ -316,6 +316,17 @@ router.post('/notizia/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req
       return res.status(404).json({ error: 'Notizia non trovata' });
     }
 
+    // ⚠️ IMPORTANTE: Elimina la vecchia immagine prima di caricare la nuova
+    // Questo evita accumulo di file inutilizzati nel volume persistente
+    console.log('[UPLOAD NOTIZIA] 🗑️ Eliminazione immagini precedenti...');
+    try {
+      await daoAdmin.deleteImmaginiByEntita('notizia', notiziaId);
+      console.log('[UPLOAD NOTIZIA] ✅ Immagini precedenti eliminate');
+    } catch (deleteErr) {
+      console.warn('[UPLOAD NOTIZIA] ⚠️ Errore eliminazione immagini precedenti:', deleteErr);
+      // Non blocca l'upload, continua comunque
+    }
+
     // Crea il path dell'immagine
     const imageUrl = '/uploads/' + req.file.filename;
     
@@ -329,6 +340,20 @@ router.post('/notizia/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req
     });
   } catch (error) {
     console.error('Errore upload immagine notizia:', error);
+    
+    // ⚠️ IMPORTANTE: Se l'upload fallisce, elimina il file caricato per evitare file orfani
+    if (req.file && req.file.path) {
+      const fs = require('fs');
+      try {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+          console.log('[UPLOAD NOTIZIA] 🗑️ File temporaneo eliminato dopo errore:', req.file.path);
+        }
+      } catch (cleanupErr) {
+        console.error('[UPLOAD NOTIZIA] ⚠️ Impossibile eliminare file temporaneo:', cleanupErr);
+      }
+    }
+    
     res.status(500).json({ error: 'Errore durante il caricamento dell\'immagine' });
   }
 });

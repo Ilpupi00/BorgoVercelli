@@ -214,9 +214,20 @@ router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req,
       return res.status(404).json({ error: 'Evento non trovato' });
     }
 
+    // ⚠️ IMPORTANTE: Elimina la vecchia immagine prima di caricare la nuova
+    // Questo evita accumulo di file inutilizzati nel volume persistente
+    console.log('[UPLOAD EVENTO] 🗑️ Eliminazione immagini precedenti...');
+    try {
+      await daoAdmin.deleteImmaginiByEntita('evento', eventoId);
+      console.log('[UPLOAD EVENTO] ✅ Immagini precedenti eliminate');
+    } catch (deleteErr) {
+      console.warn('[UPLOAD EVENTO] ⚠️ Errore eliminazione immagini precedenti:', deleteErr);
+      // Non blocca l'upload, continua comunque
+    }
+    
     // Crea il path dell'immagine
     const imageUrl = '/uploads/' + req.file.filename;
-    console.log('[UPLOAD EVENTO] 📸 URL immagine:', imageUrl);
+    console.log('[UPLOAD EVENTO] 📸 URL nuova immagine:', imageUrl);
     
     // Inserisci l'immagine nella tabella IMMAGINI
     const risultato = await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
@@ -239,6 +250,20 @@ router.post('/evento/:id/upload-immagine', isLoggedIn, isAdminOrDirigente, (req,
     });
   } catch (error) {
     console.error('[UPLOAD EVENTO] ❌ Errore:', error);
+    
+    // ⚠️ IMPORTANTE: Se l'upload fallisce, elimina il file caricato per evitare file orfani
+    if (req.file && req.file.path) {
+      const fs = require('fs');
+      try {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+          console.log('[UPLOAD EVENTO] 🗑️ File temporaneo eliminato dopo errore:', req.file.path);
+        }
+      } catch (cleanupErr) {
+        console.error('[UPLOAD EVENTO] ⚠️ Impossibile eliminare file temporaneo:', cleanupErr);
+      }
+    }
+    
     res.status(500).json({ error: 'Errore durante il caricamento dell\'immagine' });
   }
 });
