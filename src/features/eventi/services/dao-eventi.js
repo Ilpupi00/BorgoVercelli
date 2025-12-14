@@ -343,7 +343,6 @@ exports.searchEventi = async function(searchTerm) {
         });
     });
 }
-}
 
 /**
  * Recupera gli eventi creati da un utente
