@@ -2,6 +2,7 @@
 
 // Variabile globale per tenere traccia del file immagine selezionato
 let selectedFile = null;
+window.selectedFile = null; // Esposta globalmente per image-editor-common.js
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
@@ -387,6 +388,7 @@ function initializeImageUpload() {
     if (removePreviewBtn) {
         removePreviewBtn.addEventListener('click', () => {
             selectedFile = null;
+            window.selectedFile = null; // Mantieni sincronizzata la variabile globale
             currentImageUrl = null;
             immagineInput.value = '';
             newImagePreview.classList.add('d-none');
@@ -477,6 +479,7 @@ function initializeImageUpload() {
 
         console.log('✅ Validazione passata');
         selectedFile = file;
+        window.selectedFile = file; // Mantieni sincronizzata la variabile globale
 
         // Hide current image preview if exists
         if (currentImagePreview) {
@@ -504,6 +507,7 @@ function initializeImageUpload() {
 
     // Upload image to server
     async function uploadImageToServer(file, eventoId) {
+        // Esponi come funzione globale per image-editor-common.js
         console.log('📤 Upload immagine al server...', { fileName: file.name, eventoId });
         const formData = new FormData();
         formData.append('immagine', file);
@@ -557,6 +561,9 @@ function initializeImageUpload() {
             }
         }
     }
+    
+    // Esponi la funzione globalmente per image-editor-common.js
+    window.uploadImageToServer = uploadImageToServer;
 
     // Delete image from server
     async function deleteEventoImage(eventoId) {

@@ -314,7 +314,12 @@ function bindEditorControls() {
                     imageSmoothingQuality: 'high',
                 });
                 
-                canvas.toBlob((blob) => {
+                canvas.toBlob(async (blob) => {
+                    // Converti il blob in un File object con un nome appropriato
+                    const timestamp = Date.now();
+                    const fileName = `edited-image-${timestamp}.jpg`;
+                    const editedFile = new File([blob], fileName, { type: 'image/jpeg' });
+                    
                     // Update preview image
                     const previewImg = document.getElementById('previewImg');
                     if (previewImg) {
@@ -329,11 +334,41 @@ function bindEditorControls() {
                         currentImagePreview.src = url;
                     }
                     
+                    // Aggiorna la variabile globale selectedFile (se esiste in crea_evento.js)
+                    if (typeof window.selectedFile !== 'undefined') {
+                        window.selectedFile = editedFile;
+                        console.log('✅ selectedFile aggiornato con immagine modificata');
+                    }
+                    
+                    // Se stiamo modificando un evento esistente, fai l'upload immediato
+                    const eventoForm = document.getElementById('eventoForm');
+                    if (eventoForm) {
+                        const eventoId = eventoForm.getAttribute('data-evento-id');
+                        if (eventoId && typeof window.uploadImageToServer === 'function') {
+                            console.log('📤 Upload automatico immagine modificata per evento ID:', eventoId);
+                            await window.uploadImageToServer(editedFile, eventoId);
+                        }
+                    }
+                    
+                    // Se stiamo modificando una notizia esistente, fai l'upload immediato
+                    const notiziaForm = document.getElementById('notiziaForm');
+                    if (notiziaForm) {
+                        const notiziaId = notiziaForm.getAttribute('data-notizia-id');
+                        if (notiziaId && typeof window.uploadImageToServer === 'function') {
+                            console.log('📤 Upload automatico immagine modificata per notizia ID:', notiziaId);
+                            await window.uploadImageToServer(editedFile, notiziaId);
+                        }
+                    }
+                    
                     // Close editor
                     closeEditor();
                     
                     // Show success message
-                    showSuccessToast('Modifiche salvate! Salva il form per applicare le modifiche.');
+                    if (eventoForm?.getAttribute('data-evento-id') || notiziaForm?.getAttribute('data-notizia-id')) {
+                        showSuccessToast('Modifiche salvate e caricate con successo!');
+                    } else {
+                        showSuccessToast('Modifiche salvate! Salva il form per applicare le modifiche.');
+                    }
                 }, 'image/jpeg', 0.95);
                 
             } catch (error) {

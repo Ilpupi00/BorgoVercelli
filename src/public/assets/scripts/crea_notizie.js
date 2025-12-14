@@ -344,6 +344,7 @@ function initializeImageUpload() {
     if (!immagineInput) return;
 
     let selectedFile = null;
+    window.selectedFile = null; // Esposta globalmente per image-editor-common.js
     let currentImageUrl = null;
 
     // Click to select file
@@ -397,6 +398,7 @@ function initializeImageUpload() {
     if (removePreviewBtn) {
         removePreviewBtn.addEventListener('click', () => {
             selectedFile = null;
+            window.selectedFile = null; // Mantieni sincronizzata la variabile globale
             currentImageUrl = null;
             immagineInput.value = '';
             newImagePreview.classList.add('d-none');
@@ -464,6 +466,7 @@ function initializeImageUpload() {
         }
 
         selectedFile = file;
+        window.selectedFile = file; // Mantieni sincronizzata la variabile globale
 
         // Hide current image preview if exists
         if (currentImagePreview) {
@@ -489,6 +492,7 @@ function initializeImageUpload() {
 
     // Upload image to server
     async function uploadImageToServer(file, notiziaId) {
+        // Esponi come funzione globale per image-editor-common.js
         const formData = new FormData();
         formData.append('immagine', file);
 
@@ -540,6 +544,9 @@ function initializeImageUpload() {
             }
         }
     }
+    
+    // Esponi la funzione globalmente per image-editor-common.js
+    window.uploadImageToServer = uploadImageToServer;
 
     // Delete image from server
     async function deleteNotiziaImage(notiziaId) {

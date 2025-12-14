@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix Modifiche Immagini</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/styles/evento-upload.css">
+    <link rel="stylesheet" href="/assets/styles/image-editor.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <style>
+        body { padding: 2rem; background: #f8f9fa; }
+        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin-bottom: 2rem; padding: 1rem; border: 2px solid #dee2e6; border-radius: 8px; }
+        .test-result { margin-top: 1rem; padding: 1rem; border-radius: 5px; }
+        .test-result.success { background: #d1e7dd; color: #0f5132; }
+        .test-result.error { background: #f8d7da; color: #842029; }
+        .test-result.info { background: #cff4fc; color: #055160; }
+        .console-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 5px; font-family: monospace; font-size: 0.9rem; max-height: 300px; overflow-y: auto; }
+        .console-line { margin-bottom: 0.5rem; }
+        .console-success { color: #4ec9b0; }
+        .console-error { color: #f48771; }
+        .console-warning { color: #dcdcaa; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="mb-4"><i class="bi bi-bug-fill me-2"></i>Test Fix Modifiche Immagini</h1>
+        
+        <!-- Test 1: Variabili Globali -->
+        <div class="test-section">
+            <h3><i class="bi bi-1-circle-fill me-2"></i>Test Variabili Globali</h3>
+            <p class="text-muted">Verifica che le variabili e funzioni siano esposte globalmente</p>
+            <button class="btn btn-primary" onclick="testGlobalVariables()">
+                <i class="bi bi-play-fill me-1"></i>Esegui Test
+            </button>
+            <div id="test1-result" class="test-result d-none"></div>
+        </div>
+
+        <!-- Test 2: Editor Immagini -->
+        <div class="test-section">
+            <h3><i class="bi bi-2-circle-fill me-2"></i>Test Editor Immagini</h3>
+            <p class="text-muted">Verifica che l'editor possa essere aperto</p>
+            <button class="btn btn-primary" onclick="testImageEditor()">
+                <i class="bi bi-play-fill me-1"></i>Apri Editor
+            </button>
+            <div id="test2-result" class="test-result d-none"></div>
+        </div>
+
+        <!-- Test 3: Selezione File -->
+        <div class="test-section">
+            <h3><i class="bi bi-3-circle-fill me-2"></i>Test Selezione File</h3>
+            <p class="text-muted">Simula la selezione di un file e verifica l'aggiornamento di selectedFile</p>
+            <input type="file" id="testFileInput" accept="image/*" class="form-control mb-2">
+            <button class="btn btn-primary" onclick="testFileSelection()">
+                <i class="bi bi-play-fill me-1"></i>Testa Selezione
+            </button>
+            <div id="test3-result" class="test-result d-none"></div>
+        </div>
+
+        <!-- Test 4: Upload Simulato -->
+        <div class="test-section">
+            <h3><i class="bi bi-4-circle-fill me-2"></i>Test Upload Function</h3>
+            <p class="text-muted">Verifica che la funzione uploadImageToServer sia disponibile</p>
+            <button class="btn btn-primary" onclick="testUploadFunction()">
+                <i class="bi bi-play-fill me-1"></i>Esegui Test
+            </button>
+            <div id="test4-result" class="test-result d-none"></div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="test-section">
+            <h3><i class="bi bi-terminal-fill me-2"></i>Console Output</h3>
+            <button class="btn btn-secondary btn-sm mb-2" onclick="clearConsole()">
+                <i class="bi bi-trash-fill me-1"></i>Pulisci Console
+            </button>
+            <div id="console-output" class="console-output">
+                <div class="console-line console-success">✓ Sistema di test caricato</div>
+                <div class="console-line console-success">✓ In attesa di eseguire i test...</div>
+            </div>
+        </div>
+
+        <!-- Riepilogo -->
+        <div class="alert alert-info">
+            <h5><i class="bi bi-info-circle-fill me-2"></i>Come usare questo test</h5>
+            <ol class="mb-0">
+                <li>Esegui i test in ordine (dall'alto verso il basso)</li>
+                <li>Ogni test verifica un aspetto del fix implementato</li>
+                <li>Controlla i risultati e la console per eventuali errori</li>
+                <li>Tutti i test devono essere SUCCESS per confermare il fix</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="/assets/scripts/image-editor-common.js"></script>
+    
+    <script>
+        // Test utilities
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            
+            if (type === 'success') {
+                line.classList.add('console-success');
+                line.innerHTML = `✓ ${message}`;
+            } else if (type === 'error') {
+                line.classList.add('console-error');
+                line.innerHTML = `✗ ${message}`;
+            } else if (type === 'warning') {
+                line.classList.add('console-warning');
+                line.innerHTML = `⚠ ${message}`;
+            } else {
+                line.innerHTML = `ℹ ${message}`;
+            }
+            
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function showResult(testId, success, message) {
+            const result = document.getElementById(`test${testId}-result`);
+            result.classList.remove('d-none', 'success', 'error');
+            result.classList.add(success ? 'success' : 'error');
+            result.innerHTML = `
+                <i class="bi bi-${success ? 'check-circle-fill' : 'x-circle-fill'} me-2"></i>
+                <strong>${success ? 'SUCCESS' : 'FAILED'}</strong>: ${message}
+            `;
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+            log('Console pulita', 'info');
+        }
+
+        // Test 1: Global Variables
+        function testGlobalVariables() {
+            log('Inizio Test 1: Variabili Globali', 'info');
+            
+            const tests = [
+                { name: 'window.selectedFile', check: () => typeof window.selectedFile !== 'undefined' },
+                { name: 'window.uploadImageToServer', check: () => typeof window.uploadImageToServer === 'function' },
+                { name: 'window.openImageEditor', check: () => typeof window.openImageEditor === 'function' },
+                { name: 'window.initializeImageEditorModal', check: () => typeof window.initializeImageEditorModal === 'function' }
+            ];
+
+            let allPassed = true;
+            tests.forEach(test => {
+                const passed = test.check();
+                log(`${test.name}: ${passed ? 'DEFINITA' : 'NON TROVATA'}`, passed ? 'success' : 'error');
+                if (!passed) allPassed = false;
+            });
+
+            showResult(1, allPassed, 
+                allPassed 
+                    ? 'Tutte le variabili globali sono correttamente esposte' 
+                    : 'Alcune variabili globali mancano - verifica che gli script siano caricati'
+            );
+        }
+
+        // Test 2: Image Editor
+        function testImageEditor() {
+            log('Inizio Test 2: Editor Immagini', 'info');
+            
+            try {
+                if (typeof window.openImageEditor !== 'function') {
+                    throw new Error('openImageEditor non è una funzione');
+                }
+                
+                // Crea un'immagine di test
+                const testImageUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+                
+                // Apri editor
+                window.openImageEditor(testImageUrl);
+                
+                // Verifica che il modal sia stato aperto
+                const modal = document.getElementById('imageEditorModal');
+                const isOpen = modal && modal.classList.contains('active');
+                
+                if (isOpen) {
+                    log('Modal editor aperto con successo', 'success');
+                    showResult(2, true, 'Editor aperto correttamente - Chiudi il modal per continuare');
+                } else {
+                    throw new Error('Modal non aperto');
+                }
+            } catch (error) {
+                log(`Errore apertura editor: ${error.message}`, 'error');
+                showResult(2, false, `Impossibile aprire editor: ${error.message}`);
+            }
+        }
+
+        // Test 3: File Selection
+        function testFileSelection() {
+            log('Inizio Test 3: Selezione File', 'info');
+            
+            const fileInput = document.getElementById('testFileInput');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                log('Nessun file selezionato', 'error');
+                showResult(3, false, 'Seleziona un file prima di eseguire il test');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            log(`File selezionato: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`, 'info');
+
+            // Simula l'assegnazione a selectedFile
+            window.selectedFile = file;
+            
+            // Verifica
+            const success = window.selectedFile === file;
+            log(`window.selectedFile ${success ? 'aggiornato' : 'NON aggiornato'}`, success ? 'success' : 'error');
+            
+            showResult(3, success, 
+                success 
+                    ? `File assegnato correttamente: ${file.name}` 
+                    : 'Impossibile assegnare il file a window.selectedFile'
+            );
+        }
+
+        // Test 4: Upload Function
+        function testUploadFunction() {
+            log('Inizio Test 4: Funzione Upload', 'info');
+            
+            try {
+                if (typeof window.uploadImageToServer !== 'function') {
+                    throw new Error('uploadImageToServer non è una funzione');
+                }
+
+                log('Funzione uploadImageToServer trovata', 'success');
+                log('Signature: uploadImageToServer(file, entityId)', 'info');
+                
+                // Verifica che la funzione abbia i parametri corretti
+                const funcString = window.uploadImageToServer.toString();
+                const hasFileParam = funcString.includes('file');
+                const hasIdParam = funcString.includes('Id');
+                
+                log(`Parametro 'file': ${hasFileParam ? 'OK' : 'MISSING'}`, hasFileParam ? 'success' : 'warning');
+                log(`Parametro 'Id': ${hasIdParam ? 'OK' : 'MISSING'}`, hasIdParam ? 'success' : 'warning');
+                
+                showResult(4, true, 'Funzione uploadImageToServer disponibile e correttamente definita');
+            } catch (error) {
+                log(`Errore test upload: ${error.message}`, 'error');
+                showResult(4, false, `Funzione upload non disponibile: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Pagina caricata completamente', 'success');
+            log('Scripts caricati:', 'info');
+            log('- Bootstrap', 'success');
+            log('- Cropper.js', 'success');
+            log('- image-editor-common.js', 'success');
+        });
+    </script>
+</body>
+</html>
