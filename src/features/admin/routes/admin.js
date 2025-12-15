@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const { upload } = require('../../../core/config/multer');
-const { isLoggedIn, isAdmin, isAdminOrDirigente } = require('../../../core/middlewares/auth');
+const { isLoggedIn, isAdmin, isAdminOrDirigente, isStaffOrAdmin, canManageCampi, canEditNotizia } = require('../../../core/middlewares/auth');
 const userDao = require('../../users/services/dao-user');
 const notizieDao = require('../../notizie/services/dao-notizie');
 const eventiDao = require('../../eventi/services/dao-eventi');
@@ -39,7 +39,7 @@ router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
 /**
  * Routes per aprire la pagina di gestione notizie
  */
-router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/notizie', isLoggedIn, isStaffOrAdmin, async (req, res) => {
     try{
         const notizie = await notizieDao.getNotizie();
         res.render('Contenuti/Gestione_Notizie.ejs', { user: req.user, notizie });
@@ -52,7 +52,7 @@ router.get('/admin/notizie', isLoggedIn, isAdmin, async (req, res) => {
 /**
  * Routes per aprire la pagina di gestione eventi
  */
-router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/eventi', isLoggedIn, isStaffOrAdmin, async (req, res) => {
     try{
         const eventi = await eventiDao.getEventiAll();
         res.render('Contenuti/Gestione_Eventi.ejs', { user: req.user, eventi });
@@ -63,7 +63,7 @@ router.get('/admin/eventi', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per pubblicare/sospendere un evento
-router.put('/evento/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/evento/:id/publish', isLoggedIn, isStaffOrAdmin, async (req, res) => {
     try {
         await eventiDao.togglePubblicazioneEvento(req.params.id);
         const evento = await eventiDao.getEventoById(req.params.id);
@@ -78,7 +78,7 @@ router.put('/evento/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
 
 
 // Route per aggiornare una notizia
-router.put('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/notizia/:id', isLoggedIn, canEditNotizia, async (req, res) => {
     try {
         const pubblicata = req.body.pubblicato === 'true' || req.body.pubblicato === true;
         const notiziaData = {
@@ -100,7 +100,7 @@ router.put('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per eliminare una notizia
-router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/notizia/:id', isLoggedIn, canEditNotizia, async (req, res) => {
     try {
         const result = await notizieDao.deleteNotiziaById(req.params.id);
         if (!result || !result.success) {
@@ -114,14 +114,14 @@ router.delete('/notizia/:id', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per pubblicare/sospendere una notizia
-router.put('/notizia/:id/publish', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/notizia/:id/publish', isLoggedIn, canEditNotizia, async (req, res) => {
     try {
-    await notizieDao.togglePubblicazioneNotizia(req.params.id);
-    const notizia = await notizieDao.getNotiziaById(req.params.id);
-    if (!notizia) return res.status(404).json({ success: false, error: 'Notizia non trovata' });
-    const isPubblicato = notizia.pubblicata;
-    const message = isPubblicato ? 'Notizia pubblicata con successo' : 'Notizia sospesa con successo';
-    res.json({ success: true, message, pubblicato: isPubblicato });
+        await notizieDao.togglePubblicazioneNotizia(req.params.id);
+        const notizia = await notizieDao.getNotiziaById(req.params.id);
+        if (!notizia) return res.status(404).json({ success: false, error: 'Notizia non trovata' });
+        const isPubblicato = notizia.pubblicata;
+        const message = isPubblicato ? 'Notizia pubblicata con successo' : 'Notizia sospesa con successo';
+        res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
         console.error('Errore nel toggle pubblicazione notizia:', error);
         res.status(500).json({ success: false, error: 'Errore nel cambio stato pubblicazione' });
@@ -139,7 +139,7 @@ router.get('/admin/galleria', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.get('/admin/squadre', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/squadre', isLoggedIn, isStaffOrAdmin, async (req, res) => {
     try{
         const squadre = await squadreDao.getSquadre();
         res.render('Contenuti/Gestione_Squadre.ejs', { user: req.user, squadre });
@@ -353,7 +353,7 @@ router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per la gestione prenotazioni
-router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/prenotazioni', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
         res.render('Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
@@ -364,7 +364,7 @@ router.get('/admin/prenotazioni', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per confermare una prenotazione
-router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const id = req.params.id;
         const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
@@ -404,7 +404,7 @@ router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, isAdmin, async (req, 
 });
 
 // Route per eliminare una prenotazione
-router.delete('/admin/prenotazioni/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/admin/prenotazioni/:id', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const id = req.params.id;
         const result = await prenotazioniDao.deletePrenotazione(id);
@@ -419,7 +419,7 @@ router.delete('/admin/prenotazioni/:id', isLoggedIn, isAdmin, async (req, res) =
 });
 
 // Route per annullare una prenotazione
-router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const id = req.params.id;
         const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
@@ -459,7 +459,7 @@ router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, isAdmin, async (req, r
 });
 
 // Route per riattivare una prenotazione (es. da annullata -> in_attesa)
-router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const id = req.params.id;
         // Riattivazione - annullata_da viene resettato a NULL automaticamente dal DAO
@@ -475,7 +475,7 @@ router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, isAdmin, async (req, 
 });
 
 // Route per eliminare le prenotazioni scadute (admin)
-router.delete('/admin/prenotazioni/elimina-scadute', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/admin/prenotazioni/elimina-scadute', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         // Assicura che le prenotazioni scadute siano marcate
         try { await prenotazioniDao.checkAndUpdateScadute(); } catch (e) { console.error('checkAndUpdateScadute error', e); }
@@ -505,7 +505,7 @@ router.get('/admin/statistiche/export/excel', isLoggedIn, isAdmin, async (req, r
 });
 
 // Route per gestire orari campi
-router.get('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/campi/:id/orari', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const campoId = req.params.id;
         const orariDefault = await campiDao.getOrariCampo(campoId, null);
@@ -531,7 +531,7 @@ router.get('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.post('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
+router.post('/admin/campi/:id/orari', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const campoId = req.params.id;
         const { giorno_settimana, ora_inizio, ora_fine } = req.body;
@@ -553,7 +553,7 @@ router.post('/admin/campi/:id/orari', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.put('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.put('/admin/campi/orari/:id', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const orarioId = req.params.id;
         const { ora_inizio, ora_fine, attivo } = req.body;
@@ -565,7 +565,7 @@ router.put('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
     }
 });
 
-router.delete('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/admin/campi/orari/:id', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const orarioId = req.params.id;
         await campiDao.deleteOrarioCampo(orarioId);
@@ -577,7 +577,7 @@ router.delete('/admin/campi/orari/:id', isLoggedIn, isAdmin, async (req, res) =>
 });
 
 // Route per la gestione campi
-router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/campi', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const campi = await campiDao.getCampi(false); // false = mostra anche campi inattivi per admin
         res.render('Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
@@ -588,7 +588,7 @@ router.get('/admin/campi', isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo campo
-router.post('/admin/campi', isLoggedIn, isAdmin, upload.single('immagine'), async (req, res) => {
+router.post('/admin/campi', isLoggedIn, canManageCampi, upload.single('immagine'), async (req, res) => {
     try {
         const campoData = req.body;
         const result = await campiDao.createCampo(campoData);
@@ -617,7 +617,7 @@ router.post('/admin/campi', isLoggedIn, isAdmin, upload.single('immagine'), asyn
 });
 
 //router per cancellare il campo
-router.delete('/admin/campi/elimina/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete('/admin/campi/elimina/:id', isLoggedIn, canManageCampi, async (req, res) => {
     try{
         const campoId=req.params.id;
         await campiDao.deleteCampo(campoId);
@@ -629,7 +629,7 @@ router.delete('/admin/campi/elimina/:id', isLoggedIn, isAdmin, async (req, res) 
 });
 
 // Route per ottenere i dettagli di un singolo campo (JSON)
-router.get('/admin/campi/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.get('/admin/campi/:id', isLoggedIn, canManageCampi, async (req, res) => {
     try {
         const campoId = req.params.id;
         const campo = await campiDao.getCampoById(campoId);
@@ -643,7 +643,7 @@ router.get('/admin/campi/:id', isLoggedIn, isAdmin, async (req, res) => {
 /**
  * Route per modificare un campo
  */
-router.put('/admin/campi/modifica/:id', isLoggedIn, isAdmin, upload.single('immagine'), async (req, res) => {
+router.put('/admin/campi/modifica/:id', isLoggedIn, canManageCampi, upload.single('immagine'), async (req, res) => {
     try{
         const campoId=req.params.id;
         const campoData=req.body;
@@ -736,7 +736,8 @@ router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
         // Recupera notizie ed eventi personali per dirigenti e admin
         let notiziePersonali = [];
         let eventiPersonali = [];
-        if (dirigente || user.isAdmin) {
+        const isDirigenteArray = Array.isArray(dirigente) ? dirigente.length > 0 : !!dirigente;
+        if (isDirigenteArray || user.isAdmin) {
             try {
                 notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
             } catch (err) {

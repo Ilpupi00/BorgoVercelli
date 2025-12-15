@@ -8,7 +8,7 @@ const daoRecensioni = require('../../features/recensioni/services/dao-recensioni
 const daoMembriSocieta = require('../../features/squadre/services/dao-membri-societa');
 const daoSquadre = require('../../features/squadre/services/dao-squadre');
 const daoCampi = require('../../features/prenotazioni/services/dao-campi');
-const { isLoggedIn,isDirigente, isAdminOrDirigente } = require('../../core/middlewares/auth');
+const { isLoggedIn, isDirigente, isAdminOrDirigente, isStaffOrAdmin, canManageCampi } = require('../../core/middlewares/auth');
 const emailService = require('../services/email-service');
 const daoCampionati = require('../../features/campionati/services/dao-campionati');
 

@@ -4,8 +4,8 @@ const express = require('express');
 const router = express.Router();
 const userDao = require('../../users/services/dao-user');
 const dirigenteDao = require('../../squadre/services/dao-dirigenti-squadre');
-const daoNotizie = require('../../notizie/services/dao-notizie');
-const daoEventi = require('../../eventi/services/dao-eventi');
+const notizieDao = require('../../notizie/services/dao-notizie');
+const eventiDao = require('../../eventi/services/dao-eventi');
 const fs = require('fs');
 const path = require('path');
 const { isLoggedIn } = require('../../../core/middlewares/auth');
@@ -80,6 +80,22 @@ router.get('/me', async (req, res) => {
             console.error('Errore recupero attività:', activityErr);
         }
 
+        // Recupera notizie ed eventi personali per utenti con ruoli che creano contenuti
+        let notiziePersonali = [];
+        let eventiPersonali = [];
+        if ([2, 3, 4, 5].includes(user.tipo_utente_id)) {
+            try {
+                notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero notizie personali:', err);
+            }
+            try {
+                eventiPersonali = await eventiDao.getEventiPersonali(user.id);
+            } catch (err) {
+                console.error('Errore recupero eventi personali:', err);
+            }
+        }
+
         res.render('profilo', {
             user,
             imageUrl,
@@ -87,6 +103,8 @@ router.get('/me', async (req, res) => {
             dirigente,
             stats,
             activity,
+            notiziePersonali,
+            eventiPersonali,
             isLogged: true
         });
     } catch (err) {
@@ -135,7 +153,8 @@ router.get('/profilo', async (req, res) => {
         // Recupera notizie ed eventi personali per dirigenti e admin
         let notiziePersonali = [];
         let eventiPersonali = [];
-        if (dirigente || user.isAdmin) {
+            const isDirigenteArray = Array.isArray(dirigente) ? dirigente.length > 0 : !!dirigente;
+            if (isDirigenteArray || user.isAdmin) {
             try {
                 notiziePersonali = await daoNotizie.getNotiziePersonali(user.id);
             } catch (err) {

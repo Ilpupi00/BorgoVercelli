@@ -223,8 +223,9 @@ router.get('/squadre/gestione/:id', isAdminOrDirigente, async (req, res) => {
 
         // Verifica che l'utente sia admin o dirigente della squadra
         if (req.user.tipo_utente_id === 2) { // dirigente
-            const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
-            if (!dirigente || dirigente.squadra_id != req.params.id) {
+            const dirigenti = await daoDirigenti.getDirigenteByUserId(req.user.id);
+            const gestisce = Array.isArray(dirigenti) && dirigenti.some(d => String(d.squadra_id) === String(req.params.id));
+            if (!gestisce) {
                 return res.status(403).render('error', { 
                     message: 'Accesso negato: non sei dirigente di questa squadra', 
                     error: { status: 403 } 
@@ -515,12 +516,14 @@ router.get('/modifica_squadra', isLoggedIn, isAdmin, async (req, res) => {
 // Route per mostrare le squadre gestibili dal dirigente
 router.get('/mie-squadre', isLoggedIn, isDirigente, async (req, res) => {
     try {
-        const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
-        if (!dirigente) {
+        const dirigenti = await daoDirigenti.getDirigenteByUserId(req.user.id);
+        if (!Array.isArray(dirigenti) || dirigenti.length === 0) {
             return res.render('error', { message: 'Non sei un dirigente di nessuna squadra', error: { status: 403 } });
         }
-        const squadra = await daoSquadre.getSquadraById(dirigente.squadra_id);
-        res.redirect(`/squadre/gestione/${squadra.id}`);
+        // Se gestisce più squadre, reindirizza alla prima (puoi cambiare per mostrare una lista)
+        const prima = dirigenti[0];
+        const squadra = await daoSquadre.getSquadraById(prima.squadra_id);
+        return res.redirect(`/squadre/gestione/${squadra.id}`);
     } catch (error) {
         console.error('Errore nel recupero delle squadre del dirigente:', error);
         res.status(500).render('error', {

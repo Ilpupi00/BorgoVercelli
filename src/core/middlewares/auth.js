@@ -169,24 +169,29 @@ const isSquadraDirigente = async function(req,res,next){
         return;
     }
 
-    // Admin and Presidente can manage all teams
-    if (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2) {
+    // Admin (1), Presidente (2), Vicepresidente (3) e Segretario (5) possono gestire tutte le squadre
+    if (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2 || 
+        req.user.tipo_utente_id === 3 || req.user.tipo_utente_id === 5) {
         return next();
     }
 
-    if (req.user.tipo_utente_id !== 2) {
+    // Verifica se è un Dirigente (4) e se gestisce la squadra specifica
+    if (req.user.tipo_utente_id !== 4) {
         if (req.headers.accept && req.headers.accept.includes('application/json')) {
             res.status(403).json({ error: 'Forbidden' });
         } else {
-            res.status(403).render('error', { message: 'Accesso negato: devi essere dirigente', error: { status: 403 } });
+            res.status(403).render('error', { message: 'Accesso negato: permessi insufficienti', error: { status: 403 } });
         }
         return;
     }
 
     try {
         const daoDirigenti = require('../../features/squadre/services/dao-dirigenti-squadre');
-        const dirigente = await daoDirigenti.getDirigenteByUserId(req.user.id);
-        if (dirigente && dirigente.squadra_id == req.params.id) {
+        const dirigenti = await daoDirigenti.getDirigenteByUserId(req.user.id);
+        // dirigenti è ora un array di squadre
+        const gestisceSquadra = dirigenti && dirigenti.some(d => d.squadra_id == req.params.id);
+        
+        if (gestisceSquadra) {
             return next();
         } else {
             if (req.headers.accept && req.headers.accept.includes('application/json')) {
@@ -215,11 +220,14 @@ const canEditNotizia = async function(req, res, next) {
     }
 
     const user = req.user;
-    if (user.tipo_utente_id === 1) { // admin
+    // Admin (1), Presidente (2), Vicepresidente (3) e Segretario (5) possono modificare tutte le notizie
+    if (user.tipo_utente_id === 1 || user.tipo_utente_id === 2 || 
+        user.tipo_utente_id === 3 || user.tipo_utente_id === 5) {
         return next();
     }
 
-    if (user.tipo_utente_id === 2) { // dirigente
+    // Dirigente (4) può modificare solo le proprie notizie
+    if (user.tipo_utente_id === 4) {
         try {
             const id = parseInt(req.params.id, 10);
             if (!Number.isInteger(id)) {
@@ -244,4 +252,83 @@ const canEditNotizia = async function(req, res, next) {
     }
 };
 
-module.exports = { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente, canEditNotizia };
+/**
+ * Middleware per verificare se l'utente è Gestore Campo
+ * Controlla che l'utente sia autenticato e abbia tipo_utente_id === 6
+ * 
+ * @function isGestoreCampo
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ */
+const isGestoreCampo = function(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated() && req.user.tipo_utente_id === 6) {
+        return next();
+    }
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: devi essere gestore campo', error: { status: 403 } });
+    }
+};
+
+/**
+ * Middleware che autorizza Admin, Presidente, Vicepresidente, Segretario e Gestore Campo
+ * Permette l'accesso agli utenti con gestione privilegi
+ * 
+ * @function isStaffOrAdmin
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ */
+const isStaffOrAdmin = function(req, res, next) {
+    // Staff (Admin, Presidente, Vice Presidente, Segretario) — NOT Gestore Campo
+    if (req.isAuthenticated && req.isAuthenticated() && 
+        (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2 || 
+         req.user.tipo_utente_id === 3 || req.user.tipo_utente_id === 5)) {
+        return next();
+    }
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: permessi insufficienti', error: { status: 403 } });
+    }
+};
+
+/**
+ * Middleware per verificare gestione campi e prenotazioni
+ * Admin (1), Presidente (2), Vicepresidente (3), Segretario (5) e Gestore Campo (6)
+ * 
+ * @function canManageCampi
+ * @param {Object} req - Oggetto richiesta Express
+ * @param {Object} res - Oggetto risposta Express
+ * @param {Function} next - Callback next di Express
+ * @returns {void}
+ */
+const canManageCampi = function(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated() && 
+        (req.user.tipo_utente_id === 1 || req.user.tipo_utente_id === 2 || 
+         req.user.tipo_utente_id === 3 || req.user.tipo_utente_id === 5 || 
+         req.user.tipo_utente_id === 6)) {
+        return next();
+    }
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(403).json({ error: 'Forbidden' });
+    } else {
+        res.status(403).render('error', { message: 'Accesso negato: non hai permessi per gestire i campi', error: { status: 403 } });
+    }
+};
+
+module.exports = { 
+    isLoggedIn, 
+    isAdmin, 
+    isDirigente, 
+    isSquadraDirigente, 
+    isAdminOrDirigente, 
+    canEditNotizia,
+    isGestoreCampo,
+    isStaffOrAdmin,
+    canManageCampi
+};

@@ -127,9 +127,10 @@ exports.removeDirigente = function(id) {
 
 /**
  * Ottieni le informazioni del dirigente associato ad un utente
+ * Supporta dirigenti con più squadre
  * @async
  * @param {number} userId
- * @returns {Promise<Object|null>} Oggetto dirigente o null
+ * @returns {Promise<Array>} Array di squadre associate al dirigente
  */
 exports.getDirigenteByUserId = function (userId) {
     return new Promise((resolve, reject) => {
@@ -139,11 +140,12 @@ exports.getDirigenteByUserId = function (userId) {
             LEFT JOIN SQUADRE s ON ds.squadra_id = s.id
             WHERE ds.utente_id = ? AND ds.attivo = true
         `;
-        sqlite.get(sql, [userId], (err, dirigente) => {
+        sqlite.all(sql, [userId], (err, dirigenti) => {
             if (err) {
                 return reject({ error: 'Errore nel recupero del dirigente: ' + err.message });
             }
-            resolve(dirigente || null);
+            // Ritorna array di squadre o array vuoto se non è dirigente
+            resolve(dirigenti || []);
         });
     });
 };

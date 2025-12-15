@@ -37,9 +37,9 @@
                             <p class="admin-page-subtitle">Gestisci campionati, squadre e partite</p>
                         </div>
                         <div class="admin-page-header-actions">
-                            <a href="/admin" class="btn btn-outline-secondary">
+                            <a href="<%= user.tipo_utente_id === 1 ? '/admin' : '/profilo' %>" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>
-                                <span class="d-none d-sm-inline">Pannello</span>
+                                <span class="d-none d-sm-inline"><%= user.tipo_utente_id === 1 ? 'Pannello' : 'Profilo' %></span>
                             </a>
                             <a href="/Logout" class="btn btn-outline-danger">
                                 <i class="bi bi-box-arrow-right me-2"></i>

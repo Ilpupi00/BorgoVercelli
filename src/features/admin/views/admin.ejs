@@ -71,6 +71,7 @@
                             </h2>
 
                             <!-- Sezione Contenuti -->
+                            <% if ([1, 2, 3, 5].includes(user.tipo_utente_id)) { %>
                             <section id="contenuti" class="row mb-5">
                                 <div class="col-12">
                                     <h4 class="mb-3 text-primary">
@@ -88,6 +89,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% if ([1, 2, 3, 5, 6].includes(user.tipo_utente_id)) { %>
                                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100 reveal reveal--fade-up reveal--delay-2">
                                         <div class="card-body text-center">
@@ -98,6 +100,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
                                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 mb-3">
                                     <div class="card action-card h-100 reveal reveal--fade-up reveal--delay-3">
                                         <div class="card-body text-center">
@@ -109,6 +112,7 @@
                                     </div>
                                 </div>
                                 <!-- Seconda riga: 2 card -->
+                                <% if ([1, 2, 3].includes(user.tipo_utente_id)) { %>
                                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100 reveal reveal--fade-up reveal--delay-1">
                                         <div class="card-body text-center">
@@ -119,6 +123,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
+                                <% if ([1, 2, 3, 4].includes(user.tipo_utente_id)) { %>
                                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100 reveal reveal--fade-up reveal--delay-2">
                                         <div class="card-body text-center">
@@ -129,7 +135,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
                                 <!-- Terza riga: Campionati -->
+                                <% if ([1, 2, 3].includes(user.tipo_utente_id)) { %>
                                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 mb-3">
                                     <div class="card action-card h-100 reveal reveal--fade-up reveal--delay-3">
                                         <div class="card-body text-center">
@@ -140,9 +148,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
                             </section>
+                            <% } %>
 
                             <!-- Sezione Utenti -->
+                            <% if (user.tipo_utente_id === 1) { %>
                             <section id="utenti" class="row mb-5 reveal reveal--fade-up">
                                 <div class="col-12">
                                     <h4 class="mb-3 text-primary">
@@ -170,6 +181,7 @@
                                     </div>
                                 </div>
                             </section>
+                            <% } %>
 
                             <!-- Sezione Strumenti -->
                             <section id="strumenti" class="row">
@@ -188,6 +200,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% if (user.tipo_utente_id === 1) { %>
                                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
@@ -198,6 +211,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
                             </section>
                         </article>
                     </div>

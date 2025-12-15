@@ -1,100 +1,135 @@
 <div class="col-lg-3 col-xl-2 px-0">
     <div class="admin-sidebar">
-        <div class="r-header">
-            <h5 class="text-white mb-4">
-                ⚙️
-                Menu Admin
+        <div class="sidebar-header">
+            <h5 class="text-white mb-3">
+                ⚙️ Menu Admin
             </h5>
         </div>
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
                 <!-- Sezione Contenuti -->
+                <% if ([1, 2, 3, 5].includes(user.tipo_utente_id)) { %>
                 <li class="nav-item">
-                    <div class="nav-link section-header">
-                        📄
-                        Contenuti
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuContenuti" aria-expanded="true">
+                        📄 Contenuti
                     </div>
                 </li>
+                <div class="collapse show" id="menuContenuti">
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/notizie')) ? 'active' : '' %>" href="/admin/notizie">
+                            📰 Gestisci Notizie
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/eventi')) ? 'active' : '' %>" href="/admin/eventi">
+                            📅 Gestisci Eventi
+                        </a>
+                    </li>
+                    <% if ([1, 2, 3].includes(user.tipo_utente_id)) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/galleria')) ? 'active' : '' %>" href="/admin/galleria">
+                            🖼️ Gestisci Galleria
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if ([1, 2, 3, 4].includes(user.tipo_utente_id)) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/squadre')) ? 'active' : '' %>" href="/admin/squadre">
+                            👥 Gestisci Squadre
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if ([1, 2, 3, 5, 6].includes(user.tipo_utente_id)) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.match(/^\/admin\/campi(\/|$)/)) ? 'active' : '' %>" href="/admin/campi">
+                            ⚽ Gestisci Campi
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if ([1, 2, 3].includes(user.tipo_utente_id)) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.match(/^\/admin\/campionati(\/|$)/)) ? 'active' : '' %>" href="/admin/campionati">
+                            🏆 Gestisci Campionati
+                        </a>
+                    </li>
+                    <% } %>
+                </div>
+                <% } else if (user.tipo_utente_id === 4) { %>
+                <!-- Dirigente vede solo Squadre -->
                 <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/notizie')) ? 'active' : '' %>" href="/admin/notizie">
-                        📰
-                        Gestisci Notizie
-                    </a>
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuSquadre" aria-expanded="true">
+                        👥 Squadre
+                    </div>
                 </li>
+                <div class="collapse show" id="menuSquadre">
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/squadre')) ? 'active' : '' %>" href="/admin/squadre">
+                            👥 Gestisci Squadre
+                        </a>
+                    </li>
+                </div>
+                <% } else if (user.tipo_utente_id === 6) { %>
+                <!-- Gestore Campo vede solo Campi -->
                 <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/eventi')) ? 'active' : '' %>" href="/admin/eventi">
-                        📅
-                        Gestisci Eventi
-                    </a>
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuCampi" aria-expanded="true">
+                        ⚽ Campi
+                    </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/galleria')) ? 'active' : '' %>" href="/admin/galleria">
-                        🖼️
-                        Gestisci Galleria
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/squadre')) ? 'active' : '' %>" href="/admin/squadre">
-                        👥
-                        Gestisci Squadre
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.match(/^\/admin\/campi(\/|$)/)) ? 'active' : '' %>" href="/admin/campi">
-                        ⚽
-                        Gestisci Campi
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.match(/^\/admin\/campionati(\/|$)/)) ? 'active' : '' %>" href="/admin/campionati">
-                        🏆
-                        Gestisci Campionati
-                    </a>
-                </li>
+                <div class="collapse show" id="menuCampi">
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.match(/^\/admin\/campi(\/|$)/)) ? 'active' : '' %>" href="/admin/campi">
+                            ⚽ Gestisci Campi
+                        </a>
+                    </li>
+                </div>
+                <% } %>
 
-                <!-- Sezione Utenti -->
+                <!-- Sezione Utenti (solo Admin) -->
+                <% if (user.tipo_utente_id === 1) { %>
                 <li class="nav-item mt-3">
-                    <div class="nav-link section-header">
-                        👥
-                        Utenti
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuUtenti" aria-expanded="true">
+                        👥 Utenti
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/utenti')) ? 'active' : '' %>" href="/admin/utenti">
-                        👤
-                        Gestore Utenti
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/recensioni')) ? 'active' : '' %>" href="/admin/recensioni">
-                        ⭐
-                        Gestisci Recensioni
-                    </a>
-                </li>
+                <div class="collapse show" id="menuUtenti">
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/utenti')) ? 'active' : '' %>" href="/admin/utenti">
+                            👤 Gestore Utenti
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/recensioni')) ? 'active' : '' %>" href="/admin/recensioni">
+                            ⭐ Gestisci Recensioni
+                        </a>
+                    </li>
+                </div>
+                <% } %>
 
                 <!-- Sezione Strumenti -->
                 <li class="nav-item mt-3">
-                    <div class="nav-link section-header">
-                        🔧
-                        Strumenti
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuStrumenti" aria-expanded="true">
+                        🔧 Strumenti
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/prenotazioni')) ? 'active' : '' %>" href="/admin/prenotazioni">
-                        📋
-                        Prenotazioni
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link submenu <%= (currentPath && currentPath.startsWith('/admin/statistiche')) ? 'active' : '' %>" href="/admin/statistiche">
-                        📊
-                        Statistiche
-                    </a>
-                </li>
+                <div class="collapse show" id="menuStrumenti">
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/prenotazioni')) ? 'active' : '' %>" href="/admin/prenotazioni">
+                            📋 Prenotazioni
+                        </a>
+                    </li>
+                    <% if (user.tipo_utente_id === 1) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/statistiche')) ? 'active' : '' %>" href="/admin/statistiche">
+                            📊 Statistiche
+                        </a>
+                    </li>
+                    <% } %>
+                </div>
+
+                <!-- Torna al Sito -->
                 <li class="nav-item mt-3">
                     <a class="nav-link text-warning site-link <%= (currentPath && currentPath.toLowerCase().startsWith('/homepage')) ? 'active' : '' %>" href="/homepage">
-                        🏠
-                        Torna al Sito
+                        🏠 Torna al Sito
                     </a>
                 </li>
             </ul>

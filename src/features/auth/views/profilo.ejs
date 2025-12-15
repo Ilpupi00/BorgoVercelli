@@ -60,6 +60,8 @@
                             <span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
                         <% } else if (user.tipo_utente_id === 5) { %>
                             <span class="badge bg-secondary me-1 mb-1"><i class="bi bi-file-earmark-text"></i> Segretario</span>
+                        <% } else if (user.tipo_utente_id === 6) { %>
+                            <span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-clipboard-check"></i> Gestore Campo</span>
                         <% } else { %>
                             <span class="badge bg-info me-1 mb-1"><i class="bi bi-person-check"></i> Utente</span>
                         <% } %>
@@ -155,30 +157,73 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <button class="btn btn-outline-primary w-100 mb-2" onclick="modificaPreferenze()">
-                            <i class="bi bi-pencil me-2"></i>Modifica Profilo
-                        </button>
-                    <button id="enablePushBtn" class="btn btn-outline-success w-100 mb-2">
-                      <i class="bi bi-bell-fill me-2"></i>Abilita Notifiche
-                    </button>
-                        <a href="/users/mie-prenotazioni" class="btn btn-outline-info w-100 mb-2">
-                            <i class="bi bi-calendar-check me-2"></i>Le Mie Prenotazioni
+                      <button class="btn btn-outline-primary w-100 mb-2" onclick="modificaPreferenze()">
+                        <i class="bi bi-pencil me-2"></i>Modifica Profilo
+                      </button>
+                      <button id="enablePushBtn" class="btn btn-outline-success w-100 mb-2">
+                        <i class="bi bi-bell-fill me-2"></i>Abilita Notifiche
+                      </button>
+                      <a href="/users/mie-prenotazioni" class="btn btn-outline-info w-100 mb-2">
+                        <i class="bi bi-calendar-check me-2"></i>Le Mie Prenotazioni
+                      </a>
+                      <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
+                        <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
+                      </a>
+                      <a href="/eventi" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
+                      </a>
+                      <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
+                        <i class="bi bi-star me-2"></i>Scrivi Recensione
+                      </a>
+                      <a href="/galleria" class="btn btn-outline-info w-100 mb-2">
+                        <i class="bi bi-images me-2"></i>Galleria Foto
+                      </a>
+
+                      <!-- Role-specific quick links -->
+                      <% if (user.tipo_utente_id === 1 || user.tipo_utente_id === 2 || user.tipo_utente_id === 3 || user.tipo_utente_id === 5) { %>
+                        <hr/>
+                        <a href="/admin/squadre" class="btn btn-outline-dark w-100 mb-2">
+                          <i class="bi bi-people me-2"></i>Gestione Squadre
                         </a>
-                        <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
-                            <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
+                        <a href="/admin/notizie" class="btn btn-outline-dark w-100 mb-2">
+                          <i class="bi bi-newspaper me-2"></i>Gestione Notizie
                         </a>
-                        <a href="/eventi" class="btn btn-outline-primary w-100 mb-2">
-                            <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
+                        <a href="/admin/eventi" class="btn btn-outline-dark w-100 mb-2">
+                          <i class="bi bi-calendar-event me-2"></i>Gestione Eventi
                         </a>
-                        <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
-                            <i class="bi bi-star me-2"></i>Scrivi Recensione
+                        <a href="/admin/campi" class="btn btn-outline-dark w-100 mb-2">
+                          <i class="bi bi-pin-map me-2"></i>Gestione Campi
                         </a>
-                        <a href="/galleria" class="btn btn-outline-info w-100 mb-2">
-                            <i class="bi bi-images me-2"></i>Galleria Foto
+                      <% } %>
+
+                      <% if (user.tipo_utente_id === 4) { %>
+                        <hr/>
+                        <% if (Array.isArray(dirigente) && dirigente.length > 0) { %>
+                          <% dirigente.forEach(function(d){ %>
+                            <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-outline-warning w-100 mb-2">
+                              <i class="bi bi-gear me-2"></i>Gestisci <%= d.squadra_nome || ('Squadra ' + d.squadra_id) %>
+                            </a>
+                          <% }); %>
+                        <% } else if (dirigente && dirigente.squadra_id) { %>
+                          <a href="/squadre/gestione/<%= dirigente.squadra_id %>" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="bi bi-gear me-2"></i>Gestione Squadra
+                          </a>
+                        <% } %>
+                      <% } %>
+
+                      <% if (user.tipo_utente_id === 6) { %>
+                        <hr/>
+                        <a href="/admin/campi" class="btn btn-outline-info w-100 mb-2">
+                          <i class="bi bi-clipboard2-data me-2"></i>Gestione Campi
                         </a>
-                        <a href="/Logout" class="btn btn-outline-danger w-100">
-                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        <a href="/admin/prenotazioni" class="btn btn-outline-info w-100 mb-2">
+                          <i class="bi bi-calendar-check me-2"></i>Gestione Prenotazioni
                         </a>
+                      <% } %>
+
+                      <a href="/Logout" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                      </a>
                     </div>
                 </div>
 
@@ -319,41 +364,46 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <% var primoDir = Array.isArray(dirigente) ? dirigente[0] : dirigente; %>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="management-info">
-                                    <i class="bi bi-building text-warning me-2"></i>
-                                    <strong>Squadra:</strong> <%= dirigente?.squadra_nome || 'Societario' %>
-                                </div>
+                          <div class="col-md-6">
+                            <div class="management-info">
+                              <i class="bi bi-building text-warning me-2"></i>
+                              <strong>Squadra:</strong> <%= primoDir && primoDir.squadra_nome ? primoDir.squadra_nome : 'Societario' %>
                             </div>
-                            <div class="col-md-6">
-                                <div class="management-info">
-                                    <i class="bi bi-person-badge text-warning me-2"></i>
-                                    <strong>Ruolo:</strong> <%= dirigente?.ruolo || 'Non specificato' %>
-                                </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="management-info">
+                              <i class="bi bi-person-badge text-warning me-2"></i>
+                              <strong>Ruolo:</strong> <%= primoDir && primoDir.ruolo ? primoDir.ruolo : 'Non specificato' %>
                             </div>
+                          </div>
                         </div>
                         <div class="row mt-2">
-                            <div class="col-md-6">
-                                <div class="management-info">
-                                    <i class="bi bi-calendar-check text-warning me-2"></i>
-                                    <strong>Nomina:</strong> <%= dirigente?.data_nomina ? new Date(dirigente.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
-                                </div>
+                          <div class="col-md-6">
+                            <div class="management-info">
+                              <i class="bi bi-calendar-check text-warning me-2"></i>
+                              <strong>Nomina:</strong> <%= primoDir && primoDir.data_nomina ? new Date(primoDir.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
                             </div>
-                            <div class="col-md-6">
-                                <div class="management-info">
-                                    <i class="bi bi-calendar-x text-warning me-2"></i>
-                                    <strong>Scadenza:</strong> <%= dirigente?.data_scadenza ? new Date(dirigente.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
-                                </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="management-info">
+                              <i class="bi bi-calendar-x text-warning me-2"></i>
+                              <strong>Scadenza:</strong> <%= primoDir && primoDir.data_scadenza ? new Date(primoDir.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
                             </div>
+                          </div>
                         </div>
                         <div class="row justify-content-center align-center">
-                          <div class="col-md-6 text-center text-white mt-3 gestione_bottone">
-                            <% if (dirigente && dirigente.squadra_id) { %>
-                              <a href="/squadre/gestione/<%= dirigente.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
-                            <% } else { %>
-                              <span class="text-muted">Nessuna squadra assegnata</span>
-                            <% } %>
+                          <div class="col-12 text-center text-white mt-3 gestione_bottone">
+                          <% if (Array.isArray(dirigente) && dirigente.length > 0) { %>
+                            <% dirigente.forEach(function(d){ %>
+                              <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-warning text-white mb-2 me-2"><%= d.squadra_nome || ('Squadra ' + d.squadra_id) %></a>
+                            <% }); %>
+                          <% } else if (primoDir && primoDir.squadra_id) { %>
+                            <a href="/squadre/gestione/<%= primoDir.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
+                          <% } else { %>
+                            <span class="text-muted">Nessuna squadra assegnata</span>
+                          <% } %>
                           </div>
                         </div>
                     </div>

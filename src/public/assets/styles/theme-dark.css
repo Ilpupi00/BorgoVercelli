@@ -1374,12 +1374,21 @@ footer .social-links a:hover,
 .sidebar .nav-link:hover,
 .admin-sidebar .nav-link:hover {
     background-color: var(--bg-hover) !important;
+    color: #ffffff !important;
 }
 
 .sidebar .nav-link.active,
 .admin-sidebar .nav-link.active {
     background-color: var(--primary-color) !important;
     color: var(--text-on-primary) !important;
+}
+
+.admin-sidebar .sidebar-header h5 {
+    color: var(--text-primary) !important;
+}
+
+.admin-sidebar .section-header {
+    color: var(--text-primary) !important;
 }
 
 /* Breadcrumbs */
