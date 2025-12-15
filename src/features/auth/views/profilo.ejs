@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/styles/Profilo.css">
     <link rel="stylesheet" href="/assets/styles/theme-profilo-light.css">
+    <link rel="stylesheet" href="/assets/styles/profilo-modern-additions.css">
     <link rel="stylesheet" href="/assets/styles/Navbar.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/evento-upload.css">
@@ -21,89 +22,562 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/scripts/image-editor-common.js"></script>
     <script src="/assets/scripts/Profilo.js" defer></script>
+    
+    <style>
+        /* Modern Profile Styles - Colori del sito */
+        :root {
+            --site-primary: #0d6efd;
+            --site-primary-dark: #0a58ca;
+            --site-secondary: #22b14c;
+            --site-secondary-dark: #1a8e3a;
+        }
+        
+        :root[data-theme="dark"] {
+            --site-primary: #4a9eff;
+            --site-primary-dark: #5dadff;
+            --site-secondary: #3cc566;
+            --site-secondary-dark: #2fb357;
+        }
+        
+        .profile-modern-header {
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(13, 110, 253, 0.2);
+            position: relative;
+            overflow: visible;
+        }
+        
+        .profile-avatar-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .profile-avatar-modern {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            object-fit: cover;
+            display: block;
+        }
+        
+        .profile-avatar-modern i {
+            font-size: 140px !important;
+            color: rgba(255, 255, 255, 0.95) !important;
+            width: 140px !important;
+            height: 140px !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Placeholder avatar (SVG + iniziali) */
+        .profile-avatar-placeholder {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+          border: 4px solid rgba(255, 255, 255, 0.95);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+          position: relative;
+          overflow: hidden;
+          color: white;
+        }
+
+        .profile-avatar-placeholder svg.person-ic {
+          width: 60%;
+          height: 60%;
+          opacity: 0.95;
+          filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+        }
+
+        .profile-initials {
+          position: absolute;
+          bottom: 8px;
+          right: 8px;
+          background: rgba(0,0,0,0.18);
+          padding: 4px 8px;
+          border-radius: 999px;
+          font-weight: 700;
+          font-size: 0.9rem;
+          color: white;
+          backdrop-filter: blur(4px);
+        }
+        
+        .profile-actions-overlay {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .profile-action-btn-modern {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .profile-action-btn-modern:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-edit-photo {
+            background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+        }
+        
+        .btn-upload-photo {
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+        }
+        
+        .modern-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modern-card-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+            color: white;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .modern-card-header.green-gradient {
+            background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+        }
+        
+        .modern-card-header.info-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .modern-card-header.warning-gradient {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .modern-card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Role badge improvements */
+        .role-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.45rem 0.85rem;
+          border-radius: 999px;
+          font-weight: 700;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .role-badge i { font-size: 1.05rem; }
+
+        .role-badge.admin { background: linear-gradient(90deg, #d6332a, #c21813); color: white; }
+        .role-badge.presidente { background: linear-gradient(90deg, var(--site-primary), var(--site-primary-dark)); color: white; }
+        .role-badge.vice { background: linear-gradient(90deg, #198754, #137a3a); color: white; }
+        .role-badge.dirigente { background: linear-gradient(90deg, #f59e0b, #d97706); color: #1f2937; }
+        .role-badge.segretario { background: linear-gradient(90deg, #6c757d, #495057); color: white; }
+        .role-badge.gestore { background: linear-gradient(90deg, #0dcaf0, #0aa1c7); color: white; }
+        .role-badge.utente { background: linear-gradient(90deg, #94a3b8, #64748b); color: white; }
+
+        /* Management buttons */
+        .btn-manage-primary {
+          background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+          color: white;
+          border: none;
+          box-shadow: var(--shadow-md);
+        }
+
+        .btn-manage-secondary {
+          background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+          color: white;
+          border: none;
+          box-shadow: var(--shadow-md);
+        }
+
+        .btn-manage-primary:hover, .btn-manage-secondary:hover {
+          transform: translateY(-3px);
+          box-shadow: var(--shadow-lg);
+        }
+        
+        .modern-card-body {
+            padding: 1.5rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        
+        .stat-box-modern {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--site-primary);
+        }
+        
+        .stat-number-modern {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label-modern {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .modern-btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            border: 2px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-outline-primary {
+            color: var(--site-primary);
+            border-color: var(--site-primary);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--site-primary);
+            color: white;
+            border-color: var(--site-primary);
+        }
+        
+        .btn-outline-success {
+            color: var(--site-secondary);
+            border-color: var(--site-secondary);
+            background: transparent;
+        }
+        
+        .btn-outline-success:hover {
+            background: var(--site-secondary);
+            color: white;
+            border-color: var(--site-secondary);
+        }
+        
+        .btn-outline-info {
+            color: #3b82f6;
+            border-color: #3b82f6;
+            background: transparent;
+        }
+        
+        .btn-outline-info:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .btn-outline-warning {
+            color: #f59e0b;
+            border-color: #f59e0b;
+            background: transparent;
+        }
+        
+        .btn-outline-warning:hover {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .btn-outline-danger {
+            color: #ef4444;
+            border-color: #ef4444;
+            background: transparent;
+        }
+        
+        .btn-outline-danger:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+        
+        .btn-outline-dark {
+            color: var(--text-primary);
+            border-color: var(--border-color);
+            background: transparent;
+        }
+        
+        .btn-outline-dark:hover {
+            background: var(--text-primary);
+            color: white;
+            border-color: var(--text-primary);
+        }
+        
+        .btn-gradient-event,
+        .btn-gradient-news {
+            border: none;
+            color: white !important;
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-secondary) 100%);
+        }
+        
+        .btn-gradient-event:hover,
+        .btn-gradient-news:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+        }
+        
+        .timeline-modern {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline-modern::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--site-primary), var(--site-secondary));
+            border-radius: 2px;
+        }
+        
+        .timeline-item-modern {
+            position: relative;
+            padding-bottom: 1.5rem;
+            margin-left: 0.5rem;
+        }
+        
+        .timeline-dot-modern {
+            position: absolute;
+            left: -2.5rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-secondary) 100%);
+            box-shadow: 0 0 0 4px var(--card-bg);
+            border: 2px solid white;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-modern-header {
+                padding: 1.5rem 1rem;
+                border-radius: 16px;
+            }
+            
+            .profile-avatar-container {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .profile-avatar-modern {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .profile-avatar-modern i {
+                font-size: 110px !important;
+                width: 110px !important;
+                height: 110px !important;
+            }
+            
+            .profile-action-btn-modern {
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
+            
+            .modern-card {
+                border-radius: 14px;
+            }
+            
+            .stat-number-modern {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .profile-avatar-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .profile-avatar-modern {
+                width: 100px;
+                height: 100px;
+                border-width: 3px;
+            }
+            
+            .profile-avatar-modern i {
+                font-size: 100px !important;
+                width: 100px !important;
+                height: 100px !important;
+            }
+            
+            .profile-action-btn-modern {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+                border-width: 2px;
+            }
+            
+            .profile-actions-overlay {
+                bottom: -6px;
+                right: -6px;
+                gap: 6px;
+            }
+        }
+    </style>
 </head>
 <body>
     <%- include('partials/navbar') %>
 
     <main class="profile-container">
-        <!-- Header profilo con informazioni utente -->
-        <header class="profile-header-card reveal reveal--fade-up">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center">
-                    <div class="profile-avatar mb-3 reveal reveal--scale-up reveal--delay-1">
-                        <div class="position-relative d-inline-block pt-2">
-                            <% if (imageUrl) { %>
-                                <img src="<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="rounded-circle profile-img-main" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
-                            <% } else { %>
-                                <i class="bi bi-person-circle profile-img-main"></i>
-                            <% } %>
-                            <div class="profile-image-buttons position-absolute bottom-0 end-0 d-flex gap-2">
-                                <% if (imageUrl) { %>
-                                <button type="button" class="btn btn-success btn-sm rounded-circle p-2 shadow" title="Modifica foto" onclick="window.openImageEditor('<%= imageUrl %>')">
-                                    <span class="bi bi-scissors"></span>
-                                </button>
-                                <% } %>
-                                <button id="editPicBtn" type="button" class="btn btn-primary btn-sm rounded-circle p-2 shadow" title="Cambia foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
-                                    <span class="bi bi-camera-fill"></span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="user-badges mt-2">
-                        <% if (user.tipo_utente_id === 1) { %>
-                            <span class="badge bg-danger me-1 mb-1"><i class="bi bi-shield-check"></i> Admin</span>
-                        <% } else if (user.tipo_utente_id === 2) { %>
-                            <span class="badge bg-primary me-1 mb-1"><i class="bi bi-person-badge"></i> Presidente</span>
-                        <% } else if (user.tipo_utente_id === 3) { %>
-                            <span class="badge bg-success me-1 mb-1"><i class="bi bi-person-badge-fill"></i> Vice Presidente</span>
-                        <% } else if (user.tipo_utente_id === 4) { %>
-                            <span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-briefcase"></i> Dirigente</span>
-                        <% } else if (user.tipo_utente_id === 5) { %>
-                            <span class="badge bg-secondary me-1 mb-1"><i class="bi bi-file-earmark-text"></i> Segretario</span>
-                        <% } else if (user.tipo_utente_id === 6) { %>
-                            <span class="badge bg-info text-dark me-1 mb-1"><i class="bi bi-clipboard-check"></i> Gestore Campo</span>
-                        <% } else { %>
-                            <span class="badge bg-info me-1 mb-1"><i class="bi bi-person-check"></i> Utente</span>
-                        <% } %>
-                        <% if (stats && stats.prenotazioni_totali > 10) { %>
-                            <span class="badge bg-warning text-dark mb-1"><i class="bi bi-trophy"></i> Giocatore Attivo</span>
-                        <% } %>
-                    </div>
-                      <!-- Contact lines moved here (left column) -->
-                      <div class="contact-lines mt-3 text-start">
-                        <p class="text-white mb-1 fs-6">
-                          <i class="bi bi-envelope me-2"></i>
-                          <a href="mailto:<%= user.email %>" class="text-white text-decoration-underline"><%= user.email %></a>
-                        </p>
-                        <% if (user.telefono) { %>
-                        <p class="text-white mb-1 fs-6">
-                          <i class="bi bi-telephone me-2"></i>
-                          <span><%= user.telefono %></span>
-                        </p>
-                        <% } %>
-                        <% if (user.data_nascita) { %>
-                        <p class="text-white mb-1 fs-6">
-                          <i class="bi bi-calendar3 me-2"></i>
-                          <span><%= new Date(user.data_nascita).toLocaleDateString('it-IT') %></span>
-                        </p>
-                        <% } %>
-                        <% if (user.codice_fiscale) { %>
-                        <p class="text-white mb-0 fs-6">
-                          <i class="bi bi-card-text me-2"></i>
-                          <span><%= user.codice_fiscale.toUpperCase() %></span>
-                        </p>
-                        <% } %>
-                      </div>
+        <!-- Modern Profile Header -->
+        <header class="profile-modern-header reveal reveal--fade-up text-center">
+            <!-- Avatar Section with Action Buttons -->
+            <div class="profile-avatar-container">
+                <% if (imageUrl) { %>
+                  <img src="<%= imageUrl %>?t=<%= Date.now() %>" alt="Immagine profilo" class="profile-avatar-modern" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
+                <% } else { %>
+                  <div class="profile-avatar-placeholder" aria-hidden="true" style="background: linear-gradient(135deg, var(--site-primary), var(--site-primary-dark));">
+                    <svg class="person-ic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="rgba(255,255,255,0.95)"/>
+                      <path d="M2 20c0-3.314 4.03-6 10-6s10 2.686 10 6v1H2v-1z" fill="rgba(255,255,255,0.85)"/>
+                    </svg>
+                    <% if (user && (user.nome || user.cognome)) { %>
+                      <div class="profile-initials"><%= (user.nome ? user.nome.charAt(0).toUpperCase() : '') + (user.cognome ? user.cognome.charAt(0).toUpperCase() : '') %></div>
+                    <% } %>
+                  </div>
+                <% } %>
+                
+                <!-- Floating Action Buttons -->
+                <div class="profile-actions-overlay">
+                    <% if (imageUrl) { %>
+                    <button type="button" class="profile-action-btn-modern btn-edit-photo" title="Modifica foto" onclick="window.openImageEditor('<%= imageUrl %>')">
+                        <i class="bi bi-scissors"></i>
+                    </button>
+                    <% } %>
+                    <button type="button" class="profile-action-btn-modern btn-upload-photo" title="Cambia foto" data-bs-toggle="modal" data-bs-target="#uploadPicModal">
+                        <i class="bi bi-camera-fill"></i>
+                    </button>
                 </div>
-                <div class="col-md-8">
-                    <div class="profile-info">
-                        <h1 class="display-5 fw-bold text-white mb-2"><%= user.nome %> <%= user.cognome %></h1>
-                        <!-- contact-lines moved to left column to keep layout consistent -->
-                        <div class="member-since">
-                            <i class="bi bi-calendar-check text-white me-2"></i>
-                            <span class="text-white">Utente dal <%= user.data_registrazione ? new Date(user.data_registrazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }) : 'N/D' %></span>
+            </div>
+            
+            <!-- User Info -->
+            <div class="position-relative" style="z-index: 2;">
+                <h1 class="display-6 fw-bold text-white mb-3"><%= user.nome %> <%= user.cognome %></h1>
+                
+                <!-- Role Badges -->
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                    <% if (user.tipo_utente_id === 1) { %>
+                      <span class="role-badge admin"><i class="bi bi-shield-check"></i> Admin</span>
+                    <% } else if (user.tipo_utente_id === 2) { %>
+                      <span class="role-badge presidente"><i class="bi bi-person-badge"></i> Presidente</span>
+                    <% } else if (user.tipo_utente_id === 3) { %>
+                      <span class="role-badge vice"><i class="bi bi-person-badge-fill"></i> Vice Presidente</span>
+                    <% } else if (user.tipo_utente_id === 4) { %>
+                      <span class="role-badge dirigente"><i class="bi bi-briefcase"></i> Dirigente</span>
+                    <% } else if (user.tipo_utente_id === 5) { %>
+                      <span class="role-badge segretario"><i class="bi bi-file-earmark-text"></i> Segretario</span>
+                    <% } else if (user.tipo_utente_id === 6) { %>
+                      <span class="role-badge gestore"><i class="bi bi-clipboard-check"></i> Gestore Campo</span>
+                    <% } else { %>
+                      <span class="role-badge utente"><i class="bi bi-person-check"></i> Utente</span>
+                    <% } %>
+                    <% if (stats && stats.prenotazioni_totali > 10) { %>
+                        <span class="badge bg-warning text-dark px-3 py-2 fs-6"><i class="bi bi-trophy me-1"></i> Giocatore Attivo</span>
+                    <% } %>
+                </div>
+                
+                <!-- Member Since -->
+                <div class="mb-3">
+                    <span class="badge bg-light text-dark px-4 py-2">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        Membro dal <%= user.data_registrazione ? new Date(user.data_registrazione).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }) : 'N/D' %>
+                    </span>
+                </div>
+                
+                <!-- Contact Info Grid -->
+                <div class="row g-2 mt-3 text-white justify-content-center">
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-envelope fs-5"></i>
+                            <a href="mailto:<%= user.email %>" class="text-white text-decoration-none small"><%= user.email %></a>
                         </div>
                     </div>
+                    <% if (user.telefono) { %>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-telephone fs-5"></i>
+                            <span class="small"><%= user.telefono %></span>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% if (user.data_nascita) { %>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-calendar3 fs-5"></i>
+                            <span class="small"><%= new Date(user.data_nascita).toLocaleDateString('it-IT') %></span>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% if (user.codice_fiscale) { %>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-card-text fs-5"></i>
+                            <span class="text-uppercase small"><%= user.codice_fiscale %></span>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </header>
@@ -111,243 +585,252 @@
         <div class="row mt-4">
             <!-- Sezione sinistra: Statistiche e Link Rapidi -->
             <aside class="col-lg-4">
-                <!-- Card Statistiche -->
-                <div class="card stats-card reveal reveal--slide-left">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-bar-chart-line me-2"></i>Le tue Statistiche
-                        </h5>
+                <!-- Card Statistiche Modern -->
+                <div class="modern-card reveal reveal--slide-left">
+                    <div class="modern-card-header">
+                        <i class="bi bi-bar-chart-line fs-4"></i>
+                        <h5>Le tue Statistiche</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-calendar-check-fill text-success"></i>
+                    <div class="modern-card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="stat-box-modern">
+                                    <div class="stat-number-modern"><%= stats.prenotazioni_totali || 0 %></div>
+                                    <div class="stat-label-modern">
+                                        <i class="bi bi-calendar-check-fill me-1"></i>
+                                        Prenotazioni Totali
+                                    </div>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <div class="stat-number"><%= stats.prenotazioni_totali || 0 %></div>
-                                <div class="stat-label">Prenotazioni Totali</div>
+                            <div class="col-6">
+                                <div class="stat-box-modern">
+                                    <div class="stat-number-modern" style="font-size: 2rem;"><%= stats.recensioni_totali || 0 %></div>
+                                    <div class="stat-label-modern" style="font-size: 0.8rem;">
+                                        <i class="bi bi-star-fill me-1"></i>
+                                        Recensioni
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-star-fill text-warning"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number"><%= stats.recensioni_totali || 0 %></div>
-                                <div class="stat-label">Recensioni Scritte</div>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-calendar-event text-info"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number"><%= stats.prenotazioni_mese || 0 %></div>
-                                <div class="stat-label">Questo Mese</div>
+                            <div class="col-6">
+                                <div class="stat-box-modern">
+                                    <div class="stat-number-modern" style="font-size: 2rem;"><%= stats.prenotazioni_mese || 0 %></div>
+                                    <div class="stat-label-modern" style="font-size: 0.8rem;">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        Questo Mese
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card Link Rapidi -->
-                <div class="card quick-links-card reveal reveal--slide-left reveal--delay-1 mt-3">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-lightning-charge me-2"></i>Azioni Rapide
-                        </h5>
+                <!-- Card Link Rapidi Modern -->
+                <div class="modern-card reveal reveal--slide-left reveal--delay-1">
+                    <div class="modern-card-header green-gradient">
+                        <i class="bi bi-lightning-charge fs-4"></i>
+                        <h5>Azioni Rapide</h5>
                     </div>
-                    <div class="card-body">
-                      <button class="btn btn-outline-primary w-100 mb-2" onclick="modificaPreferenze()">
-                        <i class="bi bi-pencil me-2"></i>Modifica Profilo
-                      </button>
-                      <button id="enablePushBtn" class="btn btn-outline-success w-100 mb-2">
-                        <i class="bi bi-bell-fill me-2"></i>Abilita Notifiche
-                      </button>
-                      <a href="/users/mie-prenotazioni" class="btn btn-outline-info w-100 mb-2">
-                        <i class="bi bi-calendar-check me-2"></i>Le Mie Prenotazioni
-                      </a>
-                      <a href="/prenotazione" class="btn btn-outline-success w-100 mb-2">
-                        <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
-                      </a>
-                      <a href="/eventi" class="btn btn-outline-primary w-100 mb-2">
-                        <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
-                      </a>
-                      <a href="/scrivi/Recensione" class="btn btn-outline-warning w-100 mb-2">
-                        <i class="bi bi-star me-2"></i>Scrivi Recensione
-                      </a>
-                      <a href="/galleria" class="btn btn-outline-info w-100 mb-2">
-                        <i class="bi bi-images me-2"></i>Galleria Foto
-                      </a>
+                    <div class="modern-card-body">
+                      <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary modern-btn" onclick="modificaPreferenze()">
+                          <i class="bi bi-pencil me-2"></i>Modifica Profilo
+                        </button>
+                        <button id="enablePushBtn" class="btn btn-outline-success modern-btn">
+                          <i class="bi bi-bell-fill me-2"></i>Abilita Notifiche
+                        </button>
+                        <a href="/users/mie-prenotazioni" class="btn btn-outline-info modern-btn">
+                          <i class="bi bi-calendar-check me-2"></i>Le Mie Prenotazioni
+                        </a>
+                        <a href="/prenotazione" class="btn btn-outline-success modern-btn">
+                          <i class="bi bi-calendar-plus me-2"></i>Prenota Campo
+                        </a>
+                        <a href="/eventi" class="btn btn-outline-primary modern-btn">
+                          <i class="bi bi-calendar-event me-2"></i>Vedi Eventi
+                        </a>
+                        <a href="/scrivi/Recensione" class="btn btn-outline-warning modern-btn">
+                          <i class="bi bi-star me-2"></i>Scrivi Recensione
+                        </a>
+                        <a href="/galleria" class="btn btn-outline-info modern-btn">
+                          <i class="bi bi-images me-2"></i>Galleria Foto
+                        </a>
 
-                      <!-- Role-specific quick links -->
-                      <% if (user.tipo_utente_id === 1 || user.tipo_utente_id === 2 || user.tipo_utente_id === 3 || user.tipo_utente_id === 5) { %>
-                        <hr/>
-                        <a href="/admin/squadre" class="btn btn-outline-dark w-100 mb-2">
-                          <i class="bi bi-people me-2"></i>Gestione Squadre
-                        </a>
-                        <a href="/admin/notizie" class="btn btn-outline-dark w-100 mb-2">
-                          <i class="bi bi-newspaper me-2"></i>Gestione Notizie
-                        </a>
-                        <a href="/admin/eventi" class="btn btn-outline-dark w-100 mb-2">
-                          <i class="bi bi-calendar-event me-2"></i>Gestione Eventi
-                        </a>
-                        <a href="/admin/campi" class="btn btn-outline-dark w-100 mb-2">
-                          <i class="bi bi-pin-map me-2"></i>Gestione Campi
-                        </a>
-                      <% } %>
-
-                      <% if (user.tipo_utente_id === 4) { %>
-                        <hr/>
-                        <% if (Array.isArray(dirigente) && dirigente.length > 0) { %>
-                          <% dirigente.forEach(function(d){ %>
-                            <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-outline-warning w-100 mb-2">
-                              <i class="bi bi-gear me-2"></i>Gestisci <%= d.squadra_nome || ('Squadra ' + d.squadra_id) %>
-                            </a>
-                          <% }); %>
-                        <% } else if (dirigente && dirigente.squadra_id) { %>
-                          <a href="/squadre/gestione/<%= dirigente.squadra_id %>" class="btn btn-outline-warning w-100 mb-2">
-                            <i class="bi bi-gear me-2"></i>Gestione Squadra
+                        <!-- Role-specific quick links -->
+                        <% if (user.tipo_utente_id === 1 || user.tipo_utente_id === 2 || user.tipo_utente_id === 3 || user.tipo_utente_id === 5) { %>
+                          <hr class="my-2"/>
+                          <a href="/admin/squadre" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-people me-2"></i>Gestione Squadre
+                          </a>
+                          <a href="/admin/notizie" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-newspaper me-2"></i>Gestione Notizie
+                          </a>
+                          <a href="/admin/eventi" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-calendar-event me-2"></i>Gestione Eventi
+                          </a>
+                          <a href="/admin/campi" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-pin-map me-2"></i>Gestione Campi
                           </a>
                         <% } %>
-                      <% } %>
 
-                      <% if (user.tipo_utente_id === 6) { %>
-                        <hr/>
-                        <a href="/admin/campi" class="btn btn-outline-info w-100 mb-2">
-                          <i class="bi bi-clipboard2-data me-2"></i>Gestione Campi
-                        </a>
-                        <a href="/admin/prenotazioni" class="btn btn-outline-info w-100 mb-2">
-                          <i class="bi bi-calendar-check me-2"></i>Gestione Prenotazioni
-                        </a>
-                      <% } %>
+                        <% if (user.tipo_utente_id === 4) { %>
+                          <hr class="my-2"/>
+                          <% if (Array.isArray(dirigente) && dirigente.length > 0) { %>
+                            <% dirigente.forEach(function(d){ %>
+                              <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-manage-secondary modern-btn">
+                                <i class="bi bi-gear me-2"></i>Gestisci <%= d.squadra_nome || ('Squadra ' + d.squadra_id) %>
+                              </a>
+                            <% }); %>
+                          <% } else if (dirigente && dirigente.squadra_id) { %>
+                            <a href="/squadre/gestione/<%= dirigente.squadra_id %>" class="btn btn-manage-secondary modern-btn">
+                              <i class="bi bi-gear me-2"></i>Gestione Squadra
+                            </a>
+                          <% } %>
+                        <% } %>
 
-                      <a href="/Logout" class="btn btn-outline-danger w-100">
-                        <i class="bi bi-box-arrow-right me-2"></i>Logout
-                      </a>
+                        <% if (user.tipo_utente_id === 6) { %>
+                          <hr class="my-2"/>
+                          <a href="/admin/campi" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-clipboard2-data me-2"></i>Gestione Campi
+                          </a>
+                          <a href="/admin/prenotazioni" class="btn btn-manage-primary modern-btn">
+                            <i class="bi bi-calendar-check me-2"></i>Gestione Prenotazioni
+                          </a>
+                        <% } %>
+
+                        <a href="/Logout" class="btn btn-outline-danger modern-btn mt-2">
+                          <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
+                      </div>
                     </div>
                 </div>
 
-                <!-- Card Preferenze Sportive -->
-                <div class="card preferences-card reveal reveal--slide-left reveal--delay-2 mt-3">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-gear me-2"></i>Preferenze e Sicurezza
-                        </h5>
+                <!-- Card Preferenze e Sicurezza -->
+                <div class="modern-card reveal reveal--slide-left reveal--delay-2">
+                    <div class="modern-card-header info-gradient">
+                        <i class="bi bi-gear fs-4"></i>
+                        <h5>Preferenze e Sicurezza</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="cambiaPassword()">
-                                    <i class="bi bi-key me-2"></i>Cambia Password
-                                </button>
+                    <div class="modern-card-body">
+                        <button class="btn btn-outline-secondary modern-btn w-100 mb-3" onclick="cambiaPassword()">
+                            <i class="bi bi-key me-2"></i>Cambia Password
+                        </button>
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <small class="text-muted d-block mb-1">Ruolo preferito:</small>
+                                    <div class="fw-bold"><%= user.ruolo_preferito || 'Non specificato' %></div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <small class="text-muted d-block mb-1">Piede preferito:</small>
+                                    <div class="fw-bold"><%= user.piede_preferito || 'Non specificato' %></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="preference-item">
-                            <small class="text-muted">Ruolo preferito:</small>
-                            <div class="fw-bold"><%= user.ruolo_preferito || 'Non specificato' %></div>
-                        </div>
-                        <div class="preference-item">
-                            <small class="text-muted">Piede preferito:</small>
-                            <div class="fw-bold"><%= user.piede_preferito || 'Non specificato' %></div>
-                        </div>
                     </div>
                 </div>
-
-        
-
             </aside>
 
             <!-- Sezione destra: Attività e Dettagli -->
             <section class="col-lg-8">
-                <!-- Card Attività Recente -->
-                <div class="card activity-card reveal reveal--slide-right">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-activity me-2"></i>Attività Recente
-                        </h5>
+                <!-- Card Attività Recente Modern -->
+                <div class="modern-card reveal reveal--slide-right">
+                    <div class="modern-card-header warning-gradient">
+                        <i class="bi bi-activity fs-4"></i>
+                        <h5>Attività Recente</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="modern-card-body">
                         <% if ((activity.prenotazioni && activity.prenotazioni.length > 0) || (activity.recensioni && activity.recensioni.length > 0)) { %>
-                            <div class="activity-timeline">
+                            <div class="timeline-modern">
                                 <% (activity.prenotazioni || []).slice(0, 2).forEach(prenotazione => { %>
-                                    <div class="activity-item">
-                                        <div class="activity-icon bg-success">
-                                            <i class="bi bi-calendar-check"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <div class="activity-title">Prenotazione Campo</div>
-                                            <div class="activity-details">
-                                                <%= prenotazione.campo_nome || 'Campo' %> -
-                                                <%= new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') %> alle <%= prenotazione.ora_inizio %>
+                                    <div class="timeline-item-modern">
+                                        <div class="timeline-dot-modern"></div>
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px; flex-shrink: 0;">
+                                                <i class="bi bi-calendar-check fs-4"></i>
                                             </div>
-                                            <small class="text-muted">
-                                                <%= new Date(prenotazione.created_at).toLocaleDateString('it-IT') %>
-                                            </small>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-dark mb-1">Prenotazione Campo</div>
+                                                <div class="text-muted mb-1">
+                                                    <%= prenotazione.campo_nome || 'Campo' %> - 
+                                                    <%= new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') %> alle <%= prenotazione.ora_inizio %>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    <%= new Date(prenotazione.created_at).toLocaleDateString('it-IT') %>
+                                                </small>
+                                            </div>
                                         </div>
                                     </div>
                                 <% }); %>
 
                                 <% (activity.recensioni || []).slice(0, 2).forEach(recensione => { %>
-                                    <div class="activity-item">
-                                        <div class="activity-icon bg-warning">
-                                            <i class="bi bi-star"></i>
-                                        </div>
-                                        <div class="activity-content">
-                                            <div class="activity-title">Recensione Scritta</div>
-                                            <div class="activity-details">
-                                                "<%= recensione.titolo %>" - <%= '★'.repeat(recensione.valutazione) %>
+                                    <div class="timeline-item-modern">
+                                        <div class="timeline-dot-modern"></div>
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px; flex-shrink: 0;">
+                                                <i class="bi bi-star fs-4"></i>
                                             </div>
-                                            <small class="text-muted">
-                                                <%= new Date(recensione.created_at).toLocaleDateString('it-IT') %>
-                                            </small>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-dark mb-1">Recensione Scritta</div>
+                                                <div class="text-muted mb-1">
+                                                    "<%= recensione.titolo %>" - <%= '★'.repeat(recensione.valutazione) %>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    <%= new Date(recensione.created_at).toLocaleDateString('it-IT') %>
+                                                </small>
+                                            </div>
                                         </div>
                                     </div>
                                 <% }); %>
                             </div>
                         <% } else { %>
-                            <div class="text-center py-4">
-                                <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
-                                <p class="text-muted">Nessuna attività recente da mostrare.</p>
+                            <div class="text-center py-5">
+                                <i class="bi bi-info-circle display-1 text-muted mb-3"></i>
+                                <h6 class="text-muted mb-3">Nessuna attività recente</h6>
                                 <p class="text-muted small">Le tue attività appariranno qui quando prenoterai campi o scriverai recensioni.</p>
                             </div>
                         <% } %>
                     </div>
                 </div>
 
-                <!-- Card Informazioni Sportive -->
+                <!-- Card Informazioni Sportive Modern -->
                 <% if (giocatore) { %>
-                <div class="card sports-card reveal reveal--slide-right reveal--delay-1 mt-3">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-trophy me-2"></i>Informazioni Sportive
-                        </h5>
+                <div class="modern-card reveal reveal--slide-right reveal--delay-1">
+                    <div class="modern-card-header green-gradient">
+                        <i class="bi bi-trophy fs-4"></i>
+                        <h5>Informazioni Sportive</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="sports-info">
-                                    <i class="bi bi-person-badge text-success me-2"></i>
-                                    <strong>Ruolo:</strong> <%= giocatore.ruolo || 'Non specificato' %>
+                    <div class="modern-card-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <i class="bi bi-person-badge text-success fs-4 mb-2 d-block"></i>
+                                    <small class="text-muted d-block">Ruolo</small>
+                                    <div class="fw-bold"><%= giocatore.ruolo || 'Non specificato' %></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="sports-info">
-                                    <i class="bi bi-hash text-success me-2"></i>
-                                    <strong>Numero Maglia:</strong> <%= giocatore.numero_maglia || 'N/A' %>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <i class="bi bi-hash text-success fs-4 mb-2 d-block"></i>
+                                    <small class="text-muted d-block">Numero Maglia</small>
+                                    <div class="fw-bold"><%= giocatore.numero_maglia || 'N/A' %></div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <div class="sports-info">
-                                    <i class="bi bi-calendar-event text-success me-2"></i>
-                                    <strong>Tesseramento:</strong> <%= giocatore.data_inizio_tesseramento ? new Date(giocatore.data_inizio_tesseramento).getFullYear() : 'N/D' %>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <i class="bi bi-calendar-event text-success fs-4 mb-2 d-block"></i>
+                                    <small class="text-muted d-block">Tesseramento</small>
+                                    <div class="fw-bold"><%= giocatore.data_inizio_tesseramento ? new Date(giocatore.data_inizio_tesseramento).getFullYear() : 'N/D' %></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="sports-info">
-                                    <i class="bi bi-flag text-success me-2"></i>
-                                    <strong>Nazionalità:</strong> <%= giocatore.nazionalita || 'Non specificata' %>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <i class="bi bi-flag text-success fs-4 mb-2 d-block"></i>
+                                    <small class="text-muted d-block">Nazionalità</small>
+                                    <div class="fw-bold"><%= giocatore.nazionalita || 'Non specificata' %></div>
                                 </div>
                             </div>
                         </div>
@@ -355,96 +838,93 @@
                 </div>
                 <% } %>
 
-                <!-- Card Ruolo Dirigenziale -->
+                <!-- Card Ruolo Dirigenziale Modern -->
                 <% if (user.tipo_utente_id >= 1) { %>
-                <div class="card management-card reveal reveal--slide-right reveal--delay-2 mt-3">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-briefcase me-2"></i>Ruolo Dirigenziale
-                        </h5>
+                <div class="modern-card reveal reveal--slide-right reveal--delay-2">
+                    <div class="modern-card-header warning-gradient">
+                        <i class="bi bi-briefcase fs-4"></i>
+                        <h5>Ruolo Dirigenziale</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="modern-card-body">
                         <% var primoDir = Array.isArray(dirigente) ? dirigente[0] : dirigente; %>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="management-info">
-                              <i class="bi bi-building text-warning me-2"></i>
-                              <strong>Squadra:</strong> <%= primoDir && primoDir.squadra_nome ? primoDir.squadra_nome : 'Societario' %>
+                        <div class="row g-3">
+                          <div class="col-6">
+                            <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);">
+                              <i class="bi bi-building text-warning fs-4 mb-2 d-block"></i>
+                              <small class="text-muted d-block">Squadra</small>
+                              <div class="fw-bold"><%= primoDir && primoDir.squadra_nome ? primoDir.squadra_nome : 'Societario' %></div>
                             </div>
                           </div>
-                          <div class="col-md-6">
-                            <div class="management-info">
-                              <i class="bi bi-person-badge text-warning me-2"></i>
-                              <strong>Ruolo:</strong> <%= primoDir && primoDir.ruolo ? primoDir.ruolo : 'Non specificato' %>
+                          <div class="col-6">
+                            <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);">
+                              <i class="bi bi-person-badge text-warning fs-4 mb-2 d-block"></i>
+                              <small class="text-muted d-block">Ruolo</small>
+                              <div class="fw-bold"><%= primoDir && primoDir.ruolo ? primoDir.ruolo : 'Non specificato' %></div>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);">
+                              <i class="bi bi-calendar-check text-warning fs-4 mb-2 d-block"></i>
+                              <small class="text-muted d-block">Nomina</small>
+                              <div class="fw-bold"><%= primoDir && primoDir.data_nomina ? new Date(primoDir.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %></div>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);">
+                              <i class="bi bi-calendar-x text-warning fs-4 mb-2 d-block"></i>
+                              <small class="text-muted d-block">Scadenza</small>
+                              <div class="fw-bold"><%= primoDir && primoDir.data_scadenza ? new Date(primoDir.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %></div>
                             </div>
                           </div>
                         </div>
-                        <div class="row mt-2">
-                          <div class="col-md-6">
-                            <div class="management-info">
-                              <i class="bi bi-calendar-check text-warning me-2"></i>
-                              <strong>Nomina:</strong> <%= primoDir && primoDir.data_nomina ? new Date(primoDir.data_nomina).toLocaleDateString('it-IT') : 'Non specificata' %>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="management-info">
-                              <i class="bi bi-calendar-x text-warning me-2"></i>
-                              <strong>Scadenza:</strong> <%= primoDir && primoDir.data_scadenza ? new Date(primoDir.data_scadenza).toLocaleDateString('it-IT') : 'Non specificata' %>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row justify-content-center align-center">
-                          <div class="col-12 text-center text-white mt-3 gestione_bottone">
+                        <div class="text-center mt-3">
                           <% if (Array.isArray(dirigente) && dirigente.length > 0) { %>
                             <% dirigente.forEach(function(d){ %>
-                              <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-warning text-white mb-2 me-2"><%= d.squadra_nome || ('Squadra ' + d.squadra_id) %></a>
+                              <a href="/squadre/gestione/<%= d.squadra_id %>" class="btn btn-warning modern-btn text-white mb-2 me-2"><%= d.squadra_nome || ('Squadra ' + d.squadra_id) %></a>
                             <% }); %>
                           <% } else if (primoDir && primoDir.squadra_id) { %>
-                            <a href="/squadre/gestione/<%= primoDir.squadra_id %>" class="btn btn-warning text-white">Gestione Squadra</a>
+                            <a href="/squadre/gestione/<%= primoDir.squadra_id %>" class="btn btn-warning modern-btn text-white">Gestione Squadra</a>
                           <% } else { %>
                             <span class="text-muted">Nessuna squadra assegnata</span>
                           <% } %>
-                          </div>
                         </div>
                     </div>
                 </div>
-                <div class="card actions-card reveal reveal--slide-right reveal--delay-3 mt-3">
-                  <div class="card-header bg-gradient-primary text-white">
-                    <h5 class="card-title mb-0">
-                      <i class="bi bi-plus-circle-fill me-2"></i>Gestione Contenuti
-                    </h5>
+                
+                <!-- Card Gestione Contenuti Modern -->
+                <div class="modern-card reveal reveal--slide-right reveal--delay-3">
+                  <div class="modern-card-header">
+                    <i class="bi bi-plus-circle-fill fs-4"></i>
+                    <h5>Gestione Contenuti</h5>
                   </div>
-                  <div class="card-body">
-                    <p class="text-muted mb-4">Come dirigente, puoi creare e gestire eventi e notizie per la comunità.</p>
+                  <div class="modern-card-body">
+                    <p class="text-muted mb-4 text-center">
+                      <i class="bi bi-info-circle me-2"></i>
+                      Come dirigente, puoi creare e gestire eventi e notizie per la comunità.
+                    </p>
                     <div class="row g-3">
                       <div class="col-md-6">
-                        <a href="/evento/crea-evento" class="btn btn-gradient-event w-100 py-3 position-relative overflow-hidden">
+                        <a href="/evento/crea-evento" class="btn btn-gradient-event modern-btn w-100 py-4 text-decoration-none position-relative overflow-hidden">
                           <div class="d-flex flex-column align-items-center">
-                            <i class="bi bi-calendar-plus-fill fs-2 mb-2"></i>
-                            <span class="fw-bold">Crea Nuovo Evento</span>
+                            <i class="bi bi-calendar-plus-fill" style="font-size: 2.5rem; margin-bottom: 0.75rem;"></i>
+                            <span class="fw-bold d-block mb-1">Crea Nuovo Evento</span>
                             <small class="opacity-75">Organizza attività per la squadra</small>
-                          </div>
-                          <div class="position-absolute top-0 end-0 bg-primary bg-opacity-90 rounded-start-pill px-2 py-1">
-                            <i class="bi bi-chevron-right text-white"></i>
                           </div>
                         </a>
                       </div>
                       <div class="col-md-6">
-                        <a href="/notizie/crea_notizie" class="btn btn-gradient-news w-100 py-3 position-relative overflow-hidden">
+                        <a href="/notizie/crea_notizie" class="btn btn-gradient-news modern-btn w-100 py-4 text-decoration-none position-relative overflow-hidden">
                           <div class="d-flex flex-column align-items-center">
-                            <i class="bi bi-newspaper fs-2 mb-2"></i>
-                            <span class="fw-bold">Crea Nuova Notizia</span>
+                            <i class="bi bi-newspaper" style="font-size: 2.5rem; margin-bottom: 0.75rem;"></i>
+                            <span class="fw-bold d-block mb-1">Crea Nuova Notizia</span>
                             <small class="opacity-75">Condividi aggiornamenti importanti</small>
-                          </div>
-                          <div class="position-absolute top-0 end-0 bg-primary bg-opacity-90 rounded-start-pill px-2 py-1">
-                            <i class="bi bi-chevron-right text-white"></i>
                           </div>
                         </a>
                       </div>
                     </div>
                     <div class="text-center mt-3">
                       <small class="text-muted">
-                        <i class="bi bi-info-circle me-1"></i>
+                        <i class="bi bi-shield-check me-1"></i>
                         Tutti i contenuti verranno pubblicati dopo la revisione
                       </small>
                     </div>
@@ -452,35 +932,35 @@
                 </div>
                 <% } %>
 
-                <!-- Card Le Mie Recensioni -->
-                <div class="card reviews-card reveal reveal--fade-up mt-3">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-star me-2"></i>Le Mie Recensioni
-                        </h5>
+                <!-- Card Le Mie Recensioni Modern -->
+                <div class="modern-card reveal reveal--fade-up">
+                    <div class="modern-card-header info-gradient">
+                        <i class="bi bi-star fs-4"></i>
+                        <h5>Le Mie Recensioni</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="modern-card-body">
                         <div id="userReviewsContainer">
-                            <div class="text-center py-3">
+                            <div class="text-center py-4">
                                 <div class="spinner-border text-info" role="status">
                                     <span class="visually-hidden">Caricamento...</span>
                                 </div>
-                                <p class="text-muted mt-2">Caricamento recensioni...</p>
+                                <p class="text-muted mt-3">Caricamento recensioni...</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card Le Mie Notizie ed Eventi -->
+                <!-- Card I Miei Contenuti Modern -->
                 <% if (user.tipo_utente_id >= 1) { %>
-                <div class="card news-events-card reveal reveal--fade-up reveal--delay-1 mt-3">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-newspaper me-2"></i>I Miei Contenuti
-                        </h5>
-                        <span class="badge bg-light text-dark" id="contentCount">0 elementi</span>
+                <div class="modern-card reveal reveal--fade-up reveal--delay-1">
+                    <div class="modern-card-header green-gradient d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-newspaper fs-4"></i>
+                            <h5 class="mb-0">I Miei Contenuti</h5>
+                        </div>
+                        <span class="badge bg-light text-dark px-3 py-2" id="contentCount">0 elementi</span>
                     </div>
-                    <div class="card-body">
+                    <div class="modern-card-body">
                         <div id="userNewsEventsContainer">
                             <% if ((notiziePersonali && notiziePersonali.length > 0) || (eventiPersonali && eventiPersonali.length > 0)) { %>
                                 <div class="news-events-list">

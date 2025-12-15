@@ -1,0 +1,307 @@
+/* 
+ * Modern Profile Additions
+ * Additional styles for the modernized profile page
+ * Mobile-First, Responsive, Dark/Light Theme Support
+ */
+
+/* ========================================
+   MODERN PROFILE VARIABLES
+   ======================================== */
+
+:root {
+    --modern-card-bg: #ffffff;
+    --modern-text-primary: #1e293b;
+    --modern-text-secondary: #64748b;
+    --modern-border: #e2e8f0;
+    --modern-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --modern-shadow-hover: 0 12px 36px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="dark"] {
+    --modern-card-bg: #1e293b;
+    --modern-text-primary: #f1f5f9;
+    --modern-text-secondary: #94a3b8;
+    --modern-border: #334155;
+    --modern-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --modern-shadow-hover: 0 12px 36px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   GLOBAL IMPROVEMENTS
+   ======================================== */
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+@media (min-width: 768px) {
+    .profile-container {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* ========================================
+   MODERN CARDS ENHANCED
+   ======================================== */
+
+.modern-card {
+    background: var(--modern-card-bg);
+    color: var(--modern-text-primary);
+}
+
+.modern-card-body {
+    background: var(--modern-card-bg);
+}
+
+.modern-card:hover {
+    animation: card-float 0.3s ease-out;
+}
+
+@keyframes card-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+/* ========================================
+   STAT BOXES DARK THEME
+   ======================================== */
+
+:root[data-theme="dark"] .stat-box-modern {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    color: var(--modern-text-primary);
+}
+
+:root[data-theme="dark"] .stat-number-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+:root[data-theme="dark"] .stat-label-modern {
+    color: var(--modern-text-secondary);
+}
+
+/* ========================================
+   TIMELINE DARK THEME
+   ======================================== */
+
+:root[data-theme="dark"] .timeline-modern::before {
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+}
+
+:root[data-theme="dark"] .timeline-dot-modern {
+    box-shadow: 0 0 0 4px var(--modern-card-bg);
+}
+
+:root[data-theme="dark"] .timeline-item-modern .fw-bold {
+    color: var(--modern-text-primary);
+}
+
+:root[data-theme="dark"] .timeline-item-modern .text-muted {
+    color: var(--modern-text-secondary) !important;
+}
+
+/* ========================================
+   MODERN BUTTONS ENHANCEMENTS
+   ======================================== */
+
+.modern-btn {
+    position: relative;
+    z-index: 1;
+}
+
+.modern-btn:active {
+    transform: translateY(0) !important;
+}
+
+.btn-gradient-event,
+.btn-gradient-news {
+    border: none;
+    color: white !important;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-gradient-event:hover,
+.btn-gradient-news:hover {
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white !important;
+}
+
+/* ========================================
+   PROFILE HEADER DARK THEME
+   ======================================== */
+
+:root[data-theme="dark"] .profile-modern-header {
+    background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+}
+
+:root[data-theme="dark"] .profile-action-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   PREFERENCES BOXES DARK THEME
+   ======================================== */
+
+:root[data-theme="dark"] .p-3.rounded-3[style*="linear-gradient"] {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+    .modern-card {
+        margin-bottom: 1rem;
+    }
+    
+    .modern-card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .stat-number-modern {
+        font-size: 2rem !important;
+    }
+    
+    .profile-actions-modern {
+        bottom: -5px;
+        right: -5px;
+    }
+    
+    .profile-action-btn {
+        width: 40px;
+        height: 40px;
+        border-width: 2px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .modern-card-body {
+        padding: 1rem;
+    }
+    
+    .modern-card-header {
+        padding: 1rem;
+    }
+    
+    .stat-box-modern {
+        padding: 1rem;
+    }
+    
+    .profile-avatar-modern {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-avatar-modern img,
+    .profile-avatar-modern i {
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY & PERFORMANCE
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+.modern-btn:focus-visible,
+.profile-action-btn:focus-visible {
+    outline: 3px solid rgba(102, 126, 234, 0.5);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   SMOOTH SCROLL REVEAL COMPATIBILITY
+   ======================================== */
+
+.reveal {
+    opacity: 0;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.is-visible {
+    opacity: 1;
+}
+
+.reveal--fade-up {
+    transform: translateY(30px);
+}
+
+.reveal--fade-up.is-visible {
+    transform: translateY(0);
+}
+
+.reveal--slide-left {
+    transform: translateX(-30px);
+}
+
+.reveal--slide-left.is-visible {
+    transform: translateX(0);
+}
+
+.reveal--slide-right {
+    transform: translateX(30px);
+}
+
+.reveal--slide-right.is-visible {
+    transform: translateX(0);
+}
+
+.reveal--scale-up {
+    transform: scale(0.9);
+}
+
+.reveal--scale-up.is-visible {
+    transform: scale(1);
+}
+
+.reveal--delay-1 {
+    transition-delay: 0.15s;
+}
+
+.reveal--delay-2 {
+    transition-delay: 0.3s;
+}
+
+.reveal--delay-3 {
+    transition-delay: 0.45s;
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .profile-actions-modern,
+    .modern-btn,
+    .btn-gradient-event,
+    .btn-gradient-news {
+        display: none !important;
+    }
+    
+    .modern-card {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        page-break-inside: avoid;
+    }
+}
