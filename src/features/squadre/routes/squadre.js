@@ -6,6 +6,7 @@ const daoSquadre = require('../services/dao-squadre');
 const daoUser = require('../../users/services/dao-user');
 const daoDirigenti = require('../services/dao-dirigenti-squadre');
 const daoGalleria = require('../../galleria/services/dao-galleria');
+const sqlite = require('../../../core/config/database');
 const multer = require('multer');
 const { isLoggedIn, isAdmin, isDirigente, isSquadraDirigente, isAdminOrDirigente } = require('../../../core/middlewares/auth');
 const { uploadSquadra: upload } = require('../../../core/config/multer');
@@ -25,7 +26,7 @@ router.get('/getgiocatori', (req,res)=>{
         .then((giocatori) => {
             if (!giocatori || giocatori.length === 0) {
                 console.warn('Nessun giocatore trovato');
-                return res.status(404).json({ error: 'Nessun giocatore trovato' });
+                return res.json({ giocatori: [] });
             }
             res.json({ giocatori: giocatori });
         })
@@ -262,8 +263,18 @@ router.get('/squadre/gestione/:id', isAdminOrDirigente, async (req, res) => {
 
         // Carica immagini per dirigenti
         for (let dirigente of squadra.dirigenti) {
-            if (dirigente.immagine) {
+            if (!dirigente) continue;
+            // Normalizza il campo immagine: può essere una stringa (path), un oggetto {url},
+            // oppure essere presente come immagine_id (stringa/numero). Rendiamo sempre
+            // `dirigente.immagine` un oggetto { url: '...' } o null.
+            if (typeof dirigente.immagine === 'string') {
                 dirigente.immagine = { url: dirigente.immagine };
+            } else if (dirigente.immagine && typeof dirigente.immagine === 'object' && dirigente.immagine.url) {
+                // già nella forma corretta
+            } else if (dirigente.immagine_id && (typeof dirigente.immagine_id === 'string' || typeof dirigente.immagine_id === 'number')) {
+                dirigente.immagine = { url: String(dirigente.immagine_id) };
+            } else {
+                dirigente.immagine = null;
             }
         }
 
@@ -280,28 +291,88 @@ router.get('/squadre/gestione/:id', isAdminOrDirigente, async (req, res) => {
 
 router.post('/squadre/:id/dirigenti', isSquadraDirigente, async (req, res) => {
     try {
-        const { id } = req.params;
-        const { userId, ruolo, data_nomina, data_scadenza } = req.body;
-        if (!userId) {
-            return res.status(400).json({ error: 'ID utente è obbligatorio' });
+        const { id: squadraIdParam } = req.params;
+        // Log request for debugging (will appear in server logs on Railway)
+        console.debug('[POST /squadre/:id/dirigenti] user=', req.user && req.user.id, 'params=', req.params, 'body=', req.body);
+
+        // Support multiple possible field names and ensure numeric ids
+        const rawUserId = req.body.userId || req.body.user_id || req.body.selectedUtenteId;
+        const userId = rawUserId ? parseInt(rawUserId, 10) : null;
+        const ruolo = req.body.ruolo || req.body.role;
+        const data_nomina = req.body.data_nomina;
+        const data_scadenza = req.body.data_scadenza;
+        const squadra_id = squadraIdParam ? parseInt(squadraIdParam, 10) : null;
+
+        if (!userId || !Number.isInteger(userId)) {
+            console.warn('[POST /squadre/:id/dirigenti] Missing or invalid userId:', rawUserId);
+            return res.status(400).json({ error: 'ID utente è obbligatorio e deve essere numerico' });
         }
-        // Verifica che l'utente esista
-        const user = await daoUser.getUserById(userId);
-        if (!user) {
+        if (!squadra_id || !Number.isInteger(squadra_id)) {
+            console.warn('[POST /squadre/:id/dirigenti] Missing or invalid squadra id:', squadraIdParam);
+            return res.status(400).json({ error: 'ID squadra non valido' });
+        }
+
+        // Verifica che l'utente esista (daoUser.getUserById può lanciare)
+        let user;
+        try {
+            user = await daoUser.getUserById(userId);
+        } catch (e) {
+            console.warn('[POST /squadre/:id/dirigenti] utente non trovato:', userId, e && e.error ? e.error : e);
             return res.status(404).json({ error: 'Utente non trovato' });
         }
+
         // Aggiungi come dirigente
-        await daoDirigenti.addDirigente({
-            utente_id: userId,
-            squadra_id: id,
-            ruolo: ruolo || 'Dirigente',
-            data_nomina: data_nomina,
-            data_scadenza: data_scadenza
-        });
-        res.json({ success: true, message: 'Dirigente aggiunto con successo' });
+        try {
+            const addResult = await daoDirigenti.addDirigente({
+                utente_id: userId,
+                squadra_id: squadra_id,
+                ruolo: ruolo || 'Dirigente',
+                data_nomina: data_nomina,
+                data_scadenza: data_scadenza
+            });
+
+            // Recupera il dirigente completo per ritorno al client
+            try {
+                const sqlGetDir = `
+                    SELECT ds.id, ds.utente_id, ds.squadra_id, ds.ruolo, ds.data_nomina, ds.data_scadenza, ds.attivo,
+                           u.nome, u.cognome, u.email, i.url AS immagine
+                    FROM DIRIGENTI_SQUADRE ds
+                    JOIN UTENTI u ON ds.utente_id = u.id
+                    LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
+                    WHERE ds.id = ?
+                `;
+                sqlite.get(sqlGetDir, [addResult.id], (err2, dirigenteRow) => {
+                    if (err2) {
+                        console.error('[POST /squadre/:id/dirigenti] Errore recupero dirigente creato:', err2);
+                        return res.json({ success: true, message: 'Dirigente aggiunto con successo' });
+                    }
+                    console.log('[POST /squadre/:id/dirigenti] Dirigente DB row:', JSON.stringify(dirigenteRow, null, 2));
+                    // Assicuriamoci di includere lo stato 'attivo' nella risposta
+                    const attivo = dirigenteRow && (typeof dirigenteRow.attivo !== 'undefined') ? dirigenteRow.attivo : null;
+                    return res.json({ success: true, message: 'Dirigente aggiunto con successo', dirigente: dirigenteRow, attivo });
+                });
+            } catch (e) {
+                // se fallisce il recupero, ritorna comunque successo
+                console.error('[POST /squadre/:id/dirigenti] Errore imprevisto recupero dirigente dopo add:', e);
+                // Fallback: cerca per utente + squadra per verificare stato
+                const fallbackSql = `SELECT * FROM DIRIGENTI_SQUADRE WHERE utente_id = ? AND squadra_id = ? AND ruolo = ? LIMIT 1`;
+                sqlite.get(fallbackSql, [userId, squadra_id, ruolo || 'Dirigente'], (fbErr, fbRow) => {
+                    if (fbErr) {
+                        console.error('[POST /squadre/:id/dirigenti] Fallback query error:', fbErr);
+                        return res.json({ success: true, message: 'Dirigente aggiunto con successo' });
+                    }
+                    console.log('[POST /squadre/:id/dirigenti] Fallback dirigente row:', JSON.stringify(fbRow, null, 2));
+                    const attivo = fbRow && (typeof fbRow.attivo !== 'undefined') ? fbRow.attivo : null;
+                    return res.json({ success: true, message: 'Dirigente aggiunto con successo', dirigente: fbRow, attivo });
+                });
+            }
+        } catch (err) {
+            console.error('[POST /squadre/:id/dirigenti] Errore DB aggiunta dirigente:', err);
+            return res.status(500).json({ error: err && err.error ? err.error : 'Errore durante l\'aggiunta del dirigente' });
+        }
     } catch (err) {
-        console.error('Errore aggiunta dirigente:', err);
-        res.status(500).json({ error: err.error || 'Errore durante l\'aggiunta del dirigente' });
+        console.error('[POST /squadre/:id/dirigenti] Unexpected error:', err);
+        res.status(500).json({ error: err && err.error ? err.error : 'Errore durante l\'aggiunta del dirigente' });
     }
 });
 
@@ -481,7 +552,12 @@ router.get('/modifica_squadra', isLoggedIn, isAdmin, async (req, res) => {
         }
         
         try {
-            squadra.dirigenti = await daoDirigenti.getDirigentiBySquadra(id);
+            // Per la view di modifica vogliamo mostrare anche i dirigenti inattivi (admin)
+            squadra.dirigenti = await daoDirigenti.getDirigentiBySquadraAll(id);
+            console.log('[GET /modifica_squadra] Dirigenti (inclusi inattivi) caricati per squadra', id, ':', squadra.dirigenti ? squadra.dirigenti.length : 'undefined');
+            if (squadra.dirigenti && squadra.dirigenti.length > 0) {
+                console.log('[GET /modifica_squadra] Primo dirigente:', JSON.stringify(squadra.dirigenti[0], null, 2));
+            }
         } catch (err) {
             console.error('Errore caricamento dirigenti:', err);
             squadra.dirigenti = [];

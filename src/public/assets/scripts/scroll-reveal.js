@@ -103,11 +103,24 @@
         const headings = document.querySelectorAll('h1, h2, h3, h4, h5, .page-header h1, .hero-section h1, .section-title');
         headings.forEach(heading => {
             // Se l'elemento non ha già la classe reveal, aggiungila
-            if (heading && !heading.classList.contains('reveal')) {
-                heading.classList.add('reveal', 'reveal--fade-up');
-                if (CONFIG.debug) {
-                    console.log('[ScrollReveal] Aggiunta animazione a heading:', heading.textContent.substring(0, 30));
+            try {
+                // Skip headings that are part of member/manager/player cards
+                const insideMemberCard = heading.closest && heading.closest('.member-card, .player-card, .manager-card, .feature-card, .profile-info');
+                const isMemberName = heading.classList && (heading.classList.contains('member-name') || heading.classList.contains('player-name') || heading.classList.contains('manager-name'));
+
+                if (insideMemberCard || isMemberName) {
+                    if (CONFIG.debug) console.log('[ScrollReveal] Skipping heading inside member card:', heading.textContent && heading.textContent.substring(0,30));
+                    return;
                 }
+
+                if (heading && !heading.classList.contains('reveal')) {
+                    heading.classList.add('reveal', 'reveal--fade-up');
+                    if (CONFIG.debug) {
+                        console.log('[ScrollReveal] Aggiunta animazione a heading:', heading.textContent.substring(0, 30));
+                    }
+                }
+            } catch (e) {
+                if (CONFIG.debug) console.warn('[ScrollReveal] applyAnimationsToHeadings check failed', e);
             }
         });
     }
@@ -131,7 +144,9 @@
                 '.gallery-item': 'reveal--zoom-out-subtle',
                 '.gallery-photo': 'reveal--zoom-out-subtle',
                 '.profile-info': 'reveal--fade-up-subtle',
-                '.member-card': 'reveal--fade-up-subtle',
+                // NOTE: member-card content is server-rendered and must remain visible
+                // Avoid auto-tagging member cards so text (nome/cognome/ruolo) isn't
+                // hidden by the generic `.reveal` CSS before the observer runs.
                 '.review-card': 'reveal--fade-up',
                 '.recensione-card': 'reveal--fade-up',
                 '.enti-card': 'reveal--fade-up',
@@ -146,19 +161,44 @@
             Object.keys(mapping).forEach(selector => {
                 const nodes = document.querySelectorAll(selector);
                 nodes.forEach((node, idx) => {
-                    // skip if already has reveal
-                    if (node.classList && node.classList.contains('reveal')) return;
+                        // skip if already has reveal
+                        if (node.classList && node.classList.contains('reveal')) return;
 
-                    // apply base class + effect
-                    if (node.classList) {
-                        node.classList.add('reveal', mapping[selector]);
+                        // SAFETY: do not auto-tag cards that already contain server-rendered
+                        // member info. Some pages render member name/role server-side and
+                        // applying `.reveal` (which is hidden by default via CSS) causes
+                        // a brief flicker: visible → hidden. Skip tagging when the node
+                        // appears to be a member/manager card or already contains textual
+                        // member elements.
+                        try {
+                            const isMemberCard = node.classList && (
+                                node.classList.contains('member-card') ||
+                                node.classList.contains('player-card') ||
+                                node.classList.contains('manager-card') ||
+                                node.classList.contains('profile-info')
+                            );
 
-                        // stagger: small delay based on index for visual rhythm
-                        const delay = Math.min(600, idx * 80); // cap delay
-                        try { node.style.transitionDelay = delay + 'ms'; } catch (e) {}
-                        try { node.style.animationDelay = delay + 'ms'; } catch (e) {}
-                    }
-                });
+                            const hasMemberName = node.querySelector && node.querySelector('.member-name, .player-name, .manager-name');
+
+                            if (isMemberCard || hasMemberName) {
+                                // preserve server-rendered visibility
+                                if (CONFIG.debug) console.log('[ScrollReveal] Skipping reveal tagging for member card:', node);
+                                return;
+                            }
+                        } catch (e) {
+                            if (CONFIG.debug) console.warn('[ScrollReveal] Safety check failed', e);
+                        }
+
+                        // apply base class + effect
+                        if (node.classList) {
+                            node.classList.add('reveal', mapping[selector]);
+
+                            // stagger: small delay based on index for visual rhythm
+                            const delay = Math.min(600, idx * 80); // cap delay
+                            try { node.style.transitionDelay = delay + 'ms'; } catch (e) {}
+                            try { node.style.animationDelay = delay + 'ms'; } catch (e) {}
+                        }
+                    });
             });
 
             // Special: headings inside lists/cards should use text-mask
@@ -187,6 +227,22 @@
             // Collect visible elements first, then add the class asynchronously
             const visibleNow = [];
             elements.forEach(el => {
+                // Exclude certain card-like elements from initial visibility so
+                // their reveal animation fires only when scrolled into view.
+                // This prevents animations from running immediately on page
+                // load (when the element is already in viewport) which the
+                // UX expects to trigger on user scroll instead.
+                try {
+                    const excluded = el.matches && (
+                        el.matches('.member-card') ||
+                        el.matches('.player-card') ||
+                        el.matches('.manager-card') ||
+                        el.matches('.feature-card') ||
+                        el.matches('.profile-info')
+                    );
+                    if (excluded) return;
+                } catch (e) {}
+
                 const rect = el.getBoundingClientRect();
                 if (rect.top < viewportHeight && rect.bottom > 0) {
                     visibleNow.push(el);

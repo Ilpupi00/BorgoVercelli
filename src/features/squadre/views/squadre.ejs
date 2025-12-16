@@ -31,7 +31,7 @@
                 <select class="form-select form-select-sm custom-select" aria-label="Select menu" id="squadreSelect">
                     <option value="" disabled selected>Seleziona la squadra...</option>
                     <% squadre.forEach(squadra => { %>
-                        <option value="<%= squadra.id %>"><%= squadra.nome %></option>
+                        <option value="<%= squadra.id %>"><%= squadra.nome || squadra.nome_squadra || '' %></option>
                     <% }); %>
                 </select>
                 <select class="form-select form-select-sm custom-select mt-4" aria-label="Select menu" id="annoSelect">
@@ -42,8 +42,8 @@
                     <% }); %>
                 </select>
             </div>
-            <div class="reveal reveal--text-mask reveal--delay-1">
-                <h1 class="text-center mb-4 overflow-hidden" id="SquadraTitle"><%= squadre.length > 0 ? squadre[0].nome : 'Nessuna squadra selezionata' %></h1>
+                    <div class="reveal reveal--text-mask reveal--delay-1">
+                <h1 class="text-center mb-4 overflow-hidden" id="SquadraTitle"><%= squadre.length > 0 ? (squadre[0].nome || squadre[0].nome_squadra || 'Nessuna squadra selezionata') : 'Nessuna squadra selezionata' %></h1>
             </div>
             <div class="row reveal reveal--zoom-out reveal--delay-2">
                 <div class="col-12 text-center img-container">
@@ -54,6 +54,11 @@
         <section>
             <div class="container mt-5">
                 <h1 class="text-center mb-4 overflow-hidden reveal reveal--text-mask" id="rosterTitle">Roster</h1>
+                    <!-- Sezione Dirigenti della squadra (riempita dal JS frontend se disponibile) -->
+                    <div class="mb-4" id="teamManagersContainer" style="display:none;">
+                        <h3 class="h4">Dirigenti</h3>
+                        <div id="teamManagersList" class="row g-3"></div>
+                    </div>
                 <div class="row mb-3">
                     <div class="col-md-6 reveal reveal--fade-up reveal--delay-1">
                         <div class="modern-search-wrapper-inline">

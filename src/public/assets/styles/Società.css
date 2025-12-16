@@ -199,6 +199,21 @@
     transform: scale(1.05);
 }
 
+/* Emergency override: force member text visibility to avoid accidental
+   hiding by reveal/clip/background-clip rules from other stylesheets.
+   This is intentionally specific and uses !important so it wins
+   over transient animation rules during debugging. We can remove it
+   once the root cause is fully validated. */
+.member-name,
+.member-role {
+    opacity: 1 !important;
+    color: inherit !important;
+    -webkit-text-fill-color: initial !important;
+    clip-path: none !important;
+    transform: none !important;
+    background-clip: initial !important;
+}
+
 .details-btn:hover {
     background-color: var(--text-secondary);
     border-color: var(--text-secondary);
@@ -268,6 +283,11 @@
 
 .animate__fadeInUp {
     animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Ensure member cards stay visible after any animation */
+.member-card {
+    opacity: 1 !important;
 }
 
 /* Animazioni per i badge dei ruoli */

@@ -149,10 +149,88 @@ router.get('/galleria', async (req, res) => {
 });
 router.get('/societa', async (req, res) => {
     try {
+        const daoDirigenti = require('../../features/squadre/services/dao-dirigenti-squadre');
+        const daoSquadre = require('../../features/squadre/services/dao-squadre');
+        const { imageFileExists } = require('../utils/file-helper');
+        
+        // Membri società (ruoli da TIPI_UTENTE)
         const membriSocieta = await daoMembriSocieta.getMembriSocieta() || [];
+        
+        // Dirigenti squadre attivi (dalla tabella DIRIGENTI_SQUADRE)
+        const dirigentiSquadre = await new Promise((resolve, reject) => {
+            const db = require('../../core/config/database');
+            // Aliasamo esplicitamente le colonne per evitare ambiguità nei nomi
+            const sql = `
+                SELECT
+                    ds.id AS ds_id,
+                    ds.utente_id AS ds_utente_id,
+                    ds.squadra_id AS ds_squadra_id,
+                    ds.ruolo AS ds_ruolo,
+                    ds.attivo AS ds_attivo,
+                    u.nome AS utente_nome,
+                    u.cognome AS utente_cognome,
+                    u.email AS utente_email,
+                    i.url AS immagine_profilo,
+                    s.nome AS squadra_nome
+                FROM DIRIGENTI_SQUADRE ds
+                JOIN UTENTI u ON ds.utente_id = u.id
+                LEFT JOIN SQUADRE s ON ds.squadra_id = s.id
+                LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente'
+                    AND i.entita_id = u.id
+                    AND (i.ordine = 1 OR i.ordine IS NULL)
+                WHERE ds.attivo = true
+                ORDER BY ds.squadra_id, ds.ruolo
+            `;
+            db.all(sql, [], (err, rows) => {
+                if (err) {
+                    console.error('[route /societa] Errore query dirigenti squadre:', err);
+                    return resolve([]);
+                }
+                resolve(rows || []);
+            });
+        });
+        
+        // Debug: log delle righe raw provenienti da DIRIGENTI_SQUADRE join UTENTI
+        if (process.env.NODE_ENV === 'development') {
+            console.log('[route /societa] Dirigenti raw rows:', JSON.stringify(dirigentiSquadre, null, 2));
+        }
+        // Unisci membri società e dirigenti, mappando i campi
+        // Rendiamo la mappatura robusta ad alias di colonne e campi mancanti
+        const tuttiMembri = [
+            ...membriSocieta,
+            ...dirigentiSquadre.map(d => ({
+                id: d.ds_utente_id || d.utente_id,
+                // Usiamo gli alias della query per nome e cognome
+                nome: d.utente_nome || d.nome || '',
+                cognome: d.utente_cognome || d.cognome || '',
+                email: d.utente_email || d.email || '',
+                // ruolo proviene da DIRIGENTI_SQUADRE.ds_ruolo
+                ruolo: d.ds_ruolo || d.ruolo || 'Dirigente',
+                immagine_profilo: d.immagine_profilo || null,
+                squadra_nome: d.squadra_nome || null,
+                // conserva origine per debug
+                _from: 'dirigenti_squadre',
+                _ds_id: d.ds_id || null
+            }))
+        ];
+
+        // Evita richieste a file mancanti: se l'immagine non esiste, non renderizzare l'URL
+        // (riduce 404 e fallback lato client più pulito)
+        const tuttiMembriSafe = (tuttiMembri || []).map(m => {
+            const url = m.immagine_profilo;
+            return {
+                ...m,
+                immagine_profilo: url && imageFileExists(url) ? url : null
+            };
+        });
+        
+        if (process.env.NODE_ENV === 'development') {
+            console.log('[route /societa] Totale membri:', tuttiMembriSafe.length, '(società:', membriSocieta.length, ', dirigenti:', dirigentiSquadre.length, ')');
+        }
+        
         const isLoggedIn = req.isAuthenticated();
         res.render('societa', {
-            membriSocieta: membriSocieta,
+            membriSocieta: tuttiMembriSafe,
             isLoggedIn: isLoggedIn
         });
     } catch (error) {

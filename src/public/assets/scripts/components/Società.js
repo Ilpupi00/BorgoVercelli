@@ -297,35 +297,11 @@ Cordiali saluti`);
     }
 
     setupAnimations() {
-        // Animazioni per le card al scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Applica animazioni alle card
-        this.page.querySelectorAll('.member-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(card);
-        });
-
-        // Animazioni per le feature cards
+        // Keep feature-card hover/press animations; allow scroll-reveal
+        // to control visibility of member cards. Do not force member-card
+        // styles here (so reveal system can animate them).
         this.page.querySelectorAll('.feature-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s';
-            observer.observe(card);
+            card.style.transition = 'all 0.3s ease';
         });
     }
 

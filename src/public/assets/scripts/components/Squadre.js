@@ -1,5 +1,5 @@
-import FilterGiocatori from "../utils/filterSquadre.js"
 import SearchPlayer from "../utils/cercaGiocatore.js";
+import FilterGiocatori from "../utils/filterSquadre.js";
 import { setupEmailFormListener } from './send_email.js';
 
 class Squadre {
@@ -43,8 +43,9 @@ class Squadre {
             return;
         }
         this.populateAnniSelect(squadre, annoSelect);
+        // Assicuriamoci che il valore dell'anno sia una stringa per il confronto
         annoSelect.value = this.getFirstAnno(squadre);
-        squadreAnno = squadre.filter(s => s.Anno === annoSelect.value);
+        squadreAnno = squadre.filter(s => String(s.Anno) === String(annoSelect.value));
         this.updateSelects(squadreAnno, squadreSelect);
         this.updateHeader(squadreAnno, title, img);
         const filterGiocatori = new FilterGiocatori(squadre, this.page);
@@ -61,15 +62,16 @@ class Squadre {
         const anniUnici = [...new Set(squadre.map(s => s.Anno))];
         anniUnici.forEach(anno => {
             const option = document.createElement('option');
-            option.value = anno;
-            option.textContent = `${anno}`;
+            // Normalizziamo il valore come stringa per evitare mismatch tra stringa/numero
+            option.value = String(anno);
+            option.textContent = String(anno);
             annoSelect.appendChild(option);
         });
     }
 
     getFirstAnno(squadre) {
         const anniUnici = [...new Set(squadre.map(s => s.Anno))];
-        return anniUnici[0];
+        return anniUnici.length > 0 ? String(anniUnici[0]) : '';
     }
 
     updateSelects(squadreAnno, squadreSelect) {
@@ -108,7 +110,8 @@ class Squadre {
 
     handleAnnoChange(event, squadre, squadreSelect, title, img, filterGiocatori, rosterTitle) {
         const selectedAnno = event.target.value;
-        const filteredSquadre = squadre.filter(s => s.Anno === selectedAnno);
+        // Confronto su stringhe per evitare mismatch tra tipi
+        const filteredSquadre = squadre.filter(s => String(s.Anno) === String(selectedAnno));
         this.updateSelects(filteredSquadre, squadreSelect);
         if (filteredSquadre.length > 0) {
             const firstSquadra = filteredSquadre[0];

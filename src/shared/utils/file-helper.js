@@ -53,6 +53,39 @@ function deleteImageFile(imageUrl) {
     return fileFound;
 }
 
+/**
+ * Verifica se un file immagine esiste sul filesystem
+ * @param {string} imageUrl - URL pubblica dell'immagine (es. '/uploads/file.jpg')
+ * @returns {boolean} true se esiste, false altrimenti
+ */
+function imageFileExists(imageUrl) {
+    if (!imageUrl) return false;
+
+    const relativeUrl = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
+
+    const uploadsBasePath = process.env.RAILWAY_ENVIRONMENT
+        ? '/data'
+        : path.join(process.cwd(), 'src', 'public');
+
+    const candidates = [
+        path.join(uploadsBasePath, relativeUrl),
+        path.join(process.cwd(), 'src', 'public', relativeUrl),
+        path.join(process.cwd(), 'public', relativeUrl),
+        path.join(process.cwd(), relativeUrl)
+    ];
+
+    for (const filePath of candidates) {
+        try {
+            if (fs.existsSync(filePath)) return true;
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    return false;
+}
+
 module.exports = {
-    deleteImageFile
+    deleteImageFile,
+    imageFileExists
 };

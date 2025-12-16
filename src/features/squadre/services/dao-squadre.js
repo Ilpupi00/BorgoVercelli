@@ -6,7 +6,7 @@
 
 'use strict';
 
-const sqlite = require('../../../core/config/database');
+const db = require('../../../core/config/database');
 const Giocatore = require('../../../core/models/giocatore.js');
 const Squadra = require('../../../core/models/squadra.js');
 const daoDirigenti = require('./dao-dirigenti-squadre.js');
@@ -17,15 +17,19 @@ const daoDirigenti = require('./dao-dirigenti-squadre.js');
  * @returns {Squadra}
  */
 const makeSquadra = (row) => {
-    return new Squadra(
+    const squadra = new Squadra(
         row.id,
         row.nome,
-        row.immagine_url,
-        row.Anno,
-        row.dirigenti || [],  // Aggiunto per dirigenti
-        row.giocatori || [],   // Aggiunto per giocatori
-        row.numero_giocatori || 0  // Numero di giocatori attivi
+        row.id_immagine || row.immagine_url,  // Usa id_immagine se disponibile, altrimenti l'URL
+        row.Anno || row.anno_fondazione,       // Usa Anno se disponibile, altrimenti anno_fondazione
+        row.dirigenti || [],
+        row.giocatori || [],
+        row.numero_giocatori || 0
     );
+    // Aggiungi alias per compatibilità con le view
+    squadra.nome_squadra = row.nome;
+    squadra.immagine_url = row.immagine_url;
+    return squadra;
 }
 
 /**
@@ -64,22 +68,32 @@ const makeGiocatore = (row) => {
 exports.getSquadre = async () => {
     const sql = `
         SELECT 
-            s.*, 
+            s.id,
+            s.nome,
+            s.anno_fondazione,
+            i.id as id_immagine,
             i.url AS immagine_url,
             (SELECT COUNT(*) FROM GIOCATORI g WHERE g.squadra_id = s.id AND g.attivo = true) AS numero_giocatori
         FROM SQUADRE s 
         -- In Postgres usiamo la tabella IMMAGINI con relazione tramite entita_riferimento/entita_id
         LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'squadra' AND i.entita_id = s.id AND i.ordine = 1
+        ORDER BY s.anno_fondazione DESC, s.nome ASC
     `;
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, async (err, squadre) => {
+        db.all(sql, async (err, squadre) => {
             if (err) {
                 return reject({ error: 'Error retrieving teams: ' + err.message });
             }
             // Per ogni squadra, recupera i dirigenti
             const squadreConDirigenti = await Promise.all(squadre.map(async (squadra) => {
                 const dirigenti = await daoDirigenti.getDirigentiBySquadra(squadra.id);
-                return { ...squadra, dirigenti };
+                // Mappa i campi per compatibilità con le view
+                return { 
+                    ...squadra, 
+                    dirigenti,
+                    nome_squadra: squadra.nome, // Alias per compatibilità
+                    Anno: squadra.anno_fondazione // Usa anno_fondazione come Anno
+                };
             }));
             resolve(squadreConDirigenti.map(makeSquadra) || []);
         });
@@ -111,7 +125,7 @@ exports.getGiocatori =async ()=>{
     FROM GIOCATORI g
     LEFT JOIN IMMAGINI i ON g.immagini_id = i.id`;
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, rows) => {
+        db.all(sql, (err, rows) => {
             if (err) {
                 return reject({ error: 'Error retrieving players: ' + err.message });
             }
@@ -129,9 +143,9 @@ exports.getGiocatori =async ()=>{
  * @returns {Promise<Object>} { id, message }
  */
 exports.createSquadra = function(nome, annoFondazione) {
-    const sql = 'INSERT INTO SQUADRE (nome, Anno) VALUES (?, ?) RETURNING id';
+    const sql = 'INSERT INTO SQUADRE (nome, anno_fondazione) VALUES (?, ?) RETURNING id';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [nome, annoFondazione], function(err, result) {
+        db.run(sql, [nome, annoFondazione], function(err, result) {
             if (err) {
                 console.error('Errore SQL insert squadra:', err);
                 return reject({ error: 'Errore nella creazione della squadra: ' + err.message });
@@ -163,7 +177,7 @@ exports.updateSquadra = async function(id, nome, anno, id_immagine = null) {
         `;
         
         const oldImage = await new Promise((resolve, reject) => {
-            sqlite.get(selectSql, [parseInt(id)], (err, row) => {
+            db.get(selectSql, [parseInt(id)], (err, row) => {
                 if (err) {
                     console.error('[updateSquadra] Errore recupero vecchia immagine:', err);
                     resolve(null); // Non blocca
@@ -181,7 +195,7 @@ exports.updateSquadra = async function(id, nome, anno, id_immagine = null) {
     }
     
     // Aggiorna la squadra
-    let sql = 'UPDATE SQUADRE SET nome = ?, Anno = ?';
+    let sql = 'UPDATE SQUADRE SET nome = ?, anno_fondazione = ?';
     let params = [nome, anno,];
     if (id_immagine !== null) {
         sql += ', id_immagine = ?';
@@ -191,7 +205,7 @@ exports.updateSquadra = async function(id, nome, anno, id_immagine = null) {
     params.push(parseInt(id));
     
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, params, function(err, result) {
+        db.run(sql, params, function(err, result) {
             if (err) {
                 console.error('Errore SQL update squadra:', err);
                 return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
@@ -213,7 +227,7 @@ exports.updateSquadra = async function(id, nome, anno, id_immagine = null) {
 exports.deleteSquadra = function(id) {
     const sql = 'DELETE FROM SQUADRE WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(id)], function(err, result) {
+        db.run(sql, [parseInt(id)], function(err, result) {
             if (err) {
                 console.error('Errore SQL delete squadra:', err);
                 return reject({ error: 'Errore nella cancellazione della squadra: ' + err.message });
@@ -235,7 +249,7 @@ exports.deleteSquadra = function(id) {
 exports.getSquadraById = function(id) {
     const sql = 'SELECT * FROM SQUADRE WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.get(sql, [parseInt(id)], async (err, squadra) => {
+        db.get(sql, [parseInt(id)], async (err, squadra) => {
             if (err) {
                 return reject({ error: 'Errore nel recupero della squadra: ' + err.message });
             }
@@ -268,7 +282,7 @@ exports.searchSquadre = async function(searchTerm) {
         LIMIT 10
     `;
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, [searchTerm], async (err, squadre) => {
+        db.all(sql, [searchTerm], async (err, squadre) => {
             if (err) {
                 console.error('Errore SQL search squadre:', err);
                 return reject({ error: 'Error searching teams: ' + err.message });
@@ -309,7 +323,7 @@ exports.getGiocatoriBySquadra = function(squadraId) {
     WHERE squadra_id = ? AND attivo = true
     ORDER BY numero_maglia ASC`;
     return new Promise((resolve, reject) => {
-        sqlite.all(sql, [parseInt(squadraId)], (err, rows) => {
+        db.all(sql, [parseInt(squadraId)], (err, rows) => {
             if (err) {
                 return reject({ error: 'Errore nel recupero dei giocatori: ' + err.message });
             }
@@ -330,7 +344,7 @@ exports.createGiocatore = function(giocatoreData) {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true, NOW())
         RETURNING id`;
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
+        db.run(sql, [
             giocatoreData.nome,
             giocatoreData.cognome,
             giocatoreData.numero_maglia || null,
@@ -360,7 +374,7 @@ exports.createGiocatore = function(giocatoreData) {
 exports.deleteGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = false, data_fine_tesseramento = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(id)], function(err, result) {
+        db.run(sql, [parseInt(id)], function(err, result) {
             if (err) {
                 console.error('Errore SQL delete giocatore:', err);
                 return reject({ error: 'Errore nella rimozione del giocatore: ' + err.message });
@@ -398,7 +412,7 @@ exports.getGiocatoreById = function(id) {
         Cognome AS cognome
     FROM GIOCATORI WHERE id = ? AND attivo = true`;
     return new Promise((resolve, reject) => {
-        sqlite.get(sql, [parseInt(id)], (err, row) => {
+        db.get(sql, [parseInt(id)], (err, row) => {
             if (err) {
                 return reject({ error: 'Errore nel recupero del giocatore: ' + err.message });
             }
@@ -425,7 +439,7 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
     RETURNING id`;
 
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
+        db.run(sql, [
             parseInt(squadraId),
             giocatoreData.numero_maglia,
             giocatoreData.ruolo,
@@ -454,7 +468,7 @@ exports.addGiocatore = function(squadraId, giocatoreData) {
 exports.removeGiocatore = function(id) {
     const sql = 'UPDATE GIOCATORI SET attivo = false, updated_at = NOW() WHERE id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(id)], function(err) {
+        db.run(sql, [parseInt(id)], function(err) {
             if (err) {
                 return reject({ error: 'Errore nella rimozione del giocatore: ' + err.message });
             }
@@ -478,7 +492,7 @@ exports.addDirigente = function(squadraId, email) {
     const sqlInsertDirigente = 'INSERT INTO DIRIGENTI_SQUADRE (squadra_id, utente_id) VALUES (?, ?)';
 
     return new Promise((resolve, reject) => {
-        sqlite.get(sqlGetUser, [email], (err, user) => {
+        db.get(sqlGetUser, [email], (err, user) => {
             if (err) {
                 return reject({ error: 'Errore nel recupero dell\'utente: ' + err.message });
             }
@@ -488,7 +502,7 @@ exports.addDirigente = function(squadraId, email) {
 
             // Verifica se l'utente è già dirigente di questa squadra
             const sqlCheck = 'SELECT id FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND utente_id = ?';
-            sqlite.get(sqlCheck, [parseInt(squadraId), user.id], (err, existing) => {
+            db.get(sqlCheck, [parseInt(squadraId), user.id], (err, existing) => {
                 if (err) {
                     return reject({ error: 'Errore nella verifica: ' + err.message });
                 }
@@ -498,7 +512,7 @@ exports.addDirigente = function(squadraId, email) {
 
                 // Aggiungi il dirigente
                 const sqlInsertWithReturning = sqlInsertDirigente + ' RETURNING id';
-                sqlite.run(sqlInsertWithReturning, [parseInt(squadraId), user.id], function(err, result) {
+                db.run(sqlInsertWithReturning, [parseInt(squadraId), user.id], function(err, result) {
                     if (err) {
                         return reject({ error: 'Errore nell\'aggiunta del dirigente: ' + err.message });
                     }
@@ -509,7 +523,7 @@ exports.addDirigente = function(squadraId, email) {
                         JOIN UTENTI u ON ds.utente_id = u.id
                         WHERE ds.id = ?
                     `;
-                    sqlite.get(sqlGetDirigente, [result.rows[0].id], (err, dirigente) => {
+                    db.get(sqlGetDirigente, [result.rows[0].id], (err, dirigente) => {
                         if (err) {
                             return reject({ error: 'Errore nel recupero del dirigente: ' + err.message });
                         }
@@ -530,7 +544,7 @@ exports.addDirigente = function(squadraId, email) {
 exports.removeDirigente = function(squadraId, dirigenteId) {
     const sql = 'DELETE FROM DIRIGENTI_SQUADRE WHERE squadra_id = ? AND id = ?';
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [parseInt(squadraId), parseInt(dirigenteId)], function(err, result) {
+        db.run(sql, [parseInt(squadraId), parseInt(dirigenteId)], function(err, result) {
             if (err) {
                 return reject({ error: 'Errore nella rimozione del dirigente: ' + err.message });
             }
@@ -556,7 +570,7 @@ exports.updateGiocatore = async (id, giocatoreData) => {
     const sql = `UPDATE GIOCATORI SET Nome = ?, Cognome = ?, ruolo = ?, numero_maglia = ?, data_nascita = ?, piede_preferito = ?, Nazionalità = ?, immagini_id = COALESCE(?, immagini_id), updated_at = NOW()
                  WHERE id = ?`;
     return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
+        db.run(sql, [
             giocatoreData.nome,
             giocatoreData.cognome,
             giocatoreData.ruolo,

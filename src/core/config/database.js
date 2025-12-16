@@ -12,7 +12,11 @@ if (!process.env.DATABASE_URL) {
     console.error('[database] FATAL: process.env.DATABASE_URL non è impostata.');
     console.error('[database] L\'applicazione è configurata per connettersi solo a Postgres tramite DATABASE_URL (es. fornita da Railway).');
     console.error('[database] Assicurati di configurare DATABASE_URL nelle variabili d\'ambiente.');
-    process.exit(1);
+    // Evitiamo di terminare il processo direttamente durante il `require` del modulo,
+    // così chi importa il modulo può decidere come gestire l'errore (es. log, exit,
+    // fallback per sviluppo). Lanciare un'eccezione permette di avere uno stack
+    // di errore leggibile invece di un'uscita silenziosa.
+    throw new Error('DATABASE_URL non impostata: configura la variabile d\'ambiente DATABASE_URL');
 }
 
 // Log della connessione per debugging (nasconde la password)

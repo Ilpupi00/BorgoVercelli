@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifica Squadra - <%= squadra.nome %></title>
+    <title>Modifica Squadra - <%= squadra.nome || squadra.nome_squadra || '' %></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -42,13 +42,13 @@
                                     <label for="nome" class="form-label">
                                         <i class="fas fa-tag text-primary"></i> Nome Squadra
                                     </label>
-                                    <input type="text" class="form-control" id="nome" name="nome" value="<%= squadra.nome %>" required placeholder="Inserisci il nome della squadra">
+                                        <input type="text" class="form-control" id="nome" name="nome" value="<%= squadra.nome || squadra.nome_squadra || '' %>" required placeholder="Inserisci il nome della squadra">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="annoFondazione" class="form-label">
                                         <i class="fas fa-calendar-alt text-success"></i> Anno Fondazione
                                     </label>
-                                    <input type="number" class="form-control" id="annoFondazione" name="anno" value="<%= squadra.Anno %>" required min="1900" max="<%= new Date().getFullYear() %>" placeholder="Anno di fondazione">
+                                    <input type="number" class="form-control" id="annoFondazione" name="anno" value="<%= squadra.anno_fondazione || squadra.anno || squadra.Anno || '' %>" required min="1900" max="<%= new Date().getFullYear() %>" placeholder="Anno di fondazione">
                                 </div>
                                 <div class="col-12">
                                     <label for="fotoSquadra" class="form-label">
@@ -110,15 +110,15 @@
                                 <div id="playersList" class="row g-4">
                                     <% (squadra.giocatori || []).forEach((giocatore, index) => { %>
                                                 <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                                          <div class="card h-100 hover-lift animate__animated animate__fadeInUp player-card" 
-                                              data-player-id="<%= giocatore.id %>"
-                                              data-nome="<%= giocatore.nome %>"
-                                              data-cognome="<%= giocatore.cognome %>"
-                                              data-ruolo="<%= giocatore.ruolo %>"
-                                              data-numero="<%= giocatore.numero_maglia %>"
-                                              data-data_nascita="<%= giocatore.data_nascita %>"
-                                              data-nazionalita="<%= giocatore.nazionalita %>"
-                                              data-img="<%= giocatore.immagine ? giocatore.immagine.url : '' %>">
+                                                                                                <div class="card h-100 hover-lift animate__animated animate__fadeInUp player-card" 
+                                                                                            data-player-id="<%= giocatore.id || giocatore.player_id || '' %>"
+                                                                                            data-nome="<%= giocatore.nome || giocatore.nome_utente || giocatore.first_name || '' %>"
+                                                                                            data-cognome="<%= giocatore.cognome || giocatore.cognome_utente || giocatore.last_name || '' %>"
+                                                                                            data-ruolo="<%= giocatore.ruolo || giocatore.role || '' %>"
+                                                                                            data-numero="<%= giocatore.numero_maglia || giocatore.numero || '' %>"
+                                                                                            data-data_nascita="<%= giocatore.data_nascita || giocatore.birthdate || '' %>"
+                                                                                            data-nazionalita="<%= giocatore.nazionalita || giocatore.nationality || '' %>"
+                                                                                            data-img="<%= (giocatore.immagine && giocatore.immagine.url) ? giocatore.immagine.url : (giocatore.img || '') %>">
                                                 <div class="card-body text-center p-4">
                                                     <div class="position-relative mb-3">
                                                                     <% if (giocatore.immagine) { %>
@@ -132,16 +132,16 @@
                                                             <span class="badge bg-primary rounded-pill px-2 py-1 small">#<%= giocatore.numero_maglia %></span>
                                                         </div>
                                                     </div>
-                                                    <h5 class="card-title mb-1 gradient-text"><%= giocatore.nome %> <%= giocatore.cognome %></h5>
+                                                    <h5 class="card-title mb-1 gradient-text"><%= (giocatore.nome || giocatore.nome_utente || giocatore.first_name || '') %> <%= (giocatore.cognome || giocatore.cognome_utente || giocatore.last_name || '') %></h5>
                                                     <p class="text-muted mb-2">
-                                                        <i class="fas fa-futbol text-success"></i> <%= giocatore.ruolo %>
+                                                        <i class="fas fa-futbol text-success"></i> <%= giocatore.ruolo || giocatore.role || '' %>
                                                     </p>
-                                                    <% if (giocatore.data_nascita) { %>
+                                                    <% if (giocatore.data_nascita || giocatore.birthdate) { %>
                                                         <p class="text-muted small mb-3">
                                                             <i class="fas fa-birthday-cake text-warning"></i>
-                                                            <%= new Date(giocatore.data_nascita).toLocaleDateString('it-IT') %>
-                                                            <% if (giocatore.nazionalita) { %>
-                                                                <span class="ms-2">• <%= giocatore.nazionalita %></span>
+                                                            <%= giocatore.data_nascita ? new Date(giocatore.data_nascita).toLocaleDateString('it-IT') : (giocatore.birthdate ? new Date(giocatore.birthdate).toLocaleDateString('it-IT') : '') %>
+                                                            <% if (giocatore.nazionalita || giocatore.nationality) { %>
+                                                                <span class="ms-2">• <%= giocatore.nazionalita || giocatore.nationality %></span>
                                                             <% } %>
                                                         </p>
                                                     <% } %>
@@ -178,6 +178,10 @@
                             </button>
                         </div>
                         <div>
+                            <!-- DEBUG: mostra elenco dirigenti (visibile per debugging) -->
+                            <div class="container mt-2 mb-3">
+                                <pre style="background:#fff8e1;border:1px solid #ffd54f;padding:8px;">DEBUG DIRIGENTI:\n<%= (squadra.dirigenti || []).map(d => `${d.nome || d.nome_utente || ''} ${d.cognome || d.cognome_utente || ''} - ${d.ruolo || d.role || ''}`).join('\n') %></pre>
+                            </div>
                             <% if (squadra.dirigenti.length === 0) { %>
                                 <div class="text-center py-5">
                                     <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
@@ -192,14 +196,14 @@
                                     <% squadra.dirigenti.forEach((dirigente, index) => { %>
                                         <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
                                             <div class="card h-100 hover-lift animate__animated animate__fadeInUp manager-card" 
-                                                data-manager-id="<%= dirigente.id %>"
-                                                data-utente-id="<%= dirigente.utente_id %>"
-                                                data-nome="<%= dirigente.nome %>"
-                                                data-cognome="<%= dirigente.cognome %>"
-                                                data-ruolo="<%= dirigente.ruolo %>"
-                                                data-data-nomina="<%= dirigente.data_nomina || '' %>"
-                                                data-data-scadenza="<%= dirigente.data_scadenza || '' %>"
-                                                data-img="<%= dirigente.immagine ? dirigente.immagine.url : '' %>">
+                                                data-manager-id="<%= dirigente.id || dirigente.manager_id || '' %>"
+                                                data-utente-id="<%= dirigente.utente_id || dirigente.user_id || '' %>"
+                                                data-nome="<%= dirigente.nome || dirigente.nome_utente || dirigente.first_name || '' %>"
+                                                data-cognome="<%= dirigente.cognome || dirigente.cognome_utente || dirigente.last_name || '' %>"
+                                                data-ruolo="<%= dirigente.ruolo || dirigente.role || '' %>"
+                                                data-data-nomina="<%= dirigente.data_nomina || dirigente.nomina || '' %>"
+                                                data-data-scadenza="<%= dirigente.data_scadenza || dirigente.scadenza || '' %>"
+                                                data-img="<%= (dirigente.immagine && dirigente.immagine.url) ? dirigente.immagine.url : (dirigente.img || '') %>">
                                                 <div class="card-body text-center p-4">
                                                     <div class="position-relative mb-3">
                                                         <% if (dirigente.immagine) { %>
@@ -213,7 +217,7 @@
                                                             <span class="badge bg-warning text-dark rounded-pill px-2 py-1 small"><%= dirigente.ruolo %></span>
                                                         </div>
                                                     </div>
-                                                    <h5 class="card-title mb-1 gradient-text"><%= dirigente.nome %> <%= dirigente.cognome %></h5>
+                                                    <h5 class="card-title mb-1 gradient-text"><%= (dirigente.nome || dirigente.nome_utente || dirigente.first_name || '') %> <%= (dirigente.cognome || dirigente.cognome_utente || dirigente.last_name || '') %></h5>
                                                     <p class="text-muted mb-2">
                                                         <i class="fas fa-id-badge text-warning"></i> <%= dirigente.ruolo %>
                                                     </p>

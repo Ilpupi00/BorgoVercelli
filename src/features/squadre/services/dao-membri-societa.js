@@ -17,6 +17,10 @@ class MembriSocietaDAO {
      */
     static async getMembriSocieta() {
         try {
+            // Estraiamo i membri di interesse basandoci sul nome del tipo utente
+            // (es. 'Presidente', 'Segretario', 'Gestore campo', 'Allenatore', 'Dirigente').
+            // Usiamo il campo `tu.nome` invece degli ID per essere robusti ai cambiamenti
+            // degli identificativi nella tabella TIPI_UTENTE.
             const sql = `
                 SELECT u.id, u.nome, u.cognome, u.email, u.telefono, tu.nome as ruolo,
                        i.url as immagine_profilo
@@ -25,8 +29,13 @@ class MembriSocietaDAO {
                 LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente'
                     AND i.entita_id = u.id
                     AND (i.ordine = 1 OR i.ordine IS NULL)
-                WHERE u.tipo_utente_id IN (2, 3, 4)
-                ORDER BY u.tipo_utente_id, u.nome
+                WHERE LOWER(tu.nome) IN (
+                    'presidente', 'vice-presidente', 'vice presidente',
+                    'segretario', 'gestore', 'gestore campo',
+                    'allenatore', 'dirigente', 'dirigente accompagnatore'
+                )
+                OR LOWER(tu.nome) LIKE '%gestor%'
+                ORDER BY tu.nome, u.nome
             `;
 
             return new Promise((resolve, reject) => {

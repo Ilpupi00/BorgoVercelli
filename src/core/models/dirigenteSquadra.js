@@ -42,7 +42,18 @@ class DirigenteSquadra {
         this.updated_at = updated_at;
         this.nome = nome;
         this.cognome = cognome;
-        this.immagine_id = immagine_id;
+            this.immagine_id = immagine_id;
+            // Popola anche `immagine` per compatibilità con le view (se immagine_id è una URL)
+            if (immagine_id) {
+                if (typeof immagine_id === 'string' && immagine_id.startsWith('/')) {
+                    this.immagine = { url: immagine_id };
+                } else {
+                    // se è un id numerico, manteniamo immagine_id e lasciamo immagine null
+                    this.immagine = null;
+                }
+            } else {
+                this.immagine = null;
+            }
     }
 
     // ==================== METODI STATICI ====================
