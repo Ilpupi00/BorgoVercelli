@@ -11,17 +11,22 @@ class Profilo {
     }
 
     setupEventListeners() {
-        // Modifica preferenze
-        const editProfileBtn = document.querySelector('[onclick="modificaPreferenze()"]');
-        if (editProfileBtn) {
-            editProfileBtn.onclick = () => this.modificaPreferenze();
-        }
+        // Azioni profilo (menu / link). Supporta più trigger.
+        const editProfileTriggers = document.querySelectorAll('[data-action="edit-profile"], [onclick="modificaPreferenze()"]');
+        editProfileTriggers.forEach((el) => {
+            el.addEventListener('click', (e) => {
+                if (el.tagName === 'A') e.preventDefault();
+                this.modificaPreferenze();
+            });
+        });
 
-        // Cambia password
-        const changePasswordBtn = document.querySelector('[onclick="cambiaPassword()"]');
-        if (changePasswordBtn) {
-            changePasswordBtn.onclick = () => this.cambiaPassword();
-        }
+        const changePasswordTriggers = document.querySelectorAll('[data-action="change-password"], [onclick="cambiaPassword()"]');
+        changePasswordTriggers.forEach((el) => {
+            el.addEventListener('click', (e) => {
+                if (el.tagName === 'A') e.preventDefault();
+                this.cambiaPassword();
+            });
+        });
 
         // Form modifica profilo
         const editProfileForm = document.getElementById('editProfileForm');
@@ -51,6 +56,33 @@ class Profilo {
         const profilePicForm = document.getElementById('profilePicForm');
         if (profilePicForm) {
             profilePicForm.addEventListener('submit', (e) => this.handleUploadPic(e));
+        }
+
+        // Fallback: assicurati che i pulsanti con data-bs-dismiss chiudano effettivamente il modal
+        try {
+            const dismissBtns = document.querySelectorAll('[data-bs-dismiss="modal"]');
+            dismissBtns.forEach(btn => {
+                // Evitiamo di aggiungere più listener se già presenti
+                if ((btn.__profiloDismissBound)) return;
+                btn.__profiloDismissBound = true;
+
+                btn.addEventListener('click', (ev) => {
+                    try {
+                        // Cerca il modal più vicino
+                        const modalEl = btn.closest('.modal');
+                        if (modalEl && window.bootstrap && typeof window.bootstrap.Modal !== 'undefined') {
+                            const instance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+                            instance.hide();
+                        }
+                    } catch (err) {
+                        // Non blocchiamo l'esecuzione per eventuali errori
+                        console.warn('Profilo fallback dismiss error:', err);
+                    }
+                });
+            });
+        } catch (err) {
+            // lasciare silenzioso: il fallback è opzionale
+            console.warn('Profilo: impossibile applicare fallback dismiss', err);
         }
     }
 

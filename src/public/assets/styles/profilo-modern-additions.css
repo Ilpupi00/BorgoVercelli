@@ -1,7 +1,6 @@
 /* 
  * Modern Profile Additions
- * Additional styles for the modernized profile page
- * Mobile-First, Responsive, Dark/Light Theme Support
+ * Mobile-first, responsive, theme-token based
  */
 
 /* ========================================
@@ -9,21 +8,11 @@
    ======================================== */
 
 :root {
-    --modern-card-bg: #ffffff;
-    --modern-text-primary: #1e293b;
-    --modern-text-secondary: #64748b;
-    --modern-border: #e2e8f0;
-    --modern-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    --modern-shadow-hover: 0 12px 36px rgba(0, 0, 0, 0.12);
-}
-
-:root[data-theme="dark"] {
-    --modern-card-bg: #1e293b;
-    --modern-text-primary: #f1f5f9;
-    --modern-text-secondary: #94a3b8;
-    --modern-border: #334155;
-    --modern-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --modern-shadow-hover: 0 12px 36px rgba(0, 0, 0, 0.6);
+    /* Mappa “site-*” ai token tema globali */
+    --site-primary: var(--primary-color);
+    --site-primary-dark: var(--primary-hover);
+    --site-secondary: var(--secondary-color);
+    --site-secondary-dark: var(--secondary-dark);
 }
 
 /* ========================================
@@ -36,6 +25,314 @@
     padding: 1.5rem 1rem;
 }
 
+/* Background pagina coerente col tema */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* ========================================
+   MODERN HEADER (ex inline)
+   ======================================== */
+
+.profile-modern-header {
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-colored);
+    position: relative;
+    overflow: visible;
+}
+
+/* Shine “web 2.0” (solo overlay trasparente) */
+.profile-modern-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        radial-gradient(900px 220px at 20% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.00) 60%),
+        radial-gradient(700px 260px at 80% 20%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.00) 55%);
+    pointer-events: none;
+}
+
+.profile-modern-header::after {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border-radius: calc(20px - 10px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+}
+
+.profile-header-content {
+    z-index: 2;
+}
+
+.profile-avatar-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.5rem;
+}
+
+/* Posiziona i bottoni sotto l'avatar (non sovrapposti) */
+.profile-avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-avatar-modern {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    object-fit: cover;
+    display: block;
+}
+
+/* Placeholder avatar (SVG + iniziali) */
+.profile-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--site-primary), var(--site-primary-dark));
+    border: 4px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    position: relative;
+    overflow: hidden;
+    color: white;
+}
+
+/* Action buttons container relocated under the header text */
+.profile-actions-overlay {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.75rem;
+    /* ensure it participates in document flow under the heading */
+    position: relative;
+}
+
+.profile-action-btn-modern {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background: var(--surface-contrast, rgba(255,255,255,0.06));
+    color: var(--text-on-surface, #fff);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.profile-action-btn-modern:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(100, 150, 250, 0.15);
+    transform: translateY(-1px);
+}
+
+.profile-action-btn-modern .bi {
+    font-size: 1.05rem;
+}
+
+/* Danger variant (if used) */
+.profile-action-btn-modern.btn-danger,
+.profile-action-btn-modern.btn-action-danger {
+    background: var(--danger, #d9534f);
+    color: #fff;
+    border-color: rgba(0,0,0,0.08);
+}
+
+/* Responsive: stack on very small screens for large tap targets */
+@media (max-width: 420px) {
+    .profile-actions-overlay {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .profile-action-btn-modern {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.profile-avatar-placeholder svg.person-ic {
+    width: 60%;
+    height: 60%;
+    opacity: 0.95;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+.profile-initials {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
+.profile-actions-overlay {
+    /* ora posizionato in flusso sotto l'avatar */
+    position: static;
+    bottom: auto;
+    right: auto;
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    z-index: 1;
+}
+
+.profile-action-btn-modern {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.profile-action-btn-modern:active {
+    transform: translateY(0) scale(1.02);
+}
+
+/* Spostamento del bottone "modifica" verso sinistra rispetto al gruppo (visivo) */
+.btn-edit-photo {
+    position: static;
+    left: auto;
+}
+
+.btn-edit-photo:hover {
+    transform: translateY(-2px) scale(1.06);
+}
+
+.profile-action-btn-modern:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.btn-edit-photo {
+    background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+}
+
+.btn-upload-photo {
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+}
+
+/* Menu azioni (no bottoni) */
+.action-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-menu-title {
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+}
+
+.action-menu-sep {
+    height: 1px;
+    background: var(--border-color);
+    opacity: 0.8;
+    margin: 2px 0;
+}
+
+.action-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.action-menu-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.action-menu-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 650;
+}
+
+.action-menu-left i {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.action-menu-item--danger {
+    background: var(--bg-secondary);
+    border-color: var(--danger);
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+    .action-menu-item--danger {
+        background: color-mix(in srgb, var(--danger) 12%, transparent);
+        border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+    }
+}
+
+.action-menu-item--inline {
+    margin-bottom: 0.75rem;
+}
+
+/* Role badges */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.role-badge i { font-size: 1.05rem; }
+
+.role-badge.admin { background: linear-gradient(90deg, #d6332a, #c21813); color: white; }
+.role-badge.presidente { background: linear-gradient(90deg, var(--site-primary), var(--site-primary-dark)); color: white; }
+.role-badge.vice { background: linear-gradient(90deg, #198754, #137a3a); color: white; }
+.role-badge.dirigente { background: linear-gradient(90deg, var(--warning), #d97706); color: #1f2937; }
+.role-badge.segretario { background: linear-gradient(90deg, #6c757d, #495057); color: white; }
+.role-badge.gestore { background: linear-gradient(90deg, #0dcaf0, #0aa1c7); color: white; }
+.role-badge.utente { background: linear-gradient(90deg, #94a3b8, #64748b); color: white; }
+
 @media (min-width: 768px) {
     .profile-container {
         padding: 2rem 1.5rem;
@@ -47,16 +344,67 @@
    ======================================== */
 
 .modern-card {
-    background: var(--modern-card-bg);
-    color: var(--modern-text-primary);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.modern-card-body {
-    background: var(--modern-card-bg);
+/* Micro-contrasto “glass” (non cambia palette) */
+.modern-card {
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .modern-card:hover {
-    animation: card-float 0.3s ease-out;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.modern-card-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+    color: var(--text-on-primary);
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modern-card-header {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.modern-card-header h5 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.modern-card-header.green-gradient {
+    background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+}
+
+.modern-card-header.info-gradient {
+    background: linear-gradient(135deg, var(--info) 0%, var(--primary-variant) 100%);
+}
+
+.modern-card-header.warning-gradient {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+}
+
+.modern-card-body {
+    padding: 1.5rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* Hover animation leggero, senza “saltelli” */
+.modern-card:hover {
+    animation: card-float 0.25s ease-out;
 }
 
 @keyframes card-float {
@@ -68,39 +416,100 @@
    STAT BOXES DARK THEME
    ======================================== */
 
-:root[data-theme="dark"] .stat-box-modern {
-    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-    color: var(--modern-text-primary);
+.stat-box-modern {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-:root[data-theme="dark"] .stat-number-modern {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.stat-box-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--site-primary);
+}
+
+.stat-number-modern {
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 0.5rem;
 }
 
-:root[data-theme="dark"] .stat-label-modern {
-    color: var(--modern-text-secondary);
+.stat-label-modern {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.stat-number-modern--compact {
+    font-size: 2rem;
+}
+
+.stat-label-modern--compact {
+    font-size: 0.8rem;
 }
 
 /* ========================================
    TIMELINE DARK THEME
    ======================================== */
 
-:root[data-theme="dark"] .timeline-modern::before {
-    background: linear-gradient(to bottom, #667eea, #764ba2);
+.timeline-modern {
+    position: relative;
+    padding-left: 2rem;
 }
 
-:root[data-theme="dark"] .timeline-dot-modern {
-    box-shadow: 0 0 0 4px var(--modern-card-bg);
+.timeline-modern::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--site-primary), var(--site-secondary));
+    border-radius: 2px;
 }
 
-:root[data-theme="dark"] .timeline-item-modern .fw-bold {
-    color: var(--modern-text-primary);
+.timeline-item-modern {
+    position: relative;
+    padding-bottom: 1.25rem;
+    margin-left: 0.5rem;
 }
 
-:root[data-theme="dark"] .timeline-item-modern .text-muted {
-    color: var(--modern-text-secondary) !important;
+.timeline-dot-modern {
+    position: absolute;
+    left: -2.5rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-secondary) 100%);
+    box-shadow: 0 0 0 4px var(--card-bg);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.timeline-bubble {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.content-action-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Bootstrap helpers adattati al tema (solo nel profilo) */
+.profile-container .text-dark {
+    color: var(--text-primary) !important;
+}
+
+.profile-container .text-muted {
+    color: var(--text-secondary) !important;
 }
 
 /* ========================================
@@ -116,39 +525,88 @@
     transform: translateY(0) !important;
 }
 
+/* Bottoni “web 2.0” coerenti (senza hardcode colori) */
+.modern-btn {
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border: 2px solid;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.modern-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-manage-primary,
+.btn-manage-secondary {
+    border: none;
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-manage-primary {
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-primary-dark) 100%);
+}
+
+.btn-manage-secondary {
+    background: linear-gradient(135deg, var(--site-secondary) 0%, var(--site-secondary-dark) 100%);
+}
+
+.btn-manage-primary:hover,
+.btn-manage-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
 .btn-gradient-event,
 .btn-gradient-news {
     border: none;
     color: white !important;
     text-decoration: none;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, var(--site-primary) 0%, var(--site-secondary) 100%);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-gradient-event:hover,
 .btn-gradient-news:hover {
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    color: white !important;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
 }
 
 /* ========================================
    PROFILE HEADER DARK THEME
    ======================================== */
 
-:root[data-theme="dark"] .profile-modern-header {
-    background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
-}
-
-:root[data-theme="dark"] .profile-action-btn {
-    border-color: rgba(255, 255, 255, 0.2);
-}
+/* Dark theme già gestito dai token */
 
 /* ========================================
    PREFERENCES BOXES DARK THEME
    ======================================== */
 
-:root[data-theme="dark"] .p-3.rounded-3[style*="linear-gradient"] {
-    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+/* Surface helpers per rimpiazzare inline styles */
+.surface-neutral {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.surface-warm {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0.06) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+    .modern-card-header.warning-gradient {
+        background: linear-gradient(135deg, var(--warning) 0%, color-mix(in srgb, var(--warning) 70%, #000 30%) 100%);
+    }
+
+    .surface-warm {
+        border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+    }
 }
 
 /* ========================================
@@ -168,15 +626,20 @@
         font-size: 2rem !important;
     }
     
-    .profile-actions-modern {
-        bottom: -5px;
-        right: -5px;
+    .profile-actions-overlay {
+        bottom: 6px;
+        right: 6px;
     }
     
-    .profile-action-btn {
+    .profile-action-btn-modern {
         width: 40px;
         height: 40px;
         border-width: 2px;
+    }
+
+    .timeline-bubble {
+        width: 46px;
+        height: 46px;
     }
 }
 
@@ -197,16 +660,27 @@
         padding: 1rem;
     }
     
+    .profile-avatar-container {
+        width: 100px;
+        height: 100px;
+    }
+
     .profile-avatar-modern {
         width: 100px;
         height: 100px;
     }
-    
-    .profile-avatar-modern img,
-    .profile-avatar-modern i {
-        width: 100px !important;
-        height: 100px !important;
+
+    .profile-actions-overlay {
+        flex-direction: column;
+        gap: 6px;
     }
+
+    .profile-action-btn-modern {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+    
 }
 
 /* ========================================
@@ -225,9 +699,24 @@
 
 /* Focus visible for keyboard navigation */
 .modern-btn:focus-visible,
-.profile-action-btn:focus-visible {
-    outline: 3px solid rgba(102, 126, 234, 0.5);
+.profile-action-btn-modern:focus-visible {
+    outline: 3px solid var(--input-focus-ring);
     outline-offset: 2px;
+}
+
+/* Review items renderizzate via JS */
+.review-item {
+    background: var(--card-bg);
+    border-color: var(--border-color) !important;
+}
+
+.review-item h6,
+.review-item p {
+    color: var(--text-primary);
+}
+
+.review-item .text-muted {
+    color: var(--text-secondary) !important;
 }
 
 /* ========================================
@@ -292,7 +781,7 @@
    ======================================== */
 
 @media print {
-    .profile-actions-modern,
+    .profile-actions-overlay,
     .modern-btn,
     .btn-gradient-event,
     .btn-gradient-news {
