@@ -49,7 +49,9 @@ router.get('/sitemap.xml', async (req, res) => {
             { url: '/search', changefreq: 'monthly', priority: 0.6 },
             // Pagine autenticazione (opzionali, possono essere escluse)
             { url: '/login', changefreq: 'monthly', priority: 0.5 },
-            { url: '/registrazione', changefreq: 'monthly', priority: 0.5 }
+            { url: '/registrazione', changefreq: 'monthly', priority: 0.5 },
+            // Manifest (PWA) - utile per crawler che vogliono raccogliere risorse di app manifest
+            { url: '/manifest.json', changefreq: 'yearly', priority: 0.1 }
         ];
 
         // Aggiungi pagine statiche all'array
