@@ -2,7 +2,8 @@
 # Questo file configura il deployment su Railway con volume persistente
 
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "npm start"
