@@ -3,9 +3,11 @@
 ## 📋 Modifiche Implementate
 
 ### 1. ✅ Eliminazione Prenotazioni Attive/Confermate
+
 **Problema:** Eliminare direttamente una prenotazione attiva non notificava l'annullamento.
 
 **Soluzione:**
+
 - La route `DELETE /prenotazioni/:id` ora verifica lo stato della prenotazione
 - Se la prenotazione è `in_attesa` o `confermata`, viene automaticamente annullata prima dell'eliminazione
 - Vengono inviate notifiche push appropriate:
@@ -14,45 +16,53 @@
 - L'annullamento è tracciato con il campo `annullata_da` (`admin` o `user`)
 
 **File modificati:**
+
 - `src/features/prenotazioni/routes/prenotazione.js` → route DELETE con logica annullamento automatico
 
 ---
 
 ### 2. ✅ Validazione Data e Ora Prenotazione
+
 **Problema:** Era possibile prenotare orari del giorno dopo usando la data di oggi, causando errori e prenotazioni non valide.
 
 **Soluzione:**
+
 - Validazione server-side: la prenotazione deve essere almeno **2 ore nel futuro**
 - Calcolo preciso: `data_prenotazione` + `ora_inizio` deve essere ≥ `NOW() + 2 ore`
 - Messaggio di errore chiaro con `minDateTime` in risposta
 - Validazione lato client già esistente rafforzata
 
 **Codice validazione (route POST):**
+
 ```javascript
-const [oraH, oraM] = ora_inizio.split(':').map(Number);
+const [oraH, oraM] = ora_inizio.split(":").map(Number);
 const prenotazioneDate = new Date(data_prenotazione);
 prenotazioneDate.setHours(oraH, oraM, 0, 0);
 const now = new Date();
 const minTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
 if (prenotazioneDate < minTime) {
-    return res.status(400).json({
-        error: 'Orario non valido',
-        message: 'Le prenotazioni devono essere effettuate con almeno 2 ore di anticipo',
-        minDateTime: minTime.toISOString()
-    });
+  return res.status(400).json({
+    error: "Orario non valido",
+    message:
+      "Le prenotazioni devono essere effettuate con almeno 2 ore di anticipo",
+    minDateTime: minTime.toISOString(),
+  });
 }
 ```
 
 **File modificati:**
+
 - `src/features/prenotazioni/routes/prenotazione.js` → validazione in route POST `/prenotazioni`
 
 ---
 
 ### 3. ✅ Numero di Telefono Obbligatorio
+
 **Problema:** Le prenotazioni non avevano un modo per contattare l'utente.
 
 **Soluzione:**
+
 - Aggiunto campo `telefono` (VARCHAR(20)) alla tabella `PRENOTAZIONI`
 - Validazione server-side: `telefono` è **obbligatorio** e non può essere vuoto
 - Modal di prenotazione aggiornato con campo telefono (pattern validation)
@@ -60,12 +70,14 @@ if (prenotazioneDate < minTime) {
 - Se l'utente non ha telefono in profilo, deve inserirlo manualmente nel modal
 
 **Nuovo campo DB:**
+
 ```sql
-ALTER TABLE PRENOTAZIONI 
+ALTER TABLE PRENOTAZIONI
 ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
 ```
 
 **File modificati:**
+
 - `database/migrations/add_prenotazioni_identity_fields.sql` → migration
 - `src/features/prenotazioni/routes/prenotazione.js` → validazione telefono
 - `src/features/prenotazioni/services/dao-prenotazione.js` → INSERT/UPDATE con telefono
@@ -74,17 +86,20 @@ ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
 ---
 
 ### 4. ✅ Dati Identità per Prevenire Account Duplicati
+
 **Problema:** Mancavano dati per certificare l'identità dell'utente e prevenire creazione di secondi account.
 
 **Soluzione:**
 Aggiunti 3 campi **facoltativi ma consigliati** alla tabella `PRENOTAZIONI`:
+
 1. **`codice_fiscale`** (VARCHAR(16)) → Identificazione univoca italiana
 2. **`tipo_documento`** (VARCHAR(50)) → Tipo documento (Carta d'Identità, Patente, Passaporto, ecc.)
 3. **`numero_documento`** (VARCHAR(50)) → Numero del documento fornito
 
 **Nuovi campi DB:**
+
 ```sql
-ALTER TABLE PRENOTAZIONI 
+ALTER TABLE PRENOTAZIONI
 ADD COLUMN IF NOT EXISTS codice_fiscale VARCHAR(16);
 ADD COLUMN IF NOT EXISTS tipo_documento VARCHAR(50);
 ADD COLUMN IF NOT EXISTS numero_documento VARCHAR(50);
@@ -93,12 +108,14 @@ CREATE INDEX IF NOT EXISTS idx_prenotazioni_codice_fiscale ON PRENOTAZIONI(codic
 ```
 
 **Benefici:**
+
 - Verifica identità utente più robusta
 - Prevenzione account duplicati (controllo lato admin sui codici fiscali/documenti)
 - Tracciabilità completa delle prenotazioni
 - Conformità normative sulla raccolta dati identificativi
 
 **File modificati:**
+
 - `database/migrations/add_prenotazioni_identity_fields.sql` → migration
 - `src/features/prenotazioni/routes/prenotazione.js` → gestione nuovi campi
 - `src/features/prenotazioni/services/dao-prenotazione.js` → INSERT/UPDATE con identità
@@ -121,16 +138,16 @@ CREATE TABLE PRENOTAZIONI (
     note TEXT,
     stato VARCHAR(20) DEFAULT 'in_attesa',
     annullata_da VARCHAR(10),  -- 'user' | 'admin' | NULL
-    
+
     -- NUOVI CAMPI IDENTITÀ
     telefono VARCHAR(20) NOT NULL,           -- Obbligatorio
     codice_fiscale VARCHAR(16),              -- Facoltativo
     tipo_documento VARCHAR(50),              -- Facoltativo
     numero_documento VARCHAR(50),            -- Facoltativo
-    
+
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (campo_id) REFERENCES CAMPI(id),
     FOREIGN KEY (utente_id) REFERENCES UTENTI(id),
     FOREIGN KEY (squadra_id) REFERENCES SQUADRE(id)
@@ -145,6 +162,7 @@ CREATE INDEX idx_prenotazioni_codice_fiscale ON PRENOTAZIONI(codice_fiscale);
 ## 🎨 UI/UX Miglioramenti
 
 ### Modal Prenotazione
+
 - **Layout:** Modal-lg per più spazio
 - **Sezioni:** Diviso in 3 sezioni logiche:
   1. Data e Orario
@@ -166,6 +184,7 @@ CREATE INDEX idx_prenotazioni_codice_fiscale ON PRENOTAZIONI(codice_fiscale);
   - Focus automatico sul campo errato
 
 ### Messaggi di Errore Migliorati
+
 - **400 - Telefono Mancante:**
   ```json
   {
@@ -188,6 +207,7 @@ CREATE INDEX idx_prenotazioni_codice_fiscale ON PRENOTAZIONI(codice_fiscale);
 ## 🔍 Testing e Verifica
 
 ### Test Eliminazione Prenotazione Attiva
+
 ```bash
 # 1. Crea una prenotazione confermata
 POST /prenotazione/prenotazioni
@@ -216,6 +236,7 @@ DELETE /prenotazione/prenotazioni/{id}
 ```
 
 ### Test Validazione 2 Ore
+
 ```bash
 # Test 1: Prenotazione tra 1 ora (DEVE FALLIRE)
 POST /prenotazione/prenotazioni
@@ -241,6 +262,7 @@ POST /prenotazione/prenotazioni
 ```
 
 ### Test Campo Telefono
+
 ```bash
 # Test 1: Senza telefono (DEVE FALLIRE)
 POST /prenotazione/prenotazioni
@@ -266,6 +288,7 @@ POST /prenotazione/prenotazioni
 ```
 
 ### Test Campi Identità
+
 ```bash
 # Con tutti i campi identità (raccomandato)
 POST /prenotazione/prenotazioni
@@ -287,6 +310,7 @@ POST /prenotazione/prenotazioni
 ## 🔧 Migration Database
 
 ### Eseguire la Migration
+
 ```bash
 # Opzione 1: Esegui direttamente con psql
 psql $DATABASE_URL < database/migrations/add_prenotazioni_identity_fields.sql
@@ -299,6 +323,7 @@ railway run psql < database/migrations/add_prenotazioni_identity_fields.sql
 ```
 
 ### Verifica Migration
+
 ```sql
 -- Verifica colonne aggiunte
 SELECT column_name, data_type, is_nullable
@@ -324,8 +349,10 @@ FROM prenotazioni;
 ## ⚠️ Breaking Changes e Retrocompatibilità
 
 ### Per Prenotazioni Esistenti
+
 - **Telefono NULL:** Le prenotazioni create prima della migration avranno `telefono = NULL`
 - **Soluzione:** Script di backfill per richiedere agli utenti di aggiornare le prenotazioni:
+
   ```sql
   -- Identifica prenotazioni senza telefono
   SELECT p.id, p.utente_id, u.nome, u.cognome, u.telefono as user_phone
@@ -333,7 +360,7 @@ FROM prenotazioni;
   LEFT JOIN utenti u ON p.utente_id = u.id
   WHERE p.telefono IS NULL
     AND p.stato IN ('in_attesa', 'confermata');
-  
+
   -- Aggiorna con telefono da profilo utente (se disponibile)
   UPDATE prenotazioni p
   SET telefono = u.telefono
@@ -344,6 +371,7 @@ FROM prenotazioni;
   ```
 
 ### Per Client Esistenti
+
 - **API Request:** Client devono includere `telefono` nelle richieste POST/PUT
 - **Backward Compatibility:** Le richieste senza `telefono` ricevono 400 con messaggio chiaro
 - **Aggiornamento Richiesto:** Tutti i client devono essere aggiornati per includere il campo telefono
@@ -353,23 +381,27 @@ FROM prenotazioni;
 ## 📊 Benefici Implementati
 
 ### Sicurezza
+
 ✅ Validazione robusta data/ora previene prenotazioni non valide  
 ✅ Dati identità rafforzano verifica utente  
 ✅ Tracciamento annullamenti (admin vs user)
 
 ### UX
+
 ✅ Modal chiaro e ben strutturato  
 ✅ Pre-popolamento automatico telefono da profilo  
 ✅ Messaggi di errore informativi  
 ✅ Validazione client-side + server-side
 
 ### Amministrazione
+
 ✅ Contatto diretto utenti tramite telefono  
 ✅ Verifica identità per prevenire duplicati  
 ✅ Notifiche push automatiche su annullamenti/eliminazioni  
 ✅ Dati completi per gestione prenotazioni
 
 ### Compliance
+
 ✅ Raccolta dati identificativi tracciata  
 ✅ Indici per query efficienti su telefono/CF  
 ✅ Possibilità di implementare GDPR compliance (export/delete dati)
@@ -379,21 +411,25 @@ FROM prenotazioni;
 ## 🚀 Prossimi Passi Consigliati
 
 1. **Deploy Migration:**
+
    - Eseguire migration su DB produzione
    - Backfill telefoni da profilo utenti
    - Notificare utenti con prenotazioni attive senza telefono
 
 2. **Implementare Verifiche Admin:**
+
    - Dashboard admin per vedere duplicati (stesso CF/documento)
    - Alert automatici su potenziali account duplicati
    - Tool per merge/block account sospetti
 
 3. **Estendere Validazione:**
+
    - Verifica formato CF italiano (regex + checksum)
    - Validazione numero documento con API esterne (opzionale)
    - Rate limiting su creazione prenotazioni (anti-spam)
 
 4. **GDPR Compliance:**
+
    - Informativa privacy aggiornata per raccolta dati identità
    - Consenso esplicito per conservazione dati oltre prenotazione
    - Tool per export/cancellazione dati utente
@@ -408,16 +444,19 @@ FROM prenotazioni;
 ## 📝 Note Tecniche
 
 ### Performance
+
 - **Indici Creati:** `telefono`, `codice_fiscale` per query rapide
 - **Impact:** Minimo - colonne VARCHAR di dimensioni contenute
 - **Query Ottimizzate:** JOIN con UTENTI per backfill è efficiente
 
 ### Sicurezza Dati
+
 - **Telefono:** Stored in plain text (considerare encryption per GDPR strict)
 - **CF/Documento:** Stored in plain text, indici per ricerca duplicati
 - **Access Control:** Solo admin e owner prenotazione possono vedere dati completi
 
 ### Logging
+
 - **Eliminazioni:** Logged con `annullata_da` in DB
 - **Modifiche:** Timestamp `updated_at` aggiornato automaticamente
 - **Notifiche:** Push notifications per trasparenza operazioni
@@ -427,20 +466,25 @@ FROM prenotazioni;
 ## 🐛 Troubleshooting
 
 ### "Numero di telefono obbligatorio"
+
 **Causa:** Campo telefono vuoto o whitespace-only  
 **Fix:** Assicurati che il modal invii `telefono` con valore non vuoto
 
 ### "Orario non valido" (validazione 2 ore)
+
 **Causa:** Timestamp prenotazione < NOW() + 2h  
 **Fix:** Seleziona orario almeno 2 ore nel futuro; verifica timezone server/client
 
 ### Pre-popolamento telefono non funziona
+
 **Causa:** Utente non ha `telefono` nel profilo  
 **Fix:** Aggiungi campo telefono al profilo utente (tabella UTENTI); utente deve inserire manualmente
 
 ### Migration fallisce (telefono NOT NULL)
+
 **Causa:** Colonna NOT NULL su tabella con dati esistenti  
 **Fix:** Migration usa `IF NOT EXISTS` e colonna inizialmente nullable; aggiornare script se necessario:
+
 ```sql
 ALTER TABLE PRENOTAZIONI ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
 -- Poi backfill e poi:

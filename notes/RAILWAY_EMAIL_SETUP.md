@@ -1,11 +1,12 @@
 # 📧 Configurazione Email Service per Railway
 
 ## Problema
+
 Il servizio di invio email non funziona su Railway perché le variabili d'ambiente per Gmail SMTP non sono configurate.
 
 ## ⚠️ IMPORTANTE: SICUREZZA
 
-**NON committare mai file `.env` con credenziali!** 
+**NON committare mai file `.env` con credenziali!**
 Il file `.env` è stato aggiunto al `.gitignore` per proteggerlo.
 
 ---
@@ -30,6 +31,7 @@ NODE_ENV=production
 ```
 
 **Note:**
+
 - `GMAIL_USER`: L'indirizzo email Gmail da cui inviare le email
 - `GMAIL_APP_PASSWORD`: La **App Password** generata da Google (NON la password Gmail normale)
 - `BASE_URL`: L'URL pubblico del tuo sito su Railway
@@ -60,12 +62,14 @@ Dopo aver aggiunto le variabili:
 ## 🧪 Test Locale vs Railway
 
 ### Test Locale
+
 ```bash
 # Il file .env locale viene letto automaticamente
 npm start
 ```
 
 ### Test su Railway
+
 ```bash
 # Le variabili vengono lette dalle Environment Variables di Railway
 # Visibili nella sezione Variables del progetto
@@ -79,14 +83,14 @@ npm start
 
 ```javascript
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.GMAIL_USER,      // ← Legge da ENV
-        pass: process.env.GMAIL_APP_PASSWORD // ← Legge da ENV
-    }
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.GMAIL_USER, // ← Legge da ENV
+    pass: process.env.GMAIL_APP_PASSWORD, // ← Legge da ENV
+  },
 });
 ```
 
@@ -103,14 +107,17 @@ const transporter = nodemailer.createTransport({
 ## ❌ Errori Comuni
 
 ### Errore: "Invalid login"
+
 - **Causa**: Credenziali errate o App Password non configurata
 - **Soluzione**: Verifica `GMAIL_USER` e `GMAIL_APP_PASSWORD`
 
 ### Errore: "ECONNREFUSED"
+
 - **Causa**: Porta SMTP bloccata
 - **Soluzione**: Railway dovrebbe permettere connessioni SMTP, verifica firewall
 
 ### Errore: "Missing credentials"
+
 - **Causa**: Variabili d'ambiente non configurate
 - **Soluzione**: Aggiungi le variabili nella dashboard Railway
 
@@ -162,11 +169,10 @@ Se dopo la configurazione l'email non funziona ancora:
 
 1. **Verifica variabili su Railway**
    - Vai su Variables → Controlla che siano tutte presenti
-   
 2. **Controlla logs Railway**
    - Cerca errori relativi a nodemailer/SMTP
-   
 3. **Test SMTP manualmente**
+
    - Usa Railway CLI o aggiungi un endpoint di test
 
 4. **Verifica Gmail Security**

@@ -1,1166 +1,1594 @@
-'use strict';
+"use strict";
 // importa i moduli necessari
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const path = require('path');
-const { upload } = require('../../../core/config/multer');
-const { isLoggedIn, isAdmin, isAdminOrDirigente, isStaffOrAdmin, canManageCampi, canEditNotizia } = require('../../../core/middlewares/auth');
-const userDao = require('../../users/services/dao-user');
-const notizieDao = require('../../notizie/services/dao-notizie');
-const eventiDao = require('../../eventi/services/dao-eventi');
-const galleriDao = require('../../galleria/services/dao-galleria');
-const squadreDao = require('../../squadre/services/dao-squadre');
-const campiDao = require('../../prenotazioni/services/dao-campi');
-const recensioniDao = require('../../recensioni/services/dao-recensioni');
-const prenotazioniDao = require('../../prenotazioni/services/dao-prenotazione');
-const dirigenteDao = require('../../squadre/services/dao-dirigenti-squadre');
-const campionatiDao = require('../../campionati/services/dao-campionati');
-const adminDao = require('../services/dao-admin');
-const notifications = require('../../../shared/services/notifications');
+const path = require("path");
+const { upload } = require("../../../core/config/multer");
+const {
+  isLoggedIn,
+  isAdmin,
+  isAdminOrDirigente,
+  isStaffOrAdmin,
+  canManageCampi,
+  canEditNotizia,
+} = require("../../../core/middlewares/auth");
+const userDao = require("../../users/services/dao-user");
+const notizieDao = require("../../notizie/services/dao-notizie");
+const eventiDao = require("../../eventi/services/dao-eventi");
+const galleriDao = require("../../galleria/services/dao-galleria");
+const squadreDao = require("../../squadre/services/dao-squadre");
+const campiDao = require("../../prenotazioni/services/dao-campi");
+const recensioniDao = require("../../recensioni/services/dao-recensioni");
+const prenotazioniDao = require("../../prenotazioni/services/dao-prenotazione");
+const dirigenteDao = require("../../squadre/services/dao-dirigenti-squadre");
+const campionatiDao = require("../../campionati/services/dao-campionati");
+const adminDao = require("../services/dao-admin");
+const notifications = require("../../../shared/services/notifications");
 
 /**
  * Admin Routes per la gestione del sito
  */
-router.get('/admin', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        if (!req.user) {
-            return res.status(401).send('User not authenticated');
-        }
-        // Temporaneamente disabilitato per evitare errori di recupero squadra
-        // const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
-        const imageUrl = req.user.immagine_profilo || null;
-        res.render('admin.ejs', { user: req.user, imageUrl });
-    } catch (err) {
-        console.error('Errore nel caricamento della pagina admin:', err);
-        res.status(500).send('Errore interno del server');
+router.get("/admin", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).send("User not authenticated");
     }
+    // Temporaneamente disabilitato per evitare errori di recupero squadra
+    // const imageUrl = await userDao.getImmagineProfiloByUserId(req.user.id);
+    const imageUrl = req.user.immagine_profilo || null;
+    res.render("admin.ejs", { user: req.user, imageUrl });
+  } catch (err) {
+    console.error("Errore nel caricamento della pagina admin:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 /**
  * Routes per aprire la pagina di gestione notizie
  */
-router.get('/admin/notizie', isLoggedIn, isStaffOrAdmin, async (req, res) => {
-    try{
-        const notizie = await notizieDao.getNotizie();
-        res.render('Contenuti/Gestione_Notizie.ejs', { user: req.user, notizie });
-    } catch (err) {
-        console.error('Errore nel caricamento delle notizie:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/notizie", isLoggedIn, isStaffOrAdmin, async (req, res) => {
+  try {
+    const notizie = await notizieDao.getNotizie();
+    res.render("Contenuti/Gestione_Notizie.ejs", { user: req.user, notizie });
+  } catch (err) {
+    console.error("Errore nel caricamento delle notizie:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 /**
  * Routes per aprire la pagina di gestione eventi
  */
-router.get('/admin/eventi', isLoggedIn, isStaffOrAdmin, async (req, res) => {
-    try{
-        const eventi = await eventiDao.getEventiAll();
-        res.render('Contenuti/Gestione_Eventi.ejs', { user: req.user, eventi });
-    } catch (err) {
-        console.error('Errore nel caricamento degli eventi:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/eventi", isLoggedIn, isStaffOrAdmin, async (req, res) => {
+  try {
+    const eventi = await eventiDao.getEventiAll();
+    res.render("Contenuti/Gestione_Eventi.ejs", { user: req.user, eventi });
+  } catch (err) {
+    console.error("Errore nel caricamento degli eventi:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 // Route per pubblicare/sospendere un evento
-router.put('/evento/:id/publish', isLoggedIn, isStaffOrAdmin, async (req, res) => {
+router.put(
+  "/evento/:id/publish",
+  isLoggedIn,
+  isStaffOrAdmin,
+  async (req, res) => {
     try {
-        await eventiDao.togglePubblicazioneEvento(req.params.id);
-        const evento = await eventiDao.getEventoById(req.params.id);
-        const isPubblicato = evento.pubblicato;
-        const message = isPubblicato ? 'Evento pubblicato con successo' : 'Evento sospeso con successo';
-        res.json({ success: true, message, pubblicato: isPubblicato });
+      await eventiDao.togglePubblicazioneEvento(req.params.id);
+      const evento = await eventiDao.getEventoById(req.params.id);
+      const isPubblicato = evento.pubblicato;
+      const message = isPubblicato
+        ? "Evento pubblicato con successo"
+        : "Evento sospeso con successo";
+      res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
-        console.error('Errore nel toggle pubblicazione evento:', error);
-        res.status(500).json({ success: false, error: 'Errore nel cambio stato pubblicazione' });
+      console.error("Errore nel toggle pubblicazione evento:", error);
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Errore nel cambio stato pubblicazione",
+        });
     }
-});
-
+  }
+);
 
 // Route per aggiornare una notizia
-router.put('/notizia/:id', isLoggedIn, canEditNotizia, async (req, res) => {
-    try {
-        const pubblicata = req.body.pubblicato === 'true' || req.body.pubblicato === true;
-        const notiziaData = {
-            titolo: req.body.titolo,
-            sottotitolo: req.body.sottotitolo || null,
-            contenuto: req.body.contenuto,
-            immagine_principale_id: req.body.immagine_principale_id || null,
-            autore_id: req.user.id,
-            pubblicata: pubblicata ? true : false,
-            data_pubblicazione: pubblicata ? new Date().toISOString() : null
-        };
+router.put("/notizia/:id", isLoggedIn, canEditNotizia, async (req, res) => {
+  try {
+    const pubblicata =
+      req.body.pubblicato === "true" || req.body.pubblicato === true;
+    const notiziaData = {
+      titolo: req.body.titolo,
+      sottotitolo: req.body.sottotitolo || null,
+      contenuto: req.body.contenuto,
+      immagine_principale_id: req.body.immagine_principale_id || null,
+      autore_id: req.user.id,
+      pubblicata: pubblicata ? true : false,
+      data_pubblicazione: pubblicata ? new Date().toISOString() : null,
+    };
 
-        await notizieDao.updateNotizia(req.params.id, notiziaData);
-        res.json({ success: true, message: 'Notizia aggiornata con successo' });
-    } catch (error) {
-        console.error('Errore nell\'aggiornamento della notizia:', error);
-        res.status(500).json({ success: false, error: 'Errore nell\'aggiornamento della notizia' });
-    }
+    await notizieDao.updateNotizia(req.params.id, notiziaData);
+    res.json({ success: true, message: "Notizia aggiornata con successo" });
+  } catch (error) {
+    console.error("Errore nell'aggiornamento della notizia:", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Errore nell'aggiornamento della notizia",
+      });
+  }
 });
 
 // Route per eliminare una notizia
-router.delete('/notizia/:id', isLoggedIn, canEditNotizia, async (req, res) => {
-    try {
-        const result = await notizieDao.deleteNotiziaById(req.params.id);
-        if (!result || !result.success) {
-            return res.status(404).json({ success: false, error: 'Notizia non trovata' });
-        }
-        res.json({ success: true, message: 'Notizia eliminata con successo' });
-    } catch (error) {
-        console.error('Errore nell\'eliminazione della notizia:', error);
-        res.status(500).json({ success: false, error: 'Errore nell\'eliminazione della notizia' });
+router.delete("/notizia/:id", isLoggedIn, canEditNotizia, async (req, res) => {
+  try {
+    const result = await notizieDao.deleteNotiziaById(req.params.id);
+    if (!result || !result.success) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Notizia non trovata" });
     }
+    res.json({ success: true, message: "Notizia eliminata con successo" });
+  } catch (error) {
+    console.error("Errore nell'eliminazione della notizia:", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Errore nell'eliminazione della notizia",
+      });
+  }
 });
 
 // Route per pubblicare/sospendere una notizia
-router.put('/notizia/:id/publish', isLoggedIn, canEditNotizia, async (req, res) => {
+router.put(
+  "/notizia/:id/publish",
+  isLoggedIn,
+  canEditNotizia,
+  async (req, res) => {
     try {
-        await notizieDao.togglePubblicazioneNotizia(req.params.id);
-        const notizia = await notizieDao.getNotiziaById(req.params.id);
-        if (!notizia) return res.status(404).json({ success: false, error: 'Notizia non trovata' });
-        const isPubblicato = notizia.pubblicata;
-        const message = isPubblicato ? 'Notizia pubblicata con successo' : 'Notizia sospesa con successo';
-        res.json({ success: true, message, pubblicato: isPubblicato });
+      await notizieDao.togglePubblicazioneNotizia(req.params.id);
+      const notizia = await notizieDao.getNotiziaById(req.params.id);
+      if (!notizia)
+        return res
+          .status(404)
+          .json({ success: false, error: "Notizia non trovata" });
+      const isPubblicato = notizia.pubblicata;
+      const message = isPubblicato
+        ? "Notizia pubblicata con successo"
+        : "Notizia sospesa con successo";
+      res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
-        console.error('Errore nel toggle pubblicazione notizia:', error);
-        res.status(500).json({ success: false, error: 'Errore nel cambio stato pubblicazione' });
+      console.error("Errore nel toggle pubblicazione notizia:", error);
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Errore nel cambio stato pubblicazione",
+        });
     }
+  }
+);
+
+router.get("/admin/galleria", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const immagini = await galleriDao.getImmagini();
+    res.render("Contenuti/Gestione_Galleria.ejs", { user: req.user, immagini });
+  } catch (err) {
+    console.error("Errore nel caricamento della galleria:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
-
-router.get('/admin/galleria', isLoggedIn, isAdmin, async (req, res) => {
-    try{
-        const immagini = await galleriDao.getImmagini();
-        res.render('Contenuti/Gestione_Galleria.ejs', { user: req.user, immagini });
-    } catch (err) {
-        console.error('Errore nel caricamento della galleria:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/squadre", isLoggedIn, isStaffOrAdmin, async (req, res) => {
+  try {
+    const squadre = await squadreDao.getSquadre();
+    res.render("Contenuti/Gestione_Squadre.ejs", { user: req.user, squadre });
+  } catch (err) {
+    console.error("Errore nel caricamento delle squadre:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
-router.get('/admin/squadre', isLoggedIn, isStaffOrAdmin, async (req, res) => {
-    try{
-        const squadre = await squadreDao.getSquadre();
-        res.render('Contenuti/Gestione_Squadre.ejs', { user: req.user, squadre });
-    } catch (err) {
-        console.error('Errore nel caricamento delle squadre:', err);
-        res.status(500).send('Errore interno del server');
-    }
-});
-
-router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
+router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const utenti = await userDao.getAllUsers();
+    // Recupera i tipi utente per popolare i select nella UI
+    let tipiUtente = [];
     try {
-        const utenti = await userDao.getAllUsers();
-        // Recupera i tipi utente per popolare i select nella UI
-        let tipiUtente = [];
-        try {
-            tipiUtente = await userDao.getTipiUtente();
-        } catch (e) {
-            console.error('Impossibile recuperare TIPI_UTENTE:', e);
-        }
-        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti, tipiUtente });
-    } catch (err) {
-        console.error('Errore nel caricamento degli utenti:', err);
-        res.status(500).send('Errore interno del server');
+      tipiUtente = await userDao.getTipiUtente();
+    } catch (e) {
+      console.error("Impossibile recuperare TIPI_UTENTE:", e);
     }
+    res.render("Contenuti/Gestore_Utenti.ejs", {
+      user: req.user,
+      utenti,
+      tipiUtente,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento degli utenti:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
-router.get('/admin/recensioni', isLoggedIn, isAdmin, async (req, res) => {
-    try{
-        const recensioni = await recensioniDao.getAllRecensioni();
-        res.render('Contenuti/Gestione_Recensioni.ejs', { user: req.user, recensioni });
-    } catch (err) {
-        console.error('Errore nel caricamento delle recensioni:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/recensioni", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const recensioni = await recensioniDao.getAllRecensioni();
+    res.render("Contenuti/Gestione_Recensioni.ejs", {
+      user: req.user,
+      recensioni,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento delle recensioni:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
-router.get('/admin/recensioni/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.get("/admin/recensioni/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const recensione = await recensioniDao.getRecensioneById(req.params.id);
+    if (!recensione) {
+      return res.status(404).json({ error: "Recensione non trovata" });
+    }
+    res.json(recensione);
+  } catch (err) {
+    console.error("Errore nel caricamento della recensione:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
+});
+
+router.put(
+  "/admin/recensioni/:id/toggle",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const recensione = await recensioniDao.getRecensioneById(req.params.id);
-        if (!recensione) {
-            return res.status(404).json({ error: 'Recensione non trovata' });
-        }
-        res.json(recensione);
+      const { visibile } = req.body;
+      await recensioniDao.updateRecensioneVisibile(req.params.id, visibile);
+      res.json({ success: true });
     } catch (err) {
-        console.error('Errore nel caricamento della recensione:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
+      console.error("Errore nell'aggiornamento della visibilità:", err);
+      res.status(500).json({ error: "Errore interno del server" });
     }
-});
+  }
+);
 
-router.put('/admin/recensioni/:id/toggle', isLoggedIn, isAdmin, async (req, res) => {
+router.delete(
+  "/admin/recensioni/:id",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const { visibile } = req.body;
-        await recensioniDao.updateRecensioneVisibile(req.params.id, visibile);
-        res.json({ success: true });
+      await recensioniDao.deleteRecensioneAdmin(req.params.id);
+      res.json({ success: true });
     } catch (err) {
-        console.error('Errore nell\'aggiornamento della visibilità:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
+      console.error("Errore nell'eliminazione della recensione:", err);
+      res.status(500).json({ error: "Errore interno del server" });
     }
-});
-
-router.delete('/admin/recensioni/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        await recensioniDao.deleteRecensioneAdmin(req.params.id);
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Errore nell\'eliminazione della recensione:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
-});
+  }
+);
 
 // Route per ottenere i dettagli di un utente (API JSON)
-router.get('/api/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const utente = await userDao.getUserById(userId);
-        const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
-        utente.immagine_profilo = imageUrl;
-        res.json(utente);
-    } catch (err) {
-        console.error('Errore nel caricamento dei dettagli utente:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
+router.get("/api/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const utente = await userDao.getUserById(userId);
+    const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
+    utente.immagine_profilo = imageUrl;
+    res.json(utente);
+  } catch (err) {
+    console.error("Errore nel caricamento dei dettagli utente:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
 // Route per ottenere i dettagli di un utente (backward compatibility)
-router.get('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const utente = await userDao.getUserById(userId);
-        const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
-        utente.immagine_profilo = imageUrl;
-        res.json(utente);
-    } catch (err) {
-        console.error('Errore nel caricamento dei dettagli utente:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
+router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const utente = await userDao.getUserById(userId);
+    const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
+    utente.immagine_profilo = imageUrl;
+    res.json(utente);
+  } catch (err) {
+    console.error("Errore nel caricamento dei dettagli utente:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
 // Route per creare un nuovo utente
-router.post('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const { nome, cognome, email, telefono, tipo_utente_id, password } = req.body;
-        if (!nome || !cognome || !email || !password) {
-            return res.status(400).json({ error: 'Nome, cognome, email e password sono obbligatori' });
-        }
-        const user = { nome, cognome, email, telefono, password, tipo_utente_id: tipo_utente_id || 3 };
-        await userDao.createUser(user);
-        res.json({ message: 'Utente creato con successo' });
-    } catch (err) {
-        console.error('Errore nella creazione dell\'utente:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
+router.post("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const { nome, cognome, email, telefono, tipo_utente_id, password } =
+      req.body;
+    if (!nome || !cognome || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "Nome, cognome, email e password sono obbligatori" });
     }
+    const user = {
+      nome,
+      cognome,
+      email,
+      telefono,
+      password,
+      tipo_utente_id: tipo_utente_id || 3,
+    };
+    await userDao.createUser(user);
+    res.json({ message: "Utente creato con successo" });
+  } catch (err) {
+    console.error("Errore nella creazione dell'utente:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
 // Route per modificare un utente
-router.put('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
-        const fields = { nome, cognome, email, telefono, tipo_utente_id };
-        await userDao.updateUser(userId, fields);
-        res.json({ message: 'Utente aggiornato con successo' });
-    } catch (err) {
-        console.error('Errore nell\'aggiornamento dell\'utente:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
+router.put("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
+    const fields = { nome, cognome, email, telefono, tipo_utente_id };
+    await userDao.updateUser(userId, fields);
+    res.json({ message: "Utente aggiornato con successo" });
+  } catch (err) {
+    console.error("Errore nell'aggiornamento dell'utente:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
 // Route per eliminare un utente
-router.delete('/admin/utenti/:id', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const userId = req.params.id;
-        await userDao.deleteUser(userId);
-        res.json({ message: 'Utente eliminato con successo' });
-    } catch (err) {
-        console.error('Errore nell\'eliminazione dell\'utente:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
+router.delete("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await userDao.deleteUser(userId);
+    res.json({ message: "Utente eliminato con successo" });
+  } catch (err) {
+    console.error("Errore nell'eliminazione dell'utente:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
-router.get('/admin/statistiche', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const statistiche = await userDao.getStatistiche();
-        // Calcola variazioni reali per le metriche principali
-        const now = new Date();
-        const startCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
-        const startNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+router.get("/admin/statistiche", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const statistiche = await userDao.getStatistiche();
+    // Calcola variazioni reali per le metriche principali
+    const now = new Date();
+    const startCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-        const toIso = (d) => d.toISOString();
+    const toIso = (d) => d.toISOString();
 
-        // Notizie: pubblicate nel mese corrente vs mese precedente
-        const notizieCurrentRaw = await adminDao.countNotiziePubblicate(toIso(startCurrent), toIso(startNext));
-        const notiziePrevRaw = await adminDao.countNotiziePubblicate(toIso(startPrev), toIso(startCurrent));
-        const toSafeNumber = (v) => {
-            const n = Number(v);
-            return Number.isFinite(n) ? n : 0;
-        };
-        const notizieCurrent = toSafeNumber(notizieCurrentRaw);
-        const notiziePrev = toSafeNumber(notiziePrevRaw);
+    // Notizie: pubblicate nel mese corrente vs mese precedente
+    const notizieCurrentRaw = await adminDao.countNotiziePubblicate(
+      toIso(startCurrent),
+      toIso(startNext)
+    );
+    const notiziePrevRaw = await adminDao.countNotiziePubblicate(
+      toIso(startPrev),
+      toIso(startCurrent)
+    );
+    const toSafeNumber = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const notizieCurrent = toSafeNumber(notizieCurrentRaw);
+    const notiziePrev = toSafeNumber(notiziePrevRaw);
 
-        // Eventi: pubblicati nel mese corrente vs mese precedente (usa data_pubblicazione)
-        const eventiCurrentRaw = await adminDao.countEventiPubblicati(toIso(startCurrent), toIso(startNext));
-        const eventiPrevRaw = await adminDao.countEventiPubblicati(toIso(startPrev), toIso(startCurrent));
-        const eventiCurrent = toSafeNumber(eventiCurrentRaw);
-        const eventiPrev = toSafeNumber(eventiPrevRaw);
+    // Eventi: pubblicati nel mese corrente vs mese precedente (usa data_pubblicazione)
+    const eventiCurrentRaw = await adminDao.countEventiPubblicati(
+      toIso(startCurrent),
+      toIso(startNext)
+    );
+    const eventiPrevRaw = await adminDao.countEventiPubblicati(
+      toIso(startPrev),
+      toIso(startCurrent)
+    );
+    const eventiCurrent = toSafeNumber(eventiCurrentRaw);
+    const eventiPrev = toSafeNumber(eventiPrevRaw);
 
-        // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
-        let utentiVar = null;
-        let prenotazioniVar = null;
-        if (statistiche && Array.isArray(statistiche.tendenzeMensili) && statistiche.tendenzeMensili.length >= 2) {
-            const arr = statistiche.tendenzeMensili;
-            const last = arr[arr.length - 1];
-            const prev = arr[arr.length - 2];
-            const calc = (cur, prv) => {
-                const a = toSafeNumber(cur || 0);
-                const b = toSafeNumber(prv || 0);
-                const delta = a - b;
-                const pct = (b !== 0) ? Math.round((delta / b) * 100) : null;
-                const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
-                return { delta, pct, direction };
-            };
-            utentiVar = calc(last.nuovi_utenti || 0, prev.nuovi_utenti || 0);
-            prenotazioniVar = calc(last.prenotazioni || 0, prev.prenotazioni || 0);
-        }
-
-        const calcSimpleVar = (cur, prev) => {
-            const a = toSafeNumber(cur || 0);
-            const b = toSafeNumber(prev || 0);
-            const delta = a - b;
-            const pct = (b !== 0) ? Math.round((delta / b) * 100) : null;
-            const direction = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'neutral');
-            return { delta, pct, direction };
-        };
-
-        const notizieVar = calcSimpleVar(notizieCurrent, notiziePrev);
-        const eventiVar = calcSimpleVar(eventiCurrent, eventiPrev);
-
-        const variazioni = {
-            utenti: utentiVar,
-            notizie: notizieVar,
-            eventi: eventiVar,
-            prenotazioni: prenotazioniVar
-        };
-
-        res.render('Contenuti/Statistiche.ejs', { user: req.user, statistiche, variazioni });
-    } catch (err) {
-        console.error('Errore nel caricamento delle statistiche:', err);
-        res.status(500).send('Errore interno del server');
+    // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
+    let utentiVar = null;
+    let prenotazioniVar = null;
+    if (
+      statistiche &&
+      Array.isArray(statistiche.tendenzeMensili) &&
+      statistiche.tendenzeMensili.length >= 2
+    ) {
+      const arr = statistiche.tendenzeMensili;
+      const last = arr[arr.length - 1];
+      const prev = arr[arr.length - 2];
+      const calc = (cur, prv) => {
+        const a = toSafeNumber(cur || 0);
+        const b = toSafeNumber(prv || 0);
+        const delta = a - b;
+        const pct = b !== 0 ? Math.round((delta / b) * 100) : null;
+        const direction = delta > 0 ? "up" : delta < 0 ? "down" : "neutral";
+        return { delta, pct, direction };
+      };
+      utentiVar = calc(last.nuovi_utenti || 0, prev.nuovi_utenti || 0);
+      prenotazioniVar = calc(last.prenotazioni || 0, prev.prenotazioni || 0);
     }
+
+    const calcSimpleVar = (cur, prev) => {
+      const a = toSafeNumber(cur || 0);
+      const b = toSafeNumber(prev || 0);
+      const delta = a - b;
+      const pct = b !== 0 ? Math.round((delta / b) * 100) : null;
+      const direction = delta > 0 ? "up" : delta < 0 ? "down" : "neutral";
+      return { delta, pct, direction };
+    };
+
+    const notizieVar = calcSimpleVar(notizieCurrent, notiziePrev);
+    const eventiVar = calcSimpleVar(eventiCurrent, eventiPrev);
+
+    const variazioni = {
+      utenti: utentiVar,
+      notizie: notizieVar,
+      eventi: eventiVar,
+      prenotazioni: prenotazioniVar,
+    };
+
+    res.render("Contenuti/Statistiche.ejs", {
+      user: req.user,
+      statistiche,
+      variazioni,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento delle statistiche:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 // Route per la gestione prenotazioni
-router.get('/admin/prenotazioni', isLoggedIn, canManageCampi, async (req, res) => {
+router.get(
+  "/admin/prenotazioni",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
-        res.render('Contenuti/Gestione_Prenotazione.ejs', { user: req.user, prenotazioni });
+      const prenotazioni = await prenotazioniDao.getAllPrenotazioni();
+      res.render("Contenuti/Gestione_Prenotazione.ejs", {
+        user: req.user,
+        prenotazioni,
+      });
     } catch (err) {
-        console.error('Errore nel caricamento delle prenotazioni:', err);
-        res.status(500).send('Errore interno del server');
+      console.error("Errore nel caricamento delle prenotazioni:", err);
+      res.status(500).send("Errore interno del server");
     }
-});
+  }
+);
 
 // Route per confermare una prenotazione
-router.put('/admin/prenotazioni/:id/conferma', isLoggedIn, canManageCampi, async (req, res) => {
+router.put(
+  "/admin/prenotazioni/:id/conferma",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
-        if (!prenotazione) {
-            return res.status(404).json({ success: false, error: 'Prenotazione non trovata' });
-        }
-        
-        // usa l'API esistente del DAO per aggiornare lo stato
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'confermata', null);
-        if (result && result.success) {
-            // Invia notifica all'utente
-            try {
-                const campo = await campiDao.getCampoById(prenotazione.campo_id);
-                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
-                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
-                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
-                
-                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
-                    title: '✅ Prenotazione Confermata',
-                    body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
-                    icon: '/assets/images/Logo.png',
-                    url: '/users/mie-prenotazioni',
-                    tag: `prenotazione-${id}-confermata`,
-                    requireInteraction: true
-                });
-                console.log(`[ADMIN] Notifica conferma accodata per utente ${prenotazione.utente_id}`);
-            } catch (pushErr) {
-                console.error('[ADMIN] Errore invio notifica conferma:', pushErr);
+      const id = req.params.id;
+      const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
+      if (!prenotazione) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Prenotazione non trovata" });
+      }
+
+      // usa l'API esistente del DAO per aggiornare lo stato
+      const result = await prenotazioniDao.updateStatoPrenotazione(
+        id,
+        "confermata",
+        null
+      );
+      if (result && result.success) {
+        // Invia notifica all'utente
+        try {
+          const campo = await campiDao.getCampoById(prenotazione.campo_id);
+          const campoNome = campo
+            ? campo.nome
+            : `Campo ${prenotazione.campo_id}`;
+          const dataFormatted = new Date(
+            prenotazione.data_prenotazione
+          ).toLocaleDateString("it-IT");
+          const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+
+          await notifications.queueNotificationForUsers(
+            [prenotazione.utente_id],
+            {
+              title: "✅ Prenotazione Confermata",
+              body: `${campoNome} - ${dataFormatted} ${oraInfo}`,
+              icon: "/assets/images/Logo.png",
+              url: "/users/mie-prenotazioni",
+              tag: `prenotazione-${id}-confermata`,
+              requireInteraction: true,
             }
-            return res.json({ success: true, message: 'Prenotazione confermata con successo' });
+          );
+          console.log(
+            `[ADMIN] Notifica conferma accodata per utente ${prenotazione.utente_id}`
+          );
+        } catch (pushErr) {
+          console.error("[ADMIN] Errore invio notifica conferma:", pushErr);
         }
-        res.status(500).json({ success: false, error: 'Impossibile confermare la prenotazione' });
+        return res.json({
+          success: true,
+          message: "Prenotazione confermata con successo",
+        });
+      }
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Impossibile confermare la prenotazione",
+        });
     } catch (err) {
-        console.error('Errore nella conferma della prenotazione:', err);
-        res.status(500).json({ success: false, error: 'Errore interno del server' });
+      console.error("Errore nella conferma della prenotazione:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
     }
-});
+  }
+);
 
 // Route per eliminare una prenotazione
-router.delete('/admin/prenotazioni/:id', isLoggedIn, canManageCampi, async (req, res) => {
+router.delete(
+  "/admin/prenotazioni/:id",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await prenotazioniDao.deletePrenotazione(id);
-        if (result && result.success) {
-            return res.json({ success: true, message: 'Prenotazione eliminata con successo' });
-        }
-        res.status(500).json({ success: false, error: 'Impossibile eliminare la prenotazione' });
+      const id = req.params.id;
+      const result = await prenotazioniDao.deletePrenotazione(id);
+      if (result && result.success) {
+        return res.json({
+          success: true,
+          message: "Prenotazione eliminata con successo",
+        });
+      }
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Impossibile eliminare la prenotazione",
+        });
     } catch (err) {
-        console.error('Errore nell\'eliminazione della prenotazione:', err);
-        res.status(500).json({ success: false, error: 'Errore interno del server' });
+      console.error("Errore nell'eliminazione della prenotazione:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
     }
-});
+  }
+);
 
 // Route per annullare una prenotazione
-router.put('/admin/prenotazioni/:id/annulla', isLoggedIn, canManageCampi, async (req, res) => {
+router.put(
+  "/admin/prenotazioni/:id/annulla",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
-        if (!prenotazione) {
-            return res.status(404).json({ success: false, error: 'Prenotazione non trovata' });
-        }
-        
-        // Admin annulla - imposta annullata_da = 'admin'
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'annullata', 'admin');
-        if (result && result.success) {
-            // Invia notifica all'utente
-            try {
-                const campo = await campiDao.getCampoById(prenotazione.campo_id);
-                const campoNome = campo ? campo.nome : `Campo ${prenotazione.campo_id}`;
-                const dataFormatted = new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT');
-                const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
-                
-                await notifications.queueNotificationForUsers([prenotazione.utente_id], {
-                    title: '❌ Prenotazione Annullata',
-                    body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
-                    icon: '/assets/images/Logo.png',
-                    url: '/users/mie-prenotazioni',
-                    tag: `prenotazione-${id}-annullata-admin`,
-                    requireInteraction: true
-                });
-                console.log(`[ADMIN] Notifica annullamento accodata per utente ${prenotazione.utente_id}`);
-            } catch (pushErr) {
-                console.error('[ADMIN] Errore invio notifica annullamento:', pushErr);
+      const id = req.params.id;
+      const prenotazione = await prenotazioniDao.getPrenotazioneById(id);
+      if (!prenotazione) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Prenotazione non trovata" });
+      }
+
+      // Admin annulla - imposta annullata_da = 'admin'
+      const result = await prenotazioniDao.updateStatoPrenotazione(
+        id,
+        "annullata",
+        "admin"
+      );
+      if (result && result.success) {
+        // Invia notifica all'utente
+        try {
+          const campo = await campiDao.getCampoById(prenotazione.campo_id);
+          const campoNome = campo
+            ? campo.nome
+            : `Campo ${prenotazione.campo_id}`;
+          const dataFormatted = new Date(
+            prenotazione.data_prenotazione
+          ).toLocaleDateString("it-IT");
+          const oraInfo = `${prenotazione.ora_inizio} - ${prenotazione.ora_fine}`;
+
+          await notifications.queueNotificationForUsers(
+            [prenotazione.utente_id],
+            {
+              title: "❌ Prenotazione Annullata",
+              body: `L'amministratore ha annullato: ${campoNome} - ${dataFormatted} ${oraInfo}`,
+              icon: "/assets/images/Logo.png",
+              url: "/users/mie-prenotazioni",
+              tag: `prenotazione-${id}-annullata-admin`,
+              requireInteraction: true,
             }
-            return res.json({ success: true, message: 'Prenotazione annullata con successo' });
+          );
+          console.log(
+            `[ADMIN] Notifica annullamento accodata per utente ${prenotazione.utente_id}`
+          );
+        } catch (pushErr) {
+          console.error("[ADMIN] Errore invio notifica annullamento:", pushErr);
         }
-        res.status(500).json({ success: false, error: 'Impossibile annullare la prenotazione' });
+        return res.json({
+          success: true,
+          message: "Prenotazione annullata con successo",
+        });
+      }
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Impossibile annullare la prenotazione",
+        });
     } catch (err) {
-        console.error('Errore nell\'annullamento della prenotazione:', err);
-        res.status(500).json({ success: false, error: 'Errore interno del server' });
+      console.error("Errore nell'annullamento della prenotazione:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
     }
-});
+  }
+);
 
 // Route per riattivare una prenotazione (es. da annullata -> in_attesa)
-router.put('/admin/prenotazioni/:id/riattiva', isLoggedIn, canManageCampi, async (req, res) => {
+router.put(
+  "/admin/prenotazioni/:id/riattiva",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        // Riattivazione - annullata_da viene resettato a NULL automaticamente dal DAO
-        const result = await prenotazioniDao.updateStatoPrenotazione(id, 'in_attesa', null);
-        if (result && result.success) {
-            return res.json({ success: true, message: 'Prenotazione riattivata con successo' });
-        }
-        res.status(500).json({ success: false, error: 'Impossibile riattivare la prenotazione' });
+      const id = req.params.id;
+      // Riattivazione - annullata_da viene resettato a NULL automaticamente dal DAO
+      const result = await prenotazioniDao.updateStatoPrenotazione(
+        id,
+        "in_attesa",
+        null
+      );
+      if (result && result.success) {
+        return res.json({
+          success: true,
+          message: "Prenotazione riattivata con successo",
+        });
+      }
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Impossibile riattivare la prenotazione",
+        });
     } catch (err) {
-        console.error('Errore nella riattivazione della prenotazione:', err);
-        res.status(500).json({ success: false, error: 'Errore interno del server' });
+      console.error("Errore nella riattivazione della prenotazione:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
     }
-});
+  }
+);
 
 // Route per eliminare le prenotazioni scadute (admin)
-router.delete('/admin/prenotazioni/elimina-scadute', isLoggedIn, canManageCampi, async (req, res) => {
+router.delete(
+  "/admin/prenotazioni/elimina-scadute",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        // Assicura che le prenotazioni scadute siano marcate
-        try { await prenotazioniDao.checkAndUpdateScadute(); } catch (e) { console.error('checkAndUpdateScadute error', e); }
-        const result = await prenotazioniDao.deleteScadute();
-        return res.json({ success: true, deleted: result.deleted || result.changes || 0 });
+      // Assicura che le prenotazioni scadute siano marcate
+      try {
+        await prenotazioniDao.checkAndUpdateScadute();
+      } catch (e) {
+        console.error("checkAndUpdateScadute error", e);
+      }
+      const result = await prenotazioniDao.deleteScadute();
+      return res.json({
+        success: true,
+        deleted: result.deleted || result.changes || 0,
+      });
     } catch (err) {
-        console.error('Errore nell\'eliminazione delle prenotazioni scadute:', err);
-        res.status(500).json({ success: false, error: 'Errore interno del server' });
+      console.error(
+        "Errore nell'eliminazione delle prenotazioni scadute:",
+        err
+      );
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
     }
-});
+  }
+);
 
 // Endpoint per refresh dati statistiche (JSON)
-router.get('/admin/statistiche/data', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const statistiche = await userDao.getStatistiche();
-        res.json(statistiche);
-    } catch (err) {
-        console.error('Errore nel refresh delle statistiche:', err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
+router.get("/admin/statistiche/data", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const statistiche = await userDao.getStatistiche();
+    res.json(statistiche);
+  } catch (err) {
+    console.error("Errore nel refresh delle statistiche:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
 
 // Endpoint per esportare statistiche in Excel
-const ExportStatisticheController = require('../controllers/ExportStatisticheController');
-router.get('/admin/statistiche/export/excel', isLoggedIn, isAdmin, async (req, res) => {
+const ExportStatisticheController = require("../controllers/ExportStatisticheController");
+router.get(
+  "/admin/statistiche/export/excel",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     await ExportStatisticheController.esportaExcel(req, res);
-});
+  }
+);
 
 // Route per gestire orari campi
-router.get('/admin/campi/:id/orari', isLoggedIn, canManageCampi, async (req, res) => {
+router.get(
+  "/admin/campi/:id/orari",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const campoId = req.params.id;
-        const orariDefault = await campiDao.getOrariCampo(campoId, null);
-        const giorniSettimana = [];
-        for (let i = 0; i < 7; i++) {
-            const orariGiorno = await campiDao.getOrariCampo(campoId, i);
-            giorniSettimana.push({
-                giorno: i,
-                nome: ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'][i],
-                orari: orariGiorno
-            });
-        }
-        const campo = await campiDao.getCampoById(campoId);
-        res.render('Contenuti/Gestione_Orari_Campi.ejs', { 
-            user: req.user, 
-            campo, 
-            orariDefault, 
-            giorniSettimana 
+      const campoId = req.params.id;
+      const orariDefault = await campiDao.getOrariCampo(campoId, null);
+      const giorniSettimana = [];
+      for (let i = 0; i < 7; i++) {
+        const orariGiorno = await campiDao.getOrariCampo(campoId, i);
+        giorniSettimana.push({
+          giorno: i,
+          nome: [
+            "Domenica",
+            "Lunedì",
+            "Martedì",
+            "Mercoledì",
+            "Giovedì",
+            "Venerdì",
+            "Sabato",
+          ][i],
+          orari: orariGiorno,
         });
+      }
+      const campo = await campiDao.getCampoById(campoId);
+      res.render("Contenuti/Gestione_Orari_Campi.ejs", {
+        user: req.user,
+        campo,
+        orariDefault,
+        giorniSettimana,
+      });
     } catch (err) {
-        console.error('Errore nel caricamento degli orari campi:', err);
-        res.status(500).send('Errore interno del server');
+      console.error("Errore nel caricamento degli orari campi:", err);
+      res.status(500).send("Errore interno del server");
     }
-});
+  }
+);
 
-router.post('/admin/campi/:id/orari', isLoggedIn, canManageCampi, async (req, res) => {
+router.post(
+  "/admin/campi/:id/orari",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const campoId = req.params.id;
-        const { giorno_settimana, ora_inizio, ora_fine } = req.body;
-        await campiDao.addOrarioCampo(campoId, giorno_settimana || null, ora_inizio, ora_fine);
-        // Se la richiesta è AJAX (fetch dal frontend) rispondiamo con JSON anziché redirect
-        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
-            return res.json({ success: true });
-        }
+      const campoId = req.params.id;
+      const { giorno_settimana, ora_inizio, ora_fine } = req.body;
+      await campiDao.addOrarioCampo(
+        campoId,
+        giorno_settimana || null,
+        ora_inizio,
+        ora_fine
+      );
+      // Se la richiesta è AJAX (fetch dal frontend) rispondiamo con JSON anziché redirect
+      if (
+        req.xhr ||
+        req.headers["x-requested-with"] === "XMLHttpRequest" ||
+        (req.headers.accept && req.headers.accept.includes("application/json"))
+      ) {
+        return res.json({ success: true });
+      }
 
-        res.redirect(`/admin/campi/${campoId}/orari`);
+      res.redirect(`/admin/campi/${campoId}/orari`);
     } catch (err) {
-        console.error('Errore nell\'aggiunta orario:', err && err.stack ? err.stack : err);
-        console.error('Request body:', req.body);
-        const errMsg = (err && err.message) ? err.message : 'Errore interno del server';
-        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
-            return res.status(500).json({ error: errMsg });
-        }
-        res.status(500).send(errMsg);
+      console.error(
+        "Errore nell'aggiunta orario:",
+        err && err.stack ? err.stack : err
+      );
+      console.error("Request body:", req.body);
+      const errMsg =
+        err && err.message ? err.message : "Errore interno del server";
+      if (
+        req.xhr ||
+        req.headers["x-requested-with"] === "XMLHttpRequest" ||
+        (req.headers.accept && req.headers.accept.includes("application/json"))
+      ) {
+        return res.status(500).json({ error: errMsg });
+      }
+      res.status(500).send(errMsg);
     }
-});
+  }
+);
 
-router.put('/admin/campi/orari/:id', isLoggedIn, canManageCampi, async (req, res) => {
+router.put(
+  "/admin/campi/orari/:id",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const orarioId = req.params.id;
-        const { ora_inizio, ora_fine, attivo } = req.body;
-        await campiDao.updateOrarioCampoPartial(orarioId, { ora_inizio, ora_fine, attivo });
-        res.json({ success: true });
+      const orarioId = req.params.id;
+      const { ora_inizio, ora_fine, attivo } = req.body;
+      await campiDao.updateOrarioCampoPartial(orarioId, {
+        ora_inizio,
+        ora_fine,
+        attivo,
+      });
+      res.json({ success: true });
     } catch (err) {
-        console.error('Errore nell\'aggiornamento orario:', err);
-        res.status(500).json({ error: err.message });
+      console.error("Errore nell'aggiornamento orario:", err);
+      res.status(500).json({ error: err.message });
     }
-});
+  }
+);
 
-router.delete('/admin/campi/orari/:id', isLoggedIn, canManageCampi, async (req, res) => {
+router.delete(
+  "/admin/campi/orari/:id",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
     try {
-        const orarioId = req.params.id;
-        await campiDao.deleteOrarioCampo(orarioId);
-        res.json({ success: true });
+      const orarioId = req.params.id;
+      await campiDao.deleteOrarioCampo(orarioId);
+      res.json({ success: true });
     } catch (err) {
-        console.error('Errore nella cancellazione orario:', err);
-        res.status(500).json({ error: err.message });
+      console.error("Errore nella cancellazione orario:", err);
+      res.status(500).json({ error: err.message });
     }
-});
+  }
+);
 
 // Route per la gestione campi
-router.get('/admin/campi', isLoggedIn, canManageCampi, async (req, res) => {
-    try {
-        const campi = await campiDao.getCampi(false); // false = mostra anche campi inattivi per admin
-        res.render('Contenuti/Gestione_Campi.ejs', { user: req.user, campi });
-    } catch (err) {
-        console.error('Errore nel caricamento dei campi:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/campi", isLoggedIn, canManageCampi, async (req, res) => {
+  try {
+    const campi = await campiDao.getCampi(false); // false = mostra anche campi inattivi per admin
+    res.render("Contenuti/Gestione_Campi.ejs", { user: req.user, campi });
+  } catch (err) {
+    console.error("Errore nel caricamento dei campi:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 // Route per creare un nuovo campo
-router.post('/admin/campi', isLoggedIn, canManageCampi, upload.single('immagine'), async (req, res) => {
+router.post(
+  "/admin/campi",
+  isLoggedIn,
+  canManageCampi,
+  upload.single("immagine"),
+  async (req, res) => {
     try {
-        const campoData = req.body;
-        const result = await campiDao.createCampo(campoData);
-        
-        // Se c'è un'immagine, salvala nella tabella IMMAGINI
-        if (req.file) {
-            const imageUrl = '/uploads/' + req.file.filename;
-            await adminDao.insertImmagine(imageUrl, 'Campo', 'Campo', result.id, 1);
-        }
-        
-        // Dopo aver creato il campo, aggiungi orari di default
-        const orariDefault = [
-            { ora_inizio: '16:00', ora_fine: '17:00' },
-            { ora_inizio: '18:00', ora_fine: '19:00' },
-            { ora_inizio: '20:00', ora_fine: '21:00' },
-            { ora_inizio: '21:00', ora_fine: '22:00' }
-        ];
-        for (const orario of orariDefault) {
-            await campiDao.addOrarioCampo(result.id, null, orario.ora_inizio, orario.ora_fine);
-        }
-        res.redirect('/admin/campi');
+      const campoData = req.body;
+      const result = await campiDao.createCampo(campoData);
+
+      // Se c'è un'immagine, salvala nella tabella IMMAGINI
+      if (req.file) {
+        const imageUrl = "/uploads/" + req.file.filename;
+        await adminDao.insertImmagine(imageUrl, "Campo", "Campo", result.id, 1);
+      }
+
+      // Dopo aver creato il campo, aggiungi orari di default
+      const orariDefault = [
+        { ora_inizio: "16:00", ora_fine: "17:00" },
+        { ora_inizio: "18:00", ora_fine: "19:00" },
+        { ora_inizio: "20:00", ora_fine: "21:00" },
+        { ora_inizio: "21:00", ora_fine: "22:00" },
+      ];
+      for (const orario of orariDefault) {
+        await campiDao.addOrarioCampo(
+          result.id,
+          null,
+          orario.ora_inizio,
+          orario.ora_fine
+        );
+      }
+      res.redirect("/admin/campi");
     } catch (err) {
-        console.error('Errore nella creazione del campo:', err);
-        res.status(500).send('Errore interno del server');
+      console.error("Errore nella creazione del campo:", err);
+      res.status(500).send("Errore interno del server");
     }
-});
+  }
+);
 
 //router per cancellare il campo
-router.delete('/admin/campi/elimina/:id', isLoggedIn, canManageCampi, async (req, res) => {
-    try{
-        const campoId=req.params.id;
-        await campiDao.deleteCampo(campoId);
-        res.json({ success: true, message: 'Campo eliminato con successo' });
-    }catch(err){
-        console.error('Errore nell\'eliminazione del campo:', err);
-        res.status(500).json({ error: 'Errore nell\'eliminazione del campo' });
+router.delete(
+  "/admin/campi/elimina/:id",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
+    try {
+      const campoId = req.params.id;
+      await campiDao.deleteCampo(campoId);
+      res.json({ success: true, message: "Campo eliminato con successo" });
+    } catch (err) {
+      console.error("Errore nell'eliminazione del campo:", err);
+      res.status(500).json({ error: "Errore nell'eliminazione del campo" });
     }
-});
+  }
+);
 
 // Route per ottenere i dettagli di un singolo campo (JSON)
-router.get('/admin/campi/:id', isLoggedIn, canManageCampi, async (req, res) => {
-    try {
-        const campoId = req.params.id;
-        const campo = await campiDao.getCampoById(campoId);
-        res.json({ success: true, campo });
-    } catch (err) {
-        console.error('Errore nel recupero del campo:', err);
-        res.status(500).json({ success: false, error: 'Errore nel recupero del campo' });
-    }
+router.get("/admin/campi/:id", isLoggedIn, canManageCampi, async (req, res) => {
+  try {
+    const campoId = req.params.id;
+    const campo = await campiDao.getCampoById(campoId);
+    res.json({ success: true, campo });
+  } catch (err) {
+    console.error("Errore nel recupero del campo:", err);
+    res
+      .status(500)
+      .json({ success: false, error: "Errore nel recupero del campo" });
+  }
 });
 
 /**
  * Route per modificare un campo
  */
-router.put('/admin/campi/modifica/:id', isLoggedIn, canManageCampi, upload.single('immagine'), async (req, res) => {
-    try{
-        const campoId=req.params.id;
-        const campoData=req.body;
-        console.log('Dati ricevuti per la modifica del campo:', campoData);
-        
-        // Sanitize input data
-        campoData.nome = typeof campoData.nome === 'string' ? campoData.nome.trim() : '';
-        campoData.indirizzo = typeof campoData.indirizzo === 'string' ? campoData.indirizzo.trim() : '';
-        campoData.tipo_superficie = typeof campoData.tipo_superficie === 'string' ? campoData.tipo_superficie.trim() : '';
-        campoData.dimensioni = typeof campoData.dimensioni === 'string' ? campoData.dimensioni.trim() : '';
-        campoData.descrizione = typeof campoData.descrizione === 'string' ? campoData.descrizione.trim() : '';
-        campoData.capienza_pubblico = parseInt(campoData.capienza_pubblico) || 0;
-        campoData.illuminazione = campoData.illuminazione == '1' ? 1 : 0;
-        campoData.coperto = campoData.coperto == '1' ? 1 : 0;
-        campoData.spogliatoi = campoData.spogliatoi == '1' ? 1 : 0;
-        campoData.docce = campoData.docce == '1' ? 1 : 0;
-        campoData.attivo = campoData.attivo == '1' ? 1 : 0;
-        
-        // Get current campo to compare
-        const currentCampo = await campiDao.getCampoById(campoId);
-        
-        // Build update data only for changed fields
-        const updateData = {};
-        if (campoData.nome !== currentCampo.nome) updateData.nome = campoData.nome;
-        if (campoData.indirizzo !== currentCampo.indirizzo) updateData.indirizzo = campoData.indirizzo;
-        if (campoData.tipo_superficie !== currentCampo.tipo_superficie) updateData.tipo_superficie = campoData.tipo_superficie;
-        if (campoData.dimensioni !== currentCampo.dimensioni) updateData.dimensioni = campoData.dimensioni;
-        if (campoData.capienza_pubblico !== currentCampo.capienza_pubblico) updateData.capienza_pubblico = campoData.capienza_pubblico;
-        if (campoData.descrizione !== currentCampo.descrizione) updateData.descrizione = campoData.descrizione;
-        if (campoData.illuminazione !== currentCampo.illuminazione) updateData.illuminazione = campoData.illuminazione;
-        if (campoData.coperto !== currentCampo.coperto) updateData.coperto = campoData.coperto;
-        if (campoData.spogliatoi !== currentCampo.spogliatoi) updateData.spogliatoi = campoData.spogliatoi;
-        if (campoData.docce !== currentCampo.docce) updateData.docce = campoData.docce;
-        if (campoData.attivo !== currentCampo.attivo) updateData.attivo = campoData.attivo;
-        
-        // Only update if there are changes
-        const updated = Object.keys(updateData).length > 0;
-        if (updated) {
-            await campiDao.updateCampo(campoId, updateData);
-        }
-        
-        // Se c'è un'immagine, aggiorna o inserisci nella tabella IMMAGINI
-        if (req.file) {
-            const imageUrl = '/uploads/' + req.file.filename;
-            
-            // Prima, elimina eventuali immagini esistenti per questo campo
-            await adminDao.deleteImmaginiByEntita('Campo', campoId);
-            
-            // Poi inserisci la nuova immagine
-            await adminDao.insertImmagine(imageUrl, 'Campo', 'Campo', campoId, 1);
-        }
-        
-        res.json({ success: true, updated });
-    }catch(err){
-        console.error('Errore nella modifica del campo:', err);
-        res.status(500).json({ error: 'Errore nella modifica del campo' });
+router.put(
+  "/admin/campi/modifica/:id",
+  isLoggedIn,
+  canManageCampi,
+  upload.single("immagine"),
+  async (req, res) => {
+    try {
+      const campoId = req.params.id;
+      const campoData = req.body;
+      console.log("Dati ricevuti per la modifica del campo:", campoData);
+
+      // Sanitize input data
+      campoData.nome =
+        typeof campoData.nome === "string" ? campoData.nome.trim() : "";
+      campoData.indirizzo =
+        typeof campoData.indirizzo === "string"
+          ? campoData.indirizzo.trim()
+          : "";
+      campoData.tipo_superficie =
+        typeof campoData.tipo_superficie === "string"
+          ? campoData.tipo_superficie.trim()
+          : "";
+      campoData.dimensioni =
+        typeof campoData.dimensioni === "string"
+          ? campoData.dimensioni.trim()
+          : "";
+      campoData.descrizione =
+        typeof campoData.descrizione === "string"
+          ? campoData.descrizione.trim()
+          : "";
+      campoData.capienza_pubblico = parseInt(campoData.capienza_pubblico) || 0;
+      campoData.illuminazione = campoData.illuminazione == "1" ? 1 : 0;
+      campoData.coperto = campoData.coperto == "1" ? 1 : 0;
+      campoData.spogliatoi = campoData.spogliatoi == "1" ? 1 : 0;
+      campoData.docce = campoData.docce == "1" ? 1 : 0;
+      campoData.attivo = campoData.attivo == "1" ? 1 : 0;
+
+      // Get current campo to compare
+      const currentCampo = await campiDao.getCampoById(campoId);
+
+      // Build update data only for changed fields
+      const updateData = {};
+      if (campoData.nome !== currentCampo.nome)
+        updateData.nome = campoData.nome;
+      if (campoData.indirizzo !== currentCampo.indirizzo)
+        updateData.indirizzo = campoData.indirizzo;
+      if (campoData.tipo_superficie !== currentCampo.tipo_superficie)
+        updateData.tipo_superficie = campoData.tipo_superficie;
+      if (campoData.dimensioni !== currentCampo.dimensioni)
+        updateData.dimensioni = campoData.dimensioni;
+      if (campoData.capienza_pubblico !== currentCampo.capienza_pubblico)
+        updateData.capienza_pubblico = campoData.capienza_pubblico;
+      if (campoData.descrizione !== currentCampo.descrizione)
+        updateData.descrizione = campoData.descrizione;
+      if (campoData.illuminazione !== currentCampo.illuminazione)
+        updateData.illuminazione = campoData.illuminazione;
+      if (campoData.coperto !== currentCampo.coperto)
+        updateData.coperto = campoData.coperto;
+      if (campoData.spogliatoi !== currentCampo.spogliatoi)
+        updateData.spogliatoi = campoData.spogliatoi;
+      if (campoData.docce !== currentCampo.docce)
+        updateData.docce = campoData.docce;
+      if (campoData.attivo !== currentCampo.attivo)
+        updateData.attivo = campoData.attivo;
+
+      // Only update if there are changes
+      const updated = Object.keys(updateData).length > 0;
+      if (updated) {
+        await campiDao.updateCampo(campoId, updateData);
+      }
+
+      // Se c'è un'immagine, aggiorna o inserisci nella tabella IMMAGINI
+      if (req.file) {
+        const imageUrl = "/uploads/" + req.file.filename;
+
+        // Prima, elimina eventuali immagini esistenti per questo campo
+        await adminDao.deleteImmaginiByEntita("Campo", campoId);
+
+        // Poi inserisci la nuova immagine
+        await adminDao.insertImmagine(imageUrl, "Campo", "Campo", campoId, 1);
+      }
+
+      res.json({ success: true, updated });
+    } catch (err) {
+      console.error("Errore nella modifica del campo:", err);
+      res.status(500).json({ error: "Errore nella modifica del campo" });
     }
-});
+  }
+);
 
 // Route per il profilo admin
-router.get('/admin/profilo', isLoggedIn, isAdmin, async (req, res) => {
+router.get("/admin/profilo", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const user = await userDao.getUserById(req.user.id);
+    const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
+    // const giocatore = await userDao.getGiocatoreByUserId(user.id);
+    const giocatore = null; // Temporaneamente disabilitato per incompatibilità schema DB
+    let dirigente = null;
     try {
-        const user = await userDao.getUserById(req.user.id);
-        const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
-        // const giocatore = await userDao.getGiocatoreByUserId(user.id);
-        const giocatore = null; // Temporaneamente disabilitato per incompatibilità schema DB
-        let dirigente = null;
-        try {
-            dirigente = await dirigenteDao.getDirigenteByUserId(user.id);
-        } catch (dirErr) {
-            console.error('Errore recupero dirigente:', dirErr);
-        }
-
-        // Recupera statistiche e attività recenti
-        let stats = { prenotazioni_totali: 0, recensioni_totali: 0, prenotazioni_mese: 0, recensioni_mese: 0 };
-        let activity = { prenotazioni: [], recensioni: [] };
-        
-        try {
-            stats = await userDao.getUserStats(user.id) || stats;
-        } catch (statsErr) {
-            console.error('Errore recupero statistiche:', statsErr);
-        }
-        
-        try {
-            activity = await userDao.getUserRecentActivity(user.id) || activity;
-        } catch (activityErr) {
-            console.error('Errore recupero attività:', activityErr);
-        }
-
-        // Recupera notizie ed eventi personali per dirigenti e admin
-        let notiziePersonali = [];
-        let eventiPersonali = [];
-        const isDirigenteArray = Array.isArray(dirigente) ? dirigente.length > 0 : !!dirigente;
-        if (isDirigenteArray || user.isAdmin) {
-            try {
-                notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
-            } catch (err) {
-                console.error('Errore recupero notizie personali:', err);
-            }
-            try {
-                eventiPersonali = await eventiDao.getEventiPersonali(user.id);
-            } catch (err) {
-                console.error('Errore recupero eventi personali:', err);
-            }
-        }
-
-        res.render('profilo', {
-            user,
-            imageUrl,
-            giocatore,
-            dirigente,
-            stats,
-            activity,
-            notiziePersonali,
-            eventiPersonali,
-            isLogged: true
-        });
-    } catch (err) {
-        console.error('Errore nel caricamento del profilo admin:', err);
-        res.status(500).render('error', { error: { message: 'Errore nel caricamento del profilo' } });
+      dirigente = await dirigenteDao.getDirigenteByUserId(user.id);
+    } catch (dirErr) {
+      console.error("Errore recupero dirigente:", dirErr);
     }
+
+    // Recupera statistiche e attività recenti
+    let stats = {
+      prenotazioni_totali: 0,
+      recensioni_totali: 0,
+      prenotazioni_mese: 0,
+      recensioni_mese: 0,
+    };
+    let activity = { prenotazioni: [], recensioni: [] };
+
+    try {
+      stats = (await userDao.getUserStats(user.id)) || stats;
+    } catch (statsErr) {
+      console.error("Errore recupero statistiche:", statsErr);
+    }
+
+    try {
+      activity = (await userDao.getUserRecentActivity(user.id)) || activity;
+    } catch (activityErr) {
+      console.error("Errore recupero attività:", activityErr);
+    }
+
+    // Recupera notizie ed eventi personali per dirigenti e admin
+    let notiziePersonali = [];
+    let eventiPersonali = [];
+    const isDirigenteArray = Array.isArray(dirigente)
+      ? dirigente.length > 0
+      : !!dirigente;
+    if (isDirigenteArray || user.isAdmin) {
+      try {
+        notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
+      } catch (err) {
+        console.error("Errore recupero notizie personali:", err);
+      }
+      try {
+        eventiPersonali = await eventiDao.getEventiPersonali(user.id);
+      } catch (err) {
+        console.error("Errore recupero eventi personali:", err);
+      }
+    }
+
+    res.render("profilo", {
+      user,
+      imageUrl,
+      giocatore,
+      dirigente,
+      stats,
+      activity,
+      notiziePersonali,
+      eventiPersonali,
+      isLogged: true,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento del profilo admin:", err);
+    res
+      .status(500)
+      .render("error", {
+        error: { message: "Errore nel caricamento del profilo" },
+      });
+  }
 });
 
 // Route per la gestione campionati
-router.get('/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const campionati = await campionatiDao.getAllCampionati();
-        res.render('Contenuti/Gestione_Campionati.ejs', { user: req.user, campionati });
-    } catch (err) {
-        console.error('Errore nel caricamento dei campionati:', err);
-        res.status(500).send('Errore interno del server');
-    }
+router.get("/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const campionati = await campionatiDao.getAllCampionati();
+    res.render("Contenuti/Gestione_Campionati.ejs", {
+      user: req.user,
+      campionati,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento dei campionati:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
 // Route per la pagina di creazione campionato
-router.get('/admin/campionati/nuovo', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const squadre = await squadreDao.getSquadre();
-        res.render('Contenuti/Crea_Campionato.ejs', {
-            user: req.user,
-            squadre: squadre
-        });
-    } catch (err) {
-        console.error('Errore nel caricamento della pagina:', err);
-        res.status(500).render('error', {
-            message: 'Errore nel caricamento della pagina',
-            error: { status: 500 }
-        });
-    }
+router.get("/admin/campionati/nuovo", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const squadre = await squadreDao.getSquadre();
+    res.render("Contenuti/Crea_Campionato.ejs", {
+      user: req.user,
+      squadre: squadre,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento della pagina:", err);
+    res.status(500).render("error", {
+      message: "Errore nel caricamento della pagina",
+      error: { status: 500 },
+    });
+  }
 });
 
 // Route per la pagina di modifica campionato
-router.get('/admin/campionati/:id/modifica', isLoggedIn, isAdmin, async (req, res) => {
+router.get(
+  "/admin/campionati/:id/modifica",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const campionato = await campionatiDao.getCampionatoById(id);
-        
-        if (!campionato) {
-            return res.status(404).render('error', { 
-                message: 'Campionato non trovato',
-                error: { status: 404 }
-            });
-        }
+      const id = req.params.id;
+      const campionato = await campionatiDao.getCampionatoById(id);
 
-        // Carica tutte le squadre disponibili per il dropdown
-        const squadre = await squadreDao.getSquadre();
-
-        res.render('Contenuti/Modifica_Campionato.ejs', { 
-            user: req.user, 
-            campionato: campionato,
-            squadre: squadre
+      if (!campionato) {
+        return res.status(404).render("error", {
+          message: "Campionato non trovato",
+          error: { status: 404 },
         });
+      }
+
+      // Carica tutte le squadre disponibili per il dropdown
+      const squadre = await squadreDao.getSquadre();
+
+      res.render("Contenuti/Modifica_Campionato.ejs", {
+        user: req.user,
+        campionato: campionato,
+        squadre: squadre,
+      });
     } catch (err) {
-        console.error('Errore nel caricamento del campionato:', err);
-        res.status(500).render('error', { 
-            message: 'Errore nel caricamento del campionato',
-            error: { status: 500 }
-        });
+      console.error("Errore nel caricamento del campionato:", err);
+      res.status(500).render("error", {
+        message: "Errore nel caricamento del campionato",
+        error: { status: 500 },
+      });
     }
-});
+  }
+);
 
 // API Routes per campionati
-router.get('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const campionati = await campionatiDao.getAllCampionati();
-        
-        // Conta squadre per ogni campionato
-        const campionatiWithStats = await Promise.all(campionati.map(async (c) => {
-            // Query per contare squadre nel campionato
-            const squadreCount = await adminDao.countSquadreByCampionato(c.id);
+router.get("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const campionati = await campionatiDao.getAllCampionati();
 
-            return {
-                id: c.id,
-                nome: c.nome,
-                stagione: c.stagione,
-                categoria: c.categoria,
-                fonte_esterna_id: c.fonte_esterna_id,
-                url_fonte: c.url_fonte,
-                is_active: c.attivo === 1,
-                stato: c.attivo === 1 ? 'attivo' : 'inattivo',
-                tipo: c.categoria || 'generico',
-                numero_squadre: squadreCount,
-                partite_programmate: 0, // Placeholder
-                data_inizio: c.created_at,
-                created_at: c.created_at,
-                updated_at: c.updated_at,
-                promozione_diretta: c.promozione_diretta,
-                playoff_start: c.playoff_start,
-                playoff_end: c.playoff_end,
-                playout_start: c.playout_start,
-                playout_end: c.playout_end,
-                retrocessione_diretta: c.retrocessione_diretta
-            };
-        }));
+    // Conta squadre per ogni campionato
+    const campionatiWithStats = await Promise.all(
+      campionati.map(async (c) => {
+        // Query per contare squadre nel campionato
+        const squadreCount = await adminDao.countSquadreByCampionato(c.id);
 
-        res.json({ championships: campionatiWithStats });
-    } catch (err) {
-        console.error('Errore nel recupero dei campionati:', err);
-        res.status(500).json({ error: 'Errore nel recupero dei campionati' });
-    }
-});
-
-router.post('/api/admin/campionati', isLoggedIn, isAdmin, async (req, res) => {
-    try {
-        const campionatoData = {
-            nome: req.body.nome,
-            stagione: req.body.stagione || new Date().getFullYear().toString(),
-            categoria: req.body.categoria,
-            fonte_esterna_id: req.body.fonte_esterna_id,
-            url_fonte: req.body.url_fonte,
-            attivo: req.body.is_active || false
+        return {
+          id: c.id,
+          nome: c.nome,
+          stagione: c.stagione,
+          categoria: c.categoria,
+          fonte_esterna_id: c.fonte_esterna_id,
+          url_fonte: c.url_fonte,
+          is_active: c.attivo === 1,
+          stato: c.attivo === 1 ? "attivo" : "inattivo",
+          tipo: c.categoria || "generico",
+          numero_squadre: squadreCount,
+          partite_programmate: 0, // Placeholder
+          data_inizio: c.created_at,
+          created_at: c.created_at,
+          updated_at: c.updated_at,
+          promozione_diretta: c.promozione_diretta,
+          playoff_start: c.playoff_start,
+          playoff_end: c.playoff_end,
+          playout_start: c.playout_start,
+          playout_end: c.playout_end,
+          retrocessione_diretta: c.retrocessione_diretta,
         };
+      })
+    );
 
-        const result = await campionatiDao.createCampionato(campionatoData);
-        res.status(201).json(result);
-    } catch (err) {
-        console.error('Errore nella creazione del campionato:', err);
-        res.status(500).json({ error: err.error || 'Errore nella creazione del campionato' });
-    }
+    res.json({ championships: campionatiWithStats });
+  } catch (err) {
+    console.error("Errore nel recupero dei campionati:", err);
+    res.status(500).json({ error: "Errore nel recupero dei campionati" });
+  }
 });
 
-router.put('/api/admin/campionati/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.post("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const campionatoData = {
+      nome: req.body.nome,
+      stagione: req.body.stagione || new Date().getFullYear().toString(),
+      categoria: req.body.categoria,
+      fonte_esterna_id: req.body.fonte_esterna_id,
+      url_fonte: req.body.url_fonte,
+      attivo: req.body.is_active || false,
+    };
+
+    const result = await campionatiDao.createCampionato(campionatoData);
+    res.status(201).json(result);
+  } catch (err) {
+    console.error("Errore nella creazione del campionato:", err);
+    res
+      .status(500)
+      .json({ error: err.error || "Errore nella creazione del campionato" });
+  }
+});
+
+router.put(
+  "/api/admin/campionati/:id",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const campionatoData = {
-            nome: req.body.nome,
-            stagione: req.body.stagione,
-            categoria: req.body.categoria,
-            fonte_esterna_id: req.body.fonte_esterna_id,
-            url_fonte: req.body.url_fonte,
-            attivo: req.body.is_active
-        };
+      const id = req.params.id;
+      const campionatoData = {
+        nome: req.body.nome,
+        stagione: req.body.stagione,
+        categoria: req.body.categoria,
+        fonte_esterna_id: req.body.fonte_esterna_id,
+        url_fonte: req.body.url_fonte,
+        attivo: req.body.is_active,
+      };
 
-        const result = await campionatiDao.updateCampionato(id, campionatoData);
-        res.json(result);
+      const result = await campionatiDao.updateCampionato(id, campionatoData);
+      res.json(result);
     } catch (err) {
-        console.error('Errore nell\'aggiornamento del campionato:', err);
-        res.status(500).json({ error: err.error || 'Errore nell\'aggiornamento del campionato' });
+      console.error("Errore nell'aggiornamento del campionato:", err);
+      res
+        .status(500)
+        .json({
+          error: err.error || "Errore nell'aggiornamento del campionato",
+        });
     }
-});
+  }
+);
 
-router.delete('/api/admin/campionati/:id', isLoggedIn, isAdmin, async (req, res) => {
+router.delete(
+  "/api/admin/campionati/:id",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await campionatiDao.deleteCampionato(id);
-        res.json(result);
+      const id = req.params.id;
+      const result = await campionatiDao.deleteCampionato(id);
+      res.json(result);
     } catch (err) {
-        console.error('Errore nell\'eliminazione del campionato:', err);
-        res.status(500).json({ error: err.error || 'Errore nell\'eliminazione del campionato' });
+      console.error("Errore nell'eliminazione del campionato:", err);
+      res
+        .status(500)
+        .json({
+          error: err.error || "Errore nell'eliminazione del campionato",
+        });
     }
-});
+  }
+);
 
-router.patch('/api/admin/campionati/:id/toggle', isLoggedIn, isAdmin, async (req, res) => {
+router.patch(
+  "/api/admin/campionati/:id/toggle",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const isActive = req.body.is_active;
-        const result = await campionatiDao.toggleCampionatoStatus(id, isActive);
-        res.json(result);
+      const id = req.params.id;
+      const isActive = req.body.is_active;
+      const result = await campionatiDao.toggleCampionatoStatus(id, isActive);
+      res.json(result);
     } catch (err) {
-        console.error('Errore nel toggle dello stato del campionato:', err);
-        res.status(500).json({ error: err.error || 'Errore nel toggle dello stato del campionato' });
+      console.error("Errore nel toggle dello stato del campionato:", err);
+      res
+        .status(500)
+        .json({
+          error: err.error || "Errore nel toggle dello stato del campionato",
+        });
     }
-});
+  }
+);
 
 // API Routes per gestione squadre campionato
-router.get('/api/admin/campionati/:id/squadre', isLoggedIn, isAdmin, async (req, res) => {
+router.get(
+  "/api/admin/campionati/:id/squadre",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const squadre = await campionatiDao.getSquadreByCampionatoId(id);
-        res.json({ squadre });
+      const id = req.params.id;
+      const squadre = await campionatiDao.getSquadreByCampionatoId(id);
+      res.json({ squadre });
     } catch (err) {
-        console.error('Errore nel recupero delle squadre:', err);
-        res.status(500).json({ error: err.error || 'Errore nel recupero delle squadre' });
+      console.error("Errore nel recupero delle squadre:", err);
+      res
+        .status(500)
+        .json({ error: err.error || "Errore nel recupero delle squadre" });
     }
-});
+  }
+);
 
-router.post('/api/admin/campionati/:id/squadre', isLoggedIn, isAdmin, async (req, res) => {
+router.post(
+  "/api/admin/campionati/:id/squadre",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const squadraData = req.body;
-        const result = await campionatiDao.addSquadraCampionato(id, squadraData);
-        res.status(201).json(result);
+      const id = req.params.id;
+      const squadraData = req.body;
+      const result = await campionatiDao.addSquadraCampionato(id, squadraData);
+      res.status(201).json(result);
     } catch (err) {
-        console.error('Errore nell\'aggiunta della squadra:', err);
-        res.status(500).json({ error: err.error || 'Errore nell\'aggiunta della squadra' });
+      console.error("Errore nell'aggiunta della squadra:", err);
+      res
+        .status(500)
+        .json({ error: err.error || "Errore nell'aggiunta della squadra" });
     }
-});
+  }
+);
 
-router.delete('/api/admin/campionati/:id/squadre/:nome', isLoggedIn, isAdmin, async (req, res) => {
+router.delete(
+  "/api/admin/campionati/:id/squadre/:nome",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const nome = decodeURIComponent(req.params.nome);
-        const result = await campionatiDao.removeSquadraCampionato(id, nome);
-        res.json(result);
+      const id = req.params.id;
+      const nome = decodeURIComponent(req.params.nome);
+      const result = await campionatiDao.removeSquadraCampionato(id, nome);
+      res.json(result);
     } catch (err) {
-        console.error('Errore nella rimozione della squadra:', err);
-        res.status(500).json({ error: err.error || 'Errore nella rimozione della squadra' });
+      console.error("Errore nella rimozione della squadra:", err);
+      res
+        .status(500)
+        .json({ error: err.error || "Errore nella rimozione della squadra" });
     }
-});
+  }
+);
 
-router.put('/api/admin/campionati/:id/squadre/:nome', isLoggedIn, isAdmin, async (req, res) => {
+router.put(
+  "/api/admin/campionati/:id/squadre/:nome",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const id = req.params.id;
-        const nome = decodeURIComponent(req.params.nome);
-        const squadraData = req.body;
-        const result = await campionatiDao.updateSquadraCampionato(id, nome, squadraData);
-        res.json(result);
+      const id = req.params.id;
+      const nome = decodeURIComponent(req.params.nome);
+      const squadraData = req.body;
+      const result = await campionatiDao.updateSquadraCampionato(
+        id,
+        nome,
+        squadraData
+      );
+      res.json(result);
     } catch (err) {
-        console.error('Errore nell\'aggiornamento della squadra:', err);
-        res.status(500).json({ error: err.error || 'Errore nell\'aggiornamento della squadra' });
+      console.error("Errore nell'aggiornamento della squadra:", err);
+      res
+        .status(500)
+        .json({
+          error: err.error || "Errore nell'aggiornamento della squadra",
+        });
     }
-});
+  }
+);
 
 // ==================== GESTIONE SOSPENSIONE/BAN UTENTI ====================
 
-const emailService = require('../../../shared/services/email-service');
+const emailService = require("../../../shared/services/email-service");
 
 // Route per sospendere un utente
-router.post('/api/admin/utenti/:id/sospendi', isLoggedIn, isAdmin, async (req, res) => {
+router.post(
+  "/api/admin/utenti/:id/sospendi",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const userId = req.params.id;
-        const { motivo, durataGiorni } = req.body;
+      const userId = req.params.id;
+      const { motivo, durataGiorni } = req.body;
 
-        if (!motivo || !durataGiorni) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Motivo e durata sono obbligatori' 
-            });
-        }
-
-        // Calcola data fine sospensione
-        const moment = require('moment');
-        const dataFine = moment().add(parseInt(durataGiorni), 'days').format('YYYY-MM-DD HH:mm:ss');
-
-        // Recupera dati utente
-        const utente = await userDao.getUserById(userId);
-        
-        // Sospendi utente
-        await userDao.sospendiUtente(userId, req.user.id, motivo, dataFine);
-
-        // Invia email
-        try {
-            await emailService.sendSospensioneEmail(
-                utente.email,
-                `${utente.nome} ${utente.cognome}`,
-                motivo,
-                dataFine
-            );
-        } catch (emailErr) {
-            console.error('Errore invio email sospensione:', emailErr);
-            // Continua comunque, la sospensione è stata applicata
-        }
-
-        res.json({ 
-            success: true, 
-            message: 'Utente sospeso con successo',
-            dataFine: dataFine
+      if (!motivo || !durataGiorni) {
+        return res.status(400).json({
+          success: false,
+          error: "Motivo e durata sono obbligatori",
         });
+      }
+
+      // Calcola data fine sospensione
+      const moment = require("moment");
+      const dataFine = moment()
+        .add(parseInt(durataGiorni), "days")
+        .format("YYYY-MM-DD HH:mm:ss");
+
+      // Recupera dati utente
+      const utente = await userDao.getUserById(userId);
+
+      // Sospendi utente
+      await userDao.sospendiUtente(userId, req.user.id, motivo, dataFine);
+
+      // Invia email
+      try {
+        await emailService.sendSospensioneEmail(
+          utente.email,
+          `${utente.nome} ${utente.cognome}`,
+          motivo,
+          dataFine
+        );
+      } catch (emailErr) {
+        console.error("Errore invio email sospensione:", emailErr);
+        // Continua comunque, la sospensione è stata applicata
+      }
+
+      res.json({
+        success: true,
+        message: "Utente sospeso con successo",
+        dataFine: dataFine,
+      });
     } catch (err) {
-        console.error('Errore nella sospensione:', err);
-        res.status(500).json({ 
-            success: false, 
-            error: err.error || 'Errore nella sospensione dell\'utente' 
-        });
+      console.error("Errore nella sospensione:", err);
+      res.status(500).json({
+        success: false,
+        error: err.error || "Errore nella sospensione dell'utente",
+      });
     }
-});
+  }
+);
 
 // Route per bannare un utente
-router.post('/api/admin/utenti/:id/banna', isLoggedIn, isAdmin, async (req, res) => {
+router.post(
+  "/api/admin/utenti/:id/banna",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const userId = req.params.id;
-        const { motivo } = req.body;
+      const userId = req.params.id;
+      const { motivo } = req.body;
 
-        if (!motivo) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Il motivo è obbligatorio' 
-            });
-        }
-
-        // Recupera dati utente
-        const utente = await userDao.getUserById(userId);
-        
-        // Banna utente
-        await userDao.bannaUtente(userId, req.user.id, motivo);
-
-        // Invia email
-        try {
-            await emailService.sendBanEmail(
-                utente.email,
-                `${utente.nome} ${utente.cognome}`,
-                motivo
-            );
-        } catch (emailErr) {
-            console.error('Errore invio email ban:', emailErr);
-            // Continua comunque, il ban è stato applicato
-        }
-
-        res.json({ 
-            success: true, 
-            message: 'Utente bannato con successo'
+      if (!motivo) {
+        return res.status(400).json({
+          success: false,
+          error: "Il motivo è obbligatorio",
         });
+      }
+
+      // Recupera dati utente
+      const utente = await userDao.getUserById(userId);
+
+      // Banna utente
+      await userDao.bannaUtente(userId, req.user.id, motivo);
+
+      // Invia email
+      try {
+        await emailService.sendBanEmail(
+          utente.email,
+          `${utente.nome} ${utente.cognome}`,
+          motivo
+        );
+      } catch (emailErr) {
+        console.error("Errore invio email ban:", emailErr);
+        // Continua comunque, il ban è stato applicato
+      }
+
+      res.json({
+        success: true,
+        message: "Utente bannato con successo",
+      });
     } catch (err) {
-        console.error('Errore nel ban:', err);
-        res.status(500).json({ 
-            success: false, 
-            error: err.error || 'Errore nel ban dell\'utente' 
-        });
+      console.error("Errore nel ban:", err);
+      res.status(500).json({
+        success: false,
+        error: err.error || "Errore nel ban dell'utente",
+      });
     }
-});
+  }
+);
 
 // Route per revocare sospensione/ban
-router.post('/api/admin/utenti/:id/revoca', isLoggedIn, isAdmin, async (req, res) => {
+router.post(
+  "/api/admin/utenti/:id/revoca",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const userId = req.params.id;
+      const userId = req.params.id;
 
-        // Recupera dati utente
-        const utente = await userDao.getUserById(userId);
-        
-        // Revoca sospensione/ban
-        await userDao.revocaSospensioneBan(userId);
+      // Recupera dati utente
+      const utente = await userDao.getUserById(userId);
 
-        // Invia email
-        try {
-            await emailService.sendRevocaEmail(
-                utente.email,
-                `${utente.nome} ${utente.cognome}`
-            );
-        } catch (emailErr) {
-            console.error('Errore invio email revoca:', emailErr);
-            // Continua comunque, la revoca è stata applicata
-        }
+      // Revoca sospensione/ban
+      await userDao.revocaSospensioneBan(userId);
 
-        res.json({ 
-            success: true, 
-            message: 'Sospensione/Ban revocato con successo'
-        });
+      // Invia email
+      try {
+        await emailService.sendRevocaEmail(
+          utente.email,
+          `${utente.nome} ${utente.cognome}`
+        );
+      } catch (emailErr) {
+        console.error("Errore invio email revoca:", emailErr);
+        // Continua comunque, la revoca è stata applicata
+      }
+
+      res.json({
+        success: true,
+        message: "Sospensione/Ban revocato con successo",
+      });
     } catch (err) {
-        console.error('Errore nella revoca:', err);
-        res.status(500).json({ 
-            success: false, 
-            error: err.error || 'Errore nella revoca' 
-        });
+      console.error("Errore nella revoca:", err);
+      res.status(500).json({
+        success: false,
+        error: err.error || "Errore nella revoca",
+      });
     }
-});
+  }
+);
 
 // Route per ottenere lo stato di un utente
-router.get('/api/admin/utenti/:id/stato', isLoggedIn, isAdmin, async (req, res) => {
+router.get(
+  "/api/admin/utenti/:id/stato",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const userId = req.params.id;
-        const stato = await userDao.getStatoUtente(userId);
-        res.json({ success: true, stato });
+      const userId = req.params.id;
+      const stato = await userDao.getStatoUtente(userId);
+      res.json({ success: true, stato });
     } catch (err) {
-        console.error('Errore nel recupero stato:', err);
-        res.status(500).json({ 
-            success: false, 
-            error: err.error || 'Errore nel recupero dello stato' 
-        });
+      console.error("Errore nel recupero stato:", err);
+      res.status(500).json({
+        success: false,
+        error: err.error || "Errore nel recupero dello stato",
+      });
     }
+  }
+);
+
+router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const utenti = await userDao.getAllUsers();
+    let tipiUtente = [];
+    try {
+      tipiUtente = await userDao.getTipiUtente();
+    } catch (e) {
+      console.error("Impossibile recuperare TIPI_UTENTE:", e);
+    }
+    res.render("Contenuti/Gestore_Utenti.ejs", {
+      user: req.user,
+      utenti,
+      tipiUtente,
+    });
+  } catch (err) {
+    console.error("Errore nel caricamento degli utenti:", err);
+    res.status(500).send("Errore interno del server");
+  }
 });
 
-router.get('/admin/utenti', isLoggedIn, isAdmin, async (req, res) => {
+router.get(
+  "/prenotazione/calendario",
+  isLoggedIn,
+  isAdmin,
+  async (req, res) => {
     try {
-        const utenti = await userDao.getAllUsers();
-        let tipiUtente = [];
-        try {
-            tipiUtente = await userDao.getTipiUtente();
-        } catch (e) {
-            console.error('Impossibile recuperare TIPI_UTENTE:', e);
-        }
-        res.render('Contenuti/Gestore_Utenti.ejs', { user: req.user, utenti, tipiUtente });
-    } catch (err) {
-        console.error('Errore nel caricamento degli utenti:', err);
-        res.status(500).send('Errore interno del server');
-    }
-});
+      // Recupera tutte le prenotazioni con dati correlati
+      const daoPrenotazione = require("../../prenotazioni/services/dao-prenotazione");
+      const prenotazioni = await daoPrenotazione.getAllPrenotazioni();
 
-router.get('/prenotazione/calendario',isLoggedIn,isAdmin,async(req,res)=>{
-    try{
-        // Recupera tutte le prenotazioni con dati correlati
-        const daoPrenotazione = require('../../prenotazioni/services/dao-prenotazione');
-        const prenotazioni = await daoPrenotazione.getAllPrenotazioni();
-        
-        // Recupera tutti i campi attivi per i filtri
-        const daoCampi = require('../../prenotazioni/services/dao-campi');
-        const campi = await daoCampi.getCampi(true);
-        
-        // Renderizza la view `calendario.ejs` presente in `src/features/prenotazioni/views`
-        res.render('calendario', {
-            prenotazioni: prenotazioni,
-            campi: campi,
-            user: req.user
-        });
-    }catch(err){
-        console.error('Errore nel caricamento del calendario prenotazioni:', err);
-        res.status(500).send('Errore interno del server');
+      // Recupera tutti i campi attivi per i filtri
+      const daoCampi = require("../../prenotazioni/services/dao-campi");
+      const campi = await daoCampi.getCampi(true);
+
+      // Renderizza la view `calendario.ejs` presente in `src/features/prenotazioni/views`
+      res.render("calendario", {
+        prenotazioni: prenotazioni,
+        campi: campi,
+        user: req.user,
+      });
+    } catch (err) {
+      console.error("Errore nel caricamento del calendario prenotazioni:", err);
+      res.status(500).send("Errore interno del server");
     }
-});
+  }
+);
 
 module.exports = router;

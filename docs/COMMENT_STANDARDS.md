@@ -24,25 +24,25 @@ Questo documento definisce gli standard per commentare il codice nel progetto Bo
 ```javascript
 /**
  * Breve descrizione della funzione in una riga
- * 
+ *
  * Descrizione dettagliata opzionale che spiega:
  * - Cosa fa la funzione
  * - Logica particolare
  * - Note importanti
- * 
+ *
  * @function nomeFunzione
  * @async (se la funzione è asincrona)
  * @param {tipo} nomeParametro - Descrizione del parametro
  * @param {tipo} [parametroOpzionale] - Parametro opzionale
  * @returns {Promise<tipo>|tipo} Descrizione di cosa ritorna
  * @throws {Error} Quando e perché lancia errori
- * 
+ *
  * @example
  * // Esempio di utilizzo
  * const result = await nomeFunzione(param1, param2);
  */
 function nomeFunzione(parametro1, parametro2) {
-    // Logica interna commentata dove necessario
+  // Logica interna commentata dove necessario
 }
 ```
 
@@ -51,28 +51,28 @@ function nomeFunzione(parametro1, parametro2) {
 ```javascript
 /**
  * Descrizione della classe
- * 
+ *
  * @class NomeClasse
  * @description Descrizione dettagliata dello scopo della classe
  */
 class NomeClasse {
-    /**
-     * Costruttore della classe
-     * @param {tipo} param - Descrizione parametro
-     */
-    constructor(param) {
-        /** @type {tipo} Descrizione proprietà */
-        this.proprieta = param;
-    }
-    
-    /**
-     * Metodo della classe
-     * @param {tipo} param - Descrizione
-     * @returns {tipo} Descrizione ritorno
-     */
-    metodo(param) {
-        // Implementazione
-    }
+  /**
+   * Costruttore della classe
+   * @param {tipo} param - Descrizione parametro
+   */
+  constructor(param) {
+    /** @type {tipo} Descrizione proprietà */
+    this.proprieta = param;
+  }
+
+  /**
+   * Metodo della classe
+   * @param {tipo} param - Descrizione
+   * @returns {tipo} Descrizione ritorno
+   */
+  metodo(param) {
+    // Implementazione
+  }
 }
 ```
 
@@ -83,7 +83,7 @@ class NomeClasse {
  * Descrizione della costante
  * @constant {tipo}
  */
-const COSTANTE = 'valore';
+const COSTANTE = "valore";
 
 /**
  * Descrizione della variabile
@@ -96,16 +96,16 @@ let variabile = valoreiniziale;
 
 ```javascript
 function esempio() {
-    // Commento breve per spiegare la riga successiva
-    const risultato = operazioneComplessa();
-    
-    /* 
-     * Commento multi-linea per spiegare
-     * una sezione di codice più complessa
-     */
-    if (condizione) {
-        // Azione
-    }
+  // Commento breve per spiegare la riga successiva
+  const risultato = operazioneComplessa();
+
+  /*
+   * Commento multi-linea per spiegare
+   * una sezione di codice più complessa
+   */
+  if (condizione) {
+    // Azione
+  }
 }
 ```
 
@@ -116,12 +116,12 @@ function esempio() {
 // Usare per dividere file lunghi in sezioni logiche
 
 // ==================== AUTENTICAZIONE ====================
-function login() { }
-function logout() { }
+function login() {}
+function logout() {}
 
 // ==================== GESTIONE PROFILO ====================
-function updateProfile() { }
-function deleteProfile() { }
+function updateProfile() {}
+function deleteProfile() {}
 ```
 
 ---
@@ -131,11 +131,11 @@ function deleteProfile() { }
 ### File Header
 
 ```ejs
-<%# 
+<%#
   File: nome-file.ejs
   Descrizione: Breve descrizione della pagina
   Feature: Nome feature (es. auth, notizie, prenotazioni)
-  
+
   Parametri richiesti:
   - parametro1: descrizione
   - parametro2: descrizione
@@ -205,34 +205,34 @@ function deleteProfile() { }
 ```css
 /* ==================== LAYOUT GENERALE ==================== */
 .container {
-    /* Definizione layout */
+  /* Definizione layout */
 }
 
 /* ==================== HEADER ==================== */
 .header {
-    /* Stili header */
+  /* Stili header */
 }
 
 /* ==================== COMPONENTI ==================== */
 /* Card */
 .card {
-    /* Stili card */
+  /* Stili card */
 }
 
 /* Bottoni */
 .btn-primary {
-    /* Stile bottone primario */
+  /* Stile bottone primario */
 }
 
 /* ==================== RESPONSIVE ==================== */
 /* Tablet */
 @media (max-width: 768px) {
-    /* Stili per tablet */
+  /* Stili per tablet */
 }
 
 /* Mobile */
 @media (max-width: 576px) {
-    /* Stili per mobile */
+  /* Stili per mobile */
 }
 ```
 
@@ -240,11 +240,11 @@ function deleteProfile() { }
 
 ```css
 .elemento {
-    /* Fix per bug specifico in Safari */
-    -webkit-transform: translateZ(0);
-    
-    /* Transizione smooth per hover */
-    transition: all 0.3s ease;
+  /* Fix per bug specifico in Safari */
+  -webkit-transform: translateZ(0);
+
+  /* Transizione smooth per hover */
+  transition: all 0.3s ease;
 }
 ```
 
@@ -262,46 +262,46 @@ function deleteProfile() { }
  * inclusa gestione autori, categorie e paginazione.
  */
 
-'use strict';
+"use strict";
 
-const db = require('../../../core/config/database');
-const Notizia = require('../../../core/models/notizia');
+const db = require("../../../core/config/database");
+const Notizia = require("../../../core/models/notizia");
 
 // ==================== LETTURA ====================
 
 /**
  * Recupera tutte le notizie dal database
- * 
+ *
  * @async
  * @function getAllNotizie
  * @returns {Promise<Array<Notizia>>} Array di oggetti notizia
  * @throws {Error} Se errore nel database
- * 
+ *
  * @example
  * const notizie = await getAllNotizie();
  * console.log(notizie.length); // 10
  */
-exports.getAllNotizie = async function() {
-    return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM notizie ORDER BY data_pubblicazione DESC';
-        
-        db.all(sql, [], (err, rows) => {
-            if (err) {
-                reject({ error: 'Errore nel recupero notizie: ' + err.message });
-            } else {
-                // Mappa le righe in oggetti Notizia
-                const notizie = rows.map(row => new Notizia(row));
-                resolve(notizie);
-            }
-        });
+exports.getAllNotizie = async function () {
+  return new Promise((resolve, reject) => {
+    const sql = "SELECT * FROM notizie ORDER BY data_pubblicazione DESC";
+
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject({ error: "Errore nel recupero notizie: " + err.message });
+      } else {
+        // Mappa le righe in oggetti Notizia
+        const notizie = rows.map((row) => new Notizia(row));
+        resolve(notizie);
+      }
     });
+  });
 };
 
 // ==================== CREAZIONE ====================
 
 /**
  * Crea una nuova notizia
- * 
+ *
  * @async
  * @function createNotizia
  * @param {Object} dati - Dati della notizia
@@ -311,24 +311,24 @@ exports.getAllNotizie = async function() {
  * @returns {Promise<Object>} Oggetto con id della notizia creata
  * @throws {Error} Se dati mancanti o errore database
  */
-exports.createNotizia = async function(dati) {
-    // Validazione input
-    if (!dati.titolo || !dati.contenuto) {
-        throw new Error('Titolo e contenuto sono obbligatori');
-    }
-    
-    return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO notizie (titolo, contenuto, autore_id, data_pubblicazione) 
+exports.createNotizia = async function (dati) {
+  // Validazione input
+  if (!dati.titolo || !dati.contenuto) {
+    throw new Error("Titolo e contenuto sono obbligatori");
+  }
+
+  return new Promise((resolve, reject) => {
+    const sql = `INSERT INTO notizie (titolo, contenuto, autore_id, data_pubblicazione) 
                      VALUES (?, ?, ?, datetime('now'))`;
-        
-        db.run(sql, [dati.titolo, dati.contenuto, dati.autore_id], function(err) {
-            if (err) {
-                reject({ error: 'Errore creazione notizia: ' + err.message });
-            } else {
-                resolve({ id: this.lastID, message: 'Notizia creata con successo' });
-            }
-        });
+
+    db.run(sql, [dati.titolo, dati.contenuto, dati.autore_id], function (err) {
+      if (err) {
+        reject({ error: "Errore creazione notizia: " + err.message });
+      } else {
+        resolve({ id: this.lastID, message: "Notizia creata con successo" });
+      }
     });
+  });
 };
 ```
 
@@ -342,12 +342,15 @@ exports.createNotizia = async function(dati) {
  * modificare ed eliminare notizie.
  */
 
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const daoNotizie = require('../services/dao-notizie');
-const { isLoggedIn, isAdminOrDirigente } = require('../../../core/middlewares/auth');
+const daoNotizie = require("../services/dao-notizie");
+const {
+  isLoggedIn,
+  isAdminOrDirigente,
+} = require("../../../core/middlewares/auth");
 
 // ==================== ENDPOINT PUBBLICI ====================
 
@@ -355,16 +358,16 @@ const { isLoggedIn, isAdminOrDirigente } = require('../../../core/middlewares/au
  * GET /notizie
  * Visualizza l'elenco di tutte le notizie
  */
-router.get('/notizie', async (req, res) => {
-    try {
-        const notizie = await daoNotizie.getAllNotizie();
-        res.render('notizie', { notizie });
-    } catch (error) {
-        console.error('Errore recupero notizie:', error);
-        res.status(500).render('error', { 
-            message: 'Errore nel caricamento delle notizie' 
-        });
-    }
+router.get("/notizie", async (req, res) => {
+  try {
+    const notizie = await daoNotizie.getAllNotizie();
+    res.render("notizie", { notizie });
+  } catch (error) {
+    console.error("Errore recupero notizie:", error);
+    res.status(500).render("error", {
+      message: "Errore nel caricamento delle notizie",
+    });
+  }
 });
 
 // ==================== ENDPOINT PROTETTI ====================
@@ -373,24 +376,29 @@ router.get('/notizie', async (req, res) => {
  * POST /notizie/crea
  * Crea una nuova notizia (solo admin/dirigente)
  */
-router.post('/notizie/crea', isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.post(
+  "/notizie/crea",
+  isLoggedIn,
+  isAdminOrDirigente,
+  async (req, res) => {
     try {
-        // Estrai dati dal body
-        const { titolo, contenuto } = req.body;
-        
-        // Crea notizia con autore corrente
-        const result = await daoNotizie.createNotizia({
-            titolo,
-            contenuto,
-            autore_id: req.user.id
-        });
-        
-        res.status(201).json(result);
+      // Estrai dati dal body
+      const { titolo, contenuto } = req.body;
+
+      // Crea notizia con autore corrente
+      const result = await daoNotizie.createNotizia({
+        titolo,
+        contenuto,
+        autore_id: req.user.id,
+      });
+
+      res.status(201).json(result);
     } catch (error) {
-        console.error('Errore creazione notizia:', error);
-        res.status(500).json({ error: error.message });
+      console.error("Errore creazione notizia:", error);
+      res.status(500).json({ error: error.message });
     }
-});
+  }
+);
 
 module.exports = router;
 ```
@@ -398,11 +406,11 @@ module.exports = router;
 ### View EJS
 
 ```ejs
-<%# 
+<%#
   File: notizie.ejs
   Descrizione: Pagina di visualizzazione elenco notizie
   Feature: notizie
-  
+
   Parametri richiesti:
   - notizie: Array di oggetti notizia
   - isLoggedIn: Boolean se l'utente è autenticato
@@ -416,7 +424,7 @@ module.exports = router;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notizie - Borgo Vercelli</title>
-    
+
     <%# ==================== STILI ==================== %>
     <link href="/assets/styles/Common.css" rel="stylesheet">
     <link href="/assets/styles/Notizie.css" rel="stylesheet">
@@ -425,18 +433,18 @@ module.exports = router;
 <body>
     <%# ==================== HEADER ==================== %>
     <%- include('../partials/navbar') %>
-    
+
     <%# ==================== CONTENUTO PRINCIPALE ==================== %>
     <main class="container">
         <h1>Ultime Notizie</h1>
-        
+
         <%# Mostra bottone crea solo se admin/dirigente %>
         <% if (isLoggedIn && (user.tipo_utente_id === 1 || user.tipo_utente_id === 2)) { %>
             <a href="/notizie/crea" class="btn btn-primary">
                 Crea Nuova Notizia
             </a>
         <% } %>
-        
+
         <%# ==================== LISTA NOTIZIE ==================== %>
         <div class="notizie-list">
             <% if (notizie && notizie.length > 0) { %>
@@ -445,12 +453,12 @@ module.exports = router;
                     <article class="notizia-card">
                         <%# Titolo notizia %>
                         <h2><%= notizia.titolo %></h2>
-                        
+
                         <%# Anteprima contenuto %>
                         <p class="preview">
                             <%- notizia.contenuto.substring(0, 200) %>...
                         </p>
-                        
+
                         <%# Link leggi di più %>
                         <a href="/notizie/<%= notizia.id %>" class="btn-link">
                             Leggi di più
@@ -463,10 +471,10 @@ module.exports = router;
             <% } %>
         </div>
     </main>
-    
+
     <%# ==================== FOOTER ==================== %>
     <%- include('../partials/footer') %>
-    
+
     <%# ==================== SCRIPTS ==================== %>
     <script src="/assets/scripts/notizie.js"></script>
 </body>
@@ -484,69 +492,69 @@ module.exports = router;
 
 /* ==================== LAYOUT PRINCIPALE ==================== */
 .notizie-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
 /* ==================== CARD NOTIZIA ==================== */
 .notizia-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Effetto hover sulla card */
 .notizia-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* Titolo della notizia */
 .notizia-card h2 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* Anteprima testo */
 .notizia-card .preview {
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 1rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 }
 
 /* ==================== STATI SPECIALI ==================== */
 /* Messaggio quando non ci sono dati */
 .no-data {
-    text-align: center;
-    color: #999;
-    padding: 3rem;
-    font-style: italic;
+  text-align: center;
+  color: #999;
+  padding: 3rem;
+  font-style: italic;
 }
 
 /* ==================== RESPONSIVE ==================== */
 /* Tablet */
 @media (max-width: 768px) {
-    .notizie-list {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1.5rem;
-    }
+  .notizie-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 /* Mobile */
 @media (max-width: 576px) {
-    .notizie-list {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .notizia-card {
-        padding: 1rem;
-    }
+  .notizie-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .notizia-card {
+    padding: 1rem;
+  }
 }
 ```
 
@@ -557,6 +565,7 @@ module.exports = router;
 Prima di considerare un file "completamente commentato":
 
 ### JavaScript
+
 - [ ] Header file con @fileoverview e @module
 - [ ] Ogni funzione export ha JSDoc completo
 - [ ] Parametri documentati con @param
@@ -567,6 +576,7 @@ Prima di considerare un file "completamente commentato":
 - [ ] Commenti inline per logica complessa
 
 ### EJS
+
 - [ ] Header file con descrizione e parametri
 - [ ] Sezioni principali marcate
 - [ ] Blocchi condizionali spiegati
@@ -574,6 +584,7 @@ Prima di considerare un file "completamente commentato":
 - [ ] Include spiegati
 
 ### CSS
+
 - [ ] Header file con descrizione
 - [ ] Sezioni principali separate
 - [ ] Regole complesse spiegate

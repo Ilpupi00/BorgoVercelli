@@ -13,17 +13,19 @@ Sono state aggiunte nuove metriche statistiche alla dashboard amministrativa per
 ### 1. **Sicurezza e Moderazione**
 
 #### Utenti Bannati
+
 - **Descrizione**: Numero totale di utenti permanentemente bannati dal sistema
 - **Query**: `SELECT COUNT(*) FROM UTENTI WHERE bannato = true`
-- **Visualizzazione**: 
+- **Visualizzazione**:
   - Card rossa dedicata nella sezione "Sicurezza e Moderazione"
   - Percentuale sul totale utenti nella tabella riepilogativa
   - Colore rosso per evidenziare l'importanza
 
 #### Utenti Sospesi
+
 - **Descrizione**: Numero di utenti temporaneamente sospesi
 - **Query**: `SELECT COUNT(*) FROM UTENTI WHERE sospeso = true`
-- **Visualizzazione**: 
+- **Visualizzazione**:
   - Card gialla nella sezione "Sicurezza e Moderazione"
   - Percentuale sul totale utenti
   - Badge warning per distinguere dalla sospensione permanente
@@ -31,18 +33,20 @@ Sono state aggiunte nuove metriche statistiche alla dashboard amministrativa per
 ### 2. **Metriche Prenotazioni**
 
 #### Prenotazioni con Note
+
 - **Descrizione**: Numero di prenotazioni che contengono note aggiuntive
 - **Query**: `SELECT COUNT(*) FROM PRENOTAZIONI WHERE note IS NOT NULL AND note != ''`
-- **Visualizzazione**: 
+- **Visualizzazione**:
   - Card verde nella sezione "Sicurezza e Moderazione"
   - Percentuale sul totale prenotazioni
   - Indica l'engagement degli utenti nel fornire dettagli extra
 
 #### Prenotazioni Annullate
+
 - **Descrizione**: Numero totale di prenotazioni annullate
 - **Query**: `SELECT COUNT(*) FROM PRENOTAZIONI WHERE stato = 'annullata'`
 - **Calcolo Tasso**: `(prenotazioni_annullate / prenotazioni_totali) * 100`
-- **Visualizzazione**: 
+- **Visualizzazione**:
   - Card azzurra nella sezione "Sicurezza e Moderazione"
   - Badge con tasso di annullamento in percentuale
   - Metrica importante per valutare la qualità del servizio
@@ -50,8 +54,10 @@ Sono state aggiunte nuove metriche statistiche alla dashboard amministrativa per
 ### 3. **Analisi Campi**
 
 #### Campo Più Popolare
+
 - **Descrizione**: Campo sportivo con il maggior numero di prenotazioni
-- **Query**: 
+- **Query**:
+
 ```sql
 SELECT c.nome, COUNT(p.id) as count
 FROM PRENOTAZIONI p
@@ -60,7 +66,8 @@ GROUP BY p.campo_id, c.nome
 ORDER BY count DESC
 LIMIT 1
 ```
-- **Visualizzazione**: 
+
+- **Visualizzazione**:
   - Card viola/blu nella sezione "Metriche Dettagliate"
   - Nome del campo e numero di prenotazioni
   - Badge con conteggio prenotazioni
@@ -71,20 +78,26 @@ LIMIT 1
 ## 📋 Struttura Dashboard Aggiornata
 
 ### Nuova Sezione: Sicurezza e Moderazione
+
 Posizionata sopra le "Metriche Dettagliate", contiene 4 card:
+
 1. **Utenti Bannati** (rosso)
 2. **Utenti Sospesi** (giallo)
 3. **Prenotazioni Annullate** (azzurro)
 4. **Note Prenotazioni** (verde)
 
 ### Metriche Dettagliate Ampliate
+
 Aggiunta la card "Campo Più Popolare" con:
+
 - Icona trofeo
 - Nome del campo
 - Numero totale di prenotazioni
 
 ### Tabella Riepilogativa Estesa
+
 Aggiunte 6 nuove righe:
+
 1. **Prenotazioni con Note**: Valore + percentuale sul totale
 2. **Prenotazioni Annullate**: Valore + tasso di annullamento
 3. **Utenti Bannati**: Valore + percentuale sugli utenti totali
@@ -96,18 +109,20 @@ Aggiunte 6 nuove righe:
 ## 🎨 Styling Aggiunto
 
 ### Nuove Classi CSS
+
 ```css
 .stats-card-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: #fff;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
 }
 
 [data-theme="dark"] .stats-card-danger {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 ```
 
 ### Badge Colorati
+
 - `badge-danger`: Per metriche di sicurezza critiche
 - `badge-warning`: Per avvisi e sospensioni
 - `badge-info`: Per informazioni generali
@@ -120,6 +135,7 @@ Aggiunte 6 nuove righe:
 ### File Modificati
 
 1. **dao-user.js** (`src/features/users/services/dao-user.js`)
+
    - Aggiunta query per `prenotazioniConNote`
    - Aggiunta query per `prenotazioniAnnullate`
    - Calcolo `tassoAnnullamento`
@@ -129,6 +145,7 @@ Aggiunte 6 nuove righe:
    - Aggiornato oggetto di fallback con nuovi campi
 
 2. **Statistiche.ejs** (`src/features/admin/views/Contenuti/Statistiche.ejs`)
+
    - Nuova sezione "Sicurezza e Moderazione" con 4 card
    - Card "Campo Più Popolare" nella sezione "Metriche Dettagliate"
    - 6 nuove righe nella tabella riepilogativa

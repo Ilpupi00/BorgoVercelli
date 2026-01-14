@@ -3,6 +3,7 @@
 ## 🎯 Panoramica
 
 Sistema unificato per **Eventi** e **Notizie** con:
+
 - ✅ Upload drag & drop moderno
 - ✅ Editor immagini professionale (crop, resize, rotate, flip)
 - ✅ Preview in tempo reale
@@ -17,6 +18,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ### Per **Eventi** e **Notizie**
 
 #### 1. Upload Immagini
+
 - **Drag & Drop** HTML5
 - **Click per selezionare** file
 - **Preview immediata** con FileReader API
@@ -25,6 +27,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 - **Auto-upload** per entità esistenti
 
 #### 2. Editor Immagini Avanzato
+
 - **Crop** con aspect ratio predefiniti:
   - Libero (nessun vincolo)
   - 16:9 (widescreen)
@@ -38,6 +41,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 - **Preview real-time** delle modifiche
 
 #### 3. Gestione Immagini
+
 - **Modifica** immagini esistenti
 - **Elimina** con conferma
 - **Sostituisci** con nuove immagini
@@ -50,11 +54,13 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ### Backend
 
 #### Eventi
+
 - `src/features/eventi/routes/eventi.js`
   - `POST /evento/:id/upload-immagine` - Upload
   - `DELETE /evento/:id/immagine` - Elimina
 
 #### Notizie
+
 - `src/features/notizie/routes/notizie.js`
   - `POST /notizia/:id/upload-immagine` - Upload
   - `DELETE /notizia/:id/immagine` - Elimina
@@ -62,15 +68,18 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ### Frontend
 
 #### Templates
+
 - `src/features/eventi/views/evento.ejs` - UI upload eventi
 - `src/features/notizie/views/notizia.ejs` - UI upload notizie
 
 #### JavaScript
+
 - `src/public/assets/scripts/crea_evento.js` - Gestione upload eventi
 - `src/public/assets/scripts/crea_notizie.js` - Gestione upload notizie
 - `src/public/assets/scripts/image-editor-common.js` - Editor condiviso (NUOVO)
 
 #### CSS
+
 - `src/public/assets/styles/evento-upload.css` - Stili upload
 - `src/public/assets/styles/image-editor.css` - Stili editor (NUOVO)
 
@@ -79,6 +88,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ## 🎨 UI/UX Features
 
 ### Upload Area
+
 ```
 ┌─────────────────────────────────┐
 │  ☁️ Drag & Drop Area             │
@@ -91,6 +101,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ```
 
 ### Image Editor Modal
+
 ```
 ┌──────────────────────────────────────────┐
 │  ✂️ Modifica Immagine              [×]    │
@@ -118,6 +129,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ### Per Amministratori/Dirigenti
 
 #### Caricare Immagine Evento
+
 1. Vai a `/evento/crea-evento` o `/evento/crea-evento/:id`
 2. Trascina immagine nell'area o clicca "Seleziona File"
 3. Visualizza preview
@@ -125,6 +137,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 5. Salva evento
 
 #### Caricare Immagine Notizia
+
 1. Vai a `/crea-notizie` o `/crea-notizie?id=:id`
 2. Trascina immagine nell'area o clicca "Seleziona File"
 3. Visualizza preview
@@ -132,6 +145,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 5. Salva notizia
 
 #### Modificare Immagine Esistente
+
 1. Apri evento/notizia in modifica
 2. Clicca pulsante "✂️ Modifica" sull'immagine
 3. Usa i controlli dell'editor:
@@ -144,6 +158,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 5. Salva il form principale
 
 #### Eliminare Immagine
+
 1. Apri evento/notizia in modifica
 2. Clicca pulsante "🗑️ Elimina"
 3. Conferma eliminazione
@@ -154,32 +169,37 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ## 🎨 Editor Immagini - Dettagli
 
 ### Aspect Ratio Presets
-| Ratio | Uso Ideale | Icona |
-|-------|------------|-------|
-| Libero | Nessun vincolo | 🔓 |
-| 16:9 | Video, header, widescreen | 📺 |
-| 4:3 | Standard, monitor classici | 🖼️ |
-| 1:1 | Social media, avatar | ⬜ |
-| 3:4 | Mobile, verticale | 📱 |
+
+| Ratio  | Uso Ideale                 | Icona |
+| ------ | -------------------------- | ----- |
+| Libero | Nessun vincolo             | 🔓    |
+| 16:9   | Video, header, widescreen  | 📺    |
+| 4:3    | Standard, monitor classici | 🖼️    |
+| 1:1    | Social media, avatar       | ⬜    |
+| 3:4    | Mobile, verticale          | 📱    |
 
 ### Controlli
 
 #### Zoom
+
 - Range: 0% - 200%
 - Incremento: 1%
 - Shortcut: Rotella mouse (su canvas)
 
 #### Rotazione
+
 - Range: -180° a +180°
 - Incremento: 1°
 - Reset automatico su Reset button
 
 #### Flip
+
 - **Orizzontale**: Specchia sull'asse verticale
 - **Verticale**: Specchia sull'asse orizzontale
 - Applicabile multiplo (2 flip = originale)
 
 #### Reset
+
 - Ripristina tutte le modifiche
 - Mantiene immagine originale
 - Resetta zoom, rotazione, flip, crop
@@ -189,6 +209,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ## 🔧 Integrazione Tecnica
 
 ### Cropper.js Configuration
+
 ```javascript
 {
     aspectRatio: 16 / 9,      // Default ratio
@@ -206,6 +227,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ```
 
 ### Output Image Quality
+
 ```javascript
 {
     maxWidth: 1920,
@@ -225,6 +247,7 @@ Sistema unificato per **Eventi** e **Notizie** con:
 ### Eventi
 
 #### Upload Immagine
+
 ```http
 POST /evento/:id/upload-immagine
 Content-Type: multipart/form-data
@@ -241,6 +264,7 @@ Response:
 ```
 
 #### Elimina Immagine
+
 ```http
 DELETE /evento/:id/immagine
 Content-Type: application/json
@@ -255,6 +279,7 @@ Response:
 ### Notizie
 
 #### Upload Immagine
+
 ```http
 POST /notizia/:id/upload-immagine
 Content-Type: multipart/form-data
@@ -271,6 +296,7 @@ Response:
 ```
 
 #### Elimina Immagine
+
 ```http
 DELETE /notizia/:id/immagine
 Content-Type: application/json
@@ -287,12 +313,14 @@ Response:
 ## 🎨 Temi
 
 ### Light Theme
+
 - Upload area: Gradiente grigio chiaro
 - Editor modal: Sfondo bianco
 - Controlli: Blu (#3b82f6)
 - Testo: Scuro (#1e293b)
 
 ### Dark Theme
+
 - Upload area: Gradiente slate scuro
 - Editor modal: Sfondo slate (#1e293b)
 - Controlli: Blu chiaro (#60a5fa)
@@ -303,17 +331,20 @@ Response:
 ## 📱 Responsive
 
 ### Mobile (< 768px)
+
 - Editor modal: 95vw
 - Canvas: max-height 300px
 - Pulsanti: Touch-friendly (44px min)
 - Layout: Colonna singola
 
 ### Tablet (768px - 1023px)
+
 - Editor modal: 90vw
 - Canvas: max-height 350px
 - Layout: Bilanciato
 
 ### Desktop (1024px+)
+
 - Editor modal: 1200px max
 - Canvas: max-height 600px
 - Layout: Completo
@@ -323,12 +354,14 @@ Response:
 ## 🔒 Sicurezza
 
 ### Client-Side
+
 - ✅ Validazione tipo file
 - ✅ Validazione dimensione (5MB max)
 - ✅ Preview sicura (FileReader)
 - ✅ Sanitizzazione input
 
 ### Server-Side
+
 - ✅ Multer validation
 - ✅ Autenticazione richiesta
 - ✅ Autorizzazione (admin/dirigente)
@@ -341,24 +374,28 @@ Response:
 ## 🐛 Troubleshooting
 
 ### Editor non si apre
+
 1. Verifica console per errori JavaScript
 2. Controlla caricamento Cropper.js CDN
 3. Verifica che `image-editor-common.js` sia caricato
 4. Controlla conflitti con altri script
 
 ### Immagine croppa male
+
 1. Assicurati che l'immagine sia caricata completamente
 2. Prova a resettare l'editor
 3. Verifica proporzioni selezionate
 4. Controlla dimensioni immagine originale
 
 ### Modifiche non salvate
+
 1. Clicca "Salva Modifiche" nell'editor
 2. Poi salva il form principale (evento/notizia)
 3. Verifica console per errori di upload
 4. Controlla connessione di rete
 
 ### Dark theme non funziona
+
 1. Verifica caricamento `image-editor.css`
 2. Controlla attributo `[data-theme="dark"]`
 3. Verifica sistema tema globale
@@ -393,12 +430,14 @@ Response:
 ## 🚀 Deploy
 
 ### Locale
+
 ```bash
 npm start
 # Testa su: http://localhost:3000
 ```
 
 ### Railway
+
 ```bash
 git add .
 git commit -m "feat: Add image upload and editor for events and news"
@@ -407,6 +446,7 @@ git push origin main
 ```
 
 ### Verifica Post-Deploy
+
 1. Testa upload su evento
 2. Testa editor su evento
 3. Testa upload su notizia

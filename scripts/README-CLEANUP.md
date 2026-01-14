@@ -5,6 +5,7 @@ Script per pulire file immagini orfani dal volume persistente Railway.
 ## 📋 Problema Risolto
 
 Nel tempo, file immagini possono accumularsi nel volume `/data/uploads` se:
+
 - Viene sostituita un'immagine ma quella vecchia non viene eliminata
 - Un upload fallisce ma il file temporaneo rimane
 - Un record viene eliminato dal database ma il file no
@@ -22,6 +23,7 @@ node scripts/cleanup-uploads.js --dry-run
 ```
 
 Output esempio:
+
 ```
 🧹 PULIZIA VOLUME UPLOADS
 ==================================================
@@ -47,7 +49,7 @@ Output esempio:
       📏 Dimensione: 1.8 MB
       📅 Ultima modifica: 28/11/2025, 10:15:00
       🔹 Verrà eliminato (dry-run)
-   
+
    [...]
 
 ==================================================
@@ -70,6 +72,7 @@ node scripts/cleanup-uploads.js
 ```
 
 Output esempio:
+
 ```
 🧹 PULIZIA VOLUME UPLOADS
 ==================================================
@@ -159,6 +162,7 @@ Aggiungi al `package.json`:
 ```
 
 Poi esegui:
+
 ```bash
 npm run cleanup-uploads:dry-run  # Simulazione
 npm run cleanup-uploads          # Esecuzione reale
@@ -236,6 +240,7 @@ node scripts/cleanup-uploads.js > cleanup-$(date +%Y%m%d-%H%M%S).log 2>&1
 **Problema**: Lo script non riesce a connettersi al database
 
 **Soluzione**:
+
 - Verifica che le variabili d'ambiente siano impostate (`DATABASE_URL`, `PGUSER`, ecc.)
 - Su Railway: usa `railway run` per eseguire con le giuste env vars
 - Locale: controlla `.env`
@@ -245,6 +250,7 @@ node scripts/cleanup-uploads.js > cleanup-$(date +%Y%m%d-%H%M%S).log 2>&1
 **Problema**: La directory `/data/uploads` non esiste
 
 **Soluzione**:
+
 - Su Railway: verifica che il volume sia montato su `/data`
 - Locale: lo script usa automaticamente `src/public/uploads`
 
@@ -253,11 +259,13 @@ node scripts/cleanup-uploads.js > cleanup-$(date +%Y%m%d-%H%M%S).log 2>&1
 **Problema**: Lo script impiega molto tempo (>1 minuto)
 
 **Cause possibili**:
+
 - Molti file da scansionare (>1000)
 - Connessione database lenta
 - Volume Railway sovraccarico
 
 **Soluzione**:
+
 - Esegui lo script in orari di basso traffico (notte)
 - Considera di ottimizzare il database
 - Esegui cleanup più frequentemente per ridurre file accumulati

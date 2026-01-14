@@ -9,12 +9,14 @@
 ### ✅ 1. Risolto Problema Foto Profilo Recensioni
 
 **Problema identificato:**
+
 - Le foto profilo degli utenti non venivano visualizzate nelle recensioni
 - La query SQL cercava nella tabella `IMMAGINI` invece di usare `UTENTI.immagine_profilo`
 
 **Modifiche effettuate:**
 
 #### File: `src/services/dao-recensioni.js`
+
 ```javascript
 // PRIMA
 LEFT JOIN IMMAGINI ON IMMAGINI.entita_riferimento = 'utente'
@@ -26,6 +28,7 @@ UTENTI.immagine_profilo AS immagine_utente
 ```
 
 #### File: `src/public/javascripts/recensioni.js`
+
 - Aggiunto controllo `!== 'null'` per gestire valori null come stringa
 - Implementato fallback con iniziali utente in caso di errore caricamento immagine
 - Migliorata gestione errori con `onerror` event handler
@@ -37,7 +40,9 @@ UTENTI.immagine_profilo AS immagine_utente
 ### ✅ 2. CSS Mobile-First Moderno
 
 #### Recensioni.css
+
 **Caratteristiche implementate:**
+
 - 📱 Design mobile-first con progressive enhancement
 - 🎨 Gradient backgrounds moderni
 - 💫 Animazioni smooth (fadeIn, fadeInUp, fadeInDown)
@@ -48,6 +53,7 @@ UTENTI.immagine_profilo AS immagine_utente
 - 🖨️ Print styles ottimizzati
 
 **Breakpoints responsive:**
+
 - Mobile: < 576px (base)
 - Tablet: 576px - 768px
 - Desktop: 768px - 992px
@@ -56,19 +62,22 @@ UTENTI.immagine_profilo AS immagine_utente
 ---
 
 #### Common.css (NUOVO)
+
 **File CSS modulare e riutilizzabile per tutto il sito:**
 
 ##### CSS Variables
+
 ```css
 :root {
-    --primary: #3a7bd5;
-    --secondary: #00d2ff;
-    --accent: #ffc107;
-    /* ... e molte altre */
+  --primary: #3a7bd5;
+  --secondary: #00d2ff;
+  --accent: #ffc107;
+  /* ... e molte altre */
 }
 ```
 
 ##### Componenti inclusi:
+
 - ✅ Reset CSS moderno
 - ✅ Typography system (h1-h6, p, a)
 - ✅ Grid system responsive (12 colonne)
@@ -81,6 +90,7 @@ UTENTI.immagine_profilo AS immagine_utente
 - ✅ Utility classes complete
 
 ##### Utility Classes disponibili:
+
 - Text alignment: `.text-center`, `.text-left`, `.text-right`
 - Colors: `.text-primary`, `.bg-primary`, etc.
 - Display: `.d-none`, `.d-block`, `.d-flex`
@@ -91,10 +101,9 @@ UTENTI.immagine_profilo AS immagine_utente
 - Shadows: `.shadow-sm`, `.shadow`, `.shadow-lg`
 
 ##### Animations:
+
 ```css
-.fade-in
-.fade-in-up
-.fade-in-down
+.fade-in .fade-in-up .fade-in-down;
 ```
 
 ---
@@ -104,6 +113,7 @@ UTENTI.immagine_profilo AS immagine_utente
 **Nuovo README include:**
 
 #### Sezioni Principali
+
 1. **Header con badges** (Version, Node, License)
 2. **Visione e Missione** dettagliata
 3. **Features complete** con emoji
@@ -125,6 +135,7 @@ UTENTI.immagine_profilo AS immagine_utente
 19. **Contatti** completi
 
 #### API Documentation Inclusa
+
 - ✅ Autenticazione (login, register, logout)
 - ✅ Prenotazioni (CRUD completo)
 - ✅ Eventi (GET, POST, PUT, DELETE)
@@ -134,6 +145,7 @@ UTENTI.immagine_profilo AS immagine_utente
 - ✅ Admin (dashboard, settings)
 
 **Con esempi pratici:**
+
 ```json
 {
   "email": "user@example.com",
@@ -142,6 +154,7 @@ UTENTI.immagine_profilo AS immagine_utente
 ```
 
 #### Database Schema
+
 - Schema completo di tutte le tabelle
 - Relazioni visualizzate
 - Foreign keys documentate
@@ -151,6 +164,7 @@ UTENTI.immagine_profilo AS immagine_utente
 ## 📂 File Modificati
 
 ### File modificati:
+
 1. ✅ `src/services/dao-recensioni.js` - Fix query foto profilo
 2. ✅ `src/public/javascripts/recensioni.js` - Fix rendering immagini
 3. ✅ `src/public/stylesheets/Recensioni.css` - Restyling completo mobile-first
@@ -158,6 +172,7 @@ UTENTI.immagine_profilo AS immagine_utente
 5. ✅ `README.md` - Documentazione professionale completa
 
 ### File di backup creati:
+
 - ✅ `src/public/stylesheets/backup_css/*` - Backup di tutti i CSS esistenti
 
 ---
@@ -165,6 +180,7 @@ UTENTI.immagine_profilo AS immagine_utente
 ## 🎨 Design System Implementato
 
 ### Palette Colori
+
 ```css
 Primary: #3a7bd5 (Blu principale)
 Primary Dark: #2c5aa0
@@ -176,6 +192,7 @@ Warning: #fd7e14 (Arancione)
 ```
 
 ### Typography
+
 ```
 Font Family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto
 Base Size: 16px
@@ -184,6 +201,7 @@ Line Height: 1.6
 ```
 
 ### Spacing System
+
 ```
 xs: 0.25rem (4px)
 sm: 0.5rem (8px)
@@ -194,6 +212,7 @@ xl: 2rem (32px)
 ```
 
 ### Shadow System
+
 ```
 xs: 0 1px 2px rgba(0,0,0,0.05)
 sm: 0 2px 4px rgba(0,0,0,0.08)
@@ -207,6 +226,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## 🚀 Miglioramenti Prestazioni
 
 ### Ottimizzazioni CSS
+
 - ✅ CSS Variables per temi dinamici
 - ✅ Transizioni hardware-accelerated
 - ✅ Animazioni ottimizzate (will-change)
@@ -214,6 +234,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 - ✅ Critical CSS inline (da implementare)
 
 ### Best Practices
+
 - ✅ Mobile-first approach
 - ✅ Progressive enhancement
 - ✅ Semantic HTML
@@ -244,6 +265,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## 🔧 Compatibilità Browser
 
 ### Supportati:
+
 - ✅ Chrome (latest 2 versions)
 - ✅ Firefox (latest 2 versions)
 - ✅ Safari (latest 2 versions)
@@ -251,6 +273,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 - ✅ Mobile browsers (iOS Safari, Chrome Android)
 
 ### Fallback per:
+
 - ⚠️ IE11: Basic styling, no animations
 - ⚠️ Older browsers: Graceful degradation
 
@@ -259,22 +282,25 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## ✨ Features Aggiuntive
 
 ### Dark Mode
+
 ```css
 @media (prefers-color-scheme: dark) {
-    :root {
-        --text-primary: #e9ecef;
-        --bg-primary: #212529;
-        /* ... */
-    }
+  :root {
+    --text-primary: #e9ecef;
+    --bg-primary: #212529;
+    /* ... */
+  }
 }
 ```
 
 ### Print Styles
+
 - Rimozione elementi non necessari (nav, footer, buttons)
 - Ottimizzazione per stampa bianco/nero
 - Page breaks intelligenti
 
 ### Accessibility
+
 - Contrasto colori WCAG AA
 - Focus styles visibili
 - Aria labels (da implementare dove mancano)
@@ -285,12 +311,14 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## 📊 Metriche di Successo
 
 ### Performance Target
+
 - ⚡ Time to Interactive: < 2s
 - 📦 CSS Bundle: < 50KB (gzipped)
 - 🎨 First Contentful Paint: < 1.5s
 - 📱 Mobile Lighthouse: > 90
 
 ### Accessibilità Target
+
 - ♿ WCAG 2.1 Level AA
 - 🎯 Contrast Ratio: ≥ 4.5:1
 - ⌨️ Keyboard Navigation: 100%
@@ -300,6 +328,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## 🔄 Prossimi Passi Suggeriti
 
 ### Breve Termine
+
 1. ✅ Testare su diversi dispositivi reali
 2. ✅ Validare HTML/CSS con W3C Validator
 3. ✅ Test Lighthouse per performance
@@ -307,6 +336,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 5. ✅ Cross-browser testing
 
 ### Medio Termine
+
 1. 📱 Implementare Service Worker (PWA)
 2. 🎨 Aggiungere più temi colore
 3. 🌍 Preparare per internazionalizzazione
@@ -314,6 +344,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 5. 🔔 Notifiche push
 
 ### Lungo Termine
+
 1. 🚀 Ottimizzazione bundle (code splitting)
 2. 🖼️ Lazy loading immagini avanzato
 3. 💨 CDN per assets statici
@@ -325,6 +356,7 @@ xl: 0 12px 24px rgba(0,0,0,0.18)
 ## 🛠 Comandi Utili
 
 ### Sviluppo
+
 ```bash
 # Avvia dev server
 npm run dev
@@ -340,6 +372,7 @@ npm run format
 ```
 
 ### Testing
+
 ```bash
 # Test CSS con stylelint
 npx stylelint "src/public/stylesheets/**/*.css"
@@ -352,6 +385,7 @@ npx lighthouse http://localhost:3000 --view
 ```
 
 ### Backup
+
 ```bash
 # Backup CSS
 cp -r src/public/stylesheets src/public/stylesheets_backup_$(date +%Y%m%d)
@@ -365,27 +399,30 @@ cp -r src/public/stylesheets_backup_20251110/* src/public/stylesheets/
 ## 📝 Note Tecniche
 
 ### CSS Custom Properties
+
 - Utilizzo esteso di CSS variables per temi dinamici
 - Supporto dark mode tramite media query
 - Facile personalizzazione colori brand
 
 ### Metodologia CSS
+
 - BEM-like naming conventions
 - Mobile-first media queries
 - Utility-first approach (simile a Tailwind)
 - Component-based architecture
 
 ### Performance Tips
+
 ```css
 /* Usa transform invece di top/left */
 .element {
-    transform: translateY(-10px); /* ✅ GPU accelerated */
-    /* top: -10px; ❌ Trigger reflow */
+  transform: translateY(-10px); /* ✅ GPU accelerated */
+  /* top: -10px; ❌ Trigger reflow */
 }
 
 /* Usa will-change per animazioni complesse */
 .animated-element {
-    will-change: transform, opacity;
+  will-change: transform, opacity;
 }
 ```
 
@@ -394,16 +431,19 @@ cp -r src/public/stylesheets_backup_20251110/* src/public/stylesheets/
 ## 🎓 Risorse Utilizzate
 
 ### Documentazione
+
 - [MDN Web Docs](https://developer.mozilla.org/)
 - [CSS-Tricks](https://css-tricks.com/)
 - [Web.dev](https://web.dev/)
 
 ### Tools
+
 - [Can I Use](https://caniuse.com/) - Browser support
 - [Autoprefixer](https://autoprefixer.github.io/) - Vendor prefixes
 - [PurgeCSS](https://purgecss.com/) - Remove unused CSS
 
 ### Ispirazione Design
+
 - Material Design
 - Tailwind CSS
 - Bootstrap 5
@@ -437,6 +477,7 @@ cp -r src/public/stylesheets_backup_20251110/* src/public/stylesheets/
 ## 🤝 Contributi
 
 Queste modifiche sono state implementate seguendo:
+
 - ✅ Best practices CSS moderni
 - ✅ Principi di design mobile-first
 - ✅ Linee guida accessibilità WCAG
@@ -449,6 +490,7 @@ Queste modifiche sono state implementate seguendo:
 ## 📞 Supporto
 
 Per domande o problemi relativi a queste modifiche:
+
 - 📧 Email: dev@borgovercelli.it
 - 🐛 GitHub Issues: [Apri issue](https://github.com/Ilpupi00/Sito_BorgoVercelli/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/Ilpupi00/Sito_BorgoVercelli/discussions)
@@ -459,7 +501,7 @@ Per domande o problemi relativi a queste modifiche:
 
 **✨ Restyling completato con successo! ✨**
 
-*Implementato il 10 Novembre 2025*
+_Implementato il 10 Novembre 2025_
 
 [⬆ Torna su](#-restyling-mobile-first---riepilogo-modifiche)
 

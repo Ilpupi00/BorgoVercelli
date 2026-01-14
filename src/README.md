@@ -109,22 +109,29 @@ src/
 ## 🎯 Principi di Organizzazione
 
 ### 1. **Separazione per Dominio (Feature-Based)**
+
 Ogni funzionalità principale ha la sua directory in `features/` con:
+
 - **routes**: gestione delle richieste HTTP
 - **services**: logica di business e accesso ai dati (DAO)
 - **views**: template EJS specifici
 
 ### 2. **Core Centralizzato**
+
 Elementi condivisi come configurazioni, middleware e modelli sono centralizzati in `core/`.
 
 ### 3. **Shared Components**
+
 Componenti utilizzati da più features sono in `shared/`:
+
 - Route generiche
 - Servizi comuni (email)
 - View utilizzate da più sezioni
 
 ### 4. **Asset Pubblici Organizzati**
+
 Gli asset statici sono in `public/assets/` divisi per tipo:
+
 - `/assets/images/` - Immagini statiche
 - `/assets/scripts/` - JavaScript
 - `/assets/styles/` - CSS
@@ -135,36 +142,40 @@ Gli asset statici sono in `public/assets/` divisi per tipo:
 ### Import tra Moduli
 
 **Da una feature ad un'altra:**
+
 ```javascript
-const daoUser = require('../../users/services/dao-user');
+const daoUser = require("../../users/services/dao-user");
 ```
 
 **Da una feature al core:**
+
 ```javascript
-const db = require('../../../core/config/database');
-const { isLoggedIn } = require('../../../core/middlewares/auth');
+const db = require("../../../core/config/database");
+const { isLoggedIn } = require("../../../core/middlewares/auth");
 ```
 
 **Da shared alle features:**
+
 ```javascript
-const daoNotizie = require('../../features/notizie/services/dao-notizie');
+const daoNotizie = require("../../features/notizie/services/dao-notizie");
 ```
 
 ### URL Asset Statici
 
 Nelle view EJS, usa questi path:
+
 ```html
 <!-- CSS -->
-<link href="/assets/styles/Common.css" rel="stylesheet">
+<link href="/assets/styles/Common.css" rel="stylesheet" />
 
 <!-- JavaScript -->
 <script src="/assets/scripts/login.js"></script>
 
 <!-- Immagini statiche -->
-<img src="/assets/images/Logo.png" alt="Logo">
+<img src="/assets/images/Logo.png" alt="Logo" />
 
 <!-- Upload utenti -->
-<img src="/uploads/user_123_photo.jpg" alt="Foto profilo">
+<img src="/uploads/user_123_photo.jpg" alt="Foto profilo" />
 ```
 
 ## 🚀 Avvio del Progetto
@@ -189,6 +200,7 @@ npm start
 Quando aggiungi nuove funzionalità:
 
 1. **Crea una nuova feature directory** se necessario:
+
    ```
    features/nuova-feature/
    ├── routes/

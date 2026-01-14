@@ -7,12 +7,14 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 ### 📄 Documentazione Fornita
 
 1. **`RIEPILOGO_ESECUTIVO.md`** ⭐ START HERE
+
    - Overview completo progetto
    - Stato avanzamento (40% completato)
    - Prossime azioni immediate
    - Timeline e metriche
 
 2. **`MVP_MIGRATION.md`** 📚 GUIDA COMPLETA
+
    - Documentazione tecnica dettagliata
    - Prerequisiti e setup
    - Modifiche già applicate vs da fare
@@ -21,6 +23,7 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
    - Troubleshooting esaustivo
 
 3. **`RUNBOOK_OPERATIVO.md`** 🛠️ COMANDI PRONTI
+
    - Comandi PowerShell/Bash copy-paste
    - Quick start (15 minuti)
    - Pattern conversione DAO
@@ -52,26 +55,31 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 ### Per Chi Inizia Ora (First Time)
 
 **STEP 1**: Leggere `RIEPILOGO_ESECUTIVO.md` (10 min)
+
 - Capire stato progetto
 - Vedere cosa è già fatto
 - Capire cosa resta da fare
 
 **STEP 2**: Seguire `RUNBOOK_OPERATIVO.md` → Quick Start (15 min)
+
 - Setup database PostgreSQL
 - Configurare file .env
 - Test primo avvio applicazione
 
 **STEP 3**: Consultare `MVP_MIGRATION.md` → Conversione DAO
+
 - Pattern da seguire
 - File da modificare (ordine priorità)
 - Test dopo ogni modifica
 
 **STEP 4**: Completare conversione DAO (8-12 ore)
+
 - Seguire checklist in `RUNBOOK_OPERATIVO.md`
 - Testare incrementalmente
 - Git commit frequenti
 
 **STEP 5**: Test e Deploy
+
 - Test funzionali MVP (checklist in `MVP_MIGRATION.md`)
 - Deploy staging
 - Deploy production
@@ -79,6 +87,7 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 ### Per Chi Deve Solo Verificare/Correggere
 
 **Consultare**:
+
 - `RIEPILOGO_ESECUTIVO.md` → Sezione "Avanzamento Progetto"
 - `MVP_MIGRATION.md` → Sezione "Troubleshooting"
 - `RUNBOOK_OPERATIVO.md` → Sezione "Debug e Log"
@@ -87,30 +96,32 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 
 ## ⏱️ TEMPO STIMATO
 
-| Fase | Tempo | Stato |
-|------|-------|-------|
-| Lettura documentazione | 30 min | ⏳ |
-| Setup ambiente | 30 min | ⏳ |
-| Conversione DAO critici | 6 ore | ⏳ |
-| Conversione DAO secondari | 4 ore | ⏳ |
-| Test funzionali | 3 ore | ⏳ |
-| Deploy staging | 2 ore | ⏳ |
-| Deploy production | 2 ore | ⏳ |
-| **TOTALE** | **~18 ore** | **⏳** |
+| Fase                      | Tempo       | Stato  |
+| ------------------------- | ----------- | ------ |
+| Lettura documentazione    | 30 min      | ⏳     |
+| Setup ambiente            | 30 min      | ⏳     |
+| Conversione DAO critici   | 6 ore       | ⏳     |
+| Conversione DAO secondari | 4 ore       | ⏳     |
+| Test funzionali           | 3 ore       | ⏳     |
+| Deploy staging            | 2 ore       | ⏳     |
+| Deploy production         | 2 ore       | ⏳     |
+| **TOTALE**                | **~18 ore** | **⏳** |
 
-*Tempo effettivo può variare in base all'esperienza e complessità riscontrate*
+_Tempo effettivo può variare in base all'esperienza e complessità riscontrate_
 
 ---
 
 ## 🎓 PREREQUISITI CONOSCENZE
 
 ### Necessari
+
 - JavaScript/Node.js
 - SQL base (SELECT, INSERT, UPDATE, DELETE)
 - Async/await in JavaScript
 - Git base
 
 ### Utili ma non bloccanti
+
 - PostgreSQL specifics
 - Database migration experience
 - PowerShell/Bash
@@ -122,6 +133,7 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 ## 🚦 PRIORITÀ AZIONI
 
 ### 🔴 CRITICHE (Fare SUBITO)
+
 1. Setup database PostgreSQL locale
 2. Configurare file .env
 3. Convertire `dao-user.js` (autenticazione)
@@ -129,12 +141,14 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 5. Test registrazione, login, prenotazioni
 
 ### 🟡 IMPORTANTI (Fare DOPO critiche)
+
 6. Convertire `dao-campi.js`
 7. Convertire `dao-eventi.js`
 8. Convertire `dao-notizie.js`
 9. Test funzionali completi
 
 ### 🟢 SECONDARIE (Fare PER ULTIME)
+
 10. Convertire altri DAO (galleria, squadre, ecc.)
 11. Ottimizzazioni performance
 12. Deploy production
@@ -144,18 +158,21 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 ## 📋 CHECKLIST RAPIDA
 
 **Prima di iniziare**:
+
 - [ ] Ho letto `RIEPILOGO_ESECUTIVO.md`
 - [ ] Ho PostgreSQL installato e funzionante
 - [ ] Ho accesso al repository git
 - [ ] Ho fatto backup/commit del codice attuale
 
 **Setup (30 min)**:
+
 - [ ] Database PostgreSQL creato
 - [ ] Schema `create_postgres_db.sql` eseguito
 - [ ] File `.env` configurato
 - [ ] Applicazione si avvia senza errori
 
 **Conversione (10-14 ore)**:
+
 - [ ] `dao-user.js` convertito e testato
 - [ ] `dao-prenotazione.js` convertito e testato
 - [ ] `dao-campi.js` convertito e testato
@@ -164,6 +181,7 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 - [ ] Script utility verificati
 
 **Test (3 ore)**:
+
 - [ ] Registrazione utente funziona
 - [ ] Login funziona
 - [ ] Creazione prenotazione funziona
@@ -172,6 +190,7 @@ Questo package contiene tutto il necessario per completare la migrazione da SQLi
 - [ ] Nessun errore nei log per 1 ora
 
 **Deploy (4 ore)**:
+
 - [ ] Staging deploy completato
 - [ ] Test su staging OK
 - [ ] Production deploy completato
@@ -254,13 +273,14 @@ Al completamento di questa migrazione, il progetto BorgoVercelli:
 ✅ Avrà codice modernizzato (async/await invece di callback)  
 ✅ Sarà pronto per ambienti enterprise  
 ✅ Avrà documentazione completa della migrazione  
-✅ Avrà procedure di rollback testate  
+✅ Avrà procedure di rollback testate
 
 ---
 
 ## 📊 METRICS DI SUCCESSO
 
 **MVP completato quando**:
+
 - ✅ Tutti i DAO convertiti
 - ✅ Tutti i test funzionali passano
 - ✅ Zero errori critici per 24h
@@ -315,6 +335,6 @@ Prima di iniziare, verifica di avere tutti questi file:
 
 ---
 
-*Documentazione creata il 10 Novembre 2025*  
-*Versione Package: 1.0*  
-*Progetto: BorgoVercelli - Migrazione PostgreSQL*
+_Documentazione creata il 10 Novembre 2025_  
+_Versione Package: 1.0_  
+_Progetto: BorgoVercelli - Migrazione PostgreSQL_

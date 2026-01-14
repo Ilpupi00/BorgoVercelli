@@ -1,17 +1,21 @@
 # Railway Database Migration Steps
 
 ## Overview
+
 This document contains the steps needed to update your Railway PostgreSQL database to match the schema expected by your application code.
 
 ## Critical Issues Found
 
 ### 1. Missing Columns in Tables
+
 Several tables are missing columns that the application code expects to exist.
 
 ### 2. this.lastID Pattern
+
 Many DAO files still use `this.lastID` which doesn't work with PostgreSQL. They need to use the RETURNING clause instead.
 
 ### 3. Boolean Comparisons
+
 Some queries still use `attivo = 1` or `pubblicato = 1` instead of `true`.
 
 ---
@@ -40,7 +44,7 @@ ALTER TABLE GIOCATORI ADD COLUMN IF NOT EXISTS Nazionalità VARCHAR(255);
 ALTER TABLE GIOCATORI ADD COLUMN IF NOT EXISTS immagini_id INTEGER;
 
 -- Add foreign key for GIOCATORI.immagini_id (if IMMAGINI table exists)
-ALTER TABLE GIOCATORI ADD CONSTRAINT fk_giocatori_immagini 
+ALTER TABLE GIOCATORI ADD CONSTRAINT fk_giocatori_immagini
     FOREIGN KEY (immagini_id) REFERENCES IMMAGINI(id);
 
 -- Add missing TIPI_UTENTE records (Admin and Regular User)
@@ -57,33 +61,42 @@ INSERT INTO TIPI_UTENTE (id, nome, descrizione) VALUES (5, 'Utente', 'Utente nor
 ### Files with `this.lastID` that need RETURNING clause:
 
 1. **src/features/squadre/services/dao-squadre.js**
+
    - Line 139: `createSquadra()` ✅ NEEDS FIX
    - Line 475: Uses `this.lastID` in nested callback ✅ NEEDS FIX
 
 2. **src/features/prenotazioni/services/dao-prenotazione.js**
+
    - Line 236: INSERT prenotazione ✅ NEEDS FIX
 
 3. **src/features/users/services/dao-user.js**
+
    - Line 291: INSERT user ✅ NEEDS FIX
 
 4. **src/features/squadre/services/dao-dirigenti-squadre.js**
+
    - Line 99: INSERT dirigente ✅ NEEDS FIX
    - Line 167: INSERT dirigente ✅ NEEDS FIX
 
 5. **src/features/recensioni/services/dao-recensioni.js**
+
    - Line 86: INSERT recensione ✅ NEEDS FIX
 
 6. **src/features/prenotazioni/services/dao-campi.js**
+
    - Line 142: INSERT campo ✅ NEEDS FIX
    - Line 218: INSERT orario ✅ NEEDS FIX
 
 7. **src/features/notizie/services/dao-notizie.js**
+
    - Line 171: INSERT notizia ✅ NEEDS FIX
 
 8. **src/features/eventi/services/dao-eventi.js**
+
    - Line 122: INSERT evento ✅ NEEDS FIX
 
 9. **src/features/campionati/services/dao-campionati.js**
+
    - Line 201: INSERT campionato ✅ NEEDS FIX
    - Line 449: INSERT squadra_campionato ✅ NEEDS FIX
 
@@ -94,19 +107,21 @@ INSERT INTO TIPI_UTENTE (id, nome, descrizione) VALUES (5, 'Utente', 'Utente nor
 ### Pattern to Fix:
 
 **BEFORE (SQLite pattern):**
+
 ```javascript
-sqlite.run(sql, params, function(err) {
-    if (err) return reject(err);
-    resolve({ id: this.lastID });
+sqlite.run(sql, params, function (err) {
+  if (err) return reject(err);
+  resolve({ id: this.lastID });
 });
 ```
 
 **AFTER (PostgreSQL pattern):**
+
 ```javascript
 const sql = `INSERT INTO ... RETURNING id`;
-sqlite.run(sql, params, function(err, result) {
-    if (err) return reject(err);
-    resolve({ id: result.rows[0].id });
+sqlite.run(sql, params, function (err, result) {
+  if (err) return reject(err);
+  resolve({ id: result.rows[0].id });
 });
 ```
 
@@ -152,4 +167,3 @@ After running the ALTER TABLE statements and deploying updated code:
 - All boolean comparisons should use `true`/`false` instead of `1`/`0`
 - The database wrapper already handles `?` → `$1, $2, ...` conversion
 - RETURNING clause is the PostgreSQL way to get inserted IDs
-

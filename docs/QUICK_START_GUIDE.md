@@ -3,6 +3,7 @@
 ## 30 Secondi per Iniziare
 
 ### Step 1: Trova il Selettore Tema
+
 ```
 👉 Guarda in alto a destra nella navbar
 👉 Cerca l'icona circolare (🔄 ☀️ o 🌙)
@@ -10,6 +11,7 @@
 ```
 
 ### Step 2: Scegli il Tuo Tema
+
 ```
 ☀️ Tema Chiaro - Per lavorare di giorno
 🌙 Tema Scuro - Per lavorare di sera/notte
@@ -17,6 +19,7 @@
 ```
 
 ### Step 3: Goditi l'Esperienza
+
 ```
 ✨ Il tema cambia istantaneamente
 ✨ La tua scelta viene salvata
@@ -26,6 +29,7 @@
 ## Cosa Succede Quando Cambi Tema?
 
 ### Tema Chiaro → Tema Scuro
+
 ```
 Background bianco   →  Background grigio scuro
 Testo nero          →  Testo bianco
@@ -34,6 +38,7 @@ Ombre leggere       →  Ombre profonde
 ```
 
 ### Animazione
+
 ```
 [Light Theme]  →  [Transizione fluida ~300ms]  →  [Dark Theme]
     ☀️              ～～～～～～～～～～～～              🌙
@@ -55,6 +60,7 @@ Ombre leggere       →  Ombre profonde
 ## Perché Usare il Tema Scuro?
 
 ### Vantaggi 🌟
+
 1. **Riduce l'affaticamento degli occhi** 👀
 2. **Migliora la concentrazione** 🎯
 3. **Look moderno e professionale** ✨
@@ -62,6 +68,7 @@ Ombre leggere       →  Ombre profonde
 5. **Perfetto per ambienti con poca luce** 🌙
 
 ### Quando Usarlo
+
 - 🌙 Sera e notte
 - 💻 Lunghe sessioni al computer
 - 🎮 Gaming o streaming
@@ -71,18 +78,21 @@ Ombre leggere       →  Ombre profonde
 ## Tips & Tricks
 
 ### Tip #1: Keyboard Shortcut (Coming Soon)
+
 ```
 Ctrl + Shift + T  →  Toggle tema rapidamente
 ```
 
 ### Tip #2: Preferenza Sistema
+
 ```
-Seleziona "Preferenza Sistema" e il tema 
-cambierà automaticamente quando cambi le 
+Seleziona "Preferenza Sistema" e il tema
+cambierà automaticamente quando cambi le
 impostazioni del tuo sistema operativo!
 ```
 
 ### Tip #3: Diverse Stanze, Diversi Temi
+
 ```
 🏢 Ufficio (luminoso)  →  Tema Chiaro
 🏠 Casa (sera)          →  Tema Scuro
@@ -127,6 +137,7 @@ A: Sì! Rispetta gli standard WCAG per il contrasto.
 ## Before & After
 
 ### Before (Light) ☀️
+
 ```
 ┌──────────────────────┐
 │ 🏠 BorgoVercelli     │  ← Navbar blu
@@ -142,6 +153,7 @@ A: Sì! Rispetta gli standard WCAG per il contrasto.
 ```
 
 ### After (Dark) 🌙
+
 ```
 ┌──────────────────────┐
 │ 🏠 BorgoVercelli     │  ← Navbar grigio scuro
@@ -168,12 +180,12 @@ A: Sì! Rispetta gli standard WCAG per il contrasto.
 
 ## One More Thing...
 
-Il tema scuro non è solo una feature, è un'esperienza! 
-Provalo ora e scopri come può migliorare il tuo modo di 
+Il tema scuro non è solo una feature, è un'esperienza!
+Provalo ora e scopri come può migliorare il tuo modo di
 navigare nel sito di Borgo Vercelli. ✨
 
 ---
 
 **Ready?** Guarda in alto a destra e inizia! 🚀
 
-*Made with ❤️ by Borgo Vercelli Team*
+_Made with ❤️ by Borgo Vercelli Team_

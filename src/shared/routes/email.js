@@ -1,15 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const emailService = require('../services/email-service');
+const emailService = require("../services/email-service");
 
 // Legacy endpoint ancora utilizzato da componenti che puntano a /send-email
-router.post('/send-email', async (req, res) => {
+router.post("/send-email", async (req, res) => {
   const { name, email, subject, message, phone } = req.body;
-  
-  console.log('[POST /send-email] Received data:', { name, email, subject, phone, hasMessage: !!message });
+
+  console.log("[POST /send-email] Received data:", {
+    name,
+    email,
+    subject,
+    phone,
+    hasMessage: !!message,
+  });
 
   if (!name || !email || !subject || !message) {
-    return res.status(400).json({ error: 'Tutti i campi sono obbligatori.' });
+    return res.status(400).json({ error: "Tutti i campi sono obbligatori." });
   }
 
   try {
@@ -18,13 +24,22 @@ router.post('/send-email', async (req, res) => {
       fromEmail: email,
       subject,
       message,
-      phone
+      phone,
     });
-    console.log('Email inviata (legacy): %s - Phone was: %s', info && info.messageId, phone || 'NOT PROVIDED');
-    res.json({ success: true, message: 'Email inviata con successo!' });
+    console.log(
+      "Email inviata (legacy): %s - Phone was: %s",
+      info && info.messageId,
+      phone || "NOT PROVIDED"
+    );
+    res.json({ success: true, message: "Email inviata con successo!" });
   } catch (err) {
-    console.error('Errore dettagliato invio email (legacy):', err);
-    res.status(500).json({ error: 'Errore durante l\'invio della mail.', details: err.message });
+    console.error("Errore dettagliato invio email (legacy):", err);
+    res
+      .status(500)
+      .json({
+        error: "Errore durante l'invio della mail.",
+        details: err.message,
+      });
   }
 });
 

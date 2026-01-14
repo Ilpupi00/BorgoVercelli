@@ -1,9 +1,11 @@
 # Sistema di Report Excel Prenotazioni
 
 ## Data implementazione
+
 29 Novembre 2025
 
 ## Obiettivo
+
 Implementare un sistema per esportare le prenotazioni in formato Excel con filtri personalizzabili per periodo, campo e stato.
 
 ## Funzionalità Implementate
@@ -11,21 +13,24 @@ Implementare un sistema per esportare le prenotazioni in formato Excel con filtr
 ### 1. Interfaccia Utente - Calendario
 
 **File modificati**:
+
 - `src/features/prenotazioni/views/calendario.ejs`
 - `src/public/assets/styles/calendario.css`
 - `src/public/assets/scripts/calendario.js`
 
 #### Bottone Export
+
 Aggiunto bottone "Report Excel" nell'header del calendario, posizionato accanto al bottone "Oggi":
 
 ```html
 <button id="exportReportBtn" class="btn btn-export">
-    <i class="bi bi-file-earmark-excel me-1"></i>
-    <span class="d-none d-md-inline">Report Excel</span>
+  <i class="bi bi-file-earmark-excel me-1"></i>
+  <span class="d-none d-md-inline">Report Excel</span>
 </button>
 ```
 
 **Stile**:
+
 - Colore verde (#10b981) per richiamare Excel
 - Responsive: su mobile mostra solo l'icona
 - Hover effect con elevazione e cambio colore
@@ -36,28 +41,28 @@ Aggiunto bottone "Report Excel" nell'header del calendario, posizionato accanto 
 Modal con form per selezionare i parametri del report:
 
 **Campi del form**:
+
 1. **Data Inizio** (obbligatorio)
    - Input type="date"
    - Default: Lunedì della settimana corrente
-   
 2. **Data Fine** (obbligatorio)
    - Input type="date"
    - Default: Domenica della settimana corrente
-   
 3. **Campo** (opzionale)
    - Select con tutti i campi disponibili
    - Default: "Tutti i campi"
-   
 4. **Stato** (opzionale)
    - Select con gli stati: Confermate, In Attesa, Annullate
    - Default: "Tutti gli stati"
 
 **Validazioni**:
+
 - Data inizio e fine obbligatorie
 - Data inizio deve essere precedente o uguale alla data fine
 - Alert con messaggi descrittivi in caso di errore
 
 **Stili Modal**:
+
 - Background overlay semitrasparente
 - Container centrato con max-width
 - Form styling consistente con il tema del calendario
@@ -73,14 +78,16 @@ Modal con form per selezionare i parametri del report:
 **Endpoint**: `GET /prenotazione/export-report`
 
 **Query Parameters**:
+
 - `dataInizio` (required): Data inizio periodo (formato YYYY-MM-DD)
 - `dataFine` (required): Data fine periodo (formato YYYY-MM-DD)
 - `campo` (optional): ID del campo specifico
 - `stato` (optional): Stato delle prenotazioni (confermata, in_attesa, annullata)
 
 **Query SQL**:
+
 ```sql
-SELECT 
+SELECT
     p.id,
     p.data_prenotazione as data,
     p.ora_inizio,
@@ -99,7 +106,7 @@ SELECT
 FROM PRENOTAZIONI p
 JOIN CAMPI c ON p.campo_id = c.id
 LEFT JOIN UTENTI u ON p.utente_id = u.id
-WHERE p.data_prenotazione >= $1 
+WHERE p.data_prenotazione >= $1
 AND p.data_prenotazione <= $2
 [AND p.campo_id = $3]
 [AND p.stato = $4]
@@ -113,6 +120,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 **Struttura del file**:
 
 #### Colonne:
+
 1. ID
 2. Data
 3. Ora Inizio
@@ -132,6 +140,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 #### Formattazione:
 
 **Header**:
+
 - Font: Bold, 12pt, Bianco
 - Background: Blu (#4472C4)
 - Allineamento: Centro
@@ -139,6 +148,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 - Bordi su tutte le celle
 
 **Righe dati**:
+
 - Background colorato per stato:
   - ✅ **Confermata**: Verde chiaro (#C6EFCE)
   - ⏳ **In Attesa**: Giallo chiaro (#FFD966)
@@ -148,6 +158,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 - Timestamp con ora (gg/mm/aaaa HH:MM:SS)
 
 **Summary (footer)**:
+
 - Riga vuota separatore
 - **TOTALE PRENOTAZIONI**: numero totale
 - Suddivisione per stato:
@@ -156,6 +167,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
   - Annullate: Z
 
 **Larghezza colonne ottimizzate**:
+
 - ID: 8
 - Date e ore: 12
 - Testo breve: 15-18
@@ -164,16 +176,19 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ### 4. Flusso Utente Completo
 
 1. **Apertura Modal**:
+
    - Click su bottone "Report Excel"
    - Modal si apre con date pre-impostate (settimana corrente)
    - Focus automatico sul primo campo
 
 2. **Selezione Parametri**:
+
    - Modifica date se necessario
    - Opzionalmente filtra per campo specifico
    - Opzionalmente filtra per stato
 
 3. **Generazione Report**:
+
    - Click su "Scarica Report Excel"
    - Bottone mostra loading state: "Generazione in corso..."
    - Fetch asincrono all'endpoint backend
@@ -188,12 +203,14 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ### 5. Gestione Errori
 
 **Frontend**:
+
 - Validazione date prima dell'invio
 - Alert user-friendly per errori di validazione
 - Gestione errori di rete con try/catch
 - Ripristino stato bottone in caso di errore
 
 **Backend**:
+
 - Validazione parametri obbligatori (400 Bad Request)
 - Try/catch per errori database (500 Internal Server Error)
 - Log dettagliati degli errori
@@ -202,15 +219,18 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ### 6. Responsive Design
 
 **Desktop** (>1024px):
+
 - Bottone con testo completo "Report Excel"
 - Modal centrato con padding generoso
 - Form a larghezza ottimale
 
 **Tablet** (768px-1024px):
+
 - Bottone con testo "Report Excel"
 - Modal responsive con padding medio
 
 **Mobile** (<768px):
+
 - Bottone solo icona per risparmiare spazio
 - Modal fullscreen o quasi
 - Form ottimizzato per touch
@@ -229,6 +249,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ## Esempi di Utilizzo
 
 ### Report Settimanale Completo
+
 - Data Inizio: 25/11/2025
 - Data Fine: 01/12/2025
 - Campo: Tutti i campi
@@ -236,6 +257,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 - **Risultato**: Excel con tutte le prenotazioni della settimana
 
 ### Report Campo Specifico
+
 - Data Inizio: 01/11/2025
 - Data Fine: 30/11/2025
 - Campo: "Calcio a 5"
@@ -243,6 +265,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 - **Risultato**: Excel con prenotazioni confermate del campo "Calcio a 5" nel mese
 
 ### Report Mensile In Attesa
+
 - Data Inizio: 01/11/2025
 - Data Fine: 30/11/2025
 - Campo: Tutti i campi
@@ -252,6 +275,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ## Dipendenze
 
 **NPM Package**:
+
 ```json
 {
   "exceljs": "^4.4.0"
@@ -259,6 +283,7 @@ ORDER BY p.data_prenotazione, p.ora_inizio
 ```
 
 **Installazione**:
+
 ```bash
 npm install exceljs
 ```
@@ -280,6 +305,7 @@ npm install exceljs
 ## Testing
 
 ### Test Manuale
+
 1. Aprire calendario admin: `/admin/calendario`
 2. Click su "Report Excel"
 3. Selezionare periodo (es. settimana corrente)
@@ -292,6 +318,7 @@ npm install exceljs
    - Summary a fine foglio
 
 ### Test Edge Cases
+
 - ✅ Periodo senza prenotazioni → File Excel con solo header e summary "0"
 - ✅ Data inizio > data fine → Alert di validazione
 - ✅ Campi vuoti → Alert di validazione

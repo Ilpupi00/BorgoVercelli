@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
     transition: filter 0.2s;
   }
   .navbar-logo {
@@ -22,11 +22,10 @@
     height: 30px !important;
     margin: 0 auto;
     border-radius: 5px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     object-fit: contain;
     transition: width 0.2s, height 0.2s;
   }
-
 
   .navbar-toggler {
     margin-left: auto;
@@ -39,16 +38,20 @@
     border-radius: 10px;
     background-color: var(--primary-color);
     border: none;
-    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
     transition: background 0.2s, box-shadow 0.2s;
   }
   .navbar-toggler:active {
     background-color: #0d6efd;
-    box-shadow: 0 4px 16px rgba(13,110,253,0.18);
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.18);
   }
   .navbar {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-variant) 100%) !important;
-    box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--primary-variant) 100%
+    ) !important;
+    box-shadow: 0 2px 12px rgba(13, 110, 253, 0.15);
   }
   .navbar-nav {
     padding: 3px 0;
@@ -79,12 +82,14 @@
   .navbar-nav .nav-link:active {
     background: #fff;
     color: #0d6efd;
-    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
   }
   .navbar-nav .nav-link::after {
-    content: '';
+    content: "";
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     height: 2px;
     background: #fff;
     width: 0;
@@ -111,12 +116,12 @@
     height: 26px !important;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 2px solid #fff;
     transition: box-shadow 0.2s, border 0.2s;
   }
   .profile-pic:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     border: 2px solid #00d2ff;
   }
   .profile-icon {
@@ -138,13 +143,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(58,123,213,0.12);
+    box-shadow: 0 2px 8px rgba(58, 123, 213, 0.12);
     border: none;
     font-weight: 500;
     letter-spacing: 0.01em;
     transition: background 0.2s, box-shadow 0.2s;
   }
-
 }
 
 /* Mobile fixes: ensure navbar stays blue and active links don't create white blocks */
@@ -152,8 +156,13 @@
   /* force nav background (covers cases where collapse or other classes override it) */
   /* Keep the main nav background but leave the collapse container transparent
      so the navbar background is the only visible layer (prevents double background). */
-  nav#navbar, .navbar {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-variant) 100%) !important;
+  nav#navbar,
+  .navbar {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--primary-variant) 100%
+    ) !important;
     background-color: var(--primary-color) !important;
     color: var(--text-on-primary) !important;
   }
@@ -173,7 +182,7 @@
 
   :root[data-theme="dark"] .navbar .alert,
   body[data-theme="dark"] .navbar .alert {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
     color: var(--text-on-primary, #ffffff) !important;
     border-left-color: var(--danger, #ef4444) !important;
   }
@@ -203,13 +212,13 @@
   }
 
   :root:not([data-theme="dark"]) .navbar .alert {
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
   }
 
   /* avoid active nav-link showing full white block on mobile (links often full-width) */
   .navbar-nav .nav-link:active,
   .navbar-nav .nav-link.active {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
     color: var(--text-on-primary) !important;
   }
 
@@ -217,24 +226,28 @@
   /* Use the same navbar background for dropdowns so they match in both themes */
   .navbar .dropdown-menu {
     background: var(--navbar-bg) !important;
-    border-color: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
   }
 }
 /* Alerts placed inside the navbar (global) - ensure high contrast in both themes */
-  .navbar .alert {
+.navbar .alert {
   background: var(--danger, #ef4444) !important;
   color: var(--text-on-primary, #ffffff) !important;
   border-left-color: #b91c1c !important;
   padding: 0.5rem 0.75rem !important;
   margin: 0.25rem !important;
   border-radius: 0.5rem !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
 }
 
 :root[data-theme="dark"] .navbar .alert,
 body[data-theme="dark"] .navbar .alert {
   /* Keep alerts visible in dark theme as well: use danger color but slightly toned */
-  background: linear-gradient(90deg, rgba(239,68,68,0.95), rgba(185,28,28,0.95)) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.95),
+    rgba(185, 28, 28, 0.95)
+  ) !important;
   color: var(--text-on-primary, #ffffff) !important;
   border-left-color: #7f1d1d !important;
 }
@@ -269,7 +282,7 @@ body:not([data-theme="dark"]) .navbar .alert {
   background: var(--danger, #ef4444) !important;
   color: var(--text-on-primary, #ffffff) !important;
   border-left-color: #b91c1c !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* Light-theme: ensure icons and close button are white */
@@ -407,7 +420,8 @@ nav#navbar.sticky-top,
 }
 
 .modern-search-wrapper:focus-within {
-  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25), 0 4px 8px rgba(13, 110, 253, 0.15);
+  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25),
+    0 4px 8px rgba(13, 110, 253, 0.15);
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 1);
   border-color: rgba(13, 110, 253, 0.3);
@@ -490,22 +504,22 @@ nav#navbar.sticky-top,
     max-width: 340px;
     padding: 5px 5px 5px 16px;
   }
-  
+
   .search-icon {
     font-size: 15px;
     margin-right: 10px;
   }
-  
+
   .modern-search-input {
     font-size: 15px !important;
     padding: 9px 6px !important;
   }
-  
+
   .modern-search-btn {
     width: 40px;
     height: 40px;
   }
-  
+
   .modern-search-btn i {
     font-size: 15px;
   }
@@ -516,36 +530,36 @@ nav#navbar.sticky-top,
   .modern-search-form {
     margin: 0 0 0 16px !important;
   }
-  
+
   .modern-search-wrapper {
     max-width: 420px;
     padding: 6px 6px 6px 18px;
     border-radius: 28px;
   }
-  
+
   .modern-search-wrapper:hover {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
   }
-  
+
   .search-icon {
     font-size: 16px;
     margin-right: 12px;
   }
-  
+
   .modern-search-input {
     font-size: 16px !important;
     padding: 10px 8px !important;
   }
-  
+
   .modern-search-input::placeholder {
     content: "Cerca notizie, eventi, squadre...";
   }
-  
+
   .modern-search-btn {
     width: 44px;
     height: 44px;
   }
-  
+
   .modern-search-btn i {
     font-size: 16px;
   }
@@ -585,17 +599,17 @@ nav#navbar.sticky-top,
    `nav#navbar .modern-search-wrapper .modern-search-input { color: unset !important; }`. */
 :root[data-theme="dark"] nav#navbar .modern-search-wrapper,
 :root[data-theme="dark"] .modern-search-wrapper {
-  background: rgba(33,37,41,0.95) !important;
-  border-color: rgba(255,255,255,0.06) !important;
+  background: rgba(33, 37, 41, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 :root[data-theme="dark"] nav#navbar .modern-search-wrapper:focus-within,
 :root[data-theme="dark"] .modern-search-wrapper:focus-within {
   /* Keep the same dark background while typing so the page doesn't
      visually shift. Only adjust input/icon colors for readability. */
-  background: rgba(33,37,41,0.95) !important;
-  border-color: rgba(255,255,255,0.06) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important; /* subtle shadow */
+  background: rgba(33, 37, 41, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important; /* subtle shadow */
 }
 
 :root[data-theme="dark"] nav#navbar .modern-search-wrapper .search-icon,
@@ -604,7 +618,10 @@ nav#navbar.sticky-top,
   opacity: 0.95;
 }
 
-:root[data-theme="dark"] nav#navbar .modern-search-wrapper:focus-within .search-icon,
+:root[data-theme="dark"]
+  nav#navbar
+  .modern-search-wrapper:focus-within
+  .search-icon,
 :root[data-theme="dark"] .modern-search-wrapper:focus-within .search-icon {
   color: #f8f9fa !important; /* bright icon color while typing */
 }
@@ -615,13 +632,18 @@ nav#navbar.sticky-top,
   background: transparent !important; /* ensure input itself is transparent */
 }
 
-:root[data-theme="dark"] nav#navbar .modern-search-wrapper .modern-search-input::placeholder,
-:root[data-theme="dark"] .modern-search-wrapper .modern-search-input::placeholder {
+:root[data-theme="dark"]
+  nav#navbar
+  .modern-search-wrapper
+  .modern-search-input::placeholder,
+:root[data-theme="dark"]
+  .modern-search-wrapper
+  .modern-search-input::placeholder {
   color: #9aa0a6 !important; /* slightly darker placeholder */
 }
 
 /* Legacy form-control styles (keep for other forms, not search) */
-@media(max-width: 992px) {
+@media (max-width: 992px) {
   .form-control:not(.modern-search-input) {
     width: 50vw;
     margin: auto;
@@ -651,7 +673,8 @@ nav#navbar.sticky-top,
   box-shadow: none;
   transition: background 0.2s, border 0.2s;
 }
-.navbar-toggler:hover, .navbar-toggler:focus {
+.navbar-toggler:hover,
+.navbar-toggler:focus {
   background-color: #0d6efd;
   border-color: #bdbdbd;
   box-shadow: none;
@@ -665,8 +688,10 @@ nav#navbar.sticky-top,
   justify-content: center;
   position: relative;
 }
-.navbar-toggler-icon::before, .navbar-toggler-icon::after, .navbar-toggler-icon span {
-  content: '';
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after,
+.navbar-toggler-icon span {
+  content: "";
   display: block;
   position: absolute;
   left: 0;
@@ -769,8 +794,6 @@ nav#navbar.sticky-top,
   }
 }
 
-
-
 .navbar-nav .nav-link {
   color: white;
   text-decoration: none;
@@ -782,7 +805,7 @@ nav#navbar.sticky-top,
 }
 
 .navbar-nav .nav-link::after {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   left: 0;
@@ -793,12 +816,10 @@ nav#navbar.sticky-top,
   transition: width 0.3s;
 }
 
-
 .navbar-nav .nav-link:hover {
   color: #fff;
-  background: rgba(255,255,255,0.10);
+  background: rgba(255, 255, 255, 0.1);
 }
-
 
 .navbar-nav .nav-link:hover::after,
 .navbar-nav .nav-link:focus::after {
@@ -811,15 +832,29 @@ nav#navbar.sticky-top,
   }
 }
 
-.navbar-nav .nav-item:nth-child(1) { animation-delay: 0.1s; }
-.navbar-nav .nav-item:nth-child(2) { animation-delay: 0.2s; }
-.navbar-nav .nav-item:nth-child(3) { animation-delay: 0.3s; }
-.navbar-nav .nav-item:nth-child(4) { animation-delay: 0.4s; }
-.navbar-nav .nav-item:nth-child(5) { animation-delay: 0.5s; }
-.navbar-nav .nav-item:nth-child(6) { animation-delay: 0.6s; }
-.navbar-nav .nav-item:nth-child(7) { animation-delay: 0.7s; }
+.navbar-nav .nav-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.navbar-nav .nav-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.navbar-nav .nav-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.navbar-nav .nav-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.navbar-nav .nav-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.navbar-nav .nav-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.navbar-nav .nav-item:nth-child(7) {
+  animation-delay: 0.7s;
+}
 
-#Login{
+#Login {
   /* overflow: hidden; - Removed to prevent interference with sticky positioning */
   display: flex;
   margin: 0 auto;
@@ -827,7 +862,7 @@ nav#navbar.sticky-top,
   animation: fadeInUp 1s ease-in-out;
 }
 @media (max-width: 992px) {
-  #Login{
+  #Login {
     text-align: center;
     margin: auto;
     display: flex;
@@ -905,7 +940,9 @@ header p {
 
 /* --- Dropdown fixes: ensure dropdowns are not clipped and appear like Bootstrap examples --- */
 /* Force overflow visible in case other rules reintroduce clipping */
-.navbar, .navbar-collapse, .navbar-nav {
+.navbar,
+.navbar-collapse,
+.navbar-nav {
   overflow: visible !important;
 }
 
@@ -926,7 +963,8 @@ header p {
   pointer-events: none;
   transform-origin: top center;
   will-change: transform, opacity;
-  transition: opacity 180ms cubic-bezier(.2,.9,.2,1), transform 180ms cubic-bezier(.2,.9,.2,1);
+  transition: opacity 180ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1);
 
   /* modern look: slightly larger, rounded, solid background (not transparent) */
   min-width: 260px; /* default mobile/tablet fallback */
@@ -934,8 +972,9 @@ header p {
   border-radius: 12px;
   /* Use the same navbar background so dropdowns match the navbar in both themes */
   background: var(--navbar-bg) !important;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.35), 0 2px 6px rgba(13,110,253,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35),
+    0 2px 6px rgba(13, 110, 253, 0.08);
   overflow: visible;
 }
 
@@ -949,7 +988,7 @@ header p {
 }
 
 /* Dropdown items styling */
-  .navbar .dropdown-item {
+.navbar .dropdown-item {
   color: var(--navbar-text) !important;
   padding: 10px 14px;
   border-radius: 8px;
@@ -963,12 +1002,12 @@ header p {
    so they don't persist after the menu is closed (focus remains) */
 .navbar .dropdown.show .dropdown-item:hover,
 .navbar .dropdown.show .dropdown-item:focus {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   transform: translateX(4px);
 }
 .navbar .dropdown.show .dropdown-item:active {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
 /* Remove default focus outline for a cleaner look but keep accessibility via :focus-visible if desired */
 .navbar .dropdown-item:focus {
@@ -976,7 +1015,7 @@ header p {
 }
 
 .navbar .dropdown-divider {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin: 6px 0;
 }
 
@@ -1000,7 +1039,6 @@ header p {
     right: 0 !important;
   }
 }
-
 
 /* ------------------------------------------------------------------
    Fix: ensure navbar logo has a controlled size on tablet/desktop
@@ -1052,7 +1090,7 @@ header p {
 }
 
 .theme-dropdown .dropdown-item.active::after {
-  content: '✓';
+  content: "✓";
   margin-left: auto;
   font-weight: bold;
 }
@@ -1072,7 +1110,7 @@ header p {
   .theme-dropdown {
     min-width: 200px !important;
   }
-  
+
   .theme-dropdown .dropdown-item {
     font-size: 14px;
     padding: 8px 14px;
@@ -1095,8 +1133,13 @@ header p {
    sufficient contrast in light mode. */
 :root[data-theme="light"] nav#navbar .modern-search-wrapper,
 nav#navbar .modern-search-wrapper {
-  background: rgba(255,255,255,0.95) !important; /* light card on top of navbar */
-  border-color: rgba(0,0,0,0.06) !important;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.95
+  ) !important; /* light card on top of navbar */
+  border-color: rgba(0, 0, 0, 0.06) !important;
 }
 
 :root[data-theme="light"] nav#navbar .modern-search-input,
@@ -1111,7 +1154,7 @@ nav#navbar .search-icon {
 
 :root[data-theme="light"] nav#navbar .modern-search-btn,
 nav#navbar .modern-search-btn {
-  box-shadow: 0 3px 10px rgba(13,110,253,0.28) !important;
+  box-shadow: 0 3px 10px rgba(13, 110, 253, 0.28) !important;
 }
 
 /* Extra specificity for cases where .form-control rules override colors */
@@ -1119,6 +1162,3 @@ nav#navbar .modern-search-wrapper .modern-search-input,
 nav#navbar .modern-search-wrapper .search-icon {
   color: unset !important;
 }
-
-
-

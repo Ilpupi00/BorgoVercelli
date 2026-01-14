@@ -3,6 +3,7 @@
 ## 🧪 Test Funzionali
 
 ### Upload Immagine - Nuovo Evento
+
 - [ ] Accedi come Admin/Dirigente
 - [ ] Vai a `/evento/crea-evento`
 - [ ] Clicca su "Seleziona File"
@@ -15,6 +16,7 @@
 - [ ] Verifica immagine salvata e visualizzata
 
 ### Upload Immagine - Evento Esistente
+
 - [ ] Apri evento esistente in modifica
 - [ ] Clicca area upload o "Seleziona File"
 - [ ] Seleziona nuova immagine
@@ -24,6 +26,7 @@
 - [ ] Verifica immagine aggiornata
 
 ### Drag & Drop
+
 - [ ] Apri form evento
 - [ ] Trascina immagine nell'area upload
 - [ ] Verifica effetto hover (bordo blu)
@@ -32,6 +35,7 @@
 - [ ] Verifica animazione smooth
 
 ### Eliminazione Immagine
+
 - [ ] Apri evento con immagine
 - [ ] Clicca pulsante "🗑️ Elimina"
 - [ ] Conferma eliminazione
@@ -40,6 +44,7 @@
 - [ ] Verifica immagine rimossa da server
 
 ### Validazioni
+
 - [ ] Prova caricare file PDF → Errore
 - [ ] Prova caricare file > 5MB → Errore
 - [ ] Prova caricare file TXT → Errore
@@ -54,6 +59,7 @@
 ## 🎨 Test UI/UX
 
 ### Layout & Stili
+
 - [ ] Area upload ha gradiente visibile
 - [ ] Icona cloud-upload animata (float)
 - [ ] Bordi arrotondati (16px)
@@ -64,6 +70,7 @@
 - [ ] Transizioni fluide (0.3s)
 
 ### Preview Immagine
+
 - [ ] Preview appare con animazione fadeInUp
 - [ ] Immagine mantiene aspect ratio
 - [ ] Max height 400px desktop
@@ -73,6 +80,7 @@
 - [ ] Box shadow presente
 
 ### Progress Bar
+
 - [ ] Progress bar visibile durante upload
 - [ ] Animazione striped attiva
 - [ ] Colore gradiente blu/viola
@@ -80,6 +88,7 @@
 - [ ] Testo "Caricamento..." visibile
 
 ### Stati Interattivi
+
 - [ ] Hover area upload → Scala e ombre
 - [ ] Drag over → Bordo blu + scale
 - [ ] Loading → Spinner rotante
@@ -92,6 +101,7 @@
 ## 🌓 Test Light/Dark Theme
 
 ### Light Theme
+
 - [ ] Area upload: sfondo grigio chiaro
 - [ ] Bordi: grigio (#cbd5e1)
 - [ ] Icona: blu (#3b82f6)
@@ -100,6 +110,7 @@
 - [ ] Shadows: leggere e soft
 
 ### Dark Theme
+
 - [ ] Attiva dark theme (toggle o sistema)
 - [ ] Area upload: sfondo slate scuro
 - [ ] Bordi: grigio scuro (#334155)
@@ -110,6 +121,7 @@
 - [ ] Contrasto sufficiente (WCAG AA)
 
 ### Transizione Theme
+
 - [ ] Cambio tema smooth (0.3s)
 - [ ] Nessun flash/flickering
 - [ ] Tutti elementi si aggiornano
@@ -121,6 +133,7 @@
 ## 📱 Test Responsive
 
 ### Mobile (< 768px)
+
 - [ ] Area upload compatta
 - [ ] Icona 2.5rem
 - [ ] Padding ridotto (1.5rem)
@@ -132,6 +145,7 @@
 - [ ] Pulsante elimina visibile
 
 ### Tablet (768px - 1023px)
+
 - [ ] Layout bilanciato
 - [ ] Icona 3rem
 - [ ] Padding medio (2rem)
@@ -140,6 +154,7 @@
 - [ ] Drag & drop fluido
 
 ### Desktop (1024px+)
+
 - [ ] Layout completo
 - [ ] Icona 3.5rem
 - [ ] Padding generoso (2.5rem)
@@ -148,6 +163,7 @@
 - [ ] Animazioni smooth
 
 ### Large Desktop (1280px+)
+
 - [ ] Preview max-height 450px
 - [ ] Proporzioni mantenute
 - [ ] Nessun elemento sproporzionato
@@ -157,6 +173,7 @@
 ## ♿ Test Accessibilità
 
 ### Keyboard Navigation
+
 - [ ] Tab raggiunge area upload
 - [ ] Tab raggiunge pulsante "Seleziona File"
 - [ ] Enter apre file picker
@@ -166,6 +183,7 @@
 - [ ] Escape chiude dialog (se presente)
 
 ### Screen Reader
+
 - [ ] Input file ha label corretto
 - [ ] Area upload ha aria-label
 - [ ] Pulsanti hanno testo descrittivo
@@ -174,6 +192,7 @@
 - [ ] Alt text su preview
 
 ### Contrasto Colori
+
 - [ ] Testo su sfondo passa WCAG AA (4.5:1)
 - [ ] Pulsanti leggibili
 - [ ] Focus outline visibile
@@ -184,6 +203,7 @@
 ## 🚀 Test Performance
 
 ### Tempi di Caricamento
+
 - [ ] CSS carica < 100ms
 - [ ] JavaScript carica < 200ms
 - [ ] Preview appare < 100ms
@@ -191,6 +211,7 @@
 - [ ] Upload 5MB < 3s
 
 ### Animazioni
+
 - [ ] FPS ≥ 60 durante animazioni
 - [ ] Nessun jank visibile
 - [ ] Transizioni fluide
@@ -198,6 +219,7 @@
 - [ ] No memory leaks (DevTools)
 
 ### Network
+
 - [ ] Upload funziona su 3G slow
 - [ ] Retry su fallimento
 - [ ] Timeout gestito (30s)
@@ -208,18 +230,21 @@
 ## 🔒 Test Sicurezza
 
 ### Autenticazione
+
 - [ ] Utente non loggato → Redirect login
 - [ ] Utente standard → 403 Forbidden
 - [ ] Admin → Accesso consentito
 - [ ] Dirigente → Accesso consentito
 
 ### Autorizzazione
+
 - [ ] Solo owner o admin può modificare
 - [ ] Upload verifica permessi
 - [ ] Delete verifica permessi
 - [ ] CSRF token validato
 
 ### Validazione
+
 - [ ] Tipo file validato server-side
 - [ ] Dimensione validata server-side
 - [ ] Evento esistenza verificata
@@ -231,30 +256,35 @@
 ## 🌐 Test Cross-Browser
 
 ### Chrome/Edge
+
 - [ ] Upload funziona
 - [ ] Drag & drop funziona
 - [ ] Animazioni smooth
 - [ ] CSS corretto
 
 ### Firefox
+
 - [ ] Upload funziona
 - [ ] Drag & drop funziona
 - [ ] Animazioni smooth
 - [ ] CSS corretto
 
 ### Safari Desktop
+
 - [ ] Upload funziona
 - [ ] Drag & drop funziona
 - [ ] Animazioni smooth
 - [ ] CSS corretto
 
 ### Mobile Safari (iOS)
+
 - [ ] Upload funziona
 - [ ] Touch tap funziona
 - [ ] Preview visualizzata
 - [ ] CSS corretto
 
 ### Chrome Android
+
 - [ ] Upload funziona
 - [ ] Touch tap funziona
 - [ ] Preview visualizzata
@@ -265,6 +295,7 @@
 ## 🐛 Test Edge Cases
 
 ### File Speciali
+
 - [ ] File senza estensione → Errore
 - [ ] File con nome lungo → Troncato
 - [ ] File con caratteri speciali → Sanitizzato
@@ -272,17 +303,20 @@
 - [ ] File uppercase extension → Funziona
 
 ### Connessione
+
 - [ ] Upload con connessione lenta → Progress
 - [ ] Upload con disconnessione → Errore
 - [ ] Retry dopo errore → Funziona
 - [ ] Timeout gestito
 
 ### Concorrenza
+
 - [ ] Due upload simultanei → Gestito
 - [ ] Upload + save form → Gestito
 - [ ] Delete durante upload → Gestito
 
 ### Limiti
+
 - [ ] Esattamente 5MB → Accettato
 - [ ] 5MB + 1 byte → Rifiutato
 - [ ] 0 bytes → Errore
@@ -292,23 +326,23 @@
 
 ## ✅ Riepilogo Test
 
-**Test Passati**: ___ / ___
+**Test Passati**: **_ / _**
 
-**Blockers**: ___________________
+**Blockers**: ********\_\_\_********
 
-**Issues Minori**: ___________________
+**Issues Minori**: ********\_\_\_********
 
-**Note**: _____________________________________
+**Note**: ******************\_******************
 
-**Testato da**: ___________________
+**Testato da**: ********\_\_\_********
 
-**Data**: ___________________
+**Data**: ********\_\_\_********
 
 **Ambiente**: ☐ Locale ☐ Staging ☐ Production
 
-**Browser**: ___________________
+**Browser**: ********\_\_\_********
 
-**OS**: ___________________
+**OS**: ********\_\_\_********
 
 ---
 

@@ -2,14 +2,14 @@
 
 class Search {
   constructor() {
-    this.currentQuery = '';
+    this.currentQuery = "";
     this.init();
   }
 
   init() {
     // Wait for DOM to be fully ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
         this.setupSearch();
       });
     } else {
@@ -29,16 +29,16 @@ class Search {
   }
 
   initializeElements() {
-    this.resultsContainer = document.getElementById('results-container');
-    this.loadingState = document.getElementById('loading-state');
-    this.noResults = document.getElementById('no-results');
+    this.resultsContainer = document.getElementById("results-container");
+    this.loadingState = document.getElementById("loading-state");
+    this.noResults = document.getElementById("no-results");
 
     return true;
   }
 
   bindEvents() {
     // Handle browser back/forward navigation - reload page for server-side rendering
-    window.addEventListener('popstate', (e) => {
+    window.addEventListener("popstate", (e) => {
       if (e.state && e.state.query) {
         window.location.href = `/search?q=${encodeURIComponent(e.state.query)}`;
       }
@@ -48,11 +48,12 @@ class Search {
   handleInitialSearch() {
     // Check if there's an initial query to search for
     const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
-    
+    const query = urlParams.get("q");
+
     // If there are already server-rendered results, don't do AJAX search
-    const hasServerResults = document.querySelector('.results-section') !== null;
-    
+    const hasServerResults =
+      document.querySelector(".results-section") !== null;
+
     if (query && query.trim().length >= 1 && !hasServerResults) {
       this.performSearch(query.trim());
     }
@@ -60,8 +61,8 @@ class Search {
 
   updateURL(query) {
     const url = new URL(window.location);
-    url.searchParams.set('q', query);
-    window.history.pushState({ query }, '', url);
+    url.searchParams.set("q", query);
+    window.history.pushState({ query }, "", url);
   }
 
   async performSearch(query) {
@@ -71,28 +72,30 @@ class Search {
     this.showLoading();
 
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(query)}`
+      );
       if (!response.ok) {
-        throw new Error('Errore nella ricerca');
+        throw new Error("Errore nella ricerca");
       }
 
       const data = await response.json();
       this.displayResults(data, query);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
       this.showError();
     }
   }
 
   showLoading() {
-    this.resultsContainer.innerHTML = '';
-    this.loadingState.classList.remove('d-none');
-    this.noResults.classList.add('d-none');
+    this.resultsContainer.innerHTML = "";
+    this.loadingState.classList.remove("d-none");
+    this.noResults.classList.add("d-none");
   }
 
   showError() {
-    this.loadingState.classList.add('d-none');
-    this.noResults.classList.remove('d-none');
+    this.loadingState.classList.add("d-none");
+    this.noResults.classList.remove("d-none");
     this.noResults.innerHTML = `
       <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4"></i>
       <h3 class="text-danger">Errore nella ricerca</h3>
@@ -101,7 +104,7 @@ class Search {
   }
 
   displayResults(data, query) {
-    this.loadingState.classList.add('d-none');
+    this.loadingState.classList.add("d-none");
 
     const hasResults = this.hasAnyResults(data);
 
@@ -118,43 +121,75 @@ class Search {
   }
 
   hasAnyResults(data) {
-    return (data.notizie && data.notizie.length > 0) ||
-           (data.eventi && data.eventi.length > 0) ||
-           (data.squadre && data.squadre.length > 0) ||
-           (data.campi && data.campi.length > 0);
+    return (
+      (data.notizie && data.notizie.length > 0) ||
+      (data.eventi && data.eventi.length > 0) ||
+      (data.squadre && data.squadre.length > 0) ||
+      (data.campi && data.campi.length > 0)
+    );
   }
 
   showNoResults(query) {
-    this.noResults.classList.remove('d-none');
+    this.noResults.classList.remove("d-none");
     this.noResults.innerHTML = `
       <i class="fas fa-search fa-4x text-muted mb-4"></i>
       <h3 class="text-muted">Nessun risultato trovato</h3>
-      <p class="text-muted">Non abbiamo trovato risultati per "<strong>${this.escapeHtml(query)}</strong>"</p>
+      <p class="text-muted">Non abbiamo trovato risultati per "<strong>${this.escapeHtml(
+        query
+      )}</strong>"</p>
       <p class="text-muted">Prova con termini di ricerca diversi o più generici</p>
     `;
   }
 
   buildResultsHTML(data, query) {
-    let html = '';
+    let html = "";
 
     // Notizie
     if (data.notizie && data.notizie.length > 0) {
-      html += this.buildSectionHTML('notizie', 'Notizie', data.notizie, query, 'newspaper', 'notizia');
+      html += this.buildSectionHTML(
+        "notizie",
+        "Notizie",
+        data.notizie,
+        query,
+        "newspaper",
+        "notizia"
+      );
     }
 
     // Eventi
     if (data.eventi && data.eventi.length > 0) {
-      html += this.buildSectionHTML('eventi', 'Eventi', data.eventi, query, 'calendar-alt', 'evento');
+      html += this.buildSectionHTML(
+        "eventi",
+        "Eventi",
+        data.eventi,
+        query,
+        "calendar-alt",
+        "evento"
+      );
     }
 
     // Squadre
     if (data.squadre && data.squadre.length > 0) {
-      html += this.buildSectionHTML('squadre', 'Squadre', data.squadre, query, 'users', 'squadra');
+      html += this.buildSectionHTML(
+        "squadre",
+        "Squadre",
+        data.squadre,
+        query,
+        "users",
+        "squadra"
+      );
     }
 
     // Campi
     if (data.campi && data.campi.length > 0) {
-      html += this.buildSectionHTML('campi', 'Campi', data.campi, query, 'map-marker-alt', 'campo');
+      html += this.buildSectionHTML(
+        "campi",
+        "Campi",
+        data.campi,
+        query,
+        "map-marker-alt",
+        "campo"
+      );
     }
 
     return html;
@@ -167,7 +202,7 @@ class Search {
         <div class="row">
     `;
 
-    items.forEach(item => {
+    items.forEach((item) => {
       html += this.buildResultCard(item, query, itemType);
     });
 
@@ -190,7 +225,9 @@ class Search {
       <div class="col-12 col-md-6 col-lg-4">
         <div class="result-card">
           <div class="card-img-container">
-            <img src="${this.escapeHtml(image)}" alt="${this.escapeHtml(title)}" loading="lazy">
+            <img src="${this.escapeHtml(image)}" alt="${this.escapeHtml(
+      title
+    )}" loading="lazy">
             <div class="result-category">
               <i class="fas fa-tag me-1"></i>${type}
             </div>
@@ -201,7 +238,9 @@ class Search {
             <div class="result-meta">
               ${meta}
             </div>
-            <a href="${this.escapeHtml(link)}" class="btn btn-primary btn-sm mt-3">
+            <a href="${this.escapeHtml(
+              link
+            )}" class="btn btn-primary btn-sm mt-3">
               <i class="fas fa-eye me-1"></i>Vedi dettagli
             </a>
           </div>
@@ -212,106 +251,137 @@ class Search {
 
   getItemTitle(item, type) {
     switch (type) {
-      case 'notizia': return item.titolo || 'Notizia';
-      case 'evento': return item.titolo || 'Evento';
-      case 'squadra': return item.nome || 'Squadra';
-      case 'campo': return item.nome || 'Campo';
-      default: return 'Elemento';
+      case "notizia":
+        return item.titolo || "Notizia";
+      case "evento":
+        return item.titolo || "Evento";
+      case "squadra":
+        return item.nome || "Squadra";
+      case "campo":
+        return item.nome || "Campo";
+      default:
+        return "Elemento";
     }
   }
 
   getItemDescription(item, type) {
     switch (type) {
-      case 'notizia': return item.sottotitolo || item.titolo || 'Nessuna descrizione';
-      case 'evento': return item.descrizione ? item.descrizione.substring(0, 150) + '...' : 'Nessuna descrizione';
-      case 'squadra': return `Squadra dell'anno ${item.Anno || 'N/A'}`;
-      case 'campo': return item.descrizione || item.indirizzo || 'Nessuna descrizione';
-      default: return 'Nessuna descrizione';
+      case "notizia":
+        return item.sottotitolo || item.titolo || "Nessuna descrizione";
+      case "evento":
+        return item.descrizione
+          ? item.descrizione.substring(0, 150) + "..."
+          : "Nessuna descrizione";
+      case "squadra":
+        return `Squadra dell'anno ${item.Anno || "N/A"}`;
+      case "campo":
+        return item.descrizione || item.indirizzo || "Nessuna descrizione";
+      default:
+        return "Nessuna descrizione";
     }
   }
 
   getItemImage(item, type) {
     switch (type) {
-      case 'notizia':
+      case "notizia":
         // Prima controlla se c'è un'immagine nel database
-        if (item.immagine?.url && item.immagine.url !== '/assets/images/Campo.png') {
+        if (
+          item.immagine?.url &&
+          item.immagine.url !== "/assets/images/Campo.png"
+        ) {
           return item.immagine.url;
         }
-        return '/assets/images/Campo.png';
-      case 'evento':
+        return "/assets/images/Campo.png";
+      case "evento":
         // Gli eventi potrebbero avere immagini in futuro
-        return '/assets/images/Campo.png';
-      case 'squadra':
+        return "/assets/images/Campo.png";
+      case "squadra":
         // Le squadre potrebbero avere immagini in futuro
-        return '/assets/images/Logo.png';
-      case 'campo':
+        return "/assets/images/Logo.png";
+      case "campo":
         // Controlla se c'è un'immagine nel database
-        if (item.immagine && item.immagine !== '/assets/images/Campo.png') {
+        if (item.immagine && item.immagine !== "/assets/images/Campo.png") {
           return item.immagine;
         }
-        return '/assets/images/Campo.png';
-      default: return '/assets/images/Campo.png';
+        return "/assets/images/Campo.png";
+      default:
+        return "/assets/images/Campo.png";
     }
   }
 
   getItemLink(item, type) {
     switch (type) {
-      case 'notizia': return (item.id || item.N_id) ? `/notizia/${item.id || item.N_id}` : '#';
-      case 'evento': return (item.id || item.E_id) ? `/evento/${item.id || item.E_id}` : '#';
-      case 'squadra': return `/squadre`;
-      case 'campo': return `/prenotazione`;
-      default: return '#';
+      case "notizia":
+        return item.id || item.N_id ? `/notizia/${item.id || item.N_id}` : "#";
+      case "evento":
+        return item.id || item.E_id ? `/evento/${item.id || item.E_id}` : "#";
+      case "squadra":
+        return `/squadre`;
+      case "campo":
+        return `/prenotazione`;
+      default:
+        return "#";
     }
   }
 
   getItemMeta(item, type) {
     switch (type) {
-      case 'notizia':
-        return `<i class="fas fa-user"></i> ${this.escapeHtml(item.autore || 'Redazione')} <i class="fas fa-calendar ms-3"></i> ${this.formatDate(item.data_pubblicazione)}`;
-      case 'evento':
-        return `<i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(item.luogo || 'Luogo non specificato')} <i class="fas fa-calendar ms-3"></i> ${this.formatDate(item.data_inizio)}`;
-      case 'squadra':
-        return `<i class="fas fa-calendar"></i> Anno ${item.Anno || 'N/A'}`;
-      case 'campo':
-        return `<i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(item.indirizzo || 'Indirizzo non disponibile')}`;
+      case "notizia":
+        return `<i class="fas fa-user"></i> ${this.escapeHtml(
+          item.autore || "Redazione"
+        )} <i class="fas fa-calendar ms-3"></i> ${this.formatDate(
+          item.data_pubblicazione
+        )}`;
+      case "evento":
+        return `<i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(
+          item.luogo || "Luogo non specificato"
+        )} <i class="fas fa-calendar ms-3"></i> ${this.formatDate(
+          item.data_inizio
+        )}`;
+      case "squadra":
+        return `<i class="fas fa-calendar"></i> Anno ${item.Anno || "N/A"}`;
+      case "campo":
+        return `<i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(
+          item.indirizzo || "Indirizzo non disponibile"
+        )}`;
       default:
-        return '';
+        return "";
     }
   }
 
   formatDate(dateString) {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString('it-IT');
+      return new Date(dateString).toLocaleDateString("it-IT");
     } catch {
       return dateString;
     }
   }
 
   highlightText(text, query) {
-    if (!text || !query) return this.escapeHtml(text || '');
+    if (!text || !query) return this.escapeHtml(text || "");
     const escapedQuery = this.escapeRegex(query);
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return this.escapeHtml(text).replace(regex, '<mark>$1</mark>');
+    const regex = new RegExp(`(${escapedQuery})`, "gi");
+    return this.escapeHtml(text).replace(regex, "<mark>$1</mark>");
   }
 
   escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   escapeHtml(text) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }
 
   animateResults() {
-    const cards = document.querySelectorAll('.result-card');
+    const cards = document.querySelectorAll(".result-card");
     cards.forEach((card, index) => {
-      card.style.opacity = '0';
+      card.style.opacity = "0";
       setTimeout(() => {
-        card.style.transition = 'opacity 0.2s ease';
-        card.style.opacity = '1';
+        card.style.transition = "opacity 0.2s ease";
+        card.style.opacity = "1";
       }, index * 30);
     });
   }

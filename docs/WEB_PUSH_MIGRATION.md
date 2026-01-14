@@ -7,16 +7,19 @@ Le notifiche push web sono state migrate da un sistema basato su file JSON a un 
 ## Modifiche Principali
 
 ### 1. Database invece di JSON
+
 - **Prima**: Le subscription erano salvate in `src/data/webpush.json`
 - **Dopo**: Le subscription sono salvate nella tabella `push_subscriptions` in PostgreSQL
 
 ### 2. Miglioramenti Service Worker
+
 - Aggiunta gestione errori robusta per tutti i browser
 - Supporto fallback per piattaforme con funzionalità limitate
 - Logging dettagliato per debugging
 - Gestione eventi migliorata (click, close, errori)
 
 ### 3. API Aggiornate
+
 - Tracking errori per ogni subscription
 - Pulizia automatica subscription non valide
 - Supporto user-agent per debugging
@@ -50,6 +53,7 @@ node scripts/migrate-push-subscriptions.js
 ```
 
 Questo script:
+
 - Legge le subscription da `webpush.json`
 - Le inserisce nel database PostgreSQL
 - Crea un backup del file JSON
@@ -70,6 +74,7 @@ git push origin main
 1. **Accedi all'applicazione** come utente normale
 2. **Accetta le notifiche push** quando richiesto
 3. **Verifica la subscription**:
+
    ```bash
    # API endpoint per verificare le tue subscription
    GET /push/my-subscriptions
@@ -90,20 +95,20 @@ git push origin main
 
 ### Tabella: push_subscriptions
 
-| Colonna | Tipo | Descrizione |
-|---------|------|-------------|
-| id | SERIAL | ID univoco |
-| user_id | INTEGER | FK a users.id |
-| endpoint | TEXT | URL endpoint subscription (univoco) |
-| p256dh | TEXT | Chiave pubblica per crittografia |
-| auth | TEXT | Secret di autenticazione |
-| is_admin | BOOLEAN | Flag admin |
-| user_agent | TEXT | Browser/OS info |
-| created_at | TIMESTAMP | Data creazione |
-| updated_at | TIMESTAMP | Data ultimo aggiornamento |
-| last_success_at | TIMESTAMP | Ultimo invio riuscito |
-| last_error_at | TIMESTAMP | Ultimo errore |
-| error_count | INTEGER | Contatore errori consecutivi |
+| Colonna         | Tipo      | Descrizione                         |
+| --------------- | --------- | ----------------------------------- |
+| id              | SERIAL    | ID univoco                          |
+| user_id         | INTEGER   | FK a users.id                       |
+| endpoint        | TEXT      | URL endpoint subscription (univoco) |
+| p256dh          | TEXT      | Chiave pubblica per crittografia    |
+| auth            | TEXT      | Secret di autenticazione            |
+| is_admin        | BOOLEAN   | Flag admin                          |
+| user_agent      | TEXT      | Browser/OS info                     |
+| created_at      | TIMESTAMP | Data creazione                      |
+| updated_at      | TIMESTAMP | Data ultimo aggiornamento           |
+| last_success_at | TIMESTAMP | Ultimo invio riuscito               |
+| last_error_at   | TIMESTAMP | Ultimo errore                       |
+| error_count     | INTEGER   | Contatore errori consecutivi        |
 
 ### Indici
 
@@ -115,24 +120,24 @@ git push origin main
 
 ### Browser Supportati ✅
 
-| Browser | Desktop | Mobile | Note |
-|---------|---------|--------|------|
-| **Chrome** | ✅ | ✅ | Supporto completo |
-| **Firefox** | ✅ | ✅ | Supporto completo |
-| **Edge** | ✅ | ✅ | Supporto completo |
-| **Safari** | ✅ (macOS 13+) | ✅ (iOS 16.4+) | Azioni limitate su iOS |
-| **Opera** | ✅ | ✅ | Basato su Chrome |
-| **Samsung Internet** | - | ✅ | Supporto completo |
+| Browser              | Desktop        | Mobile         | Note                   |
+| -------------------- | -------------- | -------------- | ---------------------- |
+| **Chrome**           | ✅             | ✅             | Supporto completo      |
+| **Firefox**          | ✅             | ✅             | Supporto completo      |
+| **Edge**             | ✅             | ✅             | Supporto completo      |
+| **Safari**           | ✅ (macOS 13+) | ✅ (iOS 16.4+) | Azioni limitate su iOS |
+| **Opera**            | ✅             | ✅             | Basato su Chrome       |
+| **Samsung Internet** | -              | ✅             | Supporto completo      |
 
 ### Funzionalità per Browser
 
-| Funzionalità | Chrome | Firefox | Safari | Edge |
-|--------------|--------|---------|--------|------|
-| Notifiche Base | ✅ | ✅ | ✅ | ✅ |
-| Icone/Badge | ✅ | ✅ | ✅ | ✅ |
-| Immagini | ✅ | ✅ | ⚠️ | ✅ |
-| Azioni (bottoni) | ✅ | ✅ | ⚠️ | ✅ |
-| Vibrazione | ✅ | ✅ | ❌ | ✅ |
+| Funzionalità     | Chrome | Firefox | Safari | Edge |
+| ---------------- | ------ | ------- | ------ | ---- |
+| Notifiche Base   | ✅     | ✅      | ✅     | ✅   |
+| Icone/Badge      | ✅     | ✅      | ✅     | ✅   |
+| Immagini         | ✅     | ✅      | ⚠️     | ✅   |
+| Azioni (bottoni) | ✅     | ✅      | ⚠️     | ✅   |
+| Vibrazione       | ✅     | ✅      | ❌     | ✅   |
 
 ⚠️ = Supporto limitato o versione-dipendente
 ❌ = Non supportato
@@ -162,28 +167,28 @@ git push origin main
 ### Server-side (webpush.js)
 
 ```javascript
-const pushService = require('./shared/services/webpush');
+const pushService = require("./shared/services/webpush");
 
 // Invia a utenti specifici
 await pushService.sendNotificationToUsers([userId1, userId2], {
-  title: 'Titolo',
-  body: 'Messaggio',
-  url: '/path',
-  icon: '/icon.png',
-  tag: 'notifica-tipo'
+  title: "Titolo",
+  body: "Messaggio",
+  url: "/path",
+  icon: "/icon.png",
+  tag: "notifica-tipo",
 });
 
 // Invia a tutti gli admin
 await pushService.sendNotificationToAdmins({
-  title: 'Alert Admin',
-  body: 'Qualcosa richiede attenzione',
-  url: '/admin/dashboard'
+  title: "Alert Admin",
+  body: "Qualcosa richiede attenzione",
+  url: "/admin/dashboard",
 });
 
 // Invia a tutti
 await pushService.sendNotificationToAll({
-  title: 'Annuncio',
-  body: 'Messaggio per tutti gli utenti'
+  title: "Annuncio",
+  body: "Messaggio per tutti gli utenti",
 });
 
 // Pulizia subscription non valide
@@ -212,6 +217,7 @@ await manager.unsubscribe();
 ### Le notifiche non arrivano
 
 1. **Verifica le chiavi VAPID nel .env**:
+
    ```bash
    VAPID_PUBLIC_KEY=your_public_key
    VAPID_PRIVATE_KEY=your_private_key
@@ -219,12 +225,14 @@ await manager.unsubscribe();
    ```
 
 2. **Controlla i log del server**:
+
    ```bash
    # Cerca errori con prefisso [WEBPUSH]
    railway logs
    ```
 
 3. **Verifica la subscription nel database**:
+
    ```sql
    SELECT * FROM push_subscriptions WHERE user_id = <your_user_id>;
    ```
@@ -263,13 +271,14 @@ Esegui periodicamente per rimuovere subscription non valide:
 
 ```javascript
 // Ogni giorno/settimana via cron job
-const pushService = require('./shared/services/webpush');
+const pushService = require("./shared/services/webpush");
 await pushService.cleanupFailedSubscriptions(5);
 ```
 
 ### Monitoring
 
 Monitora questi parametri:
+
 - Numero totale di subscription attive
 - Subscription con errori (error_count > 0)
 - Rapporto successo/fallimento invii
@@ -282,9 +291,9 @@ Query utili:
 SELECT COUNT(*) FROM push_subscriptions WHERE error_count < 5;
 
 -- Subscription problematiche
-SELECT user_id, endpoint, error_count, last_error_at 
-FROM push_subscriptions 
-WHERE error_count >= 3 
+SELECT user_id, endpoint, error_count, last_error_at
+FROM push_subscriptions
+WHERE error_count >= 3
 ORDER BY last_error_at DESC;
 
 -- Admin subscription

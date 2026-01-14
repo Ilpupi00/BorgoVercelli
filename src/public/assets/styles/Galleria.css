@@ -15,7 +15,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
@@ -115,18 +115,23 @@ body {
 
 .view-btn:hover {
   background: var(--gradient-secondary);
-  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
   transform: translateY(-2px);
 }
 
 .view-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -152,18 +157,23 @@ body {
 
 .upload-btn:hover {
   background: var(--gradient-primary);
-  box-shadow: 0 6px 20px rgba(34,139,34,0.3);
+  box-shadow: 0 6px 20px rgba(34, 139, 34, 0.3);
   transform: translateY(-2px);
 }
 
 .upload-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -214,18 +224,23 @@ body {
 
 .btn-primary:hover {
   background: var(--gradient-secondary);
-  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
   transform: translateY(-2px);
 }
 
 .btn-primary::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 

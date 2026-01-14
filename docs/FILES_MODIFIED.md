@@ -11,24 +11,28 @@
 ### Documentazione (4 file)
 
 1. **`MVP_MIGRATION.md`** (1,420 righe)
+
    - Guida completa migrazione
    - Prerequisiti, setup, proceduretest
    - Troubleshooting dettagliato
    - Deploy production e rollback
 
 2. **`RUNBOOK_OPERATIVO.md`** (850 righe)
+
    - Comandi PowerShell pronti all'uso
    - Pattern conversione DAO
    - Query SQL utili
    - Checklist operative
 
 3. **`RIEPILOGO_ESECUTIVO.md`** (400 righe)
+
    - Overview progetto
    - Stato avanzamento (40%)
    - Timeline e metriche
    - Prossime azioni
 
 4. **`MIGRATION_SUMMARY.md`** (350 righe)
+
    - Come usare il package
    - Quick start
    - Supporto e troubleshooting
@@ -55,6 +59,7 @@
 ### Script Utility (2 file)
 
 7. **`convert-sqlite-to-postgres.js`** (120 righe)
+
    - Conversione automatica pattern SQLite → PostgreSQL
    - Placeholder `?` → `$1, $2, ...`
    - Funzioni date: `datetime('now')` → `NOW()`
@@ -74,23 +79,26 @@
 ### Core Database (1 file) ✅ COMPLETATO
 
 1. **`src/core/config/database.js`** (105 righe)
-   
+
    **Modifiche**:
+
    - ❌ Rimosso: `sqlite3` import e connessione
    - ✅ Aggiunto: `pg` (PostgreSQL driver) import
    - ✅ Aggiunto: Pool connessioni PostgreSQL
    - ✅ Aggiunto: Wrapper `get()`, `all()`, `run()`, `query()`
    - ✅ Aggiunto: Gestione chiusura pool su exit
    - ✅ Aggiunto: Test connessione al startup
-   
+
    **Prima**:
+
    ```javascript
    const sqlite3 = require('sqlite3').verbose();
    const db = new sqlite3.Database(dbPath, ...);
    module.exports = db;
    ```
-   
+
    **Dopo**:
+
    ```javascript
    const { Pool } = require('pg');
    const pool = new Pool({ host, port, user, password, database });
@@ -105,6 +113,7 @@
 **Stato**: Conversione automatica applicata, conversione manuale callback → async/await **DA FARE**
 
 #### Modifiche automatiche applicate a tutti:
+
 - ✅ Placeholder `?` → `$1, $2, $3, ...`
 - ✅ `datetime('now')` → `NOW()`
 - ✅ `date('now')` → `CURRENT_DATE`
@@ -114,35 +123,45 @@
 #### File DAO modificati parzialmente:
 
 1. **`src/features/users/services/dao-user.js`** (~971 righe)
+
    - Import: `sqlite` → `db` (✅ fatto manualmente)
    - Funzione `createUser`: ✅ Convertita in async/await
    - Altre ~29 funzioni: ⏳ DA CONVERTIRE
 
 2. **`src/features/prenotazioni/services/dao-prenotazione.js`** (~500 righe)
+
    - ⏳ DA CONVERTIRE callback → async/await
 
 3. **`src/features/prenotazioni/services/dao-campi.js`**
+
    - ⏳ DA CONVERTIRE
 
 4. **`src/features/eventi/services/dao-eventi.js`**
+
    - ⏳ DA CONVERTIRE
 
 5. **`src/features/galleria/services/dao-galleria.js`**
+
    - ⏳ DA CONVERTIRE
 
 6. **`src/features/notizie/services/dao-notizie.js`**
+
    - ⏳ DA CONVERTIRE
 
 7. **`src/features/campionati/services/dao-campionati.js`**
+
    - ⏳ DA CONVERTIRE
 
 8. **`src/features/squadre/services/dao-squadre.js`**
+
    - ⏳ DA CONVERTIRE
 
 9. **`src/features/squadre/services/dao-dirigenti-squadre.js`**
+
    - ⏳ DA CONVERTIRE
 
 10. **`src/features/squadre/services/dao-membri-societa.js`**
+
     - ⏳ DA CONVERTIRE
 
 11. **`src/features/recensioni/services/dao-recensioni.js`**
@@ -151,11 +170,13 @@
 ### Package.json (1 file) ✅ MODIFICATO
 
 12. **`package.json`**
-    
+
     **Modifiche**:
+
     - ✅ Aggiunta dipendenza: `"pg": "^8.11.3"` (o versione più recente)
-    
+
     **Comando eseguito**:
+
     ```powershell
     npm install pg
     ```
@@ -169,10 +190,12 @@
 **Potenzialmente contengono query SQL dirette da convertire**:
 
 1. **`src/features/admin/routes/admin.js`**
+
    - ⚠️ Verificare presenza query dirette
    - ⚠️ Verificare import `db` corretto
 
 2. **`src/features/auth/routes/login_register.js`**
+
    - ⚠️ Verificare usi solo DAO (non query dirette)
 
 3. **`src/shared/routes/*.js`**
@@ -185,6 +208,7 @@
 ### Script Utility
 
 4. **`src/server/create-admin.js`**
+
    - ⚠️ Script creazione admin
    - ⚠️ Probabilmente usa DAO user
    - ⚠️ Verificare dopo conversione dao-user.js
@@ -199,14 +223,14 @@
 
 ### Righe di codice
 
-| Tipo | File | Righe Totali |
-|------|------|--------------|
-| **Documentazione** | 5 | ~3,020 |
-| **Configurazione** | 1 | 27 |
-| **Script Utility** | 2 | 270 |
-| **Core modificato** | 1 | 105 |
-| **DAO parzialmente modificati** | 11 | ~5,000 |
-| **TOTALE** | **20** | **~8,422** |
+| Tipo                            | File   | Righe Totali |
+| ------------------------------- | ------ | ------------ |
+| **Documentazione**              | 5      | ~3,020       |
+| **Configurazione**              | 1      | 27           |
+| **Script Utility**              | 2      | 270          |
+| **Core modificato**             | 1      | 105          |
+| **DAO parzialmente modificati** | 11     | ~5,000       |
+| **TOTALE**                      | **20** | **~8,422**   |
 
 ### Modifiche per tipo
 
@@ -227,11 +251,13 @@
 ### Funzionalità toccate
 
 **✅ Non rompono nulla** (backwards compatible per ora):
+
 - Modulo database (interfaccia compatibile)
 - Conversione placeholder (sintassi corretta)
 - Documentazione (solo aggiunta)
 
 **⚠️ Richiedono test prima deploy**:
+
 - DAO convertiti (quando completati)
 - Routes (quando verificati)
 - Script utility (quando verificati)
@@ -239,11 +265,13 @@
 ### Breaking Changes
 
 **Nessuno finora** perché:
+
 - Modulo database esporta funzioni compatibili
 - DAO ancora non funzionano (conversione incompleta) ma non deployati
 - Applicazione attuale continua a funzionare con vecchio codice
 
 **Breaking changes quando**:
+
 - Deploy dei DAO convertiti in production
 - Cambio configurazione .env da SQLite a PostgreSQL
 
@@ -371,18 +399,21 @@ git push -u origin feature/postgresql-migration
 Ho completato il **setup infrastrutturale (40%)** della migrazione PostgreSQL:
 
 ### ✅ Cosa trovi pronto:
+
 1. **Documentazione completa** in 5 file markdown (leggi `MIGRATION_SUMMARY.md` per iniziare)
 2. **Modulo database** convertito e funzionante (`src/core/config/database.js`)
 3. **Conversione automatica** eseguita su tutti i DAO (placeholder e date)
 4. **Script utility** per conversioni e test
 
 ### ⏳ Cosa devi completare:
+
 1. **Conversione manuale** di ~115 funzioni DAO (da callback a async/await)
 2. **Test funzionali** dopo ogni DAO convertito
 3. **Verifica routes** per query SQL dirette
 4. **Deploy** staging e production
 
 ### 💡 Suggerimenti:
+
 - Inizia leggendo `RIEPILOGO_ESECUTIVO.md`
 - Usa `RUNBOOK_OPERATIVO.md` per comandi pronti
 - Converti DAO in ordine priorità (user → prenotazioni → campi → eventi → resto)
@@ -390,6 +421,7 @@ Ho completato il **setup infrastrutturale (40%)** della migrazione PostgreSQL:
 - Git commit frequenti
 
 ### 🆘 Se hai dubbi:
+
 - Tutto è documentato in `MVP_MIGRATION.md`
 - Pattern conversione in `RUNBOOK_OPERATIVO.md`
 - Esempi funzione `createUser` in `dao-user.js` (già convertita)
@@ -400,7 +432,7 @@ Ho completato il **setup infrastrutturale (40%)** della migrazione PostgreSQL:
 
 ---
 
-*Log creato: 10 Novembre 2025*  
-*Sessione durata: ~3 ore*  
-*Files totali toccati: 28*  
-*Avanzamento: 40%*
+_Log creato: 10 Novembre 2025_  
+_Sessione durata: ~3 ore_  
+_Files totali toccati: 28_  
+_Avanzamento: 40%_

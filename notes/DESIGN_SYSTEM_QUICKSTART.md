@@ -3,9 +3,10 @@
 ## 🚀 Quick Start
 
 ### Importa il Design System
+
 ```html
 <!-- Nel tuo file EJS -->
-<link href="/stylesheets/Common.css" rel="stylesheet">
+<link href="/stylesheets/Common.css" rel="stylesheet" />
 ```
 
 ---
@@ -13,6 +14,7 @@
 ## 🎨 Palette Colori
 
 ### Colori Primari
+
 ```css
 var(--primary)          /* #0d6efd - Blu homepage */
 var(--primary-dark)     /* #0a58ca - Blu scuro */
@@ -23,6 +25,7 @@ var(--accent)           /* #ffc107 - Giallo/Oro */
 ```
 
 ### Colori Utility
+
 ```css
 var(--success)          /* #28a745 - Verde successo */
 var(--danger)           /* #dc3545 - Rosso errore */
@@ -31,6 +34,7 @@ var(--info)             /* #17a2b8 - Azzurro info */
 ```
 
 ### Gradienti
+
 ```css
 var(--gradient-primary)     /* Blu → Verde */
 var(--gradient-secondary)   /* Verde → Blu */
@@ -45,9 +49,7 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <!-- Primary (Gradient blu → verde) -->
-<button class="btn btn-primary">
-    <i class="fas fa-check"></i> Conferma
-</button>
+<button class="btn btn-primary"><i class="fas fa-check"></i> Conferma</button>
 
 <!-- Secondary (Gradient verde) -->
 <button class="btn btn-secondary">Salva</button>
@@ -75,20 +77,20 @@ var(--gradient-accent)      /* Giallo → Arancione */
 ```html
 <!-- Card base con glassmorphism -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Titolo Card</h3>
-    </div>
-    <div class="card-body">
-        <p>Contenuto della card...</p>
-    </div>
-    <div class="card-footer">
-        <button class="btn btn-primary">Azione</button>
-    </div>
+  <div class="card-header">
+    <h3 class="card-title">Titolo Card</h3>
+  </div>
+  <div class="card-body">
+    <p>Contenuto della card...</p>
+  </div>
+  <div class="card-footer">
+    <button class="btn btn-primary">Azione</button>
+  </div>
 </div>
 
 <!-- Card con animazione -->
 <div class="card fade-in-up">
-    <!-- ... -->
+  <!-- ... -->
 </div>
 ```
 
@@ -96,37 +98,33 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="form-group">
-    <label class="form-label" for="nome">Nome *</label>
-    <input 
-        type="text" 
-        id="nome" 
-        name="nome" 
-        class="form-control"
-        placeholder="Inserisci il nome"
-        required
-    >
-    <span class="form-text">Inserisci il tuo nome completo</span>
-    <div class="invalid-feedback">Campo obbligatorio</div>
+  <label class="form-label" for="nome">Nome *</label>
+  <input
+    type="text"
+    id="nome"
+    name="nome"
+    class="form-control"
+    placeholder="Inserisci il nome"
+    required
+  />
+  <span class="form-text">Inserisci il tuo nome completo</span>
+  <div class="invalid-feedback">Campo obbligatorio</div>
 </div>
 
 <!-- Textarea -->
 <div class="form-group">
-    <label class="form-label" for="descrizione">Descrizione</label>
-    <textarea 
-        id="descrizione" 
-        class="form-control" 
-        rows="4"
-    ></textarea>
+  <label class="form-label" for="descrizione">Descrizione</label>
+  <textarea id="descrizione" class="form-control" rows="4"></textarea>
 </div>
 
 <!-- Select -->
 <div class="form-group">
-    <label class="form-label" for="categoria">Categoria</label>
-    <select id="categoria" class="form-control">
-        <option value="">Seleziona...</option>
-        <option value="1">Opzione 1</option>
-        <option value="2">Opzione 2</option>
-    </select>
+  <label class="form-label" for="categoria">Categoria</label>
+  <select id="categoria" class="form-control">
+    <option value="">Seleziona...</option>
+    <option value="1">Opzione 1</option>
+    <option value="2">Opzione 2</option>
+  </select>
 </div>
 ```
 
@@ -135,26 +133,26 @@ var(--gradient-accent)      /* Giallo → Arancione */
 ```html
 <!-- Success -->
 <div class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
-    Operazione completata con successo!
+  <i class="fas fa-check-circle"></i>
+  Operazione completata con successo!
 </div>
 
 <!-- Danger -->
 <div class="alert alert-danger">
-    <i class="fas fa-exclamation-circle"></i>
-    Si è verificato un errore.
+  <i class="fas fa-exclamation-circle"></i>
+  Si è verificato un errore.
 </div>
 
 <!-- Warning -->
 <div class="alert alert-warning">
-    <i class="fas fa-exclamation-triangle"></i>
-    Attenzione: verifica i dati inseriti.
+  <i class="fas fa-exclamation-triangle"></i>
+  Attenzione: verifica i dati inseriti.
 </div>
 
 <!-- Info -->
 <div class="alert alert-info">
-    <i class="fas fa-info-circle"></i>
-    Informazione utile per l'utente.
+  <i class="fas fa-info-circle"></i>
+  Informazione utile per l'utente.
 </div>
 ```
 
@@ -203,6 +201,7 @@ var(--gradient-accent)      /* Giallo → Arancione */
 ```
 
 ### Best Practices
+
 - ✅ Max 0.3s durata
 - ✅ Max 0.15s delay
 - ✅ Solo transform/opacity
@@ -322,18 +321,12 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="container">
-    <div class="row">
-        <!-- Mobile: 100%, Tablet: 50%, Desktop: 33.33% -->
-        <div class="col-12 col-md-6 col-lg-4">
-            Colonna 1
-        </div>
-        <div class="col-12 col-md-6 col-lg-4">
-            Colonna 2
-        </div>
-        <div class="col-12 col-md-6 col-lg-4">
-            Colonna 3
-        </div>
-    </div>
+  <div class="row">
+    <!-- Mobile: 100%, Tablet: 50%, Desktop: 33.33% -->
+    <div class="col-12 col-md-6 col-lg-4">Colonna 1</div>
+    <div class="col-12 col-md-6 col-lg-4">Colonna 2</div>
+    <div class="col-12 col-md-6 col-lg-4">Colonna 3</div>
+  </div>
 </div>
 ```
 
@@ -355,21 +348,17 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <section class="hero-section bg-gradient-primary text-white py-5">
-    <div class="container">
-        <div class="row justify-content-center text-center">
-            <div class="col-12 col-md-8">
-                <h1 class="display-4 fw-bold mb-3 fade-in-down">
-                    Titolo Hero
-                </h1>
-                <p class="lead mb-4 fade-in-up delay-1">
-                    Sottotitolo descrittivo
-                </p>
-                <button class="btn btn-primary btn-lg fade-in-up delay-2">
-                    <i class="fas fa-arrow-right"></i> Call to Action
-                </button>
-            </div>
-        </div>
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-12 col-md-8">
+        <h1 class="display-4 fw-bold mb-3 fade-in-down">Titolo Hero</h1>
+        <p class="lead mb-4 fade-in-up delay-1">Sottotitolo descrittivo</p>
+        <button class="btn btn-primary btn-lg fade-in-up delay-2">
+          <i class="fas fa-arrow-right"></i> Call to Action
+        </button>
+      </div>
     </div>
+  </div>
 </section>
 ```
 
@@ -377,18 +366,18 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="container my-5">
-    <div class="row">
-        <div class="col-12 col-md-6 col-lg-4 mb-4">
-            <div class="card fade-in-up">
-                <div class="card-body">
-                    <h5 class="card-title">Card 1</h5>
-                    <p>Contenuto...</p>
-                    <button class="btn btn-primary">Azione</button>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-4 mb-4">
+      <div class="card fade-in-up">
+        <div class="card-body">
+          <h5 class="card-title">Card 1</h5>
+          <p>Contenuto...</p>
+          <button class="btn btn-primary">Azione</button>
         </div>
-        <!-- Ripeti per altre card -->
+      </div>
     </div>
+    <!-- Ripeti per altre card -->
+  </div>
 </div>
 ```
 
@@ -396,20 +385,20 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
-            <div class="card fade-in-up">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h3 class="mb-0">Titolo Form</h3>
-                </div>
-                <div class="card-body">
-                    <form>
-                        <!-- Form fields -->
-                    </form>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card fade-in-up">
+        <div class="card-header bg-gradient-primary text-white">
+          <h3 class="mb-0">Titolo Form</h3>
         </div>
+        <div class="card-body">
+          <form>
+            <!-- Form fields -->
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 ```
 
@@ -418,6 +407,7 @@ var(--gradient-accent)      /* Giallo → Arancione */
 ## ⚡ Performance Tips
 
 ### DO ✅
+
 - Usa animazioni solo su transform/opacity
 - Mantieni durata max 0.3s
 - Usa CSS Variables per temi
@@ -425,6 +415,7 @@ var(--gradient-accent)      /* Giallo → Arancione */
 - Testa su dispositivi reali
 
 ### DON'T ❌
+
 - Non animare width/height/padding/margin
 - Non usare delay > 0.15s
 - Non abusare di backdrop-filter
@@ -439,24 +430,20 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="card fade-in-up">
-    <img src="immagine.jpg" alt="Titolo" class="card-img-top">
-    <div class="card-body">
-        <span class="badge badge-primary">Categoria</span>
-        <h5 class="card-title text-gradient">
-            Titolo della notizia
-        </h5>
-        <p class="card-text text-muted">
-            Anteprima del contenuto della notizia...
-        </p>
-        <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-                <i class="fas fa-calendar"></i> 10 Nov 2025
-            </small>
-            <a href="/notizie/1" class="btn btn-primary btn-sm">
-                Leggi tutto <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
+  <img src="immagine.jpg" alt="Titolo" class="card-img-top" />
+  <div class="card-body">
+    <span class="badge badge-primary">Categoria</span>
+    <h5 class="card-title text-gradient">Titolo della notizia</h5>
+    <p class="card-text text-muted">Anteprima del contenuto della notizia...</p>
+    <div class="d-flex justify-content-between align-items-center">
+      <small class="text-muted">
+        <i class="fas fa-calendar"></i> 10 Nov 2025
+      </small>
+      <a href="/notizie/1" class="btn btn-primary btn-sm">
+        Leggi tutto <i class="fas fa-arrow-right"></i>
+      </a>
     </div>
+  </div>
 </div>
 ```
 
@@ -464,16 +451,16 @@ var(--gradient-accent)      /* Giallo → Arancione */
 
 ```html
 <div class="card shadow-lg" style="max-width: 500px; margin: 2rem auto;">
-    <div class="card-header bg-gradient-primary text-white">
-        <h4 class="mb-0">Conferma Azione</h4>
-    </div>
-    <div class="card-body">
-        <p>Sei sicuro di voler procedere con questa azione?</p>
-    </div>
-    <div class="card-footer d-flex justify-content-end gap-2">
-        <button class="btn btn-secondary">Annulla</button>
-        <button class="btn btn-danger">Conferma</button>
-    </div>
+  <div class="card-header bg-gradient-primary text-white">
+    <h4 class="mb-0">Conferma Azione</h4>
+  </div>
+  <div class="card-body">
+    <p>Sei sicuro di voler procedere con questa azione?</p>
+  </div>
+  <div class="card-footer d-flex justify-content-end gap-2">
+    <button class="btn btn-secondary">Annulla</button>
+    <button class="btn btn-danger">Conferma</button>
+  </div>
 </div>
 ```
 
@@ -482,6 +469,7 @@ var(--gradient-accent)      /* Giallo → Arancione */
 ## 📞 Support
 
 Hai domande? Consulta:
+
 - 📖 [README.md completo](/README.md)
 - 📝 [Design System Notes](/DESIGN_SYSTEM_NOTES.md)
 - 💬 [GitHub Issues](https://github.com/Ilpupi00/Sito_BorgoVercelli/issues)
@@ -492,6 +480,6 @@ Hai domande? Consulta:
 
 **🎨 Happy Coding! 🎨**
 
-*Design System v1.0 - Borgo Vercelli Team*
+_Design System v1.0 - Borgo Vercelli Team_
 
 </div>

@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
     transition: filter 0.2s;
   }
   .navbar-logo {
@@ -22,16 +22,16 @@
     height: 24px !important;
     margin: 0 auto;
     border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     object-fit: contain;
     transition: width 0.2s, height 0.2s;
   }
-@media (min-width: 577px) {
-  .navbar-logo {
-    width: 32px !important;
-    height: 32px !important;
+  @media (min-width: 577px) {
+    .navbar-logo {
+      width: 32px !important;
+      height: 32px !important;
+    }
   }
-}
   .navbar-toggler {
     margin-left: auto;
     padding: 4px 8px;
@@ -43,16 +43,16 @@
     border-radius: 12px;
     background-color: #0d6efd;
     border: none;
-    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
     transition: background 0.2s, box-shadow 0.2s;
   }
   .navbar-toggler:active {
     background-color: #0d6efd;
-    box-shadow: 0 4px 16px rgba(13,110,253,0.18);
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.18);
   }
   .navbar {
     background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%) !important;
-    box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+    box-shadow: 0 2px 12px rgba(13, 110, 253, 0.15);
   }
   .navbar-nav {
     padding: 4px 0;
@@ -83,12 +83,14 @@
   .navbar-nav .nav-link:active {
     background: #fff;
     color: #0d6efd;
-    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
   }
   .navbar-nav .nav-link::after {
-    content: '';
+    content: "";
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     height: 2px;
     background: #fff;
     width: 0;
@@ -115,12 +117,12 @@
     height: 28px !important;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 2px solid #fff;
     transition: box-shadow 0.2s, border 0.2s;
   }
   .profile-pic:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     border: 2px solid #00d2ff;
   }
   .profile-icon {
@@ -142,7 +144,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(58,123,213,0.12);
+    box-shadow: 0 2px 8px rgba(58, 123, 213, 0.12);
     border: none;
     font-weight: 500;
     letter-spacing: 0.01em;
@@ -157,8 +159,8 @@
     justify-content: center;
     height: auto;
     border-radius: 12px;
-    background: rgba(13,110,253,0.1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: rgba(13, 110, 253, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: box-shadow 0.2s, background 0.2s;
   }
   form[role="search"] input {
@@ -168,13 +170,13 @@
     padding: 7px 10px !important;
     border-radius: 10px;
     border: 1px solid #e3e3e3;
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     transition: box-shadow 0.2s, border 0.2s;
   }
   form[role="search"] input:focus {
     border: 1px solid #0d6efd;
-    box-shadow: 0 2px 8px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
   }
 }
 @keyframes fadeInUp {
@@ -253,7 +255,7 @@ form {
   display: flex;
   animation: fadeinUp 0.5s ease-in-out;
 }
-@media(max-width: 992px) {
+@media (max-width: 992px) {
   .form-control {
     width: 50vw;
     margin: auto;
@@ -282,7 +284,8 @@ form {
   box-shadow: none;
   transition: background 0.2s, border 0.2s;
 }
-.navbar-toggler:hover, .navbar-toggler:focus {
+.navbar-toggler:hover,
+.navbar-toggler:focus {
   background-color: #0d6efd;
   border-color: #bdbdbd;
   box-shadow: none;
@@ -296,8 +299,10 @@ form {
   justify-content: center;
   position: relative;
 }
-.navbar-toggler-icon::before, .navbar-toggler-icon::after, .navbar-toggler-icon span {
-  content: '';
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after,
+.navbar-toggler-icon span {
+  content: "";
   display: block;
   position: absolute;
   left: 0;
@@ -398,8 +403,6 @@ form {
   }
 }
 
-
-
 .navbar-nav .nav-link {
   color: white;
   text-decoration: none;
@@ -411,7 +414,7 @@ form {
 }
 
 .navbar-nav .nav-link::after {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   left: 0;
@@ -422,12 +425,10 @@ form {
   transition: width 0.3s;
 }
 
-
 .navbar-nav .nav-link:hover {
   color: #fff;
-  background: rgba(255,255,255,0.10);
+  background: rgba(255, 255, 255, 0.1);
 }
-
 
 .navbar-nav .nav-link:hover::after,
 .navbar-nav .nav-link:focus::after {
@@ -440,15 +441,29 @@ form {
   }
 }
 
-.navbar-nav .nav-item:nth-child(1) { animation-delay: 0.1s; }
-.navbar-nav .nav-item:nth-child(2) { animation-delay: 0.2s; }
-.navbar-nav .nav-item:nth-child(3) { animation-delay: 0.3s; }
-.navbar-nav .nav-item:nth-child(4) { animation-delay: 0.4s; }
-.navbar-nav .nav-item:nth-child(5) { animation-delay: 0.5s; }
-.navbar-nav .nav-item:nth-child(6) { animation-delay: 0.6s; }
-.navbar-nav .nav-item:nth-child(7) { animation-delay: 0.7s; }
+.navbar-nav .nav-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.navbar-nav .nav-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.navbar-nav .nav-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.navbar-nav .nav-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.navbar-nav .nav-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.navbar-nav .nav-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.navbar-nav .nav-item:nth-child(7) {
+  animation-delay: 0.7s;
+}
 
-#Login{
+#Login {
   overflow: hidden;
   display: flex;
   margin: 0 auto;
@@ -456,7 +471,7 @@ form {
   animation: fadeInUp 1s ease-in-out;
 }
 @media (max-width: 992px) {
-  #Login{
+  #Login {
     text-align: center;
     margin: auto;
     display: flex;
@@ -534,7 +549,9 @@ header p {
 
 /* --- Dropdown fixes: ensure dropdowns are not clipped and appear like Bootstrap examples --- */
 /* Force overflow visible in case other rules reintroduce clipping */
-.navbar, .navbar-collapse, .navbar-nav {
+.navbar,
+.navbar-collapse,
+.navbar-nav {
   overflow: visible !important;
 }
 
@@ -555,7 +572,8 @@ header p {
   pointer-events: none;
   transform-origin: top center;
   will-change: transform, opacity;
-  transition: opacity 180ms cubic-bezier(.2,.9,.2,1), transform 180ms cubic-bezier(.2,.9,.2,1);
+  transition: opacity 180ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1);
 
   /* modern look: slightly larger, rounded, solid background (not transparent) */
   min-width: 260px; /* default mobile/tablet fallback */
@@ -563,8 +581,9 @@ header p {
   border-radius: 12px;
   /* Use a solid, brand-coherent background instead of transparent glass */
   background: linear-gradient(180deg, #0d6efd 0%, #2563eb 100%);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.35), 0 2px 6px rgba(13,110,253,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35),
+    0 2px 6px rgba(13, 110, 253, 0.08);
   overflow: visible;
 }
 
@@ -592,12 +611,12 @@ header p {
    so they don't persist after the menu is closed (focus remains) */
 .navbar .dropdown.show .dropdown-item:hover,
 .navbar .dropdown.show .dropdown-item:focus {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   transform: translateX(4px);
 }
 .navbar .dropdown.show .dropdown-item:active {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
 /* Remove default focus outline for a cleaner look but keep accessibility via :focus-visible if desired */
 .navbar .dropdown-item:focus {
@@ -605,7 +624,7 @@ header p {
 }
 
 .navbar .dropdown-divider {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin: 6px 0;
 }
 
@@ -629,5 +648,3 @@ header p {
     right: 0 !important;
   }
 }
-
-

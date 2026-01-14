@@ -52,15 +52,15 @@ src/
 
 ### Statistiche
 
-| Tipo | Quantità |
-|------|----------|
-| **Features** | 10 |
-| **Route files** | 14 |
-| **Service/DAO files** | 12 |
-| **View files (.ejs)** | 44 |
-| **Middleware files** | 3 |
-| **Model files** | 11 |
-| **Totale file gestiti** | ~150+ |
+| Tipo                    | Quantità |
+| ----------------------- | -------- |
+| **Features**            | 10       |
+| **Route files**         | 14       |
+| **Service/DAO files**   | 12       |
+| **View files (.ejs)**   | 44       |
+| **Middleware files**    | 3        |
+| **Model files**         | 11       |
+| **Totale file gestiti** | ~150+    |
 
 ---
 
@@ -69,6 +69,7 @@ src/
 ### 1. Spostamenti File
 
 #### Directory Eliminate
+
 - ❌ `src/bin/` → ✅ `src/server/`
 - ❌ `src/config/` → ✅ `src/core/config/`
 - ❌ `src/middlewares/` → ✅ `src/core/middlewares/`
@@ -83,38 +84,41 @@ src/
 ### 2. Aggiornamenti Path
 
 #### File Configurazione
+
 - ✅ `package.json`: Script start aggiornato
 - ✅ `src/app.js`: Import e views paths aggiornati
 - ✅ `src/core/config/database.js`: Path database corretto
 
 #### Import JavaScript (esempi)
+
 ```javascript
 // Prima
-const userDao = require('./services/dao-user');
+const userDao = require("./services/dao-user");
 
 // Dopo
-const userDao = require('./features/users/services/dao-user');
+const userDao = require("./features/users/services/dao-user");
 ```
 
 ```javascript
 // Prima
-const { isLoggedIn } = require('./middlewares/auth');
+const { isLoggedIn } = require("./middlewares/auth");
 
 // Dopo
-const { isLoggedIn } = require('./core/middlewares/auth');
+const { isLoggedIn } = require("./core/middlewares/auth");
 ```
 
 #### URL Asset nelle Views
+
 ```html
 <!-- Prima -->
-<link href="/stylesheets/Common.css">
+<link href="/stylesheets/Common.css" />
 <script src="/javascripts/login.js"></script>
-<img src="/images/Logo.png">
+<img src="/images/Logo.png" />
 
 <!-- Dopo -->
-<link href="/assets/styles/Common.css">
+<link href="/assets/styles/Common.css" />
 <script src="/assets/scripts/login.js"></script>
-<img src="/assets/images/Logo.png">
+<img src="/assets/images/Logo.png" />
 ```
 
 ### 3. Validazioni Effettuate
@@ -123,50 +127,55 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 ✅ **Path Verification**: Tutti i require() verificati  
 ✅ **Database Connection**: Connessione testata  
 ✅ **Server Startup**: Avvio senza errori  
-✅ **Asset Loading**: Path asset verificati  
+✅ **Asset Loading**: Path asset verificati
 
 ---
 
 ## 📋 Features Organizzate
 
-| Feature | Route | Services | Views |
-|---------|-------|----------|-------|
-| **admin** | ✅ admin.js | ✅ (usa altri DAO) | ✅ 12 views |
-| **auth** | ✅ login_register.js | ✅ dao-user.js | ✅ 6 views |
-| **campionati** | ✅ campionati.js | ✅ dao-campionati.js | ✅ 1 view |
-| **eventi** | ✅ eventi.js | ✅ dao-eventi.js | ✅ 3 views |
-| **galleria** | ✅ galleria.js | ✅ dao-galleria.js | ✅ 1 view |
-| **notizie** | ✅ notizie.js | ✅ dao-notizie.js | ✅ 3 views |
-| **prenotazioni** | ✅ prenotazione.js | ✅ dao-prenotazione.js<br>✅ dao-campi.js | ✅ 2 views |
-| **recensioni** | ✅ recensioni.js | ✅ dao-recensioni.js | ✅ 2 views |
-| **squadre** | ✅ squadre.js | ✅ dao-squadre.js<br>✅ dao-dirigenti-squadre.js<br>✅ dao-membri-societa.js | ✅ 3 views |
-| **users** | ✅ users.js | ✅ (usa dao-user da auth) | - |
+| Feature          | Route                | Services                                                                     | Views       |
+| ---------------- | -------------------- | ---------------------------------------------------------------------------- | ----------- |
+| **admin**        | ✅ admin.js          | ✅ (usa altri DAO)                                                           | ✅ 12 views |
+| **auth**         | ✅ login_register.js | ✅ dao-user.js                                                               | ✅ 6 views  |
+| **campionati**   | ✅ campionati.js     | ✅ dao-campionati.js                                                         | ✅ 1 view   |
+| **eventi**       | ✅ eventi.js         | ✅ dao-eventi.js                                                             | ✅ 3 views  |
+| **galleria**     | ✅ galleria.js       | ✅ dao-galleria.js                                                           | ✅ 1 view   |
+| **notizie**      | ✅ notizie.js        | ✅ dao-notizie.js                                                            | ✅ 3 views  |
+| **prenotazioni** | ✅ prenotazione.js   | ✅ dao-prenotazione.js<br>✅ dao-campi.js                                    | ✅ 2 views  |
+| **recensioni**   | ✅ recensioni.js     | ✅ dao-recensioni.js                                                         | ✅ 2 views  |
+| **squadre**      | ✅ squadre.js        | ✅ dao-squadre.js<br>✅ dao-dirigenti-squadre.js<br>✅ dao-membri-societa.js | ✅ 3 views  |
+| **users**        | ✅ users.js          | ✅ (usa dao-user da auth)                                                    | -           |
 
 ---
 
 ## 🎯 Vantaggi Ottenuti
 
 ### 1. **Organizzazione Modulare**
+
 - Ogni feature è autocontenuta
 - Facile individuare dove intervenire
 - Riduce accoppiamento tra moduli
 
 ### 2. **Scalabilità**
+
 - Semplice aggiungere nuove features
 - Pattern chiaro da seguire
 - Crescita ordinata del progetto
 
 ### 3. **Manutenibilità**
+
 - Codice correlato è vicino
 - Dependency chiare
 - Più facile da debuggare
 
 ### 4. **Professionalità**
+
 - Struttura standard del settore
 - Più comprensibile per nuovi sviluppatori
 - Best practices applicate
 
 ### 5. **Chiarezza**
+
 - Naming intuitivo
 - Separazione responsabilità
 - Documentazione integrata
@@ -176,11 +185,13 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 ## 📚 Documentazione Creata
 
 1. **`src/README.md`**
+
    - Struttura completa del progetto
    - Pattern di import
    - Guide per manutenzione
 
 2. **`RIORGANIZZAZIONE.md`**
+
    - Guida alla migrazione
    - Cosa è cambiato
    - Troubleshooting
@@ -195,6 +206,7 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 ## ✨ Stato Finale
 
 ### ✅ Completamente Funzionante
+
 - Server si avvia correttamente
 - Database connesso
 - Nessun errore di sintassi
@@ -202,6 +214,7 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 - Asset accessibili
 
 ### 🎉 Pronto per lo Sviluppo
+
 - Struttura pulita e organizzata
 - Pattern chiari da seguire
 - Documentazione completa
@@ -212,11 +225,13 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 ## 🚀 Prossimi Passi Consigliati
 
 1. **Testing**
+
    - Testare tutte le funzionalità end-to-end
    - Verificare le view nel browser
    - Controllare upload files
 
 2. **Ottimizzazioni Future** (opzionali)
+
    - Implementare lazy loading delle route
    - Aggiungere test automatici
    - Documentare API endpoints
@@ -231,6 +246,7 @@ const { isLoggedIn } = require('./core/middlewares/auth');
 ## 📝 Note Finali
 
 La riorganizzazione è stata completata con successo mantenendo:
+
 - ✅ **Zero downtime**: Tutto funziona
 - ✅ **Zero breaking changes**: Path aggiornati
 - ✅ **100% compatibilità**: Database e assets preservati

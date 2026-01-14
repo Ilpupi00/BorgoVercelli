@@ -1,4 +1,5 @@
 # RUNBOOK OPERATIVO: Migrazione PostgreSQL
+
 # Comandi pronti all'uso per l'agente di turno
 
 ## 🎯 QUICK START
@@ -50,6 +51,7 @@ npm start
 ```
 
 **Cercare nel log**:
+
 ```
 [database] Connecting to PostgreSQL database: borgovercelli
 [database] Connected to PostgreSQL successfully
@@ -66,6 +68,7 @@ Se vedi questi messaggi → ✅ Connessione OK
 Per ogni file DAO, seguire questi step:
 
 #### Step 1: Backup
+
 ```powershell
 # Creare backup del file originale
 Copy-Item src/features/users/services/dao-user.js -Destination src/features/users/services/dao-user.js.backup
@@ -74,40 +77,43 @@ Copy-Item src/features/users/services/dao-user.js -Destination src/features/user
 #### Step 2: Pattern da cercare e sostituire
 
 **A. Import database**
+
 ```javascript
 // CERCA:
-const sqlite = require('../../../core/config/database');
+const sqlite = require("../../../core/config/database");
 
 // SOSTITUISCI CON:
-const db = require('../../../core/config/database');
+const db = require("../../../core/config/database");
 ```
 
 **B. Callback → Async/Await**
+
 ```javascript
 // PATTERN VECCHIO (da sostituire):
-exports.funzione = function(params) {
-    return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM utenti WHERE id = $1`;
-        sqlite.get(sql, [params.id], (err, row) => {
-            if (err) return reject({ error: err.message });
-            resolve(row);
-        });
+exports.funzione = function (params) {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT * FROM utenti WHERE id = $1`;
+    sqlite.get(sql, [params.id], (err, row) => {
+      if (err) return reject({ error: err.message });
+      resolve(row);
     });
-}
+  });
+};
 
 // PATTERN NUOVO (sostituire con):
-exports.funzione = async function(params) {
-    try {
-        const sql = `SELECT * FROM utenti WHERE id = $1`;
-        const row = await db.get(sql, [params.id]);
-        return row;
-    } catch (err) {
-        throw { error: err.message };
-    }
-}
+exports.funzione = async function (params) {
+  try {
+    const sql = `SELECT * FROM utenti WHERE id = $1`;
+    const row = await db.get(sql, [params.id]);
+    return row;
+  } catch (err) {
+    throw { error: err.message };
+  }
+};
 ```
 
 **C. INSERT con RETURNING**
+
 ```javascript
 // PATTERN VECCHIO:
 db.run(`INSERT INTO utenti (...) VALUES ($1, $2, $3)`, [...], function(err) {
@@ -124,10 +130,11 @@ return { id };
 ```
 
 **D. Conteggio righe modificate**
+
 ```javascript
 // PATTERN VECCHIO:
-db.run(`DELETE FROM utenti WHERE id = $1`, [id], function(err) {
-    const deleted = this.changes; // ❌ NON FUNZIONA
+db.run(`DELETE FROM utenti WHERE id = $1`, [id], function (err) {
+  const deleted = this.changes; // ❌ NON FUNZIONA
 });
 
 // PATTERN NUOVO:
@@ -140,10 +147,13 @@ const deleted = result.rowCount; // ✅ CORRETTO
 #### 🔴 CRITICI (fare per primi)
 
 1. **dao-user.js** (~30 funzioni)
+
 ```powershell
 code src/features/users/services/dao-user.js
 ```
+
 Funzioni chiave:
+
 - createUser
 - getUser, getUserById
 - updateUser, updateProfilePicture
@@ -151,10 +161,13 @@ Funzioni chiave:
 - sospendiUtente, bannaUtente
 
 2. **dao-prenotazione.js** (~15 funzioni)
+
 ```powershell
 code src/features/prenotazioni/services/dao-prenotazione.js
 ```
+
 Funzioni chiave:
+
 - prenotaCampo
 - getDisponibilitaCampo
 - getAllPrenotazioni
@@ -162,6 +175,7 @@ Funzioni chiave:
 - checkAndUpdateScadute
 
 3. **dao-campi.js** (~10 funzioni)
+
 ```powershell
 code src/features/prenotazioni/services/dao-campi.js
 ```
@@ -169,11 +183,13 @@ code src/features/prenotazioni/services/dao-campi.js
 #### 🟡 IMPORTANTI (fare dopo critici)
 
 4. **dao-eventi.js**
+
 ```powershell
 code src/features/eventi/services/dao-eventi.js
 ```
 
 5. **dao-notizie.js**
+
 ```powershell
 code src/features/notizie/services/dao-notizie.js
 ```
@@ -200,6 +216,7 @@ npm start
 ```
 
 **Test manuali**:
+
 1. Aprire browser: `http://localhost:3000/registrazione`
 2. Registrare nuovo utente
 3. Login con utente creato
@@ -207,9 +224,11 @@ npm start
 5. Upload foto profilo
 
 **Verifica DB**:
+
 ```powershell
 psql -U postgres -d borgovercelli
 ```
+
 ```sql
 SELECT * FROM utenti ORDER BY created_at DESC LIMIT 5;
 ```
@@ -217,11 +236,13 @@ SELECT * FROM utenti ORDER BY created_at DESC LIMIT 5;
 ### Dopo aver convertito dao-prenotazione.js
 
 **Test manuali**:
+
 1. Visualizzare campi disponibili
 2. Creare prenotazione
 3. Visualizzare "Le mie prenotazioni"
 
 **Verifica DB**:
+
 ```sql
 SELECT * FROM prenotazioni ORDER BY created_at DESC LIMIT 5;
 ```
@@ -231,6 +252,7 @@ SELECT * FROM prenotazioni ORDER BY created_at DESC LIMIT 5;
 ## 📊 COMANDI VERIFICA DATABASE
 
 ### Connessione rapida
+
 ```powershell
 psql -U postgres -d borgovercelli
 ```
@@ -239,8 +261,8 @@ psql -U postgres -d borgovercelli
 
 ```sql
 -- Contare tutte le tabelle
-SELECT schemaname, tablename 
-FROM pg_tables 
+SELECT schemaname, tablename
+FROM pg_tables
 WHERE schemaname = 'public';
 
 -- Contare record per tabella
@@ -265,13 +287,13 @@ SELECT 'prenotazioni', id, created_at FROM prenotazioni
 ORDER BY created_at DESC LIMIT 10;
 
 -- Verificare connessioni attive
-SELECT count(*) as connessioni_attive 
-FROM pg_stat_activity 
+SELECT count(*) as connessioni_attive
+FROM pg_stat_activity
 WHERE datname = 'borgovercelli';
 
 -- Visualizzare query lente (>1 secondo)
-SELECT pid, now() - pg_stat_activity.query_start AS duration, query 
-FROM pg_stat_activity 
+SELECT pid, now() - pg_stat_activity.query_start AS duration, query
+FROM pg_stat_activity
 WHERE state = 'active' AND now() - pg_stat_activity.query_start > interval '1 second';
 ```
 
@@ -337,6 +359,7 @@ log_min_duration_statement = 100  # logga query > 100ms
 ```
 
 Poi riavviare PostgreSQL:
+
 ```powershell
 # Windows (Admin PowerShell)
 Restart-Service postgresql-x64-<version>
@@ -388,10 +411,10 @@ ALTER USER postgres PASSWORD 'nuova_password';
 SELECT count(*) FROM pg_stat_activity WHERE datname = 'borgovercelli';
 
 -- Chiudere connessioni idle
-SELECT pg_terminate_backend(pid) 
-FROM pg_stat_activity 
-WHERE datname = 'borgovercelli' 
-  AND state = 'idle' 
+SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
+WHERE datname = 'borgovercelli'
+  AND state = 'idle'
   AND state_change < current_timestamp - INTERVAL '5 minutes';
 ```
 
@@ -420,6 +443,7 @@ $env:DEBUG="*"; npm start
 ```powershell
 psql -U postgres
 ```
+
 ```sql
 DROP DATABASE IF EXISTS borgovercelli;
 CREATE DATABASE borgovercelli;
@@ -455,16 +479,19 @@ Get-Process | Where-Object {$_.ProcessName -like "*node*"} | Select-Object Proce
 ## 📋 CHECKLIST GIORNALIERA
 
 **Mattina (inizio lavoro)**:
+
 - [ ] PostgreSQL attivo: `Get-Service postgresql*`
 - [ ] Database accessibile: `psql -U postgres -d borgovercelli -c "SELECT 1"`
 - [ ] Backup recente disponibile (< 24h)
 
 **Durante sviluppo**:
+
 - [ ] Commit git frequenti (ogni DAO convertito)
 - [ ] Test funzionale dopo ogni modifica
 - [ ] Log monitorati per errori
 
 **Fine giornata**:
+
 - [ ] Backup database: `pg_dump ...`
 - [ ] Commit finale git
 - [ ] Documentare problemi incontrati in MVP_MIGRATION.md

@@ -39,6 +39,7 @@ node scripts/apply-notifications-migration.js
 ```
 
 Questo crea la tabella `notifications` con:
+
 - `id`: ID univoco notifica
 - `type`: 'admin' | 'user' | 'all'
 - `user_ids`: Array di user_id per notifiche targeted
@@ -66,29 +67,29 @@ pm2 save
 ### 3. Usa il Servizio nelle Route
 
 ```javascript
-const notifications = require('../../../shared/services/notifications');
+const notifications = require("../../../shared/services/notifications");
 
 // Notifica agli admin
 await notifications.queueNotificationForAdmins({
-    title: '🔔 Nuova Prenotazione',
-    body: 'Campo 1 - 28/11/2025 dalle 10:00 alle 11:00',
-    icon: '/assets/images/Logo.png',
-    url: '/admin',
-    tag: 'prenotazione-123',
-    requireInteraction: true
+  title: "🔔 Nuova Prenotazione",
+  body: "Campo 1 - 28/11/2025 dalle 10:00 alle 11:00",
+  icon: "/assets/images/Logo.png",
+  url: "/admin",
+  tag: "prenotazione-123",
+  requireInteraction: true,
 });
 
 // Notifica a utenti specifici
 await notifications.queueNotificationForUsers([userId1, userId2], {
-    title: '✅ Prenotazione Confermata',
-    body: 'La tua prenotazione è stata confermata',
-    url: '/users/mie-prenotazioni'
+  title: "✅ Prenotazione Confermata",
+  body: "La tua prenotazione è stata confermata",
+  url: "/users/mie-prenotazioni",
 });
 
 // Notifica a tutti (broadcast)
 await notifications.queueNotificationForAll({
-    title: '📢 Annuncio Importante',
-    body: 'Il campo sarà chiuso domani per manutenzione'
+  title: "📢 Annuncio Importante",
+  body: "Il campo sarà chiuso domani per manutenzione",
 });
 ```
 
@@ -97,17 +98,17 @@ await notifications.queueNotificationForAll({
 ```javascript
 // Invia tra 1 ora
 await notifications.queueNotificationForUsers([userId], payload, {
-    sendAfter: new Date(Date.now() + 3600000)
+  sendAfter: new Date(Date.now() + 3600000),
 });
 
 // Alta priorità (processata prima)
 await notifications.queueNotificationForAdmins(payload, {
-    priority: 1
+  priority: 1,
 });
 
 // Più tentativi di retry
 await notifications.queueNotificationForUsers([userId], payload, {
-    maxAttempts: 5
+  maxAttempts: 5,
 });
 ```
 
@@ -117,12 +118,12 @@ Modifica `scripts/worker-notifications.js`:
 
 ```javascript
 const CONFIG = {
-    POLL_INTERVAL_MS: 5000,        // Polling interval (5 secondi)
-    BATCH_SIZE: 10,                 // Notifiche per batch
-    RETRY_DELAY_BASE_MS: 1000,     // Base backoff esponenziale
-    MAX_RETRY_DELAY_MS: 60000,     // Max delay retry (1 minuto)
-    CLEANUP_INTERVAL_MS: 3600000,  // Cleanup ogni ora
-    CLEANUP_AFTER_DAYS: 7          // Rimuovi notifiche dopo 7 giorni
+  POLL_INTERVAL_MS: 5000, // Polling interval (5 secondi)
+  BATCH_SIZE: 10, // Notifiche per batch
+  RETRY_DELAY_BASE_MS: 1000, // Base backoff esponenziale
+  MAX_RETRY_DELAY_MS: 60000, // Max delay retry (1 minuto)
+  CLEANUP_INTERVAL_MS: 3600000, // Cleanup ogni ora
+  CLEANUP_AFTER_DAYS: 7, // Rimuovi notifiche dopo 7 giorni
 };
 ```
 
@@ -142,6 +143,7 @@ Il worker implementa:
 ### Statistiche nel Log del Worker
 
 Il worker stampa ogni ora:
+
 ```
 [WORKER] 📊 Statistiche:
   Processate: 145
@@ -161,7 +163,7 @@ SELECT COUNT(*) FROM notifications WHERE status = 'pending';
 SELECT * FROM notifications WHERE status = 'failed' ORDER BY updated_at DESC;
 
 -- Performance ultimi 7 giorni
-SELECT 
+SELECT
     DATE(created_at) as date,
     COUNT(*) as total,
     COUNT(CASE WHEN status = 'sent' THEN 1 END) as sent,

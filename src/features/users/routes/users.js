@@ -1,10 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const daoUser = require('../services/dao-user');
-const { isLoggedIn } = require('../../../core/middlewares/auth');
+const daoUser = require("../services/dao-user");
+const { isLoggedIn } = require("../../../core/middlewares/auth");
 
 // PUT /update - Update user profile
-router.put('/update', isLoggedIn, async (req, res) => {
+router.put("/update", isLoggedIn, async (req, res) => {
   try {
     const userId = req.user.id;
     const updateData = {
@@ -15,27 +15,31 @@ router.put('/update', isLoggedIn, async (req, res) => {
       ruolo_preferito: req.body.ruolo_preferito,
       piede_preferito: req.body.piede_preferito,
       data_nascita: req.body.data_nascita,
-      codice_fiscale: req.body.codice_fiscale
+      codice_fiscale: req.body.codice_fiscale,
     };
 
     await daoUser.updateUser(userId, updateData);
 
-    res.json({ success: true, message: 'Profilo aggiornato con successo' });
+    res.json({ success: true, message: "Profilo aggiornato con successo" });
   } catch (error) {
-    console.error('Errore aggiornamento profilo:', error);
-    res.status(500).json({ success: false, error: 'Errore nell\'aggiornamento del profilo' });
+    console.error("Errore aggiornamento profilo:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Errore nell'aggiornamento del profilo" });
   }
 });
 
 // GET /mie-prenotazioni - View user's bookings page
-router.get('/mie-prenotazioni', isLoggedIn, async (req, res) => {
+router.get("/mie-prenotazioni", isLoggedIn, async (req, res) => {
   try {
-    res.render('mie_prenotazioni', {
-      user: req.user
+    res.render("mie_prenotazioni", {
+      user: req.user,
     });
   } catch (error) {
-    console.error('Errore caricamento pagina prenotazioni:', error);
-    res.status(500).render('error', { message: 'Errore nel caricamento della pagina' });
+    console.error("Errore caricamento pagina prenotazioni:", error);
+    res
+      .status(500)
+      .render("error", { message: "Errore nel caricamento della pagina" });
   }
 });
 

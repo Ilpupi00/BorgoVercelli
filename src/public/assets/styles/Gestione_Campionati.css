@@ -6,85 +6,85 @@
 
 /* Tabella - Colonne specifiche */
 .admin-table td:first-child {
-    font-weight: 600;
-    min-width: 200px;
+  font-weight: 600;
+  min-width: 200px;
 }
 
 .admin-table td:nth-child(2) {
-    min-width: 120px;
+  min-width: 120px;
 }
 
 .admin-table td:nth-child(3) {
-    min-width: 100px;
+  min-width: 100px;
 }
 
 .admin-table td:nth-child(4) {
-    text-align: center;
-    font-weight: 600;
-    color: var(--primary);
+  text-align: center;
+  font-weight: 600;
+  color: var(--primary);
 }
 
 .admin-table td:nth-child(5) {
-    white-space: nowrap;
-    min-width: 120px;
+  white-space: nowrap;
+  min-width: 120px;
 }
 
 .admin-table td:nth-child(6) {
-    min-width: 140px;
+  min-width: 140px;
 }
 
 /* Badge personalizzati per campionati */
 .badge-attivo {
-    background: linear-gradient(135deg, var(--success), var(--success-dark));
+  background: linear-gradient(135deg, var(--success), var(--success-dark));
 }
 
 .badge-inattivo {
-    background: linear-gradient(135deg, var(--secondary), var(--text-secondary));
+  background: linear-gradient(135deg, var(--secondary), var(--text-secondary));
 }
 
 /* Action buttons specifiche */
 .championship-actions {
-    display: flex;
-    gap: 0.25rem;
-    justify-content: center;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .championship-actions .btn {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.875rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
 }
 
 /* Empty state per tabella */
 .championship-empty-state {
-    text-align: center;
-    padding: 3rem 1.5rem;
+  text-align: center;
+  padding: 3rem 1.5rem;
 }
 
 .championship-empty-state i {
-    font-size: 4rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
+  font-size: 4rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
 }
 
 .championship-empty-state p {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .admin-table td:first-child {
-        min-width: 150px;
-    }
-    
-    .championship-actions {
-        gap: 0.5rem;
-    }
-    
-    .championship-actions .btn {
-        flex: 1 1 auto;
-        min-width: 80px;
-    }
+  .admin-table td:first-child {
+    min-width: 150px;
+  }
+
+  .championship-actions {
+    gap: 0.5rem;
+  }
+
+  .championship-actions .btn {
+    flex: 1 1 auto;
+    min-width: 80px;
+  }
 }

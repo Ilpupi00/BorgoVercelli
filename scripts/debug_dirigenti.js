@@ -1,4 +1,4 @@
-const db = require('../src/core/config/database');
+const db = require("../src/core/config/database");
 
 const sql = `
 SELECT
@@ -23,11 +23,11 @@ ORDER BY ds.squadra_id, ds.ruolo
 `;
 
 db.all(sql, [], (err, rows) => {
-    if (err) {
-        console.error('Errore esecuzione query debug dirigenti:', err);
-        process.exit(1);
-    }
-    console.log('DEBUG DIRIGENTI ROWS:');
-    console.log(JSON.stringify(rows, null, 2));
-    process.exit(0);
+  if (err) {
+    console.error("Errore esecuzione query debug dirigenti:", err);
+    process.exit(1);
+  }
+  console.log("DEBUG DIRIGENTI ROWS:");
+  console.log(JSON.stringify(rows, null, 2));
+  process.exit(0);
 });

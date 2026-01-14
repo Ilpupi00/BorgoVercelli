@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * @fileoverview DAO per la gestione delle notizie
@@ -6,82 +6,89 @@
  * @module features/notizie/services/dao-notizie
  */
 
-const sqlite = require('../../../core/config/database');
-const Notizie= require('../../../core/models/notizia.js');
+const sqlite = require("../../../core/config/database");
+const Notizie = require("../../../core/models/notizia.js");
 
 const makeNotizie = (row) => {
-    // PostgreSQL restituisce i nomi colonna in minuscolo, SQLite può usare maiuscolo
-    // Gestisci entrambi i casi: N_id (SQLite/alias maiuscolo) e n_id (PostgreSQL)
-    const notiziaId = row.N_id || row.n_id || row.id;
-    
-    if (!notiziaId) {
-        console.warn('[DAO-NOTIZIE] WARNING: Tentativo di creare Notizia senza ID valido. Row keys:', Object.keys(row));
-        console.warn('[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:', {
-            titolo: row.N_titolo || row.n_titolo || row.titolo,
-            raw_N_id: row.N_id,
-            raw_n_id: row.n_id,
-            raw_id: row.id,
-            all_keys: Object.keys(row).join(', ')
-        });
-        // Restituisci null invece di un oggetto invalido
-        return null;
-    }
+  // PostgreSQL restituisce i nomi colonna in minuscolo, SQLite può usare maiuscolo
+  // Gestisci entrambi i casi: N_id (SQLite/alias maiuscolo) e n_id (PostgreSQL)
+  const notiziaId = row.N_id || row.n_id || row.id;
 
-    // Costruisci il nome completo dell'autore
-    let autore = '';
-    if (row.autore_nome || row.autore_cognome) {
-        autore = `${row.autore_nome || ''} ${row.autore_cognome || ''}`.trim();
-    } else if (row.N_autore_id || row.n_autore_id || row.autore_id) {
-        autore = `Autore ID: ${row.N_autore_id || row.n_autore_id || row.autore_id}`;
-    }
-
-    return new Notizie(
-        notiziaId,
-        row.N_titolo || row.n_titolo || row.titolo,
-        row.N_sottotitolo || row.n_sottotitolo || row.sottotitolo,
-        {
-            url: row.immagine_url || '/assets/images/Campo.png',
-            id: row.N_immagine || row.n_immagine || row.immagine_principale_id
-        },
-        row.N_contenuto || row.n_contenuto || row.contenuto,
-        autore, // Usa il nome completo invece dell'ID
-        row.N_autore_id || row.n_autore_id || row.autore_id,
-        row.N_pubblicata || row.n_pubblicata || row.pubblicata,
-        row.N_data_pubblicazione || row.n_data_pubblicazione || row.data_pubblicazione,
-        row.N_visualizzazioni || row.n_visualizzazioni || row.visualizzazioni,
-        row.N_created_at || row.n_created_at || row.created_at || null,
-        row.N_updated_at || row.n_updated_at || row.updated_at || null
+  if (!notiziaId) {
+    console.warn(
+      "[DAO-NOTIZIE] WARNING: Tentativo di creare Notizia senza ID valido. Row keys:",
+      Object.keys(row)
     );
-}
+    console.warn("[DAO-NOTIZIE] WARNING: Notizia senza ID valido trovata:", {
+      titolo: row.N_titolo || row.n_titolo || row.titolo,
+      raw_N_id: row.N_id,
+      raw_n_id: row.n_id,
+      raw_id: row.id,
+      all_keys: Object.keys(row).join(", "),
+    });
+    // Restituisci null invece di un oggetto invalido
+    return null;
+  }
+
+  // Costruisci il nome completo dell'autore
+  let autore = "";
+  if (row.autore_nome || row.autore_cognome) {
+    autore = `${row.autore_nome || ""} ${row.autore_cognome || ""}`.trim();
+  } else if (row.N_autore_id || row.n_autore_id || row.autore_id) {
+    autore = `Autore ID: ${
+      row.N_autore_id || row.n_autore_id || row.autore_id
+    }`;
+  }
+
+  return new Notizie(
+    notiziaId,
+    row.N_titolo || row.n_titolo || row.titolo,
+    row.N_sottotitolo || row.n_sottotitolo || row.sottotitolo,
+    {
+      url: row.immagine_url || "/assets/images/Campo.png",
+      id: row.N_immagine || row.n_immagine || row.immagine_principale_id,
+    },
+    row.N_contenuto || row.n_contenuto || row.contenuto,
+    autore, // Usa il nome completo invece dell'ID
+    row.N_autore_id || row.n_autore_id || row.autore_id,
+    row.N_pubblicata || row.n_pubblicata || row.pubblicata,
+    row.N_data_pubblicazione ||
+      row.n_data_pubblicazione ||
+      row.data_pubblicazione,
+    row.N_visualizzazioni || row.n_visualizzazioni || row.visualizzazioni,
+    row.N_created_at || row.n_created_at || row.created_at || null,
+    row.N_updated_at || row.n_updated_at || row.updated_at || null
+  );
+};
 /**
  * Recupera tutte le notizie (anche bozza) con autore e immagine
  * @async
  * @returns {Promise<Array<Notizie>>}
  */
-exports.getNotizie = async function(){
-    const sql = `
+exports.getNotizie = async function () {
+  const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         ORDER BY N.data_pubblicazione DESC
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, notizie) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Error retrieving news: ' + err.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, notizie) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({ error: "Error retrieving news: " + err.message });
+      }
 
-            try {
-                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
-                resolve(result);
-            } catch (e) {
-                return reject({ error: 'Error mapping news: ' + e.message });
-            }
-        });
+      try {
+        const result = notizie.map(makeNotizie).filter((n) => n !== null) || [];
+        resolve(result);
+      } catch (e) {
+        return reject({ error: "Error mapping news: " + e.message });
+      }
     });
-}
+  });
+};
 
 /**
  * Recupera le notizie pubblicate paginando il risultato
@@ -90,8 +97,8 @@ exports.getNotizie = async function(){
  * @param {number} limit - Numero di record per pagina
  * @returns {Promise<Array<Notizie>>}
  */
-exports.getNotiziePaginated = async function(offset = 0, limit = 6){
-    const sql = `
+exports.getNotiziePaginated = async function (offset = 0, limit = 6) {
+  const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
@@ -100,22 +107,22 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
         ORDER BY N.data_pubblicazione DESC
         LIMIT ? OFFSET ?
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [limit, offset], (err, notizie) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Error retrieving news: ' + err.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [limit, offset], (err, notizie) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({ error: "Error retrieving news: " + err.message });
+      }
 
-            try {
-                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
-                resolve(result);
-            } catch (e) {
-                return reject({ error: 'Error mapping news: ' + e.message });
-            }
-        });
+      try {
+        const result = notizie.map(makeNotizie).filter((n) => n !== null) || [];
+        resolve(result);
+      } catch (e) {
+        return reject({ error: "Error mapping news: " + e.message });
+      }
     });
-}
+  });
+};
 
 /**
  * Recupera una notizia per ID
@@ -123,27 +130,27 @@ exports.getNotiziePaginated = async function(offset = 0, limit = 6){
  * @param {number} id - ID della notizia
  * @returns {Promise<Notizie>} Istanza Notizie
  */
-exports.getNotiziaById = async function(id) {
-    const sql = `
+exports.getNotiziaById = async function (id) {
+  const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         WHERE N.id = ?
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id], (err, notizia) => {
-            if (err) {
-                return reject({ error: 'Error retrieving news: ' + err.message });
-            }
-            if (!notizia) {
-                // Return null when not found so callers can handle 404 vs 500
-                return resolve(null);
-            }
-            resolve(makeNotizie(notizia));
-        });
+  return new Promise((resolve, reject) => {
+    sqlite.get(sql, [id], (err, notizia) => {
+      if (err) {
+        return reject({ error: "Error retrieving news: " + err.message });
+      }
+      if (!notizia) {
+        // Return null when not found so callers can handle 404 vs 500
+        return resolve(null);
+      }
+      resolve(makeNotizie(notizia));
     });
-}
+  });
+};
 
 /**
  * Incrementa il contatore delle visualizzazioni di una notizia
@@ -151,25 +158,37 @@ exports.getNotiziaById = async function(id) {
  * @param {number} id - ID della notizia
  * @returns {Promise<Object>} { success: true, visualizzazioni }
  */
-exports.incrementVisualizzazioni = async function(id) {
-    const sql = `UPDATE NOTIZIE SET visualizzazioni = COALESCE(visualizzazioni, 0) + 1 WHERE id = ?`;
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err, result) {
-            if (err) {
-                console.error('[DAO-NOTIZIE] Errore incremento visualizzazioni:', err);
-                return reject({ error: 'Error incrementing views: ' + err.message });
-            }
-            // Recupera il nuovo valore delle visualizzazioni
-            sqlite.get('SELECT visualizzazioni FROM NOTIZIE WHERE id = ?', [id], (err, row) => {
-                if (err) {
-                    console.warn('[DAO-NOTIZIE] Errore recupero visualizzazioni dopo incremento:', err);
-                    return resolve({ success: true, visualizzazioni: null });
-                }
-                resolve({ success: true, visualizzazioni: row ? (row.visualizzazioni || row.n_visualizzazioni) : null });
-            });
-        });
+exports.incrementVisualizzazioni = async function (id) {
+  const sql = `UPDATE NOTIZIE SET visualizzazioni = COALESCE(visualizzazioni, 0) + 1 WHERE id = ?`;
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [id], function (err, result) {
+      if (err) {
+        console.error("[DAO-NOTIZIE] Errore incremento visualizzazioni:", err);
+        return reject({ error: "Error incrementing views: " + err.message });
+      }
+      // Recupera il nuovo valore delle visualizzazioni
+      sqlite.get(
+        "SELECT visualizzazioni FROM NOTIZIE WHERE id = ?",
+        [id],
+        (err, row) => {
+          if (err) {
+            console.warn(
+              "[DAO-NOTIZIE] Errore recupero visualizzazioni dopo incremento:",
+              err
+            );
+            return resolve({ success: true, visualizzazioni: null });
+          }
+          resolve({
+            success: true,
+            visualizzazioni: row
+              ? row.visualizzazioni || row.n_visualizzazioni
+              : null,
+          });
+        }
+      );
     });
-}
+  });
+};
 
 /**
  * Elimina una notizia per ID
@@ -177,21 +196,22 @@ exports.incrementVisualizzazioni = async function(id) {
  * @param {number} id - ID della notizia
  * @returns {Promise<Object>} { success: true }
  */
-exports.deleteNotiziaById = async function(id) {
-    const sql = 'DELETE FROM NOTIZIE WHERE id = ?';
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error deleting news: ' + err.message });
-            }
-            const deleted = result && typeof result.rowCount === 'number' ? result.rowCount : 0;
-            if (deleted === 0) {
-                return resolve({ success: false, deleted: 0 });
-            }
-            resolve({ success: true, deleted });
-        });
+exports.deleteNotiziaById = async function (id) {
+  const sql = "DELETE FROM NOTIZIE WHERE id = ?";
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [id], function (err, result) {
+      if (err) {
+        return reject({ error: "Error deleting news: " + err.message });
+      }
+      const deleted =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (deleted === 0) {
+        return resolve({ success: false, deleted: 0 });
+      }
+      resolve({ success: true, deleted });
     });
-}
+  });
+};
 
 /**
  * Crea una nuova notizia. Se `pubblicata` è true imposta data_pubblicazione a now
@@ -199,29 +219,34 @@ exports.deleteNotiziaById = async function(id) {
  * @param {Object} notiziaData - Dati della notizia
  * @returns {Promise<Object>} { success: true, id }
  */
-exports.createNotizia = async function(notiziaData) {
-    const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
+exports.createNotizia = async function (notiziaData) {
+  const sql = `INSERT INTO NOTIZIE (titolo, sottotitolo, contenuto, immagine_principale_id, autore_id, pubblicata, data_pubblicazione, visualizzazioni, created_at, updated_at)
                  VALUES (?, ?, ?, ?, ?, ?, CASE WHEN ? = true THEN NOW() ELSE NULL END, 0, NOW(), NOW())
                  RETURNING id`;
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
-            notiziaData.titolo,
-            notiziaData.sottotitolo,
-            notiziaData.contenuto,
-            notiziaData.immagine_principale_id,
-            notiziaData.autore_id,
-            notiziaData.pubblicata,
-            notiziaData.pubblicata
-        ], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error creating news: ' + err.message });
-            }
-            const id = result && result.rows && result.rows[0] ? result.rows[0].id : null;
-            resolve({ success: true, id });
-        });
-    });
-}
+  return new Promise((resolve, reject) => {
+    sqlite.run(
+      sql,
+      [
+        notiziaData.titolo,
+        notiziaData.sottotitolo,
+        notiziaData.contenuto,
+        notiziaData.immagine_principale_id,
+        notiziaData.autore_id,
+        notiziaData.pubblicata,
+        notiziaData.pubblicata,
+      ],
+      function (err, result) {
+        if (err) {
+          return reject({ error: "Error creating news: " + err.message });
+        }
+        const id =
+          result && result.rows && result.rows[0] ? result.rows[0].id : null;
+        resolve({ success: true, id });
+      }
+    );
+  });
+};
 
 /**
  * Aggiorna una notizia esistente
@@ -230,30 +255,35 @@ exports.createNotizia = async function(notiziaData) {
  * @param {Object} notiziaData - Campi aggiornati
  * @returns {Promise<Object>} { success: true, changes }
  */
-exports.updateNotizia = async function(id, notiziaData) {
-    const sql = `UPDATE NOTIZIE SET
+exports.updateNotizia = async function (id, notiziaData) {
+  const sql = `UPDATE NOTIZIE SET
                  titolo = ?, sottotitolo = ?, contenuto = ?, immagine_principale_id = ?,
                  pubblicata = ?, data_pubblicazione = CASE WHEN ? = true THEN NOW() ELSE NULL END, updated_at = NOW()
                  WHERE id = ?`;
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [
-            notiziaData.titolo,
-            notiziaData.sottotitolo,
-            notiziaData.contenuto,
-            notiziaData.immagine_principale_id,
-            notiziaData.pubblicata ? true : false,
-            notiziaData.pubblicata ? true : false,
-            id
-        ], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error updating news: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
-        });
-    });
-}
+  return new Promise((resolve, reject) => {
+    sqlite.run(
+      sql,
+      [
+        notiziaData.titolo,
+        notiziaData.sottotitolo,
+        notiziaData.contenuto,
+        notiziaData.immagine_principale_id,
+        notiziaData.pubblicata ? true : false,
+        notiziaData.pubblicata ? true : false,
+        id,
+      ],
+      function (err, result) {
+        if (err) {
+          return reject({ error: "Error updating news: " + err.message });
+        }
+        const changes =
+          result && typeof result.rowCount === "number" ? result.rowCount : 0;
+        resolve({ success: true, changes });
+      }
+    );
+  });
+};
 
 /**
  * Attiva/disattiva la pubblicazione di una notizia
@@ -261,23 +291,26 @@ exports.updateNotizia = async function(id, notiziaData) {
  * @param {number} id - ID della notizia
  * @returns {Promise<Object>} { success: true, changes }
  */
-exports.togglePubblicazioneNotizia = async function(id) {
-    const sql = `UPDATE NOTIZIE SET
+exports.togglePubblicazioneNotizia = async function (id) {
+  const sql = `UPDATE NOTIZIE SET
                  pubblicata = CASE WHEN pubblicata = true THEN false ELSE true END,
                  data_pubblicazione = CASE WHEN pubblicata = false THEN NOW() WHEN pubblicata = true THEN NULL ELSE data_pubblicazione END,
                  updated_at = NOW()
                  WHERE id = ?`;
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error toggling news publication: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [id], function (err, result) {
+      if (err) {
+        return reject({
+          error: "Error toggling news publication: " + err.message,
         });
+      }
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      resolve({ success: true, changes });
     });
-}
+  });
+};
 
 /**
  * Cerca notizie pubblicate per titolo/sottotitolo
@@ -285,8 +318,8 @@ exports.togglePubblicazioneNotizia = async function(id) {
  * @param {string} searchTerm - Term con % per LIKE
  * @returns {Promise<Array<Notizie>>}
  */
-exports.searchNotizie = async function(searchTerm) {
-    const sql = `
+exports.searchNotizie = async function (searchTerm) {
+  const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
@@ -295,33 +328,41 @@ exports.searchNotizie = async function(searchTerm) {
         ORDER BY N.data_pubblicazione DESC
         LIMIT 5
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [searchTerm, searchTerm], (err, notizie) => {
-            if (err) {
-                console.error('Errore SQL search notizie:', err);
-                return reject({ error: 'Error searching news: ' + err.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [searchTerm, searchTerm], (err, notizie) => {
+      if (err) {
+        console.error("Errore SQL search notizie:", err);
+        return reject({ error: "Error searching news: " + err.message });
+      }
 
-            try {
-                console.log('[DAO-NOTIZIE] searchNotizie - Righe trovate:', notizie ? notizie.length : 0);
-                if (notizie && notizie.length > 0) {
-                    console.log('[DAO-NOTIZIE] searchNotizie - Prima riga raw:', JSON.stringify(notizie[0], null, 2));
-                }
-                
-                // Filtra le righe senza ID valido e mappa solo quelle valide
-                const result = notizie
-                    .filter(row => row.N_id || row.id)
-                    .map(makeNotizie) || [];
-                
-                console.log('[DAO-NOTIZIE] searchNotizie - Risultati mappati:', result.length);
-                resolve(result);
-            } catch (e) {
-                console.error('Errore nella mappatura delle notizie:', e);
-                reject({ error: 'Error mapping news data' });
-            }
-        });
+      try {
+        console.log(
+          "[DAO-NOTIZIE] searchNotizie - Righe trovate:",
+          notizie ? notizie.length : 0
+        );
+        if (notizie && notizie.length > 0) {
+          console.log(
+            "[DAO-NOTIZIE] searchNotizie - Prima riga raw:",
+            JSON.stringify(notizie[0], null, 2)
+          );
+        }
+
+        // Filtra le righe senza ID valido e mappa solo quelle valide
+        const result =
+          notizie.filter((row) => row.N_id || row.id).map(makeNotizie) || [];
+
+        console.log(
+          "[DAO-NOTIZIE] searchNotizie - Risultati mappati:",
+          result.length
+        );
+        resolve(result);
+      } catch (e) {
+        console.error("Errore nella mappatura delle notizie:", e);
+        reject({ error: "Error mapping news data" });
+      }
     });
-}
+  });
+};
 
 /**
  * Recupera notizie applicando filtri (testo, autore, date) con paginazione
@@ -331,86 +372,94 @@ exports.searchNotizie = async function(searchTerm) {
  * @param {number} limit
  * @returns {Promise<Array<Notizie>>}
  */
-exports.getNotizieFiltered = async function(filters = {}, offset = 0, limit = 12) {
-    let sql = `
+exports.getNotizieFiltered = async function (
+  filters = {},
+  offset = 0,
+  limit = 12
+) {
+  let sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         WHERE N.pubblicata = true
     `;
-    
-    const params = [];
-    
-    // Filtro per ricerca testuale
-    if (filters.search && filters.search.trim()) {
-        const searchTerm = `%${filters.search.trim()}%`;
-        sql += ` AND (N.titolo LIKE ? OR N.sottotitolo LIKE ? OR N.contenuto LIKE ?)`;
-        params.push(searchTerm, searchTerm, searchTerm);
-    }
-    
-    // Filtro per autore
-    if (filters.author && filters.author.trim()) {
-        sql += ` AND (U.nome || ' ' || U.cognome) LIKE ?`;
-        params.push(`%${filters.author.trim()}%`);
-    }
-    
-    // Filtro per data da
-    if (filters.dateFrom) {
-        sql += ` AND N.data_pubblicazione >= ?`;
-        params.push(filters.dateFrom);
-    }
-    
-    // Filtro per data a
-    if (filters.dateTo) {
-        sql += ` AND N.data_pubblicazione <= ?`;
-        params.push(filters.dateTo);
-    }
-    
-    sql += ` ORDER BY N.data_pubblicazione DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
-    
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, params, (err, notizie) => {
-            if (err) {
-                console.error('Errore SQL filtered notizie:', err);
-                return reject({ error: 'Error retrieving filtered news: ' + err.message });
-            }
 
-            try {
-                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
-                resolve(result);
-            } catch (e) {
-                return reject({ error: 'Error mapping filtered news: ' + e.message });
-            }
+  const params = [];
+
+  // Filtro per ricerca testuale
+  if (filters.search && filters.search.trim()) {
+    const searchTerm = `%${filters.search.trim()}%`;
+    sql += ` AND (N.titolo LIKE ? OR N.sottotitolo LIKE ? OR N.contenuto LIKE ?)`;
+    params.push(searchTerm, searchTerm, searchTerm);
+  }
+
+  // Filtro per autore
+  if (filters.author && filters.author.trim()) {
+    sql += ` AND (U.nome || ' ' || U.cognome) LIKE ?`;
+    params.push(`%${filters.author.trim()}%`);
+  }
+
+  // Filtro per data da
+  if (filters.dateFrom) {
+    sql += ` AND N.data_pubblicazione >= ?`;
+    params.push(filters.dateFrom);
+  }
+
+  // Filtro per data a
+  if (filters.dateTo) {
+    sql += ` AND N.data_pubblicazione <= ?`;
+    params.push(filters.dateTo);
+  }
+
+  sql += ` ORDER BY N.data_pubblicazione DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, params, (err, notizie) => {
+      if (err) {
+        console.error("Errore SQL filtered notizie:", err);
+        return reject({
+          error: "Error retrieving filtered news: " + err.message,
         });
+      }
+
+      try {
+        const result = notizie.map(makeNotizie).filter((n) => n !== null) || [];
+        resolve(result);
+      } catch (e) {
+        return reject({ error: "Error mapping filtered news: " + e.message });
+      }
     });
-}
+  });
+};
 
 /**
  * Recupera gli autori distinti delle notizie pubblicate (nome completo)
  * @async
  * @returns {Promise<Array<string>>} Array di nomi autori
  */
-exports.getNotizieAuthors = async function() {
-    const sql = `
+exports.getNotizieAuthors = async function () {
+  const sql = `
         SELECT DISTINCT (U.nome || ' ' || U.cognome) as nome_completo
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         WHERE N.pubblicata = true AND U.nome IS NOT NULL AND U.cognome IS NOT NULL
         ORDER BY nome_completo
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, rows) => {
-            if (err) {
-                console.error('Errore SQL authors:', err);
-                return reject({ error: 'Error retrieving authors: ' + err.message });
-            }
-            const authors = rows.map(row => row.nome_completo).filter(name => name && name.trim());
-            resolve(authors);
-        });
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, rows) => {
+      if (err) {
+        console.error("Errore SQL authors:", err);
+        return reject({ error: "Error retrieving authors: " + err.message });
+      }
+      const authors = rows
+        .map((row) => row.nome_completo)
+        .filter((name) => name && name.trim());
+      resolve(authors);
     });
-}
+  });
+};
 
 /**
  * Recupera le notizie create da un utente specifico (area personale)
@@ -418,8 +467,8 @@ exports.getNotizieAuthors = async function() {
  * @param {number} userId - ID utente autore
  * @returns {Promise<Array<Notizie>>}
  */
-exports.getNotiziePersonali = async function(userId) {
-    const sql = `
+exports.getNotiziePersonali = async function (userId) {
+  const sql = `
         SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
@@ -427,19 +476,21 @@ exports.getNotiziePersonali = async function(userId) {
         WHERE N.autore_id = ?
         ORDER BY N.created_at DESC
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [userId], (err, notizie) => {
-            if (err) {
-                console.error('Errore SQL get notizie personali:', err);
-                return reject({ error: 'Error retrieving personal news: ' + err.message });
-            }
-
-            try {
-                const result = notizie.map(makeNotizie).filter(n => n !== null) || [];
-                resolve(result);
-            } catch (e) {
-                return reject({ error: 'Error mapping personal news: ' + e.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [userId], (err, notizie) => {
+      if (err) {
+        console.error("Errore SQL get notizie personali:", err);
+        return reject({
+          error: "Error retrieving personal news: " + err.message,
         });
+      }
+
+      try {
+        const result = notizie.map(makeNotizie).filter((n) => n !== null) || [];
+        resolve(result);
+      } catch (e) {
+        return reject({ error: "Error mapping personal news: " + e.message });
+      }
     });
-}
+  });
+};

@@ -1,9 +1,11 @@
 # Sistema di Promemoria Automatico Prenotazioni
 
 ## Data implementazione
+
 29 Novembre 2025
 
 ## Obiettivo
+
 Implementare un sistema automatico che invia notifiche push agli utenti 2 ore prima dell'inizio della loro prenotazione confermata.
 
 ## Modifiche Implementate
@@ -13,13 +15,15 @@ Implementare un sistema automatico che invia notifiche push agli utenti 2 ore pr
 **File**: `database/migrations/add_reminder_sent_to_prenotazioni.sql`
 
 Aggiunta colonna `reminder_sent` alla tabella `PRENOTAZIONI`:
+
 - **Tipo**: BOOLEAN
 - **Default**: FALSE
 - **Scopo**: Tracciare se il promemoria è già stato inviato per evitare duplicati
 
 **Indice Creato**:
+
 ```sql
-CREATE INDEX idx_prenotazioni_reminder_check 
+CREATE INDEX idx_prenotazioni_reminder_check
 ON PRENOTAZIONI (stato, reminder_sent, data_prenotazione, ora_inizio)
 WHERE stato = 'confermata' AND reminder_sent = false;
 ```
@@ -31,6 +35,7 @@ Questo indice parziale ottimizza le query del worker che cerca solo prenotazioni
 **File**: `src/server/workers/booking-reminder-worker.js`
 
 Nuovo worker che:
+
 - Controlla ogni **10 minuti** se ci sono prenotazioni imminenti
 - Invia notifiche **2 ore prima** dell'inizio (con finestra di tolleranza di ±15 minuti)
 - Marca le prenotazioni come `reminder_sent = true` dopo l'invio
@@ -38,15 +43,17 @@ Nuovo worker che:
 - Lavora solo su prenotazioni del giorno corrente
 
 **Configurazione**:
+
 ```javascript
 const CONFIG = {
-    CHECK_INTERVAL_MS: 60000 * 10,  // Controlla ogni 10 minuti
-    REMINDER_HOURS_BEFORE: 2,        // Invia promemoria 2 ore prima
-    REMINDER_WINDOW_MINUTES: 15      // Finestra di tolleranza ±15 minuti
+  CHECK_INTERVAL_MS: 60000 * 10, // Controlla ogni 10 minuti
+  REMINDER_HOURS_BEFORE: 2, // Invia promemoria 2 ore prima
+  REMINDER_WINDOW_MINUTES: 15, // Finestra di tolleranza ±15 minuti
 };
 ```
 
 **Funzioni Principali**:
+
 1. `getBookingsNeedingReminder()` - Query per trovare prenotazioni da notificare
 2. `sendBookingReminder(booking)` - Invia la notifica push
 3. `markReminderSent(bookingId)` - Marca come inviato
@@ -55,7 +62,7 @@ const CONFIG = {
 ### 3. Query SQL del Worker
 
 ```sql
-SELECT 
+SELECT
     p.id,
     p.utente_id,
     p.campo_id,
@@ -75,12 +82,13 @@ AND p.data_prenotazione = CURRENT_DATE
 AND (
     EXTRACT(EPOCH FROM (
         (p.data_prenotazione + p.ora_inizio::time) - NOW()
-    )) / 3600 
+    )) / 3600
 ) BETWEEN 1.75 AND 2.25
 ORDER BY p.data_prenotazione, p.ora_inizio
 ```
 
 Questa query trova prenotazioni che:
+
 - Sono confermate
 - Non hanno già ricevuto promemoria
 - Sono previste per oggi
@@ -116,11 +124,11 @@ Il worker viene avviato automaticamente all'avvio del server:
 
 ```javascript
 try {
-    const bookingReminderWorker = require('./workers/booking-reminder-worker');
-    bookingReminderWorker.start();
-    console.log('✅ Booking Reminder Worker avviato');
+  const bookingReminderWorker = require("./workers/booking-reminder-worker");
+  bookingReminderWorker.start();
+  console.log("✅ Booking Reminder Worker avviato");
 } catch (error) {
-    console.error('❌ Errore avvio Booking Reminder Worker:', error.message);
+  console.error("❌ Errore avvio Booking Reminder Worker:", error.message);
 }
 ```
 
@@ -129,22 +137,27 @@ try {
 **Problema**: Endpoint `/api/prenotazioni/user/:id` non esisteva, causando errore 404 in "Visualizza Utente"
 
 **Soluzione**:
+
 1. Aggiunto endpoint in `src/features/prenotazioni/routes/prenotazione.js`:
+
 ```javascript
-router.get('/prenotazioni/user/:userId', async (req, res) => {
-    const userId = req.params.userId;
-    try {
-        const prenotazioni = await daoPrenotazione.getPrenotazioniByUserId(userId);
-        res.json(prenotazioni);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+router.get("/prenotazioni/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const prenotazioni = await daoPrenotazione.getPrenotazioniByUserId(userId);
+    res.json(prenotazioni);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 ```
 
 2. Corretto URL nel frontend (`Gestore_utenti.js`):
+
 ```javascript
-const responsePrenotazioni = await fetch(`/prenotazione/prenotazioni/user/${id}`);
+const responsePrenotazioni = await fetch(
+  `/prenotazione/prenotazioni/user/${id}`
+);
 ```
 
 **Nota**: L'endpoint usa il prefisso `/prenotazione` configurato in `app.js`
@@ -161,6 +174,7 @@ const responsePrenotazioni = await fetch(`/prenotazione/prenotazioni/user/${id}`
 ## Log di Sistema
 
 Il worker produce log dettagliati:
+
 ```
 [BOOKING-REMINDER] 🔍 Controllo prenotazioni per promemoria...
 [BOOKING-REMINDER] 📋 Trovate 3 prenotazione/i da notificare
@@ -176,15 +190,16 @@ Per modificare il timing dei promemoria, editare `CONFIG` in `booking-reminder-w
 
 ```javascript
 const CONFIG = {
-    CHECK_INTERVAL_MS: 60000 * 10,    // Frequenza controllo
-    REMINDER_HOURS_BEFORE: 2,          // Ore prima della prenotazione
-    REMINDER_WINDOW_MINUTES: 15        // Finestra di tolleranza
+  CHECK_INTERVAL_MS: 60000 * 10, // Frequenza controllo
+  REMINDER_HOURS_BEFORE: 2, // Ore prima della prenotazione
+  REMINDER_WINDOW_MINUTES: 15, // Finestra di tolleranza
 };
 ```
 
 ## Testing
 
 ### Test Manuale
+
 1. Creare una prenotazione confermata che inizia tra ~2 ore
 2. Verificare che `reminder_sent` sia `false`
 3. Attendere il prossimo ciclo del worker (max 10 minuti)
@@ -192,13 +207,16 @@ const CONFIG = {
 5. Verificare che `reminder_sent` sia `true` nel database
 
 ### Test Immediato
+
 Eseguire manualmente da Node.js console:
+
 ```javascript
-const worker = require('./src/server/workers/booking-reminder-worker');
+const worker = require("./src/server/workers/booking-reminder-worker");
 await worker.processReminders();
 ```
 
 ## Dipendenze
+
 - Sistema notifiche push configurato (VAPID keys)
 - Utenti con subscription push attive
 - Database PostgreSQL con colonna `reminder_sent`

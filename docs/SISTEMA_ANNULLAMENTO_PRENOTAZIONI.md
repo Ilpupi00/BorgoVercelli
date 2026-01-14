@@ -9,6 +9,7 @@ Implementazione di un sistema che distingue tra annullamenti di prenotazioni fat
 ### Regole di Annullamento e Riattivazione
 
 1. **Annullamento da parte dell'utente**
+
    - L'utente può annullare le proprie prenotazioni con stato "confermata" o "in_attesa"
    - L'annullamento viene tracciato come `annullata_da = 'user'`
    - L'utente **può riattivare** la prenotazione, che tornerà in stato "in_attesa"
@@ -24,11 +25,12 @@ Implementazione di un sistema che distingue tra annullamenti di prenotazioni fat
 ### Nuova Colonna
 
 ```sql
-ALTER TABLE PRENOTAZIONI 
+ALTER TABLE PRENOTAZIONI
 ADD COLUMN IF NOT EXISTS annullata_da VARCHAR(10);
 ```
 
 **Valori possibili:**
+
 - `'user'` - Annullamento fatto dall'utente stesso
 - `'admin'` - Annullamento fatto dall'amministratore
 - `NULL` - Prenotazione non annullata o annullamento precedente alla feature
@@ -38,9 +40,11 @@ ADD COLUMN IF NOT EXISTS annullata_da VARCHAR(10);
 ### Backend
 
 1. **database/migrations/add_annullata_da_column.sql**
+
    - Migration SQL per aggiungere la colonna `annullata_da`
 
 2. **src/features/prenotazioni/services/dao-prenotazione.js**
+
    - Modificato `updateStatoPrenotazione()` per accettare e salvare il parametro `annullata_da`
    - Quando lo stato cambia a "annullata", salva chi ha fatto l'annullamento
    - Quando lo stato cambia da "annullata" a altro, resetta `annullata_da` a NULL
@@ -88,6 +92,7 @@ Se stai usando Railway o devi applicare manualmente:
 2. Esegui il file SQL: `database/migrations/add_annullata_da_column.sql`
 
 **Metodo 1 - Railway CLI:**
+
 ```powershell
 # Connetti al database Railway
 railway run psql
@@ -97,19 +102,22 @@ railway run psql
 ```
 
 **Metodo 2 - psql diretto:**
+
 ```powershell
 # Sostituisci con la tua DATABASE_URL
 psql "postgresql://user:password@host:port/database" -f database/migrations/add_annullata_da_column.sql
 ```
 
 **Metodo 3 - pgAdmin o DBeaver:**
+
 - Apri il file `database/migrations/add_annullata_da_column.sql`
 - Copia il contenuto
 - Esegui nella console SQL del tuo client
 
 **SQL da eseguire:**
+
 ```sql
-ALTER TABLE PRENOTAZIONI 
+ALTER TABLE PRENOTAZIONI
 ADD COLUMN IF NOT EXISTS annullata_da VARCHAR(10);
 
 COMMENT ON COLUMN PRENOTAZIONI.annullata_da IS 'Indica chi ha annullato: user (utente stesso) o admin (amministratore)';
@@ -120,15 +128,16 @@ COMMENT ON COLUMN PRENOTAZIONI.annullata_da IS 'Indica chi ha annullato: user (u
 Dopo aver eseguito la migration, verifica che la colonna sia stata aggiunta:
 
 ```sql
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
-WHERE table_name = 'prenotazioni' 
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'prenotazioni'
 AND column_name = 'annullata_da';
 ```
 
 Dovresti vedere:
+
 ```
- column_name  | data_type | is_nullable 
+ column_name  | data_type | is_nullable
 --------------+-----------+-------------
  annullata_da | character varying | YES
 ```
@@ -173,6 +182,7 @@ oppure su Railway, fai un nuovo deploy o riavvia il servizio dal dashboard.
 **Richiede autenticazione:** ✅ (middleware `isLoggedIn`)
 
 **Body Request:**
+
 ```json
 {
   "stato": "annullata" | "in_attesa" | "confermata"
@@ -180,7 +190,9 @@ oppure su Railway, fai un nuovo deploy o riavvia il servizio dal dashboard.
 ```
 
 **Comportamento:**
+
 - Se `stato = 'annullata'`:
+
   - Determina automaticamente `annullata_da` in base al ruolo dell'utente
   - Admin: `annullata_da = 'admin'`
   - Utente: `annullata_da = 'user'`
@@ -191,6 +203,7 @@ oppure su Railway, fai un nuovo deploy o riavvia il servizio dal dashboard.
   - Resetta `annullata_da` a NULL
 
 **Response Success:**
+
 ```json
 {
   "success": true,
@@ -199,6 +212,7 @@ oppure su Railway, fai un nuovo deploy o riavvia il servizio dal dashboard.
 ```
 
 **Response Error (403):**
+
 ```json
 {
   "error": "Non autorizzato",
@@ -226,12 +240,15 @@ oppure su Railway, fai un nuovo deploy o riavvia il servizio dal dashboard.
 ## Troubleshooting
 
 ### La colonna annullata_da non esiste
+
 Esegui la migration: `node scripts/apply-annullata-da-migration.js`
 
 ### Errore 403 quando provo a riattivare
+
 La prenotazione è stata annullata da un admin. Solo gli admin possono riattivarla.
 
 ### Il pulsante "Riattiva" non compare
+
 - Verifica che la prenotazione sia in stato "annullata"
 - Verifica che `annullata_da !== 'admin'`
 - Ricarica la pagina per aggiornare i dati

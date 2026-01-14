@@ -47,7 +47,8 @@
 }
 
 .modern-search-wrapper-page:focus-within {
-  box-shadow: 0 12px 48px rgba(13, 110, 253, 0.3), 0 6px 12px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 12px 48px rgba(13, 110, 253, 0.3),
+    0 6px 12px rgba(13, 110, 253, 0.2);
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 1);
   border-color: rgba(13, 110, 253, 0.4);
@@ -140,7 +141,9 @@
   color: #adb5bd;
 }
 
-:root[data-theme="dark"] .modern-search-wrapper-page:focus-within .search-icon-page {
+:root[data-theme="dark"]
+  .modern-search-wrapper-page:focus-within
+  .search-icon-page {
   color: #4a9eff;
 }
 
@@ -158,22 +161,22 @@
     padding: 6px 6px 6px 16px;
     border-radius: 28px;
   }
-  
+
   .search-icon-page {
     font-size: 16px;
     margin-right: 10px;
   }
-  
+
   .modern-search-input-page {
     font-size: 16px !important;
     padding: 10px 6px !important;
   }
-  
+
   .modern-search-btn-page {
     width: 46px;
     height: 46px;
   }
-  
+
   .modern-search-btn-page i {
     font-size: 16px;
   }
@@ -184,22 +187,22 @@
     padding: 5px 5px 5px 14px;
     border-radius: 24px;
   }
-  
+
   .search-icon-page {
     font-size: 15px;
     margin-right: 8px;
   }
-  
+
   .modern-search-input-page {
     font-size: 15px !important;
     padding: 9px 4px !important;
   }
-  
+
   .modern-search-btn-page {
     width: 42px;
     height: 42px;
   }
-  
+
   .modern-search-btn-page i {
     font-size: 15px;
   }
@@ -294,8 +297,13 @@
 
 /* Loading Animation */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .loading-card {
@@ -456,7 +464,7 @@ mark {
 }
 
 .results-section h2::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -544,8 +552,13 @@ mark {
 
 /* Loading Animation */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .loading-card {
@@ -664,7 +677,7 @@ mark {
 }
 
 :root[data-theme="dark"] .search-header {
-  background: linear-gradient(135deg, #2D40A0 0%, #3a51c7 100%) !important;
+  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
 }
 
 :root[data-theme="dark"] .search-header h1 {

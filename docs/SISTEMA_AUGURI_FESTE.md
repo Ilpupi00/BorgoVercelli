@@ -17,34 +17,42 @@ Sistema completo e automatico che mostra auguri personalizzati agli utenti per t
 ### Feste a Data Fissa
 
 1. **Capodanno** (1 gennaio)
+
    - Colori: Oro e Rosso
    - Icone: 🎉🥂🎊🍾
 
 2. **Epifania** (6 gennaio)
+
    - Colori: Viola e Rosa
    - Icone: 🧙‍♀️🎁⭐🧦
 
 3. **Festa della Liberazione** (25 aprile)
+
    - Colori: Verde e Rosso (bandiera italiana)
    - Icone: 🇮🇹🕊️⭐🏛️
 
 4. **Festa dei Lavoratori** (1 maggio)
+
    - Colori: Rosso e Giallo
    - Icone: 🛠️💪⚙️🌹
 
 5. **Festa della Repubblica** (2 giugno)
+
    - Colori: Verde e Rosso (bandiera italiana)
    - Icone: 🇮🇹🎊⭐🏛️
 
 6. **Ferragosto** (13-16 agosto)
+
    - Colori: Arancione e Azzurro
    - Icone: ☀️🏖️🌊🍉
 
 7. **Ognissanti** (1 novembre)
+
    - Colori: Viola e Arancione
    - Icone: 🕯️🌹⭐🙏
 
 8. **Immacolata Concezione** (8 dicembre)
+
    - Colori: Blu e Bianco
    - Icone: ⭐🕊️🌟✨
 
@@ -55,6 +63,7 @@ Sistema completo e automatico che mostra auguri personalizzati agli utenti per t
 ### Feste a Data Mobile
 
 1. **Carnevale** (periodo prima della Pasqua)
+
    - Calcolo automatico: 47 giorni prima della Pasqua
    - Periodo: 7 giorni prima fino al Martedì Grasso
    - Colori: Multicolori vivaci
@@ -112,8 +121,8 @@ const storageKey = `festa_${festaKey}_${anno}`; // es: "festa_natale_2024"
 Ogni festa ha il proprio schema di colori applicato tramite variabili CSS:
 
 ```javascript
-style.setProperty('--festa-color-primary', colori.primary);
-style.setProperty('--festa-color-secondary', colori.secondary);
+style.setProperty("--festa-color-primary", colori.primary);
+style.setProperty("--festa-color-secondary", colori.secondary);
 ```
 
 ## Personalizzazione
@@ -192,12 +201,14 @@ Il sistema usa variabili CSS dinamiche per i colori:
 ## Manutenzione
 
 ### Il sistema NON richiede:
+
 - ❌ Aggiornamenti annuali
 - ❌ Modifiche per cambio anno
 - ❌ Calcolo manuale delle date mobili
 - ❌ Aggiornamento dei messaggi (usa placeholder {anno})
 
 ### Il sistema gestisce automaticamente:
+
 - ✅ Cambio di anno
 - ✅ Calcolo date mobili (Pasqua, Carnevale)
 - ✅ Reset delle visualizzazioni ogni anno
@@ -206,18 +217,22 @@ Il sistema usa variabili CSS dinamiche per i colori:
 ## Note Tecniche
 
 ### Storage
+
 Il sistema usa `localStorage` con fallback a `sessionStorage` se non disponibile:
+
 - Chiave formato: `festa_{nome}_{anno}`
 - Valore: `'true'` se mostrato
 - Auto-reset ogni anno (nuova chiave con nuovo anno)
 
 ### Performance
+
 - Modal creato solo quando necessario
 - Rimosso dal DOM dopo la chiusura
 - Nessun impatto su performance della pagina
 - Delay di 1 secondo prima della visualizzazione per UX migliore
 
 ### Accessibilità
+
 - Attributo `aria-hidden="true"` per decorazioni
 - Supporto chiusura con tasto ESC
 - Label appropriati per screen reader
@@ -247,8 +262,8 @@ Apri la console del browser e esegui:
 localStorage.removeItem(`festa_natale_${new Date().getFullYear()}`);
 
 // Reset di tutte le feste
-Object.keys(localStorage).forEach(key => {
-    if (key.startsWith('festa_')) localStorage.removeItem(key);
+Object.keys(localStorage).forEach((key) => {
+  if (key.startsWith("festa_")) localStorage.removeItem(key);
 });
 
 // Poi ricarica la pagina
@@ -258,6 +273,7 @@ location.reload();
 ## Changelog
 
 ### Versione 1.0 (Dicembre 2024)
+
 - 🎉 Sistema iniziale con supporto per tutte le feste italiane
 - ✅ Calcolo automatico date mobili
 - ✅ Design responsivo e accessibile

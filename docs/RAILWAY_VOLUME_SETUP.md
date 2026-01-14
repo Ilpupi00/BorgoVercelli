@@ -2,7 +2,7 @@
 
 ## Problema Risolto
 
-Su Railway, il filesystem del container è **effimero** - ogni deploy cancella tutti i file. 
+Su Railway, il filesystem del container è **effimero** - ogni deploy cancella tutti i file.
 Le immagini caricate dagli utenti venivano perse ad ogni deployment.
 
 ## Soluzione Implementata
@@ -46,13 +46,16 @@ Railway farà automaticamente il deploy e monterà il volume su `/data`.
 ### 3. Verificare il Funzionamento
 
 #### Durante il Deploy
+
 Controlla i log di Railway per vedere:
+
 ```
 [MULTER] Upload directory: /data/uploads
 [APP] Serving uploads from: /data/uploads
 ```
 
 #### Dopo il Deploy
+
 1. Carica un'immagine (es. foto profilo utente)
 2. Verifica che sia visibile
 3. Fai un nuovo deploy o riavvia il servizio
@@ -68,9 +71,9 @@ Il codice rileva automaticamente se gira su Railway:
 
 ```javascript
 // src/core/config/multer.js
-const uploadDir = process.env.RAILWAY_ENVIRONMENT 
-  ? '/data/uploads'              // ← Railway: volume persistente
-  : path.join(process.cwd(), 'src', 'public', 'uploads'); // ← Locale: filesystem normale
+const uploadDir = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/uploads" // ← Railway: volume persistente
+  : path.join(process.cwd(), "src", "public", "uploads"); // ← Locale: filesystem normale
 ```
 
 ### Percorsi File
@@ -84,6 +87,7 @@ const uploadDir = process.env.RAILWAY_ENVIRONMENT
 ## 🗂️ Struttura File
 
 ### Su Railway (Production)
+
 ```
 /data/
   └── uploads/
@@ -93,6 +97,7 @@ const uploadDir = process.env.RAILWAY_ENVIRONMENT
 ```
 
 ### In Locale (Development)
+
 ```
 src/
   └── public/
@@ -108,12 +113,14 @@ src/
 ### Percorsi Salvati nel DB
 
 **✅ Formato corretto** (relativo):
+
 ```sql
 -- Tabella immagine_profilo_utente
 immagine_profilo_utente_url = '/uploads/user_123_1699999999999.jpg'
 ```
 
 **❌ Formato vecchio** (da aggiornare):
+
 ```sql
 -- Percorso assoluto da correggere
 immagine_profilo_utente_url = 'src/public/uploads/user_123_1699999999999.jpg'
@@ -126,13 +133,13 @@ Se hai immagini con percorsi vecchi nel DB:
 ```sql
 -- PostgreSQL: Correggi percorsi esistenti
 UPDATE immagine_profilo_utente
-SET immagine_profilo_utente_url = '/uploads/' || 
+SET immagine_profilo_utente_url = '/uploads/' ||
     SUBSTRING(immagine_profilo_utente_url FROM '[^/]+$')
 WHERE immagine_profilo_utente_url LIKE 'src/public/uploads/%';
 
 -- Verifica
-SELECT immagine_profilo_utente_url 
-FROM immagine_profilo_utente 
+SELECT immagine_profilo_utente_url
+FROM immagine_profilo_utente
 WHERE immagine_profilo_utente_url LIKE '/uploads/%';
 ```
 
@@ -177,6 +184,7 @@ mkdir -p /data/uploads
 **Causa**: Il volume non è stato creato o non è montato correttamente.
 
 **Soluzione**:
+
 1. Verifica che il volume esista nella dashboard Railway
 2. Controlla i log per vedere se `/data` è accessibile
 3. Riavvia il servizio
@@ -186,12 +194,14 @@ mkdir -p /data/uploads
 **Causa**: In locale usi `src/public/uploads`, su Railway usi `/data/uploads`.
 
 **Soluzione**: È normale! Sono ambienti separati. Puoi:
+
 - Ignorare `src/public/uploads` nel `.gitignore`
 - Usare immagini diverse per test locali
 
 ### Problema: Spazio volume pieno
 
 **Soluzione**:
+
 1. Railway offre **10GB gratuiti** per volume
 2. Monitora l'uso nella dashboard
 3. Implementa pulizia automatica di file vecchi se necessario
@@ -210,33 +220,43 @@ mkdir -p /data/uploads
 ## 💡 Best Practices
 
 ### 1. Nomi File Unici
+
 Usa timestamp per evitare conflitti:
+
 ```javascript
-const uniqueName = Date.now() + '-' + file.originalname;
+const uniqueName = Date.now() + "-" + file.originalname;
 ```
 
 ### 2. Validazione Tipo File
+
 Accetta solo immagini:
+
 ```javascript
-if (!file.mimetype.startsWith('image/')) {
-  return cb(new Error('Solo immagini permesse'));
+if (!file.mimetype.startsWith("image/")) {
+  return cb(new Error("Solo immagini permesse"));
 }
 ```
 
 ### 3. Limite Dimensioni
+
 Max 5MB per file:
+
 ```javascript
-limits: { fileSize: 5 * 1024 * 1024 }
+limits: {
+  fileSize: 5 * 1024 * 1024;
+}
 ```
 
 ### 4. Percorsi Relativi nel DB
+
 Salva sempre URL relativi, non percorsi assoluti:
+
 ```javascript
 // ✅ Buono
-const filePath = '/uploads/' + filename;
+const filePath = "/uploads/" + filename;
 
 // ❌ Male
-const filePath = '/data/uploads/' + filename;
+const filePath = "/data/uploads/" + filename;
 ```
 
 ---

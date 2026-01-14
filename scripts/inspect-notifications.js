@@ -1,5 +1,5 @@
-require('dotenv').config();
-const db = require('../src/core/config/database');
+require("dotenv").config();
+const db = require("../src/core/config/database");
 
 (async () => {
   try {
@@ -13,7 +13,7 @@ const db = require('../src/core/config/database');
     console.log(JSON.stringify(res.rows, null, 2));
     process.exit(0);
   } catch (e) {
-    console.error('Errore query notifications:', e);
+    console.error("Errore query notifications:", e);
     process.exit(1);
   }
 })();

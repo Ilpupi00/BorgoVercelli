@@ -7,6 +7,7 @@
 #### ✨ Nuove Funzionalità
 
 ##### Sistema Core
+
 - **Gestione Tema Completa**
   - Tema Chiaro ☀️
   - Tema Scuro 🌙
@@ -15,6 +16,7 @@
   - Sync con preferenze OS
 
 ##### UI Components
+
 - **Navbar**
   - Aggiunto dropdown selezione tema
   - Icone dinamiche per tema attivo
@@ -22,23 +24,23 @@
   - Animazioni smooth
 
 ##### Stili CSS
+
 - **theme-dark.css** (650+ linee)
   - 50+ variabili CSS
   - Supporto tema chiaro e scuro
   - Media query per preferenze sistema
   - Transizioni fluide
-  
 - **theme-homepage.css** (95 linee)
   - Overrides specifici homepage
   - Stili per cards news/eventi
   - Ottimizzazioni hero section
-  
 - **theme-admin.css** (150 linee)
   - Stili area amministrazione
   - Sidebar personalizzata
   - Tabelle e forms admin
 
 ##### JavaScript
+
 - **theme-manager.js** (250+ linee)
   - Classe ThemeManager
   - API pubblica per sviluppatori
@@ -47,6 +49,7 @@
   - Prevenzione FOUC
 
 ##### Pagine Aggiornate
+
 - ✅ 36 file .ejs aggiornati automaticamente
 - ✅ Homepage con stili specifici
 - ✅ 13 pagine admin con stili specifici
@@ -57,12 +60,10 @@
 - **Palette Colori Professionale**
   - Tema chiaro: Bianco/Blu/Verde
   - Tema scuro: Grigio scuro/Blu chiaro/Verde chiaro
-  
 - **Gradienti Moderni**
   - Navbar con gradient
   - Hero sections dinamiche
   - Buttons con effetti
-  
 - **Shadows & Depth**
   - 5 livelli di ombre
   - Effetti glass morphism
@@ -75,13 +76,11 @@
   - Cambio tema <50ms
   - CSS Variables per cambio istantaneo
   - Lazy loading stili specifici
-  
 - **Accessibilità**
   - Contrasti WCAG AA compliant
   - Focus states visibili
   - Reduced motion support
   - Screen reader friendly
-  
 - **Responsive**
   - Mobile-first approach
   - Breakpoints ottimizzati
@@ -167,6 +166,7 @@ src/features/eventi/views/
 #### 📊 Statistiche
 
 - **Linee di Codice Totali**: ~2,500+
+
   - CSS: ~1,000
   - JavaScript: ~250
   - HTML: ~50
@@ -206,18 +206,21 @@ Nessun issue noto al momento del rilascio.
 #### 🔮 Roadmap Future
 
 ##### v1.1.0 (Planned)
+
 - [ ] Keyboard shortcuts (Ctrl+Shift+T)
 - [ ] Temi aggiuntivi (blu, verde, rosso)
 - [ ] Theme customizer nel pannello admin
 - [ ] Esportazione/importazione tema personalizzato
 
 ##### v1.2.0 (Planned)
+
 - [ ] High contrast mode per accessibilità
 - [ ] Sync tema tra dispositivi (utenti loggati)
 - [ ] Statistiche utilizzo temi
 - [ ] A/B testing temi
 
 ##### v2.0.0 (Future)
+
 - [ ] AI-powered tema automatico basato su ora/meteo
 - [ ] Tema personalizzato per singolo utente
 - [ ] Animazioni avanzate di transizione
@@ -238,6 +241,7 @@ Grazie a tutti coloro che hanno contribuito al testing e al feedback!
 #### 📞 Support
 
 Per supporto o domande:
+
 - Consulta la documentazione in `/docs`
 - Apri un issue nel repository
 - Contatta il team di sviluppo
@@ -247,14 +251,17 @@ Per supporto o domande:
 ## [Coming Soon] - Future Releases
 
 ### v1.1.0
+
 - Keyboard shortcuts
 - Temi aggiuntivi
 
 ### v1.2.0
+
 - High contrast mode
 - Sync dispositivi
 
 ### v2.0.0
+
 - AI-powered theming
 - Custom themes
 
@@ -267,4 +274,4 @@ Per supporto o domande:
 
 ---
 
-*Made with ❤️ for Borgo Vercelli ASD 2022*
+_Made with ❤️ for Borgo Vercelli ASD 2022_

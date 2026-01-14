@@ -11,61 +11,73 @@
 ### 1. Nuovi Stili `.image-actions`
 
 **Posizionamento**:
+
 ```css
 .image-actions {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 }
 ```
 
 **Effetto Hover**:
+
 ```css
 .image-actions {
-    opacity: 0; /* Nascosti di default */
-    transition: all 0.3s ease;
+  opacity: 0; /* Nascosti di default */
+  transition: all 0.3s ease;
 }
 
 .image-preview-wrapper:hover .image-actions {
-    opacity: 1; /* Visibili al passaggio mouse */
+  opacity: 1; /* Visibili al passaggio mouse */
 }
 ```
 
 **Background Glassmorphism**:
+
 ```css
 .image-actions {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 ```
 
 ### 2. Stili Pulsanti Migliorati
 
 **Colori Distintivi**:
+
 ```css
-.btn-success { background: #10b981; } /* Sostituisci - Verde */
-.btn-primary { background: #3b82f6; } /* Modifica - Blu */
-.btn-danger  { background: #ef4444; } /* Elimina - Rosso */
+.btn-success {
+  background: #10b981;
+} /* Sostituisci - Verde */
+.btn-primary {
+  background: #3b82f6;
+} /* Modifica - Blu */
+.btn-danger {
+  background: #ef4444;
+} /* Elimina - Rosso */
 ```
 
 **Effetto Hover**:
+
 ```css
 .image-actions .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 ```
 
 ### 3. Responsive Design
 
 **Mobile (< 768px)**:
+
 - Pulsanti in **colonna** verticale
 - Width: 90%
 - Font-size: 0.8125rem
@@ -73,12 +85,13 @@
 
 ```css
 .image-actions {
-    flex-direction: column;
-    width: 90%;
+  flex-direction: column;
+  width: 90%;
 }
 ```
 
 **Tablet (≥ 768px)**:
+
 - Pulsanti in **riga** orizzontale
 - Width: auto
 - Font-size: 0.875rem
@@ -86,14 +99,15 @@
 
 ```css
 @media (min-width: 768px) {
-    .image-actions {
-        flex-direction: row;
-        width: auto;
-    }
+  .image-actions {
+    flex-direction: row;
+    width: auto;
+  }
 }
 ```
 
 **Desktop (≥ 1024px)**:
+
 - Spaziatura aumentata
 - Padding maggiore
 - Font-size normale
@@ -101,28 +115,30 @@
 ### 4. Touch Devices
 
 **Sempre Visibili su Touch**:
+
 ```css
 @media (hover: none) and (pointer: coarse) {
-    .image-actions {
-        opacity: 1; /* Sempre visibile */
-    }
-    
-    .image-actions .btn {
-        min-height: 44px; /* iOS tap target minimum */
-    }
+  .image-actions {
+    opacity: 1; /* Sempre visibile */
+  }
+
+  .image-actions .btn {
+    min-height: 44px; /* iOS tap target minimum */
+  }
 }
 ```
 
 ### 5. Dark Theme Support
 
 **Tema Scuro**:
+
 ```css
 [data-theme="dark"] .image-actions {
-    background: rgba(30, 41, 59, 0.95);
+  background: rgba(30, 41, 59, 0.95);
 }
 
 [data-theme="dark"] .image-actions .btn-success {
-    background: #10b981;
+  background: #10b981;
 }
 /* etc... */
 ```
@@ -130,6 +146,7 @@
 ## 📱 Layout Finale
 
 ### Desktop (Hover)
+
 ```
 ┌─────────────────────────────────┐
 │                                 │
@@ -142,6 +159,7 @@
 ```
 
 ### Mobile (Sempre Visibile)
+
 ```
 ┌──────────────────┐
 │                  │
@@ -160,39 +178,43 @@
 ## 🎯 Comportamento Pulsanti
 
 ### Sostituisci (Verde 🔄)
+
 ```javascript
-replaceImageBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    immagineInput.click(); // Apre selezione file
+replaceImageBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  immagineInput.click(); // Apre selezione file
 });
 ```
 
 ### Modifica (Blu ✂️)
+
 ```javascript
-editImageBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const imageUrl = btn.dataset.imageUrl;
-        openImageEditor(imageUrl); // Apre Cropper.js
-    });
+editImageBtns.forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const imageUrl = btn.dataset.imageUrl;
+    openImageEditor(imageUrl); // Apre Cropper.js
+  });
 });
 ```
 
 ### Elimina (Rosso 🗑️)
+
 ```javascript
-deleteImageBtns.forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (confirm('Sei sicuro?')) {
-            await deleteEventoImage(eventoId);
-        }
-    });
+deleteImageBtns.forEach((btn) => {
+  btn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (confirm("Sei sicuro?")) {
+      await deleteEventoImage(eventoId);
+    }
+  });
 });
 ```
 
 ## 🔍 Come Funziona l'Upload
 
 ### Scenario 1: Nuovo Evento
+
 1. Vai a `/evento/crea-evento`
 2. Compila form (titolo, descrizione, ecc.)
 3. Trascina/Seleziona immagine
@@ -201,6 +223,7 @@ deleteImageBtns.forEach(btn => {
 6. Dopo salvataggio, puoi modificare l'evento e caricare altre immagini
 
 ### Scenario 2: Modifica Evento Esistente
+
 1. Vai a `/evento/crea-evento/:id`
 2. Vedi immagine esistente (se presente)
 3. Pulsanti: **[🔄 Sostituisci] [✂️ Modifica] [🗑️ Elimina]**
@@ -209,6 +232,7 @@ deleteImageBtns.forEach(btn => {
 6. Preview aggiornata senza reload
 
 ### Scenario 3: Modifica Immagine
+
 1. Evento con immagine esistente
 2. Clicca "✂️ Modifica"
 3. Si apre editor Cropper.js
@@ -219,18 +243,21 @@ deleteImageBtns.forEach(btn => {
 ## ⚠️ Note Importanti
 
 ### Upload Automatico
+
 ```javascript
-const eventoId = form.getAttribute('data-evento-id');
+const eventoId = form.getAttribute("data-evento-id");
 if (eventoId) {
-    uploadImageToServer(file, eventoId); // Solo se ID esiste
+  uploadImageToServer(file, eventoId); // Solo se ID esiste
 }
 ```
 
 **Perché?**
+
 - Nuovo evento: Nessun ID → L'immagine viene salvata con il form
 - Evento esistente: Ha ID → Upload immediato via fetch API
 
 ### Preview vs Upload
+
 - **Preview**: Mostra sempre l'immagine selezionata (FileReader)
 - **Upload**: Avviene solo se `eventoId` esiste
 - **Feedback**: Progress bar mostra stato upload
@@ -238,6 +265,7 @@ if (eventoId) {
 ## 🧪 Test
 
 ### Test 1: Pulsanti Non Sovrapposti
+
 ```bash
 # Apri /evento/crea-evento/:id con immagine
 # Verifica che i 3 pulsanti siano:
@@ -248,6 +276,7 @@ if (eventoId) {
 ```
 
 ### Test 2: Responsive
+
 ```bash
 # Apri DevTools → Toggle device toolbar
 # Testa su:
@@ -257,6 +286,7 @@ if (eventoId) {
 ```
 
 ### Test 3: Upload Funziona
+
 ```bash
 # Nuovo evento:
 1. Seleziona immagine → Vedi preview
@@ -271,6 +301,7 @@ if (eventoId) {
 ## 📊 Console Logs Utili
 
 Se tutto funziona:
+
 ```
 🖼️ Inizializzazione upload immagini...
 📋 Elementi trovati: { ... }
@@ -286,10 +317,12 @@ Se tutto funziona:
 ## 🎨 Differenze Light/Dark Theme
 
 ### Light Theme
+
 - Background pulsanti: Bianco rgba(255, 255, 255, 0.95)
 - Ombra: Leggera
 
 ### Dark Theme
+
 - Background pulsanti: Slate rgba(30, 41, 59, 0.95)
 - Ombra: Più pronunciata
 

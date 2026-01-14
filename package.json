@@ -11,7 +11,8 @@
     "check-image-paths": "node scripts/check-image-paths.js",
     "fix-image-paths": "node scripts/fix-image-paths.js",
     "fix-railway-paths": "node scripts/fix-railway-image-paths.js",
-    "diagnose-images": "node scripts/diagnose-images.js"
+    "diagnose-images": "node scripts/diagnose-images.js",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -24,15 +25,15 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
-    "express": "~4.16.1",
+    "express": "^4.22.1",
     "express-fileupload": "^1.5.2",
     "express-session": "^1.18.2",
     "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
+    "jade": "^1.9.2",
     "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
     "moment": "^2.30.1",
-    "morgan": "~1.9.1",
+    "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.6",
@@ -44,5 +45,8 @@
     "sitemap": "^9.0.0",
     "sqlite3": "^5.1.7",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
   }
 }

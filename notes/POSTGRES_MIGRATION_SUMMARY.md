@@ -3,6 +3,7 @@
 ## 📋 Modifiche Effettuate
 
 ### 1. Configurazione Database (`src/core/config/database.js`)
+
 - ✅ Rimosso supporto SQLite
 - ✅ Implementato pool di connessioni PostgreSQL usando `pg`
 - ✅ Richiesta obbligatoria di `DATABASE_URL` (app termina se assente)
@@ -13,25 +14,28 @@
 ### 2. Conversioni SQL Implementate
 
 #### Funzioni DateTime
-| SQLite | PostgreSQL |
-|--------|-----------|
-| `datetime('now')` | `NOW()` |
-| `date('now')` | `CURRENT_DATE` |
-| `date('now', '-30 days')` | `CURRENT_DATE - INTERVAL '30 days'` |
-| `date('now', '-6 months')` | `CURRENT_DATE - INTERVAL '6 months'` |
-| `datetime('now', '-30 days')` | `NOW() - INTERVAL '30 days'` |
-| `strftime('%Y-%m', campo)` | `TO_CHAR(campo, 'YYYY-MM')` |
+
+| SQLite                        | PostgreSQL                           |
+| ----------------------------- | ------------------------------------ |
+| `datetime('now')`             | `NOW()`                              |
+| `date('now')`                 | `CURRENT_DATE`                       |
+| `date('now', '-30 days')`     | `CURRENT_DATE - INTERVAL '30 days'`  |
+| `date('now', '-6 months')`    | `CURRENT_DATE - INTERVAL '6 months'` |
+| `datetime('now', '-30 days')` | `NOW() - INTERVAL '30 days'`         |
+| `strftime('%Y-%m', campo)`    | `TO_CHAR(campo, 'YYYY-MM')`          |
 
 #### Tipi Booleani
-| SQLite | PostgreSQL |
-|--------|-----------|
-| `attivo = 1` | `attivo = true` |
-| `attivo = 0` | `attivo = false` |
+
+| SQLite           | PostgreSQL          |
+| ---------------- | ------------------- |
+| `attivo = 1`     | `attivo = true`     |
+| `attivo = 0`     | `attivo = false`    |
 | `pubblicata = 1` | `pubblicata = true` |
-| `visibile = 0` | `visibile = false` |
+| `visibile = 0`   | `visibile = false`  |
 | `SET attivo = 1` | `SET attivo = true` |
 
 #### Confronti Timestamp
+
 ```sql
 -- SQLite (vecchio)
 datetime(data_prenotazione || ' ' || substr((ora_fine || ':00'), 1, 8)) <= datetime('now')
@@ -43,6 +47,7 @@ datetime(data_prenotazione || ' ' || substr((ora_fine || ':00'), 1, 8)) <= datet
 ### 3. File Modificati
 
 #### DAO Files (Data Access Objects)
+
 - ✅ `src/features/prenotazioni/services/dao-prenotazione.js`
 - ✅ `src/features/prenotazioni/services/dao-campi.js`
 - ✅ `src/features/squadre/services/dao-squadre.js`
@@ -53,6 +58,7 @@ datetime(data_prenotazione || ' ' || substr((ora_fine || ':00'), 1, 8)) <= datet
 - ✅ `src/features/eventi/services/dao-eventi.js`
 
 #### Configurazione e Deployment
+
 - ✅ `src/core/config/database.js` - Connessione Postgres-only
 - ✅ `package.json` - Aggiunta dipendenza `pg`
 - ✅ `.env.example` - Documentazione variabili ambiente
@@ -63,6 +69,7 @@ datetime(data_prenotazione || ' ' || substr((ora_fine || ':00'), 1, 8)) <= datet
 ### 4. Schema Database
 
 #### File Schema PostgreSQL
+
 - ✅ `create_postgres_db.sql` - Schema completo per Postgres
   - Tutte le tabelle con tipi Postgres nativi
   - Uso di `SERIAL` invece di `AUTOINCREMENT`
@@ -81,12 +88,14 @@ datetime(data_prenotazione || ' ' || substr((ora_fine || ':00'), 1, 8)) <= datet
 ## 📝 Variabili d'Ambiente Richieste
 
 ### Railway (Produzione)
+
 ```bash
 DATABASE_URL=postgresql://user:password@host:port/database
 NODE_ENV=production  # Opzionale, attiva SSL
 ```
 
 ### Locale (Sviluppo)
+
 ```bash
 DATABASE_URL=postgresql://localhost:5432/borgo_vercelli
 # oppure
@@ -100,12 +109,14 @@ PG_DATABASE=borgo_vercelli
 ## 🚀 Come Testare
 
 ### Test Connessione Database
+
 ```bash
 # Imposta DATABASE_URL nel tuo .env
 node scripts/test-db.js
 ```
 
 ### Avvio Applicazione
+
 ```bash
 npm start
 ```
@@ -126,21 +137,25 @@ npm start
 ## 📋 Operazioni Rimanenti
 
 ### Prima del Deploy su Railway
+
 1. ✅ Verificare che il servizio Railway abbia il plugin PostgreSQL attivo
 2. ✅ Verificare che `DATABASE_URL` sia impostato automaticamente
 3. ⚠️ **Eseguire lo schema iniziale:**
+
    ```bash
    # Opzione 1: Manualmente via psql
    psql $DATABASE_URL -f create_postgres_db.sql
-   
+
    # Opzione 2: Tramite pgAdmin o Railway GUI
    ```
+
 4. ⚠️ **Migrare i dati da SQLite (se necessario):**
    - Esportare dati da SQLite
    - Trasformare dump per Postgres
    - Importare in Railway
 
 ### Testing Post-Deploy
+
 1. Verificare connessione al database
 2. Testare funzionalità CRUD
 3. Verificare prenotazioni e gestione date

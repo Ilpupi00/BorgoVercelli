@@ -1,9 +1,8 @@
-class ShowModal{
-
+class ShowModal {
   static async showLoginRequiredModal(string) {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalLoginRequired';
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = "modalLoginRequired";
     modal.tabIndex = -1;
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
@@ -23,17 +22,20 @@ class ShowModal{
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-      modal.addEventListener('hidden.bs.modal', () => {
+    modal.addEventListener("hidden.bs.modal", () => {
       modal.remove();
     });
   }
 
-  static async showModalSuccess(string, msg = 'La tua prenotazione è stata confermata!'){
-      const modal = document.createElement('div');
-      modal.className = 'modal fade';
-      modal.id = 'modalSuccess';
-      modal.tabIndex = -1;
-      modal.innerHTML = `
+  static async showModalSuccess(
+    string,
+    msg = "La tua prenotazione è stata confermata!"
+  ) {
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = "modalSuccess";
+    modal.tabIndex = -1;
+    modal.innerHTML = `
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header bg-success text-white">
@@ -50,17 +52,17 @@ class ShowModal{
           </div>
         </div>
       `;
-      document.body.appendChild(modal);
-      const bsModal = new bootstrap.Modal(modal);
-      bsModal.show();
-      modal.addEventListener('hidden.bs.modal', () => {
-          modal.remove();
-      });
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener("hidden.bs.modal", () => {
+      modal.remove();
+    });
   }
-  static async showModalError(msg,string) {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalError';
+  static async showModalError(msg, string) {
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = "modalError";
     modal.tabIndex = -1;
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
@@ -82,14 +84,14 @@ class ShowModal{
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
+    modal.addEventListener("hidden.bs.modal", () => {
+      modal.remove();
     });
   }
-  static async showModalInfo(msg,string) {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'modalInfo';
+  static async showModalInfo(msg, string) {
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = "modalInfo";
     modal.tabIndex = -1;
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
@@ -111,16 +113,16 @@ class ShowModal{
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    modal.addEventListener('hidden.bs.modal', () => {
-        modal.remove();
-    });           
+    modal.addEventListener("hidden.bs.modal", () => {
+      modal.remove();
+    });
   }
-  
-  static async modalDelete(msg,string) {
+
+  static async modalDelete(msg, string) {
     return new Promise((resolve) => {
-      const modal = document.createElement('div');
-      modal.className = 'modal fade';
-      modal.id = 'modalDelete';
+      const modal = document.createElement("div");
+      modal.className = "modal fade";
+      modal.id = "modalDelete";
       modal.tabIndex = -1;
       modal.innerHTML = `
         <div class="modal-dialog modal-dialog-centered">
@@ -143,39 +145,64 @@ class ShowModal{
 
       document.body.appendChild(modal);
       const bsModal = new bootstrap.Modal(modal, { focus: true });
-      
+
       // Fix aria-hidden focus issue
-      modal.addEventListener('shown.bs.modal', () => {
-        const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+      modal.addEventListener("shown.bs.modal", () => {
+        const confirmBtn = modal.querySelector("#confirmDeleteBtn");
         if (confirmBtn) confirmBtn.focus();
       });
-      
+
       bsModal.show();
 
-      const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+      const confirmBtn = modal.querySelector("#confirmDeleteBtn");
       const onConfirm = () => {
-        try { bsModal.hide(); } catch (e) { /* ignore */ }
+        try {
+          bsModal.hide();
+        } catch (e) {
+          /* ignore */
+        }
         resolve(true);
       };
-      if (confirmBtn) confirmBtn.addEventListener('click', onConfirm, { once: true });
+      if (confirmBtn)
+        confirmBtn.addEventListener("click", onConfirm, { once: true });
 
       // cancel / close resolves false
-      modal.addEventListener('hidden.bs.modal', () => {
-        resolve(false);
-        modal.remove();
-      }, { once: true });
+      modal.addEventListener(
+        "hidden.bs.modal",
+        () => {
+          resolve(false);
+          modal.remove();
+        },
+        { once: true }
+      );
 
       const cancelBtn = modal.querySelector('[data-bs-dismiss="modal"]');
-      if (cancelBtn) cancelBtn.addEventListener('click', () => { try { bsModal.hide(); } catch (e) {} }, { once: true });
+      if (cancelBtn)
+        cancelBtn.addEventListener(
+          "click",
+          () => {
+            try {
+              bsModal.hide();
+            } catch (e) {}
+          },
+          { once: true }
+        );
     });
   }
 
   // Generic confirmation modal for non-delete actions (publish/suspend, etc.)
-  static async modalConfirm(msg, string, confirmLabel = 'Conferma', confirmClass = 'btn-primary', iconClass = 'bi-question-circle', iconColor = 'text-primary') {
+  static async modalConfirm(
+    msg,
+    string,
+    confirmLabel = "Conferma",
+    confirmClass = "btn-primary",
+    iconClass = "bi-question-circle",
+    iconColor = "text-primary"
+  ) {
     return new Promise((resolve) => {
-      const modal = document.createElement('div');
-      modal.className = 'modal fade';
-      modal.id = 'modalConfirmAction';
+      const modal = document.createElement("div");
+      modal.className = "modal fade";
+      modal.id = "modalConfirmAction";
       modal.tabIndex = -1;
       modal.innerHTML = `
         <div class="modal-dialog modal-dialog-centered">
@@ -197,41 +224,59 @@ class ShowModal{
       `;
       document.body.appendChild(modal);
       const bsModal = new bootstrap.Modal(modal, { focus: true });
-      
+
       // Fix aria-hidden focus issue
-      modal.addEventListener('shown.bs.modal', () => {
-        const confirmBtn = modal.querySelector('#confirmActionBtn');
+      modal.addEventListener("shown.bs.modal", () => {
+        const confirmBtn = modal.querySelector("#confirmActionBtn");
         if (confirmBtn) confirmBtn.focus();
       });
-      
-      modal.addEventListener('hidden.bs.modal', () => {
+
+      modal.addEventListener("hidden.bs.modal", () => {
         modal.remove();
       });
-      
+
       bsModal.show();
 
-      const confirmBtn = modal.querySelector('#confirmActionBtn');
+      const confirmBtn = modal.querySelector("#confirmActionBtn");
       const onConfirm = () => {
-        try { bsModal.hide(); } catch (e) { /* ignore */ }
+        try {
+          bsModal.hide();
+        } catch (e) {
+          /* ignore */
+        }
         resolve(true);
       };
-      if (confirmBtn) confirmBtn.addEventListener('click', onConfirm, { once: true });
+      if (confirmBtn)
+        confirmBtn.addEventListener("click", onConfirm, { once: true });
 
       // cancel / close resolves false
-      modal.addEventListener('hidden.bs.modal', () => { 
-        resolve(false);
-        modal.remove();
-      }, { once: true });
+      modal.addEventListener(
+        "hidden.bs.modal",
+        () => {
+          resolve(false);
+          modal.remove();
+        },
+        { once: true }
+      );
 
       const cancelBtn = modal.querySelector('[data-bs-dismiss="modal"]');
-      if (cancelBtn) cancelBtn.addEventListener('click', () => { try { bsModal.hide(); } catch (e) {} }, { once: true });
+      if (cancelBtn)
+        cancelBtn.addEventListener(
+          "click",
+          () => {
+            try {
+              bsModal.hide();
+            } catch (e) {}
+          },
+          { once: true }
+        );
     });
   }
 
   static async showUploadModal(callback) {
-    const modal = document.createElement('div');
-    modal.className = 'modal fade';
-    modal.id = 'uploadModal';
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = "uploadModal";
     modal.tabIndex = -1;
     modal.innerHTML = `
       <div class="modal-dialog modal-dialog-centered">
@@ -256,13 +301,13 @@ class ShowModal{
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    const uploadBtn = modal.querySelector('#uploadConfirmBtn');
-    uploadBtn.addEventListener('click', () => {
-      const descrizione = modal.querySelector('#descriptionTextarea').value;
+    const uploadBtn = modal.querySelector("#uploadConfirmBtn");
+    uploadBtn.addEventListener("click", () => {
+      const descrizione = modal.querySelector("#descriptionTextarea").value;
       bsModal.hide();
       callback(descrizione);
     });
-    modal.addEventListener('hidden.bs.modal', () => {
+    modal.addEventListener("hidden.bs.modal", () => {
       modal.remove();
     });
   }
@@ -273,5 +318,3 @@ window.ShowModal = ShowModal;
 
 // Export for ES6 modules
 export default ShowModal;
-
-

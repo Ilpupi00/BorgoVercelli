@@ -25,20 +25,24 @@
 ### ✅ Completato
 
 1. **Dipendenze installate**
+
    - `pg` (driver PostgreSQL) aggiunto a package.json
    - Eseguito: `npm install pg`
 
 2. **Configurazione ambiente**
+
    - Creato `.env.example` con template variabili PostgreSQL
    - Variabili richieste: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE
 
 3. **Modulo database convertito**
+
    - File: `src/core/config/database.js`
    - Sostituita connessione SQLite con `pg.Pool`
    - Creati wrapper compatibili: `get()`, `all()`, `run()`, `query()`
    - Pool configurato con max 20 connessioni, timeout 30s
 
 4. **Script SQL PostgreSQL**
+
    - File: `create_postgres_db.sql` pronto per creare schema
    - Tutte le tabelle convertite con tipi PostgreSQL (SERIAL, TIMESTAMP, BOOLEAN)
 
@@ -65,7 +69,7 @@
 ### Software richiesto
 
 - PostgreSQL 12+ installato e avviato
-- Node.js 14+ 
+- Node.js 14+
 - npm/yarn
 - Accesso admin al server PostgreSQL
 
@@ -143,14 +147,17 @@ npm install
 ### File modificati
 
 1. **`src/core/config/database.js`**
+
    - ✅ Sostituito SQLite con PostgreSQL Pool
    - ✅ Esportati wrapper: get, all, run, query
    - ✅ Gestione connessione e chiusura pool
 
 2. **`.env.example`**
+
    - ✅ Template con variabili PostgreSQL
 
 3. **`package.json`**
+
    - ✅ Aggiunta dipendenza `pg`
 
 4. **Tutti i file DAO** (conversione automatica parziale):
@@ -161,14 +168,17 @@ npm install
 ### File creati
 
 1. **`create_postgres_db.sql`**
+
    - Schema completo PostgreSQL
    - Tabelle con tipi corretti (SERIAL, TIMESTAMP, BOOLEAN)
    - Foreign key e constraints
 
 2. **`convert-sqlite-to-postgres.js`**
+
    - Script helper per conversioni automatiche
 
 3. **`convert-advanced.py`**
+
    - Script Python per conversioni avanzate
 
 4. **`MVP_MIGRATION.md`** (questo file)
@@ -185,29 +195,31 @@ npm install
 #### Pattern da convertire:
 
 **PRIMA (SQLite callback):**
+
 ```javascript
-exports.getUser = function(id) {
-    return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM utenti WHERE id = ?`;
-        sqlite.get(sql, [id], (err, user) => {
-            if (err) return reject({ error: err.message });
-            resolve(user);
-        });
+exports.getUser = function (id) {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT * FROM utenti WHERE id = ?`;
+    sqlite.get(sql, [id], (err, user) => {
+      if (err) return reject({ error: err.message });
+      resolve(user);
     });
-}
+  });
+};
 ```
 
 **DOPO (PostgreSQL async/await):**
+
 ```javascript
-exports.getUser = async function(id) {
-    try {
-        const sql = `SELECT * FROM utenti WHERE id = $1`;
-        const user = await db.get(sql, [id]);
-        return user;
-    } catch (err) {
-        throw { error: err.message };
-    }
-}
+exports.getUser = async function (id) {
+  try {
+    const sql = `SELECT * FROM utenti WHERE id = $1`;
+    const user = await db.get(sql, [id]);
+    return user;
+  } catch (err) {
+    throw { error: err.message };
+  }
+};
 ```
 
 #### Sostituzioni necessarie:
@@ -222,39 +234,45 @@ exports.getUser = async function(id) {
 ### File DAO da completare (ordine priorità):
 
 #### 1. **CRITICO** - `src/features/users/services/dao-user.js`
-   - Funzioni autenticazione: `createUser`, `getUser`, `getUserById`
-   - Funzioni profilo: `updateUser`, `updateProfilePicture`
-   - Funzioni password: `changePassword`, `saveResetToken`
-   - Funzioni admin: `sospendiUtente`, `bannaUtente`, `revocaSospensioneBan`
-   - ~30 funzioni da convertire
+
+- Funzioni autenticazione: `createUser`, `getUser`, `getUserById`
+- Funzioni profilo: `updateUser`, `updateProfilePicture`
+- Funzioni password: `changePassword`, `saveResetToken`
+- Funzioni admin: `sospendiUtente`, `bannaUtente`, `revocaSospensioneBan`
+- ~30 funzioni da convertire
 
 #### 2. **CRITICO** - `src/features/prenotazioni/services/dao-prenotazione.js`
-   - `prenotaCampo`, `getDisponibilitaCampo`
-   - `getAllPrenotazioni`, `getPrenotazioniByUserId`
-   - `updateStatoPrenotazione`, `deletePrenotazione`
-   - `checkAndUpdateScadute`, `deleteScadute`
-   - ~15 funzioni da convertire
+
+- `prenotaCampo`, `getDisponibilitaCampo`
+- `getAllPrenotazioni`, `getPrenotazioniByUserId`
+- `updateStatoPrenotazione`, `deletePrenotazione`
+- `checkAndUpdateScadute`, `deleteScadute`
+- ~15 funzioni da convertire
 
 #### 3. **CRITICO** - `src/features/prenotazioni/services/dao-campi.js`
-   - Gestione campi e orari
-   - ~10 funzioni
+
+- Gestione campi e orari
+- ~10 funzioni
 
 #### 4. **IMPORTANTE** - `src/features/eventi/services/dao-eventi.js`
-   - Creazione/modifica eventi
-   - Partecipazioni
-   - ~12 funzioni
+
+- Creazione/modifica eventi
+- Partecipazioni
+- ~12 funzioni
 
 #### 5. **IMPORTANTE** - `src/features/notizie/services/dao-notizie.js`
-   - CRUD notizie
-   - ~8 funzioni
+
+- CRUD notizie
+- ~8 funzioni
 
 #### 6. **MEDIA** - Altri DAO:
-   - `src/features/galleria/services/dao-galleria.js`
-   - `src/features/campionati/services/dao-campionati.js`
-   - `src/features/squadre/services/dao-squadre.js`
-   - `src/features/squadre/services/dao-dirigenti-squadre.js`
-   - `src/features/squadre/services/dao-membri-societa.js`
-   - `src/features/recensioni/services/dao-recensioni.js`
+
+- `src/features/galleria/services/dao-galleria.js`
+- `src/features/campionati/services/dao-campionati.js`
+- `src/features/squadre/services/dao-squadre.js`
+- `src/features/squadre/services/dao-dirigenti-squadre.js`
+- `src/features/squadre/services/dao-membri-societa.js`
+- `src/features/recensioni/services/dao-recensioni.js`
 
 ### Verificare Routes con query dirette
 
@@ -263,9 +281,11 @@ Alcuni route potrebbero avere query SQL dirette invece di usare DAO.
 #### File da controllare:
 
 1. **`src/features/admin/routes/admin.js`**
+
    - Verificare non usi `db` direttamente
 
 2. **`src/features/auth/routes/login_register.js`**
+
    - Verificare login/register usino DAO
 
 3. **`src/shared/routes/*.js`**
@@ -314,6 +334,7 @@ npm start
 ```
 
 Verificare log di connessione:
+
 ```
 [database] Connecting to PostgreSQL database: borgovercelli_test
 [database] Connected to PostgreSQL successfully at <timestamp>
@@ -325,33 +346,38 @@ Verificare log di connessione:
   - Aprire `/registrazione`
   - Registrare nuovo utente
   - Verificare email univoca (errore se duplicata)
-  
 - [ ] **Login**
+
   - Aprire `/login`
   - Login con credenziali create
   - Verificare redirect a profilo/homepage
 
 - [ ] **Profilo utente**
+
   - Visualizzare profilo utente loggato
   - Modificare nome/cognome/telefono
   - Upload immagine profilo
 
 - [ ] **Prenotazione campo**
+
   - Visualizzare campi disponibili
   - Selezionare data e orario
   - Creare prenotazione
   - Verificare stato "in_attesa"
 
 - [ ] **Lista prenotazioni utente**
+
   - Visualizzare "Le mie prenotazioni"
   - Verificare prenotazione appena creata
 
 - [ ] **Creazione evento** (se utente autorizzato/admin)
+
   - Creare nuovo evento
   - Verificare salvataggio
   - Visualizzare nella lista eventi
 
 - [ ] **Visualizzazione notizie**
+
   - Homepage con notizie pubblicate
   - Click su notizia → visualizzazione dettaglio
 
@@ -391,6 +417,7 @@ SELECT * FROM prenotazioni ORDER BY created_at DESC LIMIT 5;
 Dopo ogni modifica DAO, ri-eseguire i test funzionali relativi.
 
 **Esempio**: Dopo aver modificato `dao-prenotazione.js`, testare:
+
 - Creazione prenotazione
 - Lista prenotazioni
 - Cancellazione prenotazione
@@ -546,6 +573,7 @@ pg_restore -U postgres -d borgovercelli_prod backup_pre_migrazione.dump
 **Causa**: PostgreSQL non raggiungibile
 
 **Soluzione**:
+
 - Verificare PostgreSQL avviato: `systemctl status postgresql`
 - Controllare host/porta in `.env`
 - Verificare firewall: `sudo ufw allow 5432/tcp`
@@ -555,6 +583,7 @@ pg_restore -U postgres -d borgovercelli_prod backup_pre_migrazione.dump
 **Causa**: Credenziali errate
 
 **Soluzione**:
+
 - Verificare username/password in `.env`
 - Controllare file `pg_hba.conf` per metodo autenticazione
 - Reset password: `ALTER USER postgres PASSWORD 'newpassword';`
@@ -564,6 +593,7 @@ pg_restore -U postgres -d borgovercelli_prod backup_pre_migrazione.dump
 **Causa**: Nome tabella case-sensitive o schema non creato
 
 **Soluzione**:
+
 - PostgreSQL è case-sensitive: usare nomi lowercase
 - Verificare script conversione eseguito su tutti i DAO
 - Verificare schema creato: `\dt` in psql
@@ -573,6 +603,7 @@ pg_restore -U postgres -d borgovercelli_prod backup_pre_migrazione.dump
 **Causa**: Import modulo database errato
 
 **Soluzione**:
+
 ```javascript
 // ❌ ERRATO
 const db = require('./database');
@@ -588,6 +619,7 @@ const db = require('./database');
 **Causa**: Numero placeholder non corrisponde a parametri
 
 **Soluzione**:
+
 - Contare placeholder `$1, $2, ...` nella query
 - Contare elementi nell'array parametri
 - Devono coincidere esattamente
@@ -597,6 +629,7 @@ const db = require('./database');
 **Causa**: Funzione async non gestisce errore
 
 **Soluzione**:
+
 ```javascript
 // ❌ ERRATO
 exports.getUser = async (id) => {
@@ -620,11 +653,12 @@ exports.getUser = async (id) => {
 **Causa**: Pattern SQLite non convertito
 
 **Soluzione**:
+
 ```javascript
 // ❌ ERRATO (SQLite)
-db.run(sql, params, function(err) {
-    const id = this.lastID;
-})
+db.run(sql, params, function (err) {
+  const id = this.lastID;
+});
 
 // ✅ CORRETTO (PostgreSQL)
 const sql = `INSERT INTO ... RETURNING id`;
@@ -660,6 +694,7 @@ const id = result.rows[0].id;
 ### Sessione 1 - 10 Nov 2025
 
 **Completato**:
+
 - ✅ Installazione driver `pg`
 - ✅ Creazione `.env.example`
 - ✅ Conversione modulo `database.js`
@@ -669,6 +704,7 @@ const id = result.rows[0].id;
 - ✅ Documentazione MVP completa
 
 **Prossimi step**:
+
 - ⏳ Conversione manuale callback → async/await per tutti i DAO
 - ⏳ Test funzionali completi
 - ⏳ Deploy staging
@@ -686,6 +722,7 @@ const id = result.rows[0].id;
 4. Documentare problema e soluzione trovata in questo file
 
 **File di log utili**:
+
 - Application log: `pm2 logs` o `/var/log/borgovercelli/`
 - PostgreSQL log: `/var/log/postgresql/postgresql-<version>-main.log`
 - Query slow log: configurare in `postgresql.conf`

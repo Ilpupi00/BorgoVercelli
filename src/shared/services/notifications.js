@@ -3,8 +3,8 @@
  * Accoda le notifiche nel database per essere processate dal worker
  */
 
-const db = require('../../core/config/database');
-const pushService = require('./webpush');
+const db = require("../../core/config/database");
+const pushService = require("./webpush");
 
 /**
  * Accoda una notifica per gli admin
@@ -16,45 +16,53 @@ const pushService = require('./webpush');
  * @returns {Promise<Object>} Risultato dell'operazione
  */
 async function queueNotificationForAdmins(payload, options = {}) {
-    const {
-        priority = 0,
-        sendAfter = null,
-        maxAttempts = 3
-    } = options;
+  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
 
-    try {
-        // If no explicit sendAfter provided, let Postgres use CURRENT_TIMESTAMP to avoid
-        // any timezone conversion issues between Node and the DB driver.
-        if (!sendAfter) {
-            const result = await db.query(
-                `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+  try {
+    // If no explicit sendAfter provided, let Postgres use CURRENT_TIMESTAMP to avoid
+    // any timezone conversion issues between Node and the DB driver.
+    if (!sendAfter) {
+      const result = await db.query(
+        `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
                  VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
                  RETURNING id`,
-                ['admin', JSON.stringify(payload), 'pending', priority, maxAttempts]
-            );
-            console.log(`[NOTIFICATIONS] Notifica admin accodata con ID ${result.rows[0].id}`);
-            return { success: true, id: result.rows[0].id, queued: true };
-        }
+        ["admin", JSON.stringify(payload), "pending", priority, maxAttempts]
+      );
+      console.log(
+        `[NOTIFICATIONS] Notifica admin accodata con ID ${result.rows[0].id}`
+      );
+      return { success: true, id: result.rows[0].id, queued: true };
+    }
 
-        const result = await db.query(
-            `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+    const result = await db.query(
+      `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id`,
-            ['admin', JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
-        );
-    } catch (error) {
-        console.error('[NOTIFICATIONS] Errore accodamento notifica admin:', error);
-        
-        // Fallback: invio diretto se il DB fallisce
-        console.log('[NOTIFICATIONS] Fallback: invio diretto notifica admin');
-        try {
-            await pushService.sendNotificationToAdmins(payload);
-            return { success: true, queued: false, fallback: true };
-        } catch (fallbackError) {
-            console.error('[NOTIFICATIONS] Errore anche nel fallback:', fallbackError);
-            return { success: false, error: fallbackError.message };
-        }
+      [
+        "admin",
+        JSON.stringify(payload),
+        "pending",
+        priority,
+        sendAfter,
+        maxAttempts,
+      ]
+    );
+  } catch (error) {
+    console.error("[NOTIFICATIONS] Errore accodamento notifica admin:", error);
+
+    // Fallback: invio diretto se il DB fallisce
+    console.log("[NOTIFICATIONS] Fallback: invio diretto notifica admin");
+    try {
+      await pushService.sendNotificationToAdmins(payload);
+      return { success: true, queued: false, fallback: true };
+    } catch (fallbackError) {
+      console.error(
+        "[NOTIFICATIONS] Errore anche nel fallback:",
+        fallbackError
+      );
+      return { success: false, error: fallbackError.message };
     }
+  }
 }
 
 /**
@@ -65,49 +73,65 @@ async function queueNotificationForAdmins(payload, options = {}) {
  * @returns {Promise<Object>} Risultato dell'operazione
  */
 async function queueNotificationForUsers(userIds, payload, options = {}) {
-    if (!userIds || userIds.length === 0) {
-        console.warn('[NOTIFICATIONS] Nessun utente specificato per la notifica');
-        return { success: false, error: 'No users specified' };
-    }
+  if (!userIds || userIds.length === 0) {
+    console.warn("[NOTIFICATIONS] Nessun utente specificato per la notifica");
+    return { success: false, error: "No users specified" };
+  }
 
-    const {
-        priority = 0,
-        sendAfter = null,
-        maxAttempts = 3
-    } = options;
+  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
 
-    try {
-        // Use DB-side CURRENT_TIMESTAMP when sendAfter not explicitly provided
-        if (!sendAfter) {
-            const result = await db.query(
-                `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
+  try {
+    // Use DB-side CURRENT_TIMESTAMP when sendAfter not explicitly provided
+    if (!sendAfter) {
+      const result = await db.query(
+        `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
                  VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
                  RETURNING id`,
-                ['user', userIds, JSON.stringify(payload), 'pending', priority, maxAttempts]
-            );
-            console.log(`[NOTIFICATIONS] Notifica utenti accodata con ID ${result.rows[0].id} per ${userIds.length} utenti`);
-            return { success: true, id: result.rows[0].id, queued: true };
-        }
+        [
+          "user",
+          userIds,
+          JSON.stringify(payload),
+          "pending",
+          priority,
+          maxAttempts,
+        ]
+      );
+      console.log(
+        `[NOTIFICATIONS] Notifica utenti accodata con ID ${result.rows[0].id} per ${userIds.length} utenti`
+      );
+      return { success: true, id: result.rows[0].id, queued: true };
+    }
 
-        const result = await db.query(
-            `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
+    const result = await db.query(
+      `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id`,
-            ['user', userIds, JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
-        );
-    } catch (error) {
-        console.error('[NOTIFICATIONS] Errore accodamento notifica utenti:', error);
-        
-        // Fallback: invio diretto se il DB fallisce
-        console.log('[NOTIFICATIONS] Fallback: invio diretto notifica utenti');
-        try {
-            await pushService.sendNotificationToUsers(userIds, payload);
-            return { success: true, queued: false, fallback: true };
-        } catch (fallbackError) {
-            console.error('[NOTIFICATIONS] Errore anche nel fallback:', fallbackError);
-            return { success: false, error: fallbackError.message };
-        }
+      [
+        "user",
+        userIds,
+        JSON.stringify(payload),
+        "pending",
+        priority,
+        sendAfter,
+        maxAttempts,
+      ]
+    );
+  } catch (error) {
+    console.error("[NOTIFICATIONS] Errore accodamento notifica utenti:", error);
+
+    // Fallback: invio diretto se il DB fallisce
+    console.log("[NOTIFICATIONS] Fallback: invio diretto notifica utenti");
+    try {
+      await pushService.sendNotificationToUsers(userIds, payload);
+      return { success: true, queued: false, fallback: true };
+    } catch (fallbackError) {
+      console.error(
+        "[NOTIFICATIONS] Errore anche nel fallback:",
+        fallbackError
+      );
+      return { success: false, error: fallbackError.message };
     }
+  }
 }
 
 /**
@@ -117,43 +141,54 @@ async function queueNotificationForUsers(userIds, payload, options = {}) {
  * @returns {Promise<Object>} Risultato dell'operazione
  */
 async function queueNotificationForAll(payload, options = {}) {
-    const {
-        priority = 0,
-        sendAfter = null,
-        maxAttempts = 3
-    } = options;
+  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
 
-    try {
-        if (!sendAfter) {
-            const result = await db.query(
-                `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+  try {
+    if (!sendAfter) {
+      const result = await db.query(
+        `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
                  VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
                  RETURNING id`,
-                ['all', JSON.stringify(payload), 'pending', priority, maxAttempts]
-            );
-            console.log(`[NOTIFICATIONS] Notifica broadcast accodata con ID ${result.rows[0].id}`);
-            return { success: true, id: result.rows[0].id, queued: true };
-        }
+        ["all", JSON.stringify(payload), "pending", priority, maxAttempts]
+      );
+      console.log(
+        `[NOTIFICATIONS] Notifica broadcast accodata con ID ${result.rows[0].id}`
+      );
+      return { success: true, id: result.rows[0].id, queued: true };
+    }
 
-        const result = await db.query(
-            `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
+    const result = await db.query(
+      `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id`,
-            ['all', JSON.stringify(payload), 'pending', priority, sendAfter, maxAttempts]
-        );
-    } catch (error) {
-        console.error('[NOTIFICATIONS] Errore accodamento notifica broadcast:', error);
-        
-        // Fallback: invio diretto se il DB fallisce
-        console.log('[NOTIFICATIONS] Fallback: invio diretto notifica broadcast');
-        try {
-            await pushService.sendNotificationToAll(payload);
-            return { success: true, queued: false, fallback: true };
-        } catch (fallbackError) {
-            console.error('[NOTIFICATIONS] Errore anche nel fallback:', fallbackError);
-            return { success: false, error: fallbackError.message };
-        }
+      [
+        "all",
+        JSON.stringify(payload),
+        "pending",
+        priority,
+        sendAfter,
+        maxAttempts,
+      ]
+    );
+  } catch (error) {
+    console.error(
+      "[NOTIFICATIONS] Errore accodamento notifica broadcast:",
+      error
+    );
+
+    // Fallback: invio diretto se il DB fallisce
+    console.log("[NOTIFICATIONS] Fallback: invio diretto notifica broadcast");
+    try {
+      await pushService.sendNotificationToAll(payload);
+      return { success: true, queued: false, fallback: true };
+    } catch (fallbackError) {
+      console.error(
+        "[NOTIFICATIONS] Errore anche nel fallback:",
+        fallbackError
+      );
+      return { success: false, error: fallbackError.message };
     }
+  }
 }
 
 /**
@@ -161,8 +196,8 @@ async function queueNotificationForAll(payload, options = {}) {
  * @returns {Promise<Object>} Statistiche
  */
 async function getQueueStats() {
-    try {
-        const result = await db.query(`
+  try {
+    const result = await db.query(`
             SELECT 
                 status,
                 COUNT(*) as count
@@ -170,27 +205,27 @@ async function getQueueStats() {
             GROUP BY status
         `);
 
-        const stats = {
-            pending: 0,
-            sending: 0,
-            sent: 0,
-            failed: 0
-        };
+    const stats = {
+      pending: 0,
+      sending: 0,
+      sent: 0,
+      failed: 0,
+    };
 
-        result.rows.forEach(row => {
-            stats[row.status] = parseInt(row.count);
-        });
+    result.rows.forEach((row) => {
+      stats[row.status] = parseInt(row.count);
+    });
 
-        return stats;
-    } catch (error) {
-        console.error('[NOTIFICATIONS] Errore recupero statistiche:', error);
-        return null;
-    }
+    return stats;
+  } catch (error) {
+    console.error("[NOTIFICATIONS] Errore recupero statistiche:", error);
+    return null;
+  }
 }
 
 module.exports = {
-    queueNotificationForAdmins,
-    queueNotificationForUsers,
-    queueNotificationForAll,
-    getQueueStats
+  queueNotificationForAdmins,
+  queueNotificationForUsers,
+  queueNotificationForAll,
+  getQueueStats,
 };

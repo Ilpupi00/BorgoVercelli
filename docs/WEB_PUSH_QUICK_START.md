@@ -35,13 +35,13 @@ npm start
 
 ## 📱 Browser Supportati
 
-| Browser | Desktop | Mobile |
-|---------|---------|--------|
-| Chrome | ✅ | ✅ |
-| Firefox | ✅ | ✅ |
-| Safari | ✅ (macOS 13+) | ✅ (iOS 16.4+) |
-| Edge | ✅ | ✅ |
-| Opera | ✅ | ✅ |
+| Browser | Desktop        | Mobile         |
+| ------- | -------------- | -------------- |
+| Chrome  | ✅             | ✅             |
+| Firefox | ✅             | ✅             |
+| Safari  | ✅ (macOS 13+) | ✅ (iOS 16.4+) |
+| Edge    | ✅             | ✅             |
+| Opera   | ✅             | ✅             |
 
 ## 🧪 Test Rapido
 
@@ -76,19 +76,19 @@ curl -X POST http://localhost:8080/push/test \
 
 ```javascript
 // Server-side
-const pushService = require('./shared/services/webpush');
+const pushService = require("./shared/services/webpush");
 
 // Invia a utenti specifici
 await pushService.sendNotificationToUsers([userId], {
-  title: 'Titolo',
-  body: 'Messaggio',
-  url: '/path'
+  title: "Titolo",
+  body: "Messaggio",
+  url: "/path",
 });
 
 // Invia agli admin
 await pushService.sendNotificationToAdmins({
-  title: 'Alert Admin',
-  body: 'Richiede attenzione'
+  title: "Alert Admin",
+  body: "Richiede attenzione",
 });
 ```
 
@@ -100,11 +100,13 @@ const manager = await initPushNotifications();
 ## 🆘 Troubleshooting
 
 **Notifiche non arrivano?**
+
 1. Verifica chiavi VAPID nel `.env`
 2. Controlla log server (cerca `[WEBPUSH]`)
 3. Usa endpoint `/push/debug` per verificare autenticazione
 
 **Permesso negato?**
+
 - Safari iOS richiede iOS 16.4+
 - L'utente deve abilitare manualmente dalle impostazioni browser
 

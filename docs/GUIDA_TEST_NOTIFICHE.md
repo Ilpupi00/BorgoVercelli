@@ -14,9 +14,11 @@ Il sistema di notifiche push è stato migliorato con:
 ### Metodo 1: Pagina di Test (Consigliato)
 
 1. **Accedi al sito** come utente autenticato
+
    - URL: `http://localhost:8080/login`
 
 2. **Vai alla pagina di test**
+
    - URL: `http://localhost:8080/push/test`
    - Questa pagina mostra:
      - ✅ Stato supporto browser
@@ -27,6 +29,7 @@ Il sistema di notifiche push è stato migliorato con:
 3. **Accetta i permessi** quando il browser li richiede
 
 4. **Invia una notifica di test**
+
    - Scegli il destinatario (me/admin/tutti)
    - Personalizza titolo e messaggio
    - Clicca "Invia Notifica Test"
@@ -67,17 +70,19 @@ Apri la console del browser e digita:
 
 ```javascript
 // Invia notifica test a te stesso
-fetch('/push/test', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  credentials: 'include',
+fetch("/push/test", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
   body: JSON.stringify({
-    to: 'me',
-    title: '🔔 Test',
-    body: 'Notifica di test',
-    url: '/'
-  })
-}).then(r => r.json()).then(console.log);
+    to: "me",
+    title: "🔔 Test",
+    body: "Notifica di test",
+    url: "/",
+  }),
+})
+  .then((r) => r.json())
+  .then(console.log);
 ```
 
 ## Verifiche da Fare
@@ -125,6 +130,7 @@ Nel file `src/data/webpush.json` dovresti vedere le subscription salvate:
 **Causa**: L'utente non ha accettato i permessi o non si è iscritto
 
 **Soluzione**:
+
 1. Vai su `/push/test`
 2. Accetta i permessi quando richiesti
 3. La pagina si iscriverà automaticamente
@@ -134,6 +140,7 @@ Nel file `src/data/webpush.json` dovresti vedere le subscription salvate:
 **Causa**: Variabili d'ambiente mancanti
 
 **Soluzione**:
+
 1. Verifica il file `.env`
 2. Assicurati che `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_EMAIL` siano presenti
 3. Riavvia il server
@@ -143,6 +150,7 @@ Nel file `src/data/webpush.json` dovresti vedere le subscription salvate:
 **Causa**: L'utente ha negato i permessi
 
 **Soluzione**:
+
 1. Vai nelle impostazioni del browser
 2. Cerca il sito nelle impostazioni notifiche
 3. Rimuovi il blocco e ricarica la pagina
@@ -152,6 +160,7 @@ Nel file `src/data/webpush.json` dovresti vedere le subscription salvate:
 **Causa**: Il file `service-worker.js` non è raggiungibile
 
 **Soluzione**:
+
 1. Verifica che `/service-worker.js` sia accessibile
 2. Controlla la console del browser per errori
 3. Prova a ricaricare con Ctrl+Shift+R (hard reload)
@@ -182,6 +191,7 @@ Per testare rapidamente:
 ## Monitoring
 
 Controlla periodicamente:
+
 - `src/data/webpush.json` per vedere le subscription attive
 - Log del server per errori di invio
 - Console del browser per errori del service worker
@@ -191,6 +201,7 @@ Controlla periodicamente:
 Una volta verificato che le notifiche funzionano:
 
 1. Le notifiche vengono inviate automaticamente per:
+
    - ✅ Nuove prenotazioni (agli admin)
    - ✅ Prenotazioni accettate/rifiutate (all'utente)
    - ✅ Nuovi eventi pubblicati

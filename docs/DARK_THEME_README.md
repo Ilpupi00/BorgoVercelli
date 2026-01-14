@@ -7,7 +7,7 @@ Sistema completo di gestione tema chiaro/scuro per il sito Borgo Vercelli, imple
 ## ✨ Features
 
 - ☀️ **Tema Chiaro** - Design luminoso e pulito
-- 🌙 **Tema Scuro** - Design moderno che riduce l'affaticamento degli occhi  
+- 🌙 **Tema Scuro** - Design moderno che riduce l'affaticamento degli occhi
 - 🔄 **Preferenza Sistema** - Si adatta automaticamente alle impostazioni dell'utente
 - 💾 **Persistenza** - La scelta viene salvata nel localStorage
 - ⚡ **Prestazioni** - Cambio istantaneo senza lag
@@ -28,16 +28,16 @@ Sistema completo di gestione tema chiaro/scuro per il sito Borgo Vercelli, imple
 ```html
 <!-- Aggiungi a ogni pagina -->
 <head>
-    <%- include('partials/theme-includes') %>
+  <%- include('partials/theme-includes') %>
 </head>
 ```
 
 ```css
 /* Usa le variabili CSS */
 .my-component {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 ```
 
@@ -109,21 +109,21 @@ docs/
 ```javascript
 // Ottieni info tema
 const theme = window.themeManager.getCurrentTheme();
-console.log(theme.effective);    // 'light' | 'dark'
-console.log(theme.preference);   // 'light' | 'dark' | 'auto'
-console.log(theme.isDark);       // boolean
+console.log(theme.effective); // 'light' | 'dark'
+console.log(theme.preference); // 'light' | 'dark' | 'auto'
+console.log(theme.isDark); // boolean
 
 // Cambia tema
-window.themeManager.applyTheme('dark');
-window.themeManager.applyTheme('light');
-window.themeManager.applyTheme('auto');
+window.themeManager.applyTheme("dark");
+window.themeManager.applyTheme("light");
+window.themeManager.applyTheme("auto");
 
 // Toggle
 window.themeManager.toggleTheme();
 
 // Ascolta cambiamenti
-window.addEventListener('themechange', (e) => {
-    console.log('Nuovo tema:', e.detail.theme);
+window.addEventListener("themechange", (e) => {
+  console.log("Nuovo tema:", e.detail.theme);
 });
 ```
 
@@ -138,22 +138,23 @@ http://localhost:3000/theme-test.html
 ```
 
 Oppure testa direttamente sulla homepage:
+
 ```
 http://localhost:3000/homepage
 ```
 
 ## 📊 Statistiche
 
-| Metrica | Valore |
-|---------|--------|
-| File CSS | 3 (~1000 linee) |
-| File JS | 1 (~250 linee) |
-| Pagine supportate | 40+ |
-| Componenti | 25+ |
-| Variabili CSS | 50+ |
-| Browser support | 95%+ |
-| Performance | <50ms cambio tema |
-| Storage | <1KB |
+| Metrica           | Valore            |
+| ----------------- | ----------------- |
+| File CSS          | 3 (~1000 linee)   |
+| File JS           | 1 (~250 linee)    |
+| Pagine supportate | 40+               |
+| Componenti        | 25+               |
+| Variabili CSS     | 50+               |
+| Browser support   | 95%+              |
+| Performance       | <50ms cambio tema |
+| Storage           | <1KB              |
 
 ## 🎯 Componenti Supportati
 
@@ -174,14 +175,14 @@ http://localhost:3000/homepage
 
 ## 🌐 Browser Support
 
-| Browser | Versione Minima |
-|---------|-----------------|
-| Chrome | 88+ |
-| Firefox | 85+ |
-| Safari | 14+ |
-| Edge | 88+ |
-| Opera | 74+ |
-| Mobile | iOS 14+, Android 8+ |
+| Browser | Versione Minima     |
+| ------- | ------------------- |
+| Chrome  | 88+                 |
+| Firefox | 85+                 |
+| Safari  | 14+                 |
+| Edge    | 88+                 |
+| Opera   | 74+                 |
+| Mobile  | iOS 14+, Android 8+ |
 
 ## 📖 Documentazione
 
@@ -193,6 +194,7 @@ http://localhost:3000/homepage
 ## 🐛 Troubleshooting
 
 ### Il tema non cambia
+
 ```bash
 1. Apri Console (F12)
 2. Verifica errori JavaScript
@@ -200,12 +202,14 @@ http://localhost:3000/homepage
 ```
 
 ### Flash di contenuto
+
 ```bash
 1. Verifica theme-includes.ejs sia nel <head>
 2. Controlla che lo script inline sia presente
 ```
 
 ### Tema non persiste
+
 ```bash
 1. Verifica che localStorage sia abilitato
 2. Cancella cache browser
@@ -215,12 +219,14 @@ http://localhost:3000/homepage
 ## 🚀 Deployment
 
 Il sistema è pronto per il deployment. Non richiede:
+
 - ❌ Build process
 - ❌ Compilazione
 - ❌ Modifiche al database
 - ❌ Configurazione server
 
 Basta:
+
 - ✅ Upload dei file
 - ✅ Clear della cache (se presente)
 
@@ -246,7 +252,7 @@ Proprietario - Borgo Vercelli ASD 2022
 
 ## 🎉 Congratulazioni!
 
-Hai ora un sistema di tema scuro completamente funzionante, moderno e professionale! 
+Hai ora un sistema di tema scuro completamente funzionante, moderno e professionale!
 
 **Enjoy your new dark theme!** 🌙✨
 

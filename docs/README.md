@@ -1,4 +1,3 @@
-
 # 🏆 Sito Borgo Vercelli - Piattaforma Sportiva Comunitaria
 
 <div align="center">
@@ -29,6 +28,7 @@
 - UI: tema scuro migliorato per il modal Privacy/Regolamento (stili aggiunti in `Login.css`).
 
 Note rapide per deploy e test:
+
 - Verificare la presenza di `/manifest.json` dopo il deploy (serve da `src/public`).
 - Creare icone ottimizzate 192x192 e 512x512 per migliorare compatibilità PWA.
 
@@ -50,38 +50,44 @@ Note rapide per deploy e test:
 ## � Visione e Missione
 
 ### Visione
-> *"Collegare la comunità sportiva locale — democratizzando l'accesso a eventi, risorse e opportunità."*
+
+> _"Collegare la comunità sportiva locale — democratizzando l'accesso a eventi, risorse e opportunità."_
 
 ### Missione
+
 Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 
-| Obiettivo | Descrizione |
-|-----------|-------------|
+| Obiettivo         | Descrizione                                                       |
+| ----------------- | ----------------------------------------------------------------- |
 | 🤝 **Connettere** | Atleti, staff tecnico, dirigenti e tifosi in un'unica piattaforma |
-| 📅 **Facilitare** | Prenotazione e gestione degli spazi sportivi in modo semplice |
-| 📢 **Promuovere** | Eventi, iniziative, notizie e comunicati ufficiali |
-| 💬 **Favorire** | Condivisione di esperienze, feedback e recensioni |
+| 📅 **Facilitare** | Prenotazione e gestione degli spazi sportivi in modo semplice     |
+| 📢 **Promuovere** | Eventi, iniziative, notizie e comunicati ufficiali                |
+| 💬 **Favorire**   | Condivisione di esperienze, feedback e recensioni                 |
 
 ### Obiettivi Chiave
 
 #### 🧑‍🤝‍🧑 Networking Sportivo Locale
+
 - Connessioni dirette tra giocatori, squadre e società
 - Creazione di collaborazioni e iniziative condivise
 - Networking tra atleti di diverse categorie
 
 #### 📚 Strumenti Collaborativi
+
 - Sistema di prenotazione campi online in tempo reale
 - Galleria fotografica per condividere momenti sportivi
 - Sistema di recensioni e feedback dalla comunità
 - Gestione eventi con iscrizioni
 
 #### 🧠 Condivisione Risorse
+
 - Pubblicazione di comunicati e aggiornamenti ufficiali
 - Gestione calendario eventi centralizzato
 - Feed notizie sempre aggiornato
 - Archivio storico accessibile
 
 #### 🎓 Sviluppo Sportivo
+
 - Profilazione dettagliata utenti e squadre
 - Tracciamento attività e risultati
 - Statistiche individuali e di squadra
@@ -91,18 +97,19 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 
 ## 👥 Destinatari
 
-| Tipo Utente | Descrizione | Funzionalità Principali |
-|-------------|-------------|------------------------|
-| 🏃‍♂️ **Atleti** | Giocatori di tutte le età e livelli | Profilo personale, prenotazioni, statistiche |
-| 🧑‍💼 **Staff** | Allenatori, dirigenti, organizzatori | Gestione squadre, eventi, comunicazioni |
-| 🏟️ **Società** | Club sportivi e associazioni | Dashboard admin, gestione risorse |
-| 👨‍👩‍👧‍👦 **Comunità** | Tifosi, famiglie, volontari | Notizie, eventi, galleria fotografica |
+| Tipo Utente     | Descrizione                          | Funzionalità Principali                      |
+| --------------- | ------------------------------------ | -------------------------------------------- |
+| 🏃‍♂️ **Atleti**   | Giocatori di tutte le età e livelli  | Profilo personale, prenotazioni, statistiche |
+| 🧑‍💼 **Staff**    | Allenatori, dirigenti, organizzatori | Gestione squadre, eventi, comunicazioni      |
+| 🏟️ **Società**  | Club sportivi e associazioni         | Dashboard admin, gestione risorse            |
+| 👨‍👩‍👧‍👦 **Comunità** | Tifosi, famiglie, volontari          | Notizie, eventi, galleria fotografica        |
 
 ---
 
 ## ✨ Funzionalità Principali
 
 ### 👤 Gestione Utenti e Profili
+
 - ✅ Registrazione e autenticazione sicura con hash password
 - ✅ Profili personalizzati con foto e informazioni
 - ✅ Ruoli utente differenziati (Admin, Staff, Giocatore, Pubblico)
@@ -110,6 +117,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Gestione preferenze e privacy
 
 ### 📅 Sistema di Prenotazione Campi
+
 - ✅ Prenotazione campi sportivi online 24/7
 - ✅ Calendario interattivo con disponibilità real-time
 - ✅ Gestione orari e slot temporali configurabili
@@ -118,6 +126,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Sistema automatico di scadenza e pulizia
 
 ### 🎉 Gestione Eventi
+
 - ✅ Creazione eventi con data/ora/luogo
 - ✅ Eventi pubblici e privati
 - ✅ Gestione partecipanti e iscrizioni
@@ -126,6 +135,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Upload immagini e descrizioni ricche
 
 ### 📰 Sistema Notizie e Comunicati
+
 - ✅ Creazione e pubblicazione articoli con editor
 - ✅ Immagini di copertina e gallerie
 - ✅ Sistema di bozze e pubblicazioni programmate
@@ -134,6 +144,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Condivisione social
 
 ### 🖼️ Galleria Fotografica
+
 - ✅ Upload multiplo di immagini
 - ✅ Organizzazione per evento/categoria
 - ✅ Lightbox per visualizzazione full-screen
@@ -142,6 +153,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Compressione automatica immagini
 
 ### ⚽ Gestione Squadre e Campionati
+
 - ✅ Profili squadra con statistiche complete
 - ✅ Rosa giocatori con numeri maglia e ruoli
 - ✅ Staff tecnico e dirigenza
@@ -150,6 +162,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Statistiche individuali e di squadra
 
 ### ⭐ Sistema Recensioni
+
 - ✅ Recensioni utente con valutazioni 1-5 stelle
 - ✅ Commenti testuali dettagliati
 - ✅ Media valutazioni aggregate
@@ -158,12 +171,14 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Foto profilo utenti nelle recensioni
 
 ### 🔍 Ricerca Avanzata
+
 - ✅ Ricerca globale (notizie, eventi, squadre, utenti)
 - ✅ Filtri multipli e combinabili
 - ✅ Suggerimenti autocomplete
 - ✅ Risultati paginati con performance ottimale
 
 ### � Sistema Email
+
 - ✅ Notifiche transazionali
 - ✅ Reset password sicuro
 - ✅ Conferme prenotazioni
@@ -171,6 +186,7 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 - ✅ Template email personalizzabili
 
 ### 👨‍💼 Pannello Amministrazione
+
 - ✅ Dashboard con statistiche in tempo reale
 - ✅ Gestione utenti (CRUD completo)
 - ✅ Moderazione contenuti (notizie, eventi, recensioni)
@@ -184,12 +200,14 @@ Il Sito Borgo Vercelli è una piattaforma completa progettata per:
 ## 🛠️ Stack Tecnologico
 
 ### Frontend
+
 ```
 HTML5 · CSS3 (Mobile-First) · JavaScript (ES6+) · EJS Templates
 Bootstrap 5 · Font Awesome · Animate.css
 ```
 
 **Design System:**
+
 - Palette colori coherente (#0d6efd, #22b14c, #ffc107)
 - Componenti riutilizzabili (Common.css)
 - Animazioni leggere e performanti (< 0.3s)
@@ -197,12 +215,14 @@ Bootstrap 5 · Font Awesome · Animate.css
 - Border-radius uniformi (16px standard)
 
 ### Backend
+
 ```
 Node.js (v14+) · Express.js 4.x · SQLite3
 Passport.js · Bcrypt · Multer · Nodemailer
 ```
 
 ### Database
+
 ```
 SQLite3 con schema relazionale completo
 Migrations SQL versionate
@@ -210,6 +230,7 @@ Backup automatici
 ```
 
 ### DevOps & Tools
+
 ```
 Docker · Docker Compose
 Railway (Production Deployment)
@@ -218,6 +239,7 @@ VS Code · ESLint · Prettier
 ```
 
 ### Architettura Pattern
+
 ```
 MVC (Model-View-Controller)
 RESTful API
@@ -230,12 +252,14 @@ Middleware Architecture
 ## 🎨 Principi di Design
 
 ### Design System
+
 - 🎨 **Palette Colori Uniforme**: Blu (#0d6efd), Verde (#22b14c), Giallo (#ffc107)
 - 📐 **Spacing Consistente**: Sistema di spacing 4px, 8px, 16px, 24px, 32px
 - 🔤 **Typography Scalabile**: Clamp per dimensioni responsive
 - 🎭 **Animazioni Leggere**: Max 0.3s, solo transform/opacity
 
 ### User Experience
+
 - ♿ **Accessibilità WCAG 2.1 AA**: Contrasto colori, keyboard navigation
 - 📱 **Mobile-First**: Design ottimizzato per smartphone
 - ⚡ **Performance**: Time to Interactive < 2s
@@ -243,6 +267,7 @@ Middleware Architecture
 - 🌐 **Cross-Browser**: Supporto browser moderni
 
 ### Visual Design
+
 - **Glassmorphism**: Backdrop blur e trasparenze
 - **Gradient Backgrounds**: Linear gradient per CTA e hero sections
 - **Card-Based Layout**: Design modulare e pulito
@@ -253,13 +278,13 @@ Middleware Architecture
 
 ## 🌟 Valore Unico
 
-| Caratteristica | Vantaggio |
-|----------------|-----------|
-| 🏘️ **Focus Locale** | Pensato specificamente per comunità sportive locali |
-| 🔧 **Integrazione Completa** | Tutti gli strumenti in un'unica piattaforma |
-| 📊 **Data-Driven** | Statistiche e analytics per decisioni informate |
-| 👥 **Community-Centric** | Costruito con e per la comunità sportiva |
-| 🚀 **Modern Stack** | Tecnologie moderne e performanti |
+| Caratteristica               | Vantaggio                                           |
+| ---------------------------- | --------------------------------------------------- |
+| 🏘️ **Focus Locale**          | Pensato specificamente per comunità sportive locali |
+| 🔧 **Integrazione Completa** | Tutti gli strumenti in un'unica piattaforma         |
+| 📊 **Data-Driven**           | Statistiche e analytics per decisioni informate     |
+| 👥 **Community-Centric**     | Costruito con e per la comunità sportiva            |
+| 🚀 **Modern Stack**          | Tecnologie moderne e performanti                    |
 
 ---
 
@@ -318,6 +343,7 @@ docker-compose down
 ### Deployment su Railway
 
 Il progetto è attualmente deployato su **Railway** con:
+
 - ✅ Database PostgreSQL gestito
 - ✅ Storage persistente per uploads
 - ✅ SSL/HTTPS automatico
@@ -415,7 +441,6 @@ Sito_BorgoVercelli/
 └── README.md
 ```
 
-
 ---
 
 ## 📡 API
@@ -423,6 +448,7 @@ Sito_BorgoVercelli/
 ### Autenticazione
 
 #### `POST /login`
+
 Login utente con credenziali.
 
 ```json
@@ -467,6 +493,7 @@ HTTP 403
 ```
 
 #### `POST /register`
+
 Registrazione nuovo utente.
 
 ```json
@@ -480,6 +507,7 @@ Registrazione nuovo utente.
 ```
 
 #### `POST /logout`
+
 Logout utente corrente.
 
 ---
@@ -487,16 +515,20 @@ Logout utente corrente.
 ### Prenotazioni
 
 #### `GET /prenotazione`
+
 Visualizza pagina prenotazioni (HTML).
 
 #### `GET /api/prenotazioni`
+
 Lista prenotazioni (JSON).
 
 **Query Params:**
+
 - `campo_id` (optional) - Filtra per campo
 - `data` (optional) - Filtra per data (YYYY-MM-DD)
 
 #### `POST /api/prenotazioni`
+
 Crea nuova prenotazione.
 
 ```json
@@ -509,6 +541,7 @@ Crea nuova prenotazione.
 ```
 
 #### `DELETE /api/prenotazioni/:id`
+
 Elimina prenotazione.
 
 ---
@@ -516,12 +549,15 @@ Elimina prenotazione.
 ### Eventi
 
 #### `GET /eventi`
+
 Lista eventi pubblici.
 
 #### `GET /api/eventi/:id`
+
 Dettagli evento specifico.
 
 #### `POST /api/eventi` (Admin)
+
 Crea nuovo evento.
 
 ```json
@@ -540,12 +576,15 @@ Crea nuovo evento.
 ### Notizie
 
 #### `GET /notizie`
+
 Lista notizie pubblicate.
 
 #### `GET /api/notizie/:id`
+
 Dettagli notizia.
 
 #### `POST /api/notizie` (Admin)
+
 Crea nuova notizia.
 
 ---
@@ -553,12 +592,15 @@ Crea nuova notizia.
 ### Recensioni
 
 #### `GET /recensioni`
+
 Pagina recensioni.
 
 #### `GET /api/recensioni`
+
 Lista recensioni JSON.
 
 #### `POST /api/recensioni`
+
 Crea recensione (autenticazione richiesta).
 
 ```json
@@ -576,12 +618,15 @@ Crea recensione (autenticazione richiesta).
 ### Admin
 
 #### `GET /admin`
+
 Dashboard amministrazione (richiede ruolo admin).
 
 #### `GET /admin/users`
+
 Gestione utenti.
 
 #### `GET /admin/settings`
+
 Configurazioni sistema.
 
 ---
@@ -589,6 +634,7 @@ Configurazioni sistema.
 ## 🛠️ Roadmap
 
 ### ✅ Fase 1: Fondamenta (Completata)
+
 - [x] Sistema autenticazione e autorizzazione
 - [x] Prenotazioni campi sportivi
 - [x] Gestione eventi completa
@@ -599,6 +645,7 @@ Configurazioni sistema.
 - [x] Design system mobile-first unificato
 
 ### 🔄 Fase 2: Espansione (In Corso)
+
 - [x] Notifiche push real-time
 - [ ] Sistema messaggistica interna
 - [ ] Dashboard analytics avanzata
@@ -608,6 +655,7 @@ Configurazioni sistema.
 - [ ] Sistema tornei avanzato
 
 ### 🌍 Fase 3: Apertura (Pianificata)
+
 - [ ] Multi-lingua (IT, EN, FR, ES)
 - [ ] Integrazione social media
 - [ ] Partnership con altre società
@@ -616,6 +664,7 @@ Configurazioni sistema.
 - [ ] Sistema ticketing
 
 ### 🧠 Fase 4: Innovazione (Futuro)
+
 - [ ] AI per suggerimenti personalizzati
 - [ ] Analisi predittiva performance
 - [ ] Chatbot assistenza virtuale
@@ -626,22 +675,24 @@ Configurazioni sistema.
 
 ## 📊 Obiettivi di Impatto
 
-| Obiettivo | Metriche di Successo | Target 2025 |
-|-----------|---------------------|-------------|
-| 🌱 **Inclusione** | Utenti registrati, eventi aperti | 500+ utenti |
-| 🏆 **Crescita Sportiva** | Nuovi iscritti, risultati squadre | 10+ squadre |
-| 🌍 **Community Engagement** | Partecipazione eventi, recensioni | 80% attività |
-| 📈 **Performance** | Time to Interactive, Lighthouse score | < 2s, > 90 |
+| Obiettivo                   | Metriche di Successo                  | Target 2025  |
+| --------------------------- | ------------------------------------- | ------------ |
+| 🌱 **Inclusione**           | Utenti registrati, eventi aperti      | 500+ utenti  |
+| 🏆 **Crescita Sportiva**    | Nuovi iscritti, risultati squadre     | 10+ squadre  |
+| 🌍 **Community Engagement** | Partecipazione eventi, recensioni     | 80% attività |
+| 📈 **Performance**          | Time to Interactive, Lighthouse score | < 2s, > 90   |
 
 ---
 
 ## 👏 Credits
 
 ### Team
+
 - **Lead Developer**: [Ilpupi00](https://github.com/Ilpupi00)
 - **Contributors**: Comunità open source
 
 ### Open Source Libraries
+
 - [Express.js](https://expressjs.com/) - Web framework
 - [Postgres](https://www.postgresql.org/) - Database
 - [Bootstrap](https://getbootstrap.com/) - UI Framework
@@ -649,6 +700,7 @@ Configurazioni sistema.
 - E molte altre (vedi `package.json`)
 
 ### Ispirazione
+
 - Best practices modern web development
 - Community feedback Borgo Vercelli
 - Progetti open source sportivi
@@ -684,12 +736,14 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ## 📞 Contatti
 
 ### Borgo Vercelli
+
 - 🌐 **Website**: [www.borgovercelli.it](https://asdborgovercelli.app)
 - 🚀 **Live App**: [Deployed on Railway](https://asdborgovercelli.app)
 - 📧 **Email**: info@borgovercelli.it
 - 📱 **Social**: [Facebook](https://facebook.com/borgovercelli) · [Instagram](https://instagram.com/borgovercelli)
 
 ### Support
+
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Ilpupi00/Sito_BorgoVercelli/issues)
 - 💡 **Feature Requests**: [GitHub Discussions](https://github.com/Ilpupi00/Sito_BorgoVercelli/discussions)
 - 📖 **Documentation**: [Wiki](https://github.com/Ilpupi00/Sito_BorgoVercelli/wiki)

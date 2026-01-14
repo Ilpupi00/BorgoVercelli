@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const nodemailer = require('nodemailer');
-const path = require('path');
-const fs = require('fs');
+const nodemailer = require("nodemailer");
+const path = require("path");
+const fs = require("fs");
 
 // Optional SendGrid fallback - DISABLED (not used)
 let sgMail = null;
@@ -11,250 +11,331 @@ let sgMail = null;
 let resendClient;
 const resendApiKey = process.env.RESEND_API_KEY;
 if (resendApiKey) {
-    try {
-        // Support both package export shapes
-        const resendPkg = require('resend');
-        const ResendClass = (resendPkg && (resendPkg.Resend || resendPkg.default)) || resendPkg;
-        resendClient = new ResendClass(resendApiKey);
-        if (process.env.EMAIL_DEBUG) console.log('Resend enabled as email provider');
-    } catch (e) {
-        console.warn('Resend package not installed or failed to initialize:', e && e.message);
-        resendClient = null;
-    }
+  try {
+    // Support both package export shapes
+    const resendPkg = require("resend");
+    const ResendClass =
+      (resendPkg && (resendPkg.Resend || resendPkg.default)) || resendPkg;
+    resendClient = new ResendClass(resendApiKey);
+    if (process.env.EMAIL_DEBUG)
+      console.log("Resend enabled as email provider");
+  } catch (e) {
+    console.warn(
+      "Resend package not installed or failed to initialize:",
+      e && e.message
+    );
+    resendClient = null;
+  }
 }
 
 // Configurazione del trasportatore SMTP (preferisce variabili d'ambiente)
 // NOTE: usare variabili d'ambiente in produzione: SMTP_HOST, SMTP_PORT, SMTP_SECURE,
 // SMTP_USER, SMTP_PASS. Per Gmail usare app password o OAuth2.
-const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
-const smtpSecure = (process.env.SMTP_SECURE === 'true') || (smtpPort === 465);
+const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
+const smtpSecure = process.env.SMTP_SECURE === "true" || smtpPort === 465;
 // Normalize credentials: trim and remove spaces from app passwords (Google shows them with spaces)
-const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').toString().trim() || undefined;
-const _smtpPassRaw = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '').toString();
+const smtpUser =
+  (process.env.SMTP_USER || process.env.GMAIL_USER || "").toString().trim() ||
+  undefined;
+const _smtpPassRaw = (
+  process.env.SMTP_PASS ||
+  process.env.GMAIL_APP_PASSWORD ||
+  ""
+).toString();
 // Google App Passwords are often displayed with spaces for readability. Remove whitespace for real use.
-const smtpPass = _smtpPassRaw.replace(/\s+/g, '').trim() || undefined;
+const smtpPass = _smtpPassRaw.replace(/\s+/g, "").trim() || undefined;
 if (_smtpPassRaw && _smtpPassRaw !== smtpPass) {
-    console.warn('SMTP password contained whitespace; it was stripped automatically for the connection.');
+  console.warn(
+    "SMTP password contained whitespace; it was stripped automatically for the connection."
+  );
 }
 
 const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
-    auth: smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined,
-    // Improve diagnostics and resilience
-    logger: !!process.env.EMAIL_DEBUG,
-    debug: !!process.env.EMAIL_DEBUG,
-    // Timeouts (ms) - configurable via env if needed
-    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '30000', 10),
-    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT || '30000', 10),
-    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || '30000', 10),
-    tls: {
-        // If you have self-signed certs in your environment you can set this to false.
-        rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== 'false'
-    }
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpSecure,
+  auth: smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined,
+  // Improve diagnostics and resilience
+  logger: !!process.env.EMAIL_DEBUG,
+  debug: !!process.env.EMAIL_DEBUG,
+  // Timeouts (ms) - configurable via env if needed
+  connectionTimeout: parseInt(
+    process.env.SMTP_CONNECTION_TIMEOUT || "30000",
+    10
+  ),
+  greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT || "30000", 10),
+  socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || "30000", 10),
+  tls: {
+    // If you have self-signed certs in your environment you can set this to false.
+    rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== "false",
+  },
 });
 
 // Helper: verify transporter connectivity with clear logging
 async function verifyTransporter() {
-    try {
-        await transporter.verify();
-        if (process.env.EMAIL_DEBUG) console.log('SMTP transporter verified');
-        return true;
-    } catch (err) {
-        console.error('SMTP verify failed:', err && err.message ? err.message : err);
-        // rethrow to allow caller to decide (or sendWithRetry will catch)
-        throw err;
-    }
+  try {
+    await transporter.verify();
+    if (process.env.EMAIL_DEBUG) console.log("SMTP transporter verified");
+    return true;
+  } catch (err) {
+    console.error(
+      "SMTP verify failed:",
+      err && err.message ? err.message : err
+    );
+    // rethrow to allow caller to decide (or sendWithRetry will catch)
+    throw err;
+  }
 }
 
 // Helper: send with simple retries on transient connection errors (ETIMEDOUT, ECONNRESET)
 async function sendWithRetry(mailOptions, maxRetries = 3) {
-    let attempt = 0;
-    let lastErr;
-    // If FORCE_RESEND is set, use Resend exclusively and fail fast if it's not configured.
-    if (process.env.FORCE_RESEND === 'true') {
-        if (!resendClient) {
-            throw new Error('Resend is not configured (RESEND_API_KEY missing) but FORCE_RESEND=true');
-        }
-        if (process.env.EMAIL_DEBUG) console.log('FORCE_RESEND=true: sending only via Resend API');
-        return await sendViaResend(mailOptions);
+  let attempt = 0;
+  let lastErr;
+  // If FORCE_RESEND is set, use Resend exclusively and fail fast if it's not configured.
+  if (process.env.FORCE_RESEND === "true") {
+    if (!resendClient) {
+      throw new Error(
+        "Resend is not configured (RESEND_API_KEY missing) but FORCE_RESEND=true"
+      );
     }
+    if (process.env.EMAIL_DEBUG)
+      console.log("FORCE_RESEND=true: sending only via Resend API");
+    return await sendViaResend(mailOptions);
+  }
 
-    // Prefer Resend (if configured), then SendGrid as API fallbacks — both are more reliable on PaaS
-    if (resendClient) {
-        try {
-            if (process.env.EMAIL_DEBUG) console.log('Attempting send via Resend API');
-            const r = await sendViaResend(mailOptions);
-            return r;
-        } catch (errResend) {
-            console.warn('Resend send failed, falling back to other providers:', errResend && errResend.message);
-        }
-    }
-
-    if (sgMail) {
-        try {
-            if (process.env.EMAIL_DEBUG) console.log('Attempting send via SendGrid API');
-            const sgResult = await sendViaSendGrid(mailOptions);
-            return sgResult;
-        } catch (sgErr) {
-            console.warn('SendGrid send failed, falling back to SMTP:', sgErr && sgErr.message);
-            // continue to SMTP attempts
-        }
-    }
-
-    // try to verify first (best-effort)
+  // Prefer Resend (if configured), then SendGrid as API fallbacks — both are more reliable on PaaS
+  if (resendClient) {
     try {
-        await verifyTransporter();
-    } catch (verifyErr) {
-        // continue to attempts; verify failure often indicates network/auth issue
-        if (process.env.EMAIL_DEBUG) console.warn('verifyTransporter warning, will attempt send:', verifyErr && verifyErr.code);
+      if (process.env.EMAIL_DEBUG)
+        console.log("Attempting send via Resend API");
+      const r = await sendViaResend(mailOptions);
+      return r;
+    } catch (errResend) {
+      console.warn(
+        "Resend send failed, falling back to other providers:",
+        errResend && errResend.message
+      );
     }
+  }
 
-    while (attempt < maxRetries) {
-        try {
-            attempt += 1;
-            if (process.env.EMAIL_DEBUG) console.log(`Attempt ${attempt} to send email to ${mailOptions.to}`);
-            const info = await transporter.sendMail(mailOptions);
-            if (process.env.EMAIL_DEBUG) console.log('Email sent (info):', info && info.messageId);
-            return info;
-        } catch (err) {
-            lastErr = err;
-            const code = err && err.code;
-            // Retry only on transient network errors
-            if (code === 'ETIMEDOUT' || code === 'ECONNRESET' || code === 'EPIPE' || code === 'ENOTFOUND') {
-                const backoff = Math.min(30000, 1000 * Math.pow(2, attempt)); // ms
-                console.warn(`Transient SMTP error (${code}). Retry ${attempt}/${maxRetries} after ${backoff}ms`);
-                await new Promise(resolve => setTimeout(resolve, backoff));
-                continue;
-            }
-            // Non-transient error - rethrow
-            throw err;
-        }
+  if (sgMail) {
+    try {
+      if (process.env.EMAIL_DEBUG)
+        console.log("Attempting send via SendGrid API");
+      const sgResult = await sendViaSendGrid(mailOptions);
+      return sgResult;
+    } catch (sgErr) {
+      console.warn(
+        "SendGrid send failed, falling back to SMTP:",
+        sgErr && sgErr.message
+      );
+      // continue to SMTP attempts
     }
-    // exhausted retries
-    const e = lastErr || new Error('Unknown error sending email');
-    throw e;
+  }
+
+  // try to verify first (best-effort)
+  try {
+    await verifyTransporter();
+  } catch (verifyErr) {
+    // continue to attempts; verify failure often indicates network/auth issue
+    if (process.env.EMAIL_DEBUG)
+      console.warn(
+        "verifyTransporter warning, will attempt send:",
+        verifyErr && verifyErr.code
+      );
+  }
+
+  while (attempt < maxRetries) {
+    try {
+      attempt += 1;
+      if (process.env.EMAIL_DEBUG)
+        console.log(`Attempt ${attempt} to send email to ${mailOptions.to}`);
+      const info = await transporter.sendMail(mailOptions);
+      if (process.env.EMAIL_DEBUG)
+        console.log("Email sent (info):", info && info.messageId);
+      return info;
+    } catch (err) {
+      lastErr = err;
+      const code = err && err.code;
+      // Retry only on transient network errors
+      if (
+        code === "ETIMEDOUT" ||
+        code === "ECONNRESET" ||
+        code === "EPIPE" ||
+        code === "ENOTFOUND"
+      ) {
+        const backoff = Math.min(30000, 1000 * Math.pow(2, attempt)); // ms
+        console.warn(
+          `Transient SMTP error (${code}). Retry ${attempt}/${maxRetries} after ${backoff}ms`
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoff));
+        continue;
+      }
+      // Non-transient error - rethrow
+      throw err;
+    }
+  }
+  // exhausted retries
+  const e = lastErr || new Error("Unknown error sending email");
+  throw e;
 }
 
 // Send using SendGrid API (returns object similar to nodemailer result)
 async function sendViaSendGrid(mailOptions) {
-    if (!sgMail) throw new Error('SendGrid not configured');
+  if (!sgMail) throw new Error("SendGrid not configured");
 
-    const msg = {
-        to: mailOptions.to,
-        from: mailOptions.from || (process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app'),
-        subject: mailOptions.subject,
-        html: mailOptions.html,
+  const msg = {
+    to: mailOptions.to,
+    from:
+      mailOptions.from ||
+      process.env.DEFAULT_FROM ||
+      "noreply@asdborgovercelli.app",
+    subject: mailOptions.subject,
+    html: mailOptions.html,
+  };
+
+  // Attachments: convert nodemailer-style attachments (path) to SendGrid format
+  if (
+    Array.isArray(mailOptions.attachments) &&
+    mailOptions.attachments.length > 0
+  ) {
+    msg.attachments = [];
+    for (const att of mailOptions.attachments) {
+      if (att.path && fs.existsSync(att.path)) {
+        const data = fs.readFileSync(att.path);
+        msg.attachments.push({
+          content: data.toString("base64"),
+          filename: att.filename || path.basename(att.path),
+          type: att.contentType || "application/octet-stream",
+          disposition: "attachment",
+          content_id: att.cid || undefined,
+        });
+      } else if (att.content) {
+        // already in-memory
+        msg.attachments.push({
+          content: Buffer.from(att.content).toString("base64"),
+          filename: att.filename || "attachment",
+          type: att.contentType || "application/octet-stream",
+          disposition: "attachment",
+          content_id: att.cid || undefined,
+        });
+      }
+    }
+  }
+
+  const result = await sgMail.send(msg);
+  // SendGrid returns an array with responses
+  if (Array.isArray(result) && result[0] && result[0].headers) {
+    return {
+      messageId: result[0].headers["x-message-id"] || null,
+      raw: result,
     };
-
-    // Attachments: convert nodemailer-style attachments (path) to SendGrid format
-    if (Array.isArray(mailOptions.attachments) && mailOptions.attachments.length > 0) {
-        msg.attachments = [];
-        for (const att of mailOptions.attachments) {
-            if (att.path && fs.existsSync(att.path)) {
-                const data = fs.readFileSync(att.path);
-                msg.attachments.push({
-                    content: data.toString('base64'),
-                    filename: att.filename || path.basename(att.path),
-                    type: att.contentType || 'application/octet-stream',
-                    disposition: 'attachment',
-                    content_id: att.cid || undefined
-                });
-            } else if (att.content) {
-                // already in-memory
-                msg.attachments.push({
-                    content: Buffer.from(att.content).toString('base64'),
-                    filename: att.filename || 'attachment',
-                    type: att.contentType || 'application/octet-stream',
-                    disposition: 'attachment',
-                    content_id: att.cid || undefined
-                });
-            }
-        }
-    }
-
-    const result = await sgMail.send(msg);
-    // SendGrid returns an array with responses
-    if (Array.isArray(result) && result[0] && result[0].headers) {
-        return { messageId: result[0].headers['x-message-id'] || null, raw: result };
-    }
-    return { messageId: null, raw: result };
+  }
+  return { messageId: null, raw: result };
 }
 
 // Send using Resend API
 async function sendViaResend(mailOptions) {
-    if (!resendClient) throw new Error('Resend not configured');
+  if (!resendClient) throw new Error("Resend not configured");
 
-    const from = mailOptions.from || process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
-    const to = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
+  const from =
+    mailOptions.from ||
+    process.env.DEFAULT_FROM ||
+    "noreply@asdborgovercelli.app";
+  const to = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
 
-    const payload = {
-        from,
-        to,
-        subject: mailOptions.subject,
-        html: mailOptions.html
-    };
-    
-    console.log('[RESEND] Payload:', {
-        from: payload.from,
-        to: payload.to,
-        subject: payload.subject,
-        htmlLength: payload.html ? payload.html.length : 0,
-        htmlPreview: payload.html ? payload.html.substring(0, 200) + '...' : 'EMPTY'
-    });
+  const payload = {
+    from,
+    to,
+    subject: mailOptions.subject,
+    html: mailOptions.html,
+  };
 
-    if (Array.isArray(mailOptions.attachments) && mailOptions.attachments.length > 0) {
-        payload.attachments = [];
-        for (const att of mailOptions.attachments) {
-            if (att.path && fs.existsSync(att.path)) {
-                const data = fs.readFileSync(att.path);
-                payload.attachments.push({
-                    name: att.filename || path.basename(att.path),
-                    type: att.contentType || 'application/octet-stream',
-                    // Resend expects either `content` (base64) or `path`
-                    content: data.toString('base64')
-                });
-            } else if (att.content) {
-                payload.attachments.push({
-                    name: att.filename || 'attachment',
-                    type: att.contentType || 'application/octet-stream',
-                    content: Buffer.from(att.content).toString('base64')
-                });
-            }
-        }
+  console.log("[RESEND] Payload:", {
+    from: payload.from,
+    to: payload.to,
+    subject: payload.subject,
+    htmlLength: payload.html ? payload.html.length : 0,
+    htmlPreview: payload.html
+      ? payload.html.substring(0, 200) + "..."
+      : "EMPTY",
+  });
+
+  if (
+    Array.isArray(mailOptions.attachments) &&
+    mailOptions.attachments.length > 0
+  ) {
+    payload.attachments = [];
+    for (const att of mailOptions.attachments) {
+      if (att.path && fs.existsSync(att.path)) {
+        const data = fs.readFileSync(att.path);
+        payload.attachments.push({
+          name: att.filename || path.basename(att.path),
+          type: att.contentType || "application/octet-stream",
+          // Resend expects either `content` (base64) or `path`
+          content: data.toString("base64"),
+        });
+      } else if (att.content) {
+        payload.attachments.push({
+          name: att.filename || "attachment",
+          type: att.contentType || "application/octet-stream",
+          content: Buffer.from(att.content).toString("base64"),
+        });
+      }
     }
+  }
 
-    const res = await resendClient.emails.send(payload);
-    // Resend returns an object with id
-    return { messageId: res.id || null, raw: res };
+  const res = await resendClient.emails.send(payload);
+  // Resend returns an object with id
+  return { messageId: res.id || null, raw: res };
 }
 
 // Percorso al logo (verifica che il file esista in questo path)
-const logoPath = path.resolve(__dirname, '../../public/assets/images/Logo.png');
+const logoPath = path.resolve(__dirname, "../../public/assets/images/Logo.png");
 
 // Prepare logo image source: prefer public BASE_URL if it's a real public URL; otherwise embed inline as base64
-let logoImgSrc = (process.env.BASE_URL && process.env.BASE_URL.replace(/\/$/, '')) ? `${process.env.BASE_URL.replace(/\/$/, '')}/images/Logo.png` : null;
+let logoImgSrc =
+  process.env.BASE_URL && process.env.BASE_URL.replace(/\/$/, "")
+    ? `${process.env.BASE_URL.replace(/\/$/, "")}/images/Logo.png`
+    : null;
 try {
-    // If BASE_URL is localhost or not set, embed as data URI so external mail clients can render it
-    const baseUrl = (process.env.BASE_URL || '').trim();
-    if (!baseUrl || baseUrl.startsWith('http://localhost') || baseUrl.startsWith('https://localhost')) {
-        const logoData = fs.readFileSync(logoPath);
-        const ext = (path.extname(logoPath) || '.png').replace('.', '') || 'png';
-        logoImgSrc = `data:image/${ext};base64,${logoData.toString('base64')}`;
-    }
-    if (process.env.EMAIL_DEBUG) console.log('logoImgSrc selected (inline?):', logoImgSrc && logoImgSrc.startsWith('data:'));
+  // If BASE_URL is localhost or not set, embed as data URI so external mail clients can render it
+  const baseUrl = (process.env.BASE_URL || "").trim();
+  if (
+    !baseUrl ||
+    baseUrl.startsWith("http://localhost") ||
+    baseUrl.startsWith("https://localhost")
+  ) {
+    const logoData = fs.readFileSync(logoPath);
+    const ext = (path.extname(logoPath) || ".png").replace(".", "") || "png";
+    logoImgSrc = `data:image/${ext};base64,${logoData.toString("base64")}`;
+  }
+  if (process.env.EMAIL_DEBUG)
+    console.log(
+      "logoImgSrc selected (inline?):",
+      logoImgSrc && logoImgSrc.startsWith("data:")
+    );
 } catch (e) {
-    console.warn('Failed to read logo for embedding:', e && e.message);
-    // fallback to public URL even if it might be localhost
-    logoImgSrc = logoImgSrc || `${process.env.BASE_URL || 'http://localhost:3000'}/images/Logo.png`;
+  console.warn("Failed to read logo for embedding:", e && e.message);
+  // fallback to public URL even if it might be localhost
+  logoImgSrc =
+    logoImgSrc ||
+    `${process.env.BASE_URL || "http://localhost:3000"}/images/Logo.png`;
 }
 
-exports.sendEmail = async function({ fromName, fromEmail, subject, message, phone, to = 'info.asdborgovercelli2022@gmail.com' }) {
-    try {
-    console.log('[emailService.sendEmail] Received phone:', phone);
-    const defaultFrom = process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app';
+exports.sendEmail = async function ({
+  fromName,
+  fromEmail,
+  subject,
+  message,
+  phone,
+  to = "info.asdborgovercelli2022@gmail.com",
+}) {
+  try {
+    console.log("[emailService.sendEmail] Received phone:", phone);
+    const defaultFrom =
+      process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app";
     // Costruisce l'HTML completo dell'email di notifica.
     // Note:
     // - Usa un template literal per includere variabili (fromName, fromEmail, message, logoImgSrc).
@@ -482,11 +563,16 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, phon
                                         </div>
                                         <div class="field">
                                             <strong>📞 Telefono</strong>
-                                            <div class="field-value">${phone || 'Non fornito'}</div>
+                                            <div class="field-value">${
+                                              phone || "Non fornito"
+                                            }</div>
                                         </div>
                                         <div class="field">
                                             <strong>💬 Messaggio</strong>
-                                            <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
+                                            <div class="message-content">${message.replace(
+                                              /\n/g,
+                                              "<br>"
+                                            )}</div>
                                         </div>
                                     </div>
                                     <div class="footer">
@@ -504,47 +590,51 @@ exports.sendEmail = async function({ fromName, fromEmail, subject, message, phon
         </body>
         </html>
         `;
-        // Costruisci oggetto mail (fallback se mancante)
-        const mailSubject = (subject && subject.toString().trim())
-            ? subject.toString().trim()
-            : `Nuovo messaggio da ${fromName || 'Anonimo'} - Borgo Vercelli`;
+    // Costruisci oggetto mail (fallback se mancante)
+    const mailSubject =
+      subject && subject.toString().trim()
+        ? subject.toString().trim()
+        : `Nuovo messaggio da ${fromName || "Anonimo"} - Borgo Vercelli`;
 
-        // Use verified sender as Envelope From and set Reply-To to the original sender
-        // Only attach the logo as a CID attachment when the template expects a cid (legacy SMTP).
-        // If logoImgSrc is a data URI or public URL, do NOT attach the file - many providers (Resend)
-        // treat attachments as separate files and mail clients show them as attachments.
-        const shouldAttachCid = typeof logoImgSrc === 'string' && logoImgSrc.startsWith('cid:');
-        const mailOptions = {
-            from: defaultFrom,
-            replyTo: `${fromName} <${fromEmail}>`,
-            to: to,
-            subject: mailSubject,
-            html: formattedMessage,
-            attachments: shouldAttachCid ? [
-                {
-                    filename: 'Logo.png',
-                    path: logoPath,
-                    cid: 'borgo-logo'
-                }
-            ] : undefined
-        };
+    // Use verified sender as Envelope From and set Reply-To to the original sender
+    // Only attach the logo as a CID attachment when the template expects a cid (legacy SMTP).
+    // If logoImgSrc is a data URI or public URL, do NOT attach the file - many providers (Resend)
+    // treat attachments as separate files and mail clients show them as attachments.
+    const shouldAttachCid =
+      typeof logoImgSrc === "string" && logoImgSrc.startsWith("cid:");
+    const mailOptions = {
+      from: defaultFrom,
+      replyTo: `${fromName} <${fromEmail}>`,
+      to: to,
+      subject: mailSubject,
+      html: formattedMessage,
+      attachments: shouldAttachCid
+        ? [
+            {
+              filename: "Logo.png",
+              path: logoPath,
+              cid: "borgo-logo",
+            },
+          ]
+        : undefined,
+    };
 
     const info = await sendWithRetry(mailOptions);
-    console.log('Email inviata:', info && info.messageId);
-        return { messageId: info.messageId };
-    } catch (err) {
-        console.error('Errore invio email:', err);
-        throw err;
-    }
+    console.log("Email inviata:", info && info.messageId);
+    return { messageId: info.messageId };
+  } catch (err) {
+    console.error("Errore invio email:", err);
+    throw err;
+  }
 };
 
-exports.sendResetEmail = async function(toEmail, resetLink) {
-    try {
-        const mailOptions = {
-            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
-            to: toEmail,
-            subject: 'Reset della tua password - Borgo Vercelli',
-            html: `
+exports.sendResetEmail = async function (toEmail, resetLink) {
+  try {
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Reset della tua password - Borgo Vercelli",
+      html: `
             <!DOCTYPE html>
             <html lang="it">
             <head>
@@ -574,33 +664,38 @@ exports.sendResetEmail = async function(toEmail, resetLink) {
                 </div>
             </body>
             </html>
-            `
-        };
+            `,
+    };
 
     const info = await sendWithRetry(mailOptions);
-    console.log('Email di reset inviata:', info && info.messageId);
+    console.log("Email di reset inviata:", info && info.messageId);
     return { messageId: info.messageId };
-    } catch (err) {
-        console.error('Errore invio email reset:', err);
-        throw err;
-    }
+  } catch (err) {
+    console.error("Errore invio email reset:", err);
+    throw err;
+  }
 };
 
-exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFine) {
-    try {
-        const dataFineFormatted = new Date(dataFine).toLocaleDateString('it-IT', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+exports.sendSospensioneEmail = async function (
+  toEmail,
+  userName,
+  motivo,
+  dataFine
+) {
+  try {
+    const dataFineFormatted = new Date(dataFine).toLocaleDateString("it-IT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-        const mailOptions = {
-            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
-            to: toEmail,
-            subject: 'Account Sospeso - Borgo Vercelli',
-            html: `
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Account Sospeso - Borgo Vercelli",
+      html: `
             <!DOCTYPE html>
             <html lang="it">
             <head>
@@ -708,25 +803,25 @@ exports.sendSospensioneEmail = async function(toEmail, userName, motivo, dataFin
                 </div>
             </body>
             </html>
-            `
-        };
+            `,
+    };
 
     const info = await sendWithRetry(mailOptions);
-    console.log('Email di sospensione inviata:', info && info.messageId);
+    console.log("Email di sospensione inviata:", info && info.messageId);
     return { messageId: info.messageId };
-    } catch (err) {
-        console.error('Errore invio email sospensione:', err);
-        throw err;
-    }
+  } catch (err) {
+    console.error("Errore invio email sospensione:", err);
+    throw err;
+  }
 };
 
-exports.sendBanEmail = async function(toEmail, userName, motivo) {
-    try {
-        const mailOptions = {
-            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
-            to: toEmail,
-            subject: 'Account Bannato - Borgo Vercelli',
-            html: `
+exports.sendBanEmail = async function (toEmail, userName, motivo) {
+  try {
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Account Bannato - Borgo Vercelli",
+      html: `
             <!DOCTYPE html>
             <html lang="it">
             <head>
@@ -835,25 +930,25 @@ exports.sendBanEmail = async function(toEmail, userName, motivo) {
                 </div>
             </body>
             </html>
-            `
-        };
+            `,
+    };
 
     const info = await sendWithRetry(mailOptions);
-    console.log('Email di ban inviata:', info && info.messageId);
+    console.log("Email di ban inviata:", info && info.messageId);
     return { messageId: info.messageId };
-    } catch (err) {
-        console.error('Errore invio email ban:', err);
-        throw err;
-    }
+  } catch (err) {
+    console.error("Errore invio email ban:", err);
+    throw err;
+  }
 };
 
-exports.sendRevocaEmail = async function(toEmail, userName) {
-    try {
-        const mailOptions = {
-            from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
-            to: toEmail,
-            subject: 'Account Riattivato - Borgo Vercelli',
-            html: `
+exports.sendRevocaEmail = async function (toEmail, userName) {
+  try {
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Account Riattivato - Borgo Vercelli",
+      html: `
             <!DOCTYPE html>
             <html lang="it">
             <head>
@@ -932,7 +1027,9 @@ exports.sendRevocaEmail = async function(toEmail, userName) {
                         <p>Puoi nuovamente accedere a tutti i servizi del sito Borgo Vercelli.</p>
 
                         <p style="text-align: center;">
-                            <a href="${process.env.BASE_URL || 'http://localhost:3000'}/login" class="button">Accedi al Sito</a>
+                            <a href="${
+                              process.env.BASE_URL || "http://localhost:3000"
+                            }/login" class="button">Accedi al Sito</a>
                         </p>
 
                         <p>Ti invitiamo a rispettare sempre le regole della nostra comunità per mantenere un ambiente 
@@ -945,16 +1042,16 @@ exports.sendRevocaEmail = async function(toEmail, userName) {
                 </div>
             </body>
             </html>
-            `
-        };
+            `,
+    };
 
     const info = await sendWithRetry(mailOptions);
-    console.log('Email di riattivazione inviata:', info && info.messageId);
+    console.log("Email di riattivazione inviata:", info && info.messageId);
     return { messageId: info.messageId };
-    } catch (err) {
-        console.error('Errore invio email riattivazione:', err);
-        throw err;
-    }
+  } catch (err) {
+    console.error("Errore invio email riattivazione:", err);
+    throw err;
+  }
 };
 
 // Export helpers for diagnostics/tests
@@ -962,13 +1059,14 @@ exports.verifyTransporter = verifyTransporter;
 exports.sendWithRetry = sendWithRetry;
 
 // Convenience helper: send a simple test email via Resend to any address.
-exports.sendTestViaResend = async function(toEmail) {
-    if (!resendClient) throw new Error('Resend not configured (set RESEND_API_KEY)');
-    const mailOptions = {
-        from: process.env.DEFAULT_FROM || 'noreply@asdborgovercelli.app',
-        to: toEmail,
-        subject: 'Test email da Borgo Vercelli (via Resend)',
-        html: `<p>Questa è una email di test inviata tramite Resend da Borgo Vercelli.</p><p>Se la ricevi su Gmail, la configurazione è corretta.</p>`
-    };
-    return await sendViaResend(mailOptions);
+exports.sendTestViaResend = async function (toEmail) {
+  if (!resendClient)
+    throw new Error("Resend not configured (set RESEND_API_KEY)");
+  const mailOptions = {
+    from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+    to: toEmail,
+    subject: "Test email da Borgo Vercelli (via Resend)",
+    html: `<p>Questa è una email di test inviata tramite Resend da Borgo Vercelli.</p><p>Se la ricevi su Gmail, la configurazione è corretta.</p>`,
+  };
+  return await sendViaResend(mailOptions);
 };

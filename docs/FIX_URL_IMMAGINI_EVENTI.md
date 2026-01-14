@@ -26,17 +26,17 @@ Ho modificato **tutte le query di recupero eventi** per includere automaticament
 ### Query Corretta
 
 ```sql
-SELECT 
-    e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo, 
-    e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti, 
+SELECT
+    e.id, e.titolo, e.descrizione, e.data_inizio, e.data_fine, e.luogo,
+    e.tipo_evento, e.autore_id, e.squadra_id, e.campo_id, e.max_partecipanti,
     e.pubblicato, e.created_at, e.updated_at,
     i.url as immagine_url  -- ✅ URL immagine principale
 FROM EVENTI e
-LEFT JOIN IMMAGINI i 
-    ON i.entita_riferimento = 'evento' 
-    AND i.entita_id = e.id 
+LEFT JOIN IMMAGINI i
+    ON i.entita_riferimento = 'evento'
+    AND i.entita_id = e.id
     AND i.ordine = 1  -- Solo la prima immagine (principale)
-WHERE e.pubblicato = true 
+WHERE e.pubblicato = true
 ORDER BY e.data_inizio DESC
 ```
 
@@ -55,26 +55,32 @@ ORDER BY e.data_inizio DESC
 ## 📂 Funzioni Modificate
 
 ### 1. `getEventi()`
+
 **Uso**: Lista eventi pubblici (generale)  
 **Modifiche**: Aggiunto LEFT JOIN con IMMAGINI per `immagine_url`
 
 ### 2. `getEventiPubblicati()`
+
 **Uso**: Homepage, sitemap, RSS feed  
 **Modifiche**: Aggiunto LEFT JOIN con IMMAGINI per `immagine_url`
 
 ### 3. `getEventoById(id)`
+
 **Uso**: Dettaglio singolo evento (`/eventi/:id`)  
 **Modifiche**: Aggiunto LEFT JOIN + uniformato a `immagine_url` (prima usava `immagine_principale`)
 
 ### 4. `searchEventi(searchTerm)`
+
 **Uso**: Ricerca eventi per titolo/descrizione/luogo  
 **Modifiche**: Aggiunto LEFT JOIN con IMMAGINI per `immagine_url`
 
 ### 5. `getEventiAll()`
+
 **Uso**: Pannello admin (tutti gli eventi, anche non pubblicati)  
 **Modifiche**: Aggiunto LEFT JOIN con IMMAGINI per `immagine_url`
 
 ### 6. `getEventiPersonali(utenteId)`
+
 **Uso**: Eventi creati da uno specifico utente  
 **Modifiche**: Aggiunto LEFT JOIN con IMMAGINI per `immagine_url`
 
@@ -85,9 +91,9 @@ ORDER BY e.data_inizio DESC
 ```ejs
 <!-- Codice EJS nell'homepage -->
 <% eventi.forEach(evento => { %>
-    <% 
-    const eventoImgSrc = (evento.immagine_url && evento.immagine_url.trim()) 
-        ? evento.immagine_url 
+    <%
+    const eventoImgSrc = (evento.immagine_url && evento.immagine_url.trim())
+        ? evento.immagine_url
         : '/assets/images/Campo.png';
     %>
     <img src="<%= eventoImgSrc %>" alt="<%= evento.titolo %>">
@@ -114,14 +120,14 @@ ORDER BY e.data_inizio DESC
 
 ```sql
 -- Verifica che il JOIN funzioni correttamente
-SELECT 
-    e.id, 
-    e.titolo, 
+SELECT
+    e.id,
+    e.titolo,
     i.url as immagine_url
 FROM EVENTI e
-LEFT JOIN IMMAGINI i 
-    ON i.entita_riferimento = 'evento' 
-    AND i.entita_id = e.id 
+LEFT JOIN IMMAGINI i
+    ON i.entita_riferimento = 'evento'
+    AND i.entita_id = e.id
     AND i.ordine = 1
 WHERE e.pubblicato = true
 LIMIT 5;
@@ -145,11 +151,11 @@ LIMIT 5;
 ```javascript
 // Apri DevTools → Console
 // Verifica dati eventi
-fetch('/api/eventi')
-  .then(r => r.json())
-  .then(eventi => {
-    console.log('Primo evento:', eventi[0]);
-    console.log('Ha immagine_url?', !!eventi[0].immagine_url);
+fetch("/api/eventi")
+  .then((r) => r.json())
+  .then((eventi) => {
+    console.log("Primo evento:", eventi[0]);
+    console.log("Ha immagine_url?", !!eventi[0].immagine_url);
   });
 
 // Output atteso:
@@ -162,6 +168,7 @@ fetch('/api/eventi')
 ### Impatto Query
 
 **Prima** (2 query per lista eventi con immagini):
+
 ```sql
 -- Query 1: Recupera eventi
 SELECT * FROM EVENTI WHERE pubblicato = true;  -- 50ms
@@ -169,15 +176,18 @@ SELECT * FROM EVENTI WHERE pubblicato = true;  -- 50ms
 -- Query 2 (per ogni evento): Recupera immagine
 SELECT * FROM IMMAGINI WHERE entita_id = ?;    -- 10ms × N eventi
 ```
+
 **Totale**: 50ms + (10ms × 10 eventi) = **150ms**
 
 **Dopo** (1 query con JOIN):
+
 ```sql
 -- Query unica con JOIN
-SELECT e.*, i.url as immagine_url 
-FROM EVENTI e 
+SELECT e.*, i.url as immagine_url
+FROM EVENTI e
 LEFT JOIN IMMAGINI i ON ...;  -- 60ms
 ```
+
 **Totale**: **60ms** (60% più veloce!) ✅
 
 ### Indici Consigliati
@@ -186,11 +196,11 @@ Per ottimizzare ulteriormente:
 
 ```sql
 -- Indice su IMMAGINI per velocizzare JOIN
-CREATE INDEX IF NOT EXISTS idx_immagini_entita 
+CREATE INDEX IF NOT EXISTS idx_immagini_entita
 ON IMMAGINI(entita_riferimento, entita_id, ordine);
 
 -- Indice su EVENTI per liste pubblicate
-CREATE INDEX IF NOT EXISTS idx_eventi_pubblicato 
+CREATE INDEX IF NOT EXISTS idx_eventi_pubblicato
 ON EVENTI(pubblicato, data_inizio DESC);
 ```
 
@@ -201,10 +211,11 @@ ON EVENTI(pubblicato, data_inizio DESC);
 **Problema**: Evento ha ID ma immagine non appare
 
 **Diagnosi**:
+
 ```sql
 -- Verifica se l'immagine esiste nel DB
-SELECT * FROM IMMAGINI 
-WHERE entita_riferimento = 'evento' 
+SELECT * FROM IMMAGINI
+WHERE entita_riferimento = 'evento'
 AND entita_id = [ID_EVENTO];
 
 -- Se restituisce 0 righe:
@@ -214,6 +225,7 @@ AND entita_id = [ID_EVENTO];
 ```
 
 **Soluzione**:
+
 1. Vai in modifica evento
 2. Carica nuova immagine
 3. Verifica che l'upload completi con successo
@@ -223,11 +235,12 @@ AND entita_id = [ID_EVENTO];
 **Problema**: Vedo sempre Campo.png anche se ho caricato l'immagine
 
 **Diagnosi**:
+
 ```javascript
 // Controlla in console browser
-console.log('Evento:', evento);
-console.log('immagine_url:', evento.immagine_url);
-console.log('Tipo:', typeof evento.immagine_url);
+console.log("Evento:", evento);
+console.log("immagine_url:", evento.immagine_url);
+console.log("Tipo:", typeof evento.immagine_url);
 
 // Se undefined o null:
 // - JOIN non funziona
@@ -235,6 +248,7 @@ console.log('Tipo:', typeof evento.immagine_url);
 ```
 
 **Soluzione**:
+
 1. Verifica che `dao-eventi.js` sia stato aggiornato
 2. Riavvia server Node.js
 3. Pulisci cache browser (Ctrl+Shift+R)
@@ -245,6 +259,7 @@ console.log('Tipo:', typeof evento.immagine_url);
 **Problema**: `immagine_url` esiste ma file non trovato (404)
 
 **Diagnosi**:
+
 ```sql
 -- Controlla URL nel database
 SELECT url FROM IMMAGINI WHERE entita_id = [ID_EVENTO];
@@ -256,11 +271,12 @@ SELECT url FROM IMMAGINI WHERE entita_id = [ID_EVENTO];
 ```
 
 **Soluzione**:
+
 ```sql
 -- Se URL non hanno slash iniziale, aggiungilo:
-UPDATE IMMAGINI 
-SET url = '/' || url 
-WHERE entita_riferimento = 'evento' 
+UPDATE IMMAGINI
+SET url = '/' || url
+WHERE entita_riferimento = 'evento'
 AND url NOT LIKE '/%';
 
 -- Verifica che il file esista su disco:

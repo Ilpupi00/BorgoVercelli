@@ -3,12 +3,14 @@
 ## Test Rapido
 
 ### Metodo 1: Utilizzare il File di Test
+
 1. Avvia il server: `npm start`
 2. Apri il browser e vai a: `http://localhost:3000/theme-test.html`
 3. Usa i pulsanti nella barra laterale destra per cambiare tema
 4. Osserva tutti i componenti che cambiano in tempo reale
 
 ### Metodo 2: Homepage
+
 1. Avvia il server: `npm start`
 2. Apri: `http://localhost:3000/homepage`
 3. Nella navbar, clicca sull'icona del tema (icona circolare a destra)
@@ -20,16 +22,19 @@
 ## Test Completo
 
 ### 1. Test Persistenza
+
 ```
 ✅ Cambia tema → Ricarica la pagina → Il tema dovrebbe rimanere lo stesso
 ```
 
 ### 2. Test Navigazione
+
 ```
 ✅ Cambia tema → Naviga su un'altra pagina → Il tema dovrebbe rimanere consistente
 ```
 
 ### 3. Test Preferenza Sistema
+
 ```
 ✅ Seleziona "Preferenza Sistema"
 ✅ Cambia le impostazioni di sistema:
@@ -44,6 +49,7 @@
 Naviga attraverso le seguenti pagine e verifica che tutto funzioni:
 
 #### Pagine Pubbliche
+
 - [ ] Homepage (`/homepage`)
 - [ ] Notizie (`/notizie/all`)
 - [ ] Dettaglio Notizia (`/notizia/[id]`)
@@ -61,6 +67,7 @@ Naviga attraverso le seguenti pagine e verifica che tutto funzioni:
 - [ ] Regolamento (`/regolamento`)
 
 #### Area Admin (Richiede login come admin)
+
 - [ ] Dashboard Admin (`/admin`)
 - [ ] Gestione Notizie (`/admin/notizie`)
 - [ ] Gestione Eventi (`/admin/eventi`)
@@ -79,12 +86,14 @@ Naviga attraverso le seguenti pagine e verifica che tutto funzioni:
 Testa su diversi dispositivi:
 
 #### Desktop
+
 - [ ] Chrome
 - [ ] Firefox
 - [ ] Safari
 - [ ] Edge
 
 #### Mobile
+
 - [ ] iPhone (Safari)
 - [ ] Android (Chrome)
 - [ ] Tablet
@@ -94,6 +103,7 @@ Testa su diversi dispositivi:
 Verifica che questi elementi funzionino in entrambi i temi:
 
 #### Navbar
+
 - [ ] Logo visibile
 - [ ] Links colorati correttamente
 - [ ] Dropdown "Altro" funzionante
@@ -101,36 +111,42 @@ Verifica che questi elementi funzionino in entrambi i temi:
 - [ ] Icona profilo/login visibile
 
 #### Cards
+
 - [ ] Background corretto
 - [ ] Testo leggibile
 - [ ] Ombre visibili
 - [ ] Hover effect funzionante
 
 #### Forms
+
 - [ ] Input con sfondo corretto
 - [ ] Placeholder leggibile
 - [ ] Focus state visibile
 - [ ] Bordi visibili
 
 #### Buttons
+
 - [ ] Colori corretti
 - [ ] Hover effect
 - [ ] Active state
 - [ ] Disabled state
 
 #### Modals
+
 - [ ] Background corretto
 - [ ] Testo leggibile
 - [ ] Bordi visibili
 - [ ] Overlay scuro visibile
 
 #### Tables
+
 - [ ] Header visibile
 - [ ] Righe alternate colorate
 - [ ] Hover effect su righe
 - [ ] Bordi visibili
 
 #### Alerts
+
 - [ ] Colori distintivi
 - [ ] Icone visibili
 - [ ] Testo leggibile
@@ -152,6 +168,7 @@ Verifica che questi elementi funzionino in entrambi i temi:
 ## Checklist Visiva Rapida
 
 ### Tema Chiaro ☀️
+
 ```
 ✅ Background bianco/grigio chiaro
 ✅ Testo scuro
@@ -161,6 +178,7 @@ Verifica che questi elementi funzionino in entrambi i temi:
 ```
 
 ### Tema Scuro 🌙
+
 ```
 ✅ Background grigio scuro/nero
 ✅ Testo chiaro
@@ -172,21 +190,25 @@ Verifica che questi elementi funzionino in entrambi i temi:
 ## Risoluzione Problemi
 
 ### Il tema non cambia
+
 1. Apri la Console del browser (F12)
 2. Verifica errori JavaScript
 3. Controlla che `theme-manager.js` sia caricato
 4. Verifica che `localStorage` sia abilitato
 
 ### Flash di contenuto bianco
+
 1. Verifica che lo script inline sia presente in `theme-includes.ejs`
 2. Assicurati che sia prima di altri CSS
 
 ### Componenti non stilizzati
+
 1. Verifica che `theme-dark.css` sia caricato
 2. Controlla l'ordine dei file CSS
 3. Verifica la console per errori CSS
 
 ### Tema non persiste
+
 1. Controlla che localStorage sia abilitato
 2. Verifica la console per errori
 3. Prova a cancellare la cache del browser
@@ -199,18 +221,18 @@ Se vuoi testare programmaticamente:
 // Apri Console del browser (F12) e esegui:
 
 // Test cambio tema
-window.themeManager.applyTheme('dark');
-console.log('Tema applicato:', window.themeManager.getCurrentTheme());
+window.themeManager.applyTheme("dark");
+console.log("Tema applicato:", window.themeManager.getCurrentTheme());
 
-window.themeManager.applyTheme('light');
-console.log('Tema applicato:', window.themeManager.getCurrentTheme());
+window.themeManager.applyTheme("light");
+console.log("Tema applicato:", window.themeManager.getCurrentTheme());
 
 // Test persistenza
-console.log('Tema salvato:', localStorage.getItem('site-theme-preference'));
+console.log("Tema salvato:", localStorage.getItem("site-theme-preference"));
 
 // Test eventi
-window.addEventListener('themechange', (e) => {
-    console.log('Tema cambiato:', e.detail);
+window.addEventListener("themechange", (e) => {
+  console.log("Tema cambiato:", e.detail);
 });
 ```
 
@@ -224,11 +246,12 @@ Il sistema funziona correttamente se:
 ✅ **Il tema persiste** dopo il ricaricamento  
 ✅ **Nessun errore** nella console  
 ✅ **Funziona su tutti i browser** testati  
-✅ **Responsive** su tutti i dispositivi  
+✅ **Responsive** su tutti i dispositivi
 
 ## Feedback e Miglioramenti
 
 Se trovi problemi:
+
 1. Apri la Console del browser (F12)
 2. Copia eventuali errori
 3. Nota la pagina specifica dove appare il problema
@@ -238,6 +261,7 @@ Se trovi problemi:
 ## Test di Produzione
 
 Prima del deploy:
+
 - [ ] Test su tutti i browser principali
 - [ ] Test su dispositivi mobile reali
 - [ ] Test con utenti beta

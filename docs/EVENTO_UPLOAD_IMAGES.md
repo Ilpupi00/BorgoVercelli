@@ -7,6 +7,7 @@ Sistema completo di upload immagini per gli eventi con interfaccia moderna, resp
 ## ✨ Caratteristiche
 
 ### Frontend
+
 - **Drag & Drop**: Trascina le immagini direttamente nell'area di upload
 - **Preview in tempo reale**: Visualizza l'immagine prima del caricamento
 - **Animazioni fluide**: Transizioni smooth e feedback visivo
@@ -16,6 +17,7 @@ Sistema completo di upload immagini per gli eventi con interfaccia moderna, resp
 - **Progress bar**: Indicatore di caricamento animato
 
 ### Backend
+
 - **Upload sicuro**: Validazione server-side con Multer
 - **Storage persistente**: Salvataggio su volume Railway (`/data/uploads`)
 - **Database integration**: Tabella IMMAGINI con relazione eventi
@@ -24,6 +26,7 @@ Sistema completo di upload immagini per gli eventi con interfaccia moderna, resp
 ## 🏗️ Architettura
 
 ### Database
+
 ```sql
 -- Tabella IMMAGINI
 CREATE TABLE IMMAGINI (
@@ -42,11 +45,14 @@ CREATE TABLE IMMAGINI (
 ### File Modificati
 
 #### Backend
+
 - **`src/features/eventi/routes/eventi.js`**
+
   - `POST /evento/:id/upload-immagine` - Upload nuova immagine
   - `DELETE /evento/:id/immagine` - Elimina immagine evento
 
 - **`src/features/eventi/services/dao-eventi.js`**
+
   - `getEventoById()` - Esteso per includere immagini associate
 
 - **`src/features/admin/services/dao-admin.js`**
@@ -54,11 +60,14 @@ CREATE TABLE IMMAGINI (
   - `deleteImmaginiByEntita()` - Elimina immagini per entità
 
 #### Frontend
+
 - **`src/features/eventi/views/evento.ejs`**
+
   - Sezione upload con preview e drag & drop
   - Visualizzazione immagine esistente
 
 - **`src/public/assets/scripts/crea_evento.js`**
+
   - `initializeImageUpload()` - Gestisce upload e interazioni
   - Drag & drop handler
   - Preview manager
@@ -72,16 +81,19 @@ CREATE TABLE IMMAGINI (
 ## 🎨 Design System
 
 ### Light Theme
+
 - Upload area: Gradiente blu/grigio chiaro
 - Hover: Accent blu (#3b82f6)
 - Shadows: Soft e leggere
 
-### Dark Theme  
+### Dark Theme
+
 - Upload area: Gradiente slate scuro
 - Hover: Blu più luminoso (#60a5fa)
 - Shadows: Più profonde per contrasto
 
 ### Responsive Breakpoints
+
 - **Mobile** (< 768px): Layout compatto, icone ridotte
 - **Tablet** (768px+): Dimensioni intermediate
 - **Desktop** (1024px+): Layout completo con max-height 400px
@@ -92,6 +104,7 @@ CREATE TABLE IMMAGINI (
 ### Per Amministratori/Dirigenti
 
 #### 1. Creare Nuovo Evento con Immagine
+
 1. Vai su `/evento/crea-evento`
 2. Compila i campi dell'evento
 3. Nell'area **"Immagine Evento"**:
@@ -103,6 +116,7 @@ CREATE TABLE IMMAGINI (
 **Nota**: Per nuovi eventi, l'immagine viene salvata solo dopo il primo salvataggio dell'evento.
 
 #### 2. Modificare Evento Esistente
+
 1. Vai su `/evento/crea-evento/:id`
 2. Se presente, vedrai l'immagine attuale
 3. Per sostituirla:
@@ -111,6 +125,7 @@ CREATE TABLE IMMAGINI (
 4. L'upload avviene automaticamente
 
 #### 3. Eliminare Immagine
+
 1. Apri l'evento in modifica
 2. Clicca il pulsante "🗑️ Elimina" sull'immagine
 3. Conferma l'eliminazione
@@ -119,6 +134,7 @@ CREATE TABLE IMMAGINI (
 ## 🔧 API Endpoints
 
 ### Upload Immagine
+
 ```javascript
 POST /evento/:id/upload-immagine
 Content-Type: multipart/form-data
@@ -135,6 +151,7 @@ Response:
 ```
 
 ### Elimina Immagine
+
 ```javascript
 DELETE /evento/:id/immagine
 Content-Type: application/json
@@ -149,11 +166,13 @@ Response:
 ## 🎯 Validazioni
 
 ### Client-Side
+
 - Tipo file: `image/*` (PNG, JPG, GIF, etc.)
 - Dimensione: max 5MB
 - Preview solo per file immagine validi
 
 ### Server-Side
+
 - Multer validation per tipo e dimensione
 - Verifica esistenza evento
 - Controllo permessi (admin/dirigente)
@@ -161,12 +180,14 @@ Response:
 ## 📁 Storage
 
 ### Locale (Development)
+
 ```
 src/public/uploads/
   └── evento_1702388640123_immagine.jpg
 ```
 
 ### Railway (Production)
+
 ```
 /data/uploads/
   └── evento_1702388640123_immagine.jpg
@@ -177,6 +198,7 @@ src/public/uploads/
 ## 🎨 Personalizzazione CSS
 
 ### Modificare Colori Upload Area
+
 ```css
 /* Light Theme */
 .upload-area {
@@ -185,11 +207,16 @@ src/public/uploads/
 
 /* Dark Theme */
 [data-theme="dark"] .upload-area {
-  background: linear-gradient(135deg, #YOUR_DARK_COLOR 0%, #YOUR_DARK_COLOR2 100%);
+  background: linear-gradient(
+    135deg,
+    #YOUR_DARK_COLOR 0%,
+    #YOUR_DARK_COLOR2 100%
+  );
 }
 ```
 
 ### Modificare Dimensioni Preview
+
 ```css
 .image-preview-wrapper img {
   max-height: 500px; /* Cambia qui */
@@ -208,22 +235,26 @@ src/public/uploads/
 ## 🐛 Troubleshooting
 
 ### Immagine non si carica
+
 1. Verifica console browser per errori
 2. Controlla dimensione file (< 5MB)
 3. Verifica formato (PNG, JPG, GIF)
 4. Controlla permessi directory uploads
 
 ### Drag & Drop non funziona
+
 1. Verifica browser supporta HTML5 drag & drop
 2. Controlla console per errori JavaScript
 3. Assicurati che `evento-upload.css` sia caricato
 
 ### Preview non si visualizza
+
 1. Controlla FileReader API support
 2. Verifica che il file sia un'immagine valida
 3. Controlla errori in console
 
 ### Immagine non persiste su Railway
+
 1. Verifica volume montato su `/data`
 2. Controlla variabile `RAILWAY_ENVIRONMENT`
 3. Assicurati che `uploadDir` sia corretto
@@ -231,6 +262,7 @@ src/public/uploads/
 ## 📊 Performance
 
 ### Ottimizzazioni Implementate
+
 - Lazy loading delle preview
 - Debounce su drag events
 - Compressione immagini lato server (opzionale)
@@ -238,6 +270,7 @@ src/public/uploads/
 - Minificazione CSS con animazioni ottimizzate
 
 ### Suggerimenti Aggiuntivi
+
 - Considera image CDN per production
 - Implementa lazy loading nelle liste eventi
 - Aggiungi WebP support per browser moderni
@@ -258,19 +291,21 @@ src/public/uploads/
 Se migri da sistema precedente:
 
 1. **Backup immagini esistenti**
+
    ```bash
    cp -r src/public/uploads /backup/uploads
    ```
 
 2. **Verifica tabella IMMAGINI**
+
    ```sql
    SELECT * FROM IMMAGINI WHERE tipo = 'evento';
    ```
 
 3. **Associa immagini esistenti**
    ```sql
-   UPDATE IMMAGINI 
-   SET entita_riferimento = 'evento', 
+   UPDATE IMMAGINI
+   SET entita_riferimento = 'evento',
        entita_id = <evento_id>
    WHERE tipo = 'evento' AND url LIKE '%evento%';
    ```
@@ -278,6 +313,7 @@ Se migri da sistema precedente:
 ## 🤝 Contribuire
 
 Per aggiungere nuove funzionalità:
+
 1. Estendi `evento-upload.css` per nuovi stili
 2. Aggiungi handlers in `crea_evento.js`
 3. Crea nuovi endpoints in `eventi.js`

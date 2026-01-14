@@ -4,15 +4,15 @@
 
 ### 📦 File Creati/Modificati
 
-| File | Tipo | Descrizione |
-|------|------|-------------|
-| `database/migrations/add_exclusion_constraint.sql` | 🗄️ DB | Migration PostgreSQL con constraint + trigger |
-| `src/features/prenotazioni/services/dao-prenotazione.js` | 🔧 DAO | Funzione `checkOrarioCustom()` |
-| `src/features/prenotazioni/routes/prenotazione.js` | 🛣️ Route | Endpoint `/prenotazioni/check` |
-| `src/public/assets/scripts/utils/modalPrenotazione.js` | 🎨 UI | Modal con orari custom |
-| `docs/CUSTOM_BOOKING_TIMES.md` | 📚 Doc | Documentazione tecnica |
-| `docs/CUSTOM_TIMES_QUICK_TEST.md` | 🧪 Test | Guida test rapida |
-| `test-custom-booking.html` | 🌐 HTML | Pagina test interattiva |
+| File                                                     | Tipo     | Descrizione                                   |
+| -------------------------------------------------------- | -------- | --------------------------------------------- |
+| `database/migrations/add_exclusion_constraint.sql`       | 🗄️ DB    | Migration PostgreSQL con constraint + trigger |
+| `src/features/prenotazioni/services/dao-prenotazione.js` | 🔧 DAO   | Funzione `checkOrarioCustom()`                |
+| `src/features/prenotazioni/routes/prenotazione.js`       | 🛣️ Route | Endpoint `/prenotazioni/check`                |
+| `src/public/assets/scripts/utils/modalPrenotazione.js`   | 🎨 UI    | Modal con orari custom                        |
+| `docs/CUSTOM_BOOKING_TIMES.md`                           | 📚 Doc   | Documentazione tecnica                        |
+| `docs/CUSTOM_TIMES_QUICK_TEST.md`                        | 🧪 Test  | Guida test rapida                             |
+| `test-custom-booking.html`                               | 🌐 HTML  | Pagina test interattiva                       |
 
 ---
 
@@ -32,6 +32,7 @@ psql -U postgres -d borgo_vercelli
 ```
 
 **Output atteso:**
+
 ```
 Constraint "prenotazioni_no_overlap" EXCLUDE USING gist (campo_id WITH =, tstzrange(...) WITH &&)
 ```
@@ -49,6 +50,7 @@ http://localhost:3000/prenotazione
 ```
 
 **Workflow Test:**
+
 1. Clicca "Prenota ora" su un campo
 2. Clicca link "**inserisci un orario personalizzato**"
 3. Inserisci:
@@ -123,18 +125,21 @@ http://localhost:3000/prenotazione
 ## 🛡️ Protezioni Implementate
 
 ### Livello 1: Client-Side (UX)
+
 - ✅ Validazione formato immediata
 - ✅ Controllo ordine orari
 - ✅ Verifica anticipo 2 ore
 - ✅ Controllo duplicati UI
 
 ### Livello 2: Server API
+
 - ✅ Validazione parametri
 - ✅ Query DB per duplicati
 - ✅ Query DB per sovrapposizioni
 - ✅ Query DB per conflitti default
 
 ### Livello 3: Database (Ultima Difesa)
+
 - ✅ Exclusion constraint PostgreSQL
 - ✅ Blocca race conditions
 - ✅ Trigger automatico timestamp
@@ -144,24 +149,28 @@ http://localhost:3000/prenotazione
 ## 📊 Esempi Validazione
 
 ### ✅ PERMESSO - Orari adiacenti
+
 ```
 Esistente: 10:00 - 12:00
 Nuovo:     12:00 - 14:00  ← OK! (12:00 = 12:00, non si sovrappone)
 ```
 
 ### ❌ BLOCCATO - Sovrapposizione parziale
+
 ```
 Esistente: 10:00 - 12:00
 Nuovo:     11:00 - 13:00  ← ERRORE! (11:00 è tra 10:00 e 12:00)
 ```
 
 ### ❌ BLOCCATO - Duplicato esatto
+
 ```
 Esistente: 10:00 - 12:00
 Nuovo:     10:00 - 12:00  ← ERRORE! (stesso identico slot)
 ```
 
 ### ❌ BLOCCATO - Anticipo insufficiente
+
 ```
 Ora corrente: 14:30
 Prenotazione:  15:00 - 16:00  ← ERRORE! (solo 30 min di anticipo, serve >= 2h)
@@ -175,16 +184,18 @@ Prenotazione:  15:00 - 16:00  ← ERRORE! (solo 30 min di anticipo, serve >= 2h)
 
 ```javascript
 // Test endpoint check
-fetch('/prenotazione/prenotazioni/check', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+fetch("/prenotazione/prenotazioni/check", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     campo_id: 1,
-    data: '2025-12-15',
-    inizio: '14:00',
-    fine: '15:30'
-  })
-}).then(r => r.json()).then(console.log)
+    data: "2025-12-15",
+    inizio: "14:00",
+    fine: "15:30",
+  }),
+})
+  .then((r) => r.json())
+  .then(console.log);
 
 // Risultato atteso: { "ok": true } o { "ok": false, "message": "..." }
 ```
@@ -193,14 +204,14 @@ fetch('/prenotazione/prenotazioni/check', {
 
 ```sql
 -- Verifica constraint attivo
-SELECT conname FROM pg_constraint 
-WHERE conrelid = 'prenotazioni'::regclass 
+SELECT conname FROM pg_constraint
+WHERE conrelid = 'prenotazioni'::regclass
   AND conname = 'prenotazioni_no_overlap';
 
 -- Risultato atteso: 1 riga
 
 -- Test sovrapposizione (deve fallire)
-INSERT INTO prenotazioni 
+INSERT INTO prenotazioni
 (campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '11:00', '13:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 
@@ -211,14 +222,14 @@ VALUES (1, '2025-12-20', '11:00', '13:00', 'in_attesa', '+39 3331234567', NOW(),
 
 ## 📞 Messaggi Utente
 
-| Scenario | Messaggio |
-|----------|-----------|
-| ✅ Success | "Prenotazione in attesa di approvazione" |
-| ❌ Formato invalido | "Formato orario non valido. Usa HH:MM" |
-| ❌ Ordine sbagliato | "L'orario di fine deve essere successivo all'inizio" |
-| ❌ Anticipo < 2h | "Devi prenotare con almeno 2 ore di anticipo" |
-| ❌ Duplicato esatto | "Orario già prenotato (duplicato esatto)" |
-| ❌ Sovrapposizione | "Orario si sovrappone a una prenotazione esistente" |
+| Scenario             | Messaggio                                                 |
+| -------------------- | --------------------------------------------------------- |
+| ✅ Success           | "Prenotazione in attesa di approvazione"                  |
+| ❌ Formato invalido  | "Formato orario non valido. Usa HH:MM"                    |
+| ❌ Ordine sbagliato  | "L'orario di fine deve essere successivo all'inizio"      |
+| ❌ Anticipo < 2h     | "Devi prenotare con almeno 2 ore di anticipo"             |
+| ❌ Duplicato esatto  | "Orario già prenotato (duplicato esatto)"                 |
+| ❌ Sovrapposizione   | "Orario si sovrappone a una prenotazione esistente"       |
 | ❌ Conflitto default | "Orario vietato dai blocchi di default per questo giorno" |
 
 ---

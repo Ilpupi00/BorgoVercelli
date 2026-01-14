@@ -20,6 +20,7 @@ Le notifiche push web non funzionavano correttamente su tutti i browser e sistem
 File: `src/public/service-worker.js`
 
 **Miglioramenti:**
+
 - ✅ Gestione errori robusta per tutti i browser
 - ✅ Fallback per piattaforme con funzionalità limitate
 - ✅ Logging dettagliato per debugging
@@ -32,6 +33,7 @@ File: `src/public/service-worker.js`
 File: `src/shared/services/webpush.js`
 
 **Modifiche:**
+
 - ✅ Utilizzo database invece di file JSON
 - ✅ Tracking timestamp successi/errori
 - ✅ Contatore errori per subscription
@@ -43,6 +45,7 @@ File: `src/shared/services/webpush.js`
 File: `src/public/assets/scripts/push-notifications.js`
 
 **Miglioramenti:**
+
 - ✅ Logging dettagliato per debugging
 - ✅ Gestione errori migliorata con messaggi specifici
 - ✅ Retry automatico con chiave VAPID normalizzata
@@ -54,6 +57,7 @@ File: `src/public/assets/scripts/push-notifications.js`
 File: `src/shared/routes/push.js`
 
 **Modifiche:**
+
 - ✅ Supporto user-agent per tracking dispositivo
 - ✅ Endpoint debug per troubleshooting
 - ✅ Logging dettagliato richieste
@@ -62,12 +66,14 @@ File: `src/shared/routes/push.js`
 ## File Creati/Modificati
 
 ### Nuovi File
+
 1. `database/migrations/add_push_subscriptions.sql` - Migration database
 2. `scripts/apply-push-migration.js` - Script per applicare migration
 3. `scripts/migrate-push-subscriptions.js` - Script per migrare dati JSON → DB
 4. `docs/WEB_PUSH_MIGRATION.md` - Documentazione completa
 
 ### File Modificati
+
 1. `src/shared/services/webpush.js` - Servizio push (migrato a DB)
 2. `src/public/service-worker.js` - Service worker (compatibilità migliorata)
 3. `src/public/assets/scripts/push-notifications.js` - Client manager
@@ -77,22 +83,24 @@ File: `src/shared/routes/push.js`
 ## Compatibilità Browser
 
 ### Desktop
-| Browser | Supporto | Note |
-|---------|----------|------|
-| Chrome | ✅ Completo | Tutte le funzionalità |
-| Firefox | ✅ Completo | Tutte le funzionalità |
-| Edge | ✅ Completo | Tutte le funzionalità |
-| Safari | ✅ macOS 13+ | Supporto completo |
-| Opera | ✅ Completo | Basato su Chrome |
+
+| Browser | Supporto     | Note                  |
+| ------- | ------------ | --------------------- |
+| Chrome  | ✅ Completo  | Tutte le funzionalità |
+| Firefox | ✅ Completo  | Tutte le funzionalità |
+| Edge    | ✅ Completo  | Tutte le funzionalità |
+| Safari  | ✅ macOS 13+ | Supporto completo     |
+| Opera   | ✅ Completo  | Basato su Chrome      |
 
 ### Mobile
-| Browser | Supporto | Note |
-|---------|----------|------|
-| Chrome Android | ✅ Completo | Tutte le funzionalità |
-| Firefox Android | ✅ Completo | Tutte le funzionalità |
-| Safari iOS | ✅ iOS 16.4+ | Azioni limitate, no vibrazione |
-| Samsung Internet | ✅ Completo | Tutte le funzionalità |
-| Edge Mobile | ✅ Completo | Tutte le funzionalità |
+
+| Browser          | Supporto     | Note                           |
+| ---------------- | ------------ | ------------------------------ |
+| Chrome Android   | ✅ Completo  | Tutte le funzionalità          |
+| Firefox Android  | ✅ Completo  | Tutte le funzionalità          |
+| Safari iOS       | ✅ iOS 16.4+ | Azioni limitate, no vibrazione |
+| Samsung Internet | ✅ Completo  | Tutte le funzionalità          |
+| Edge Mobile      | ✅ Completo  | Tutte le funzionalità          |
 
 ## Struttura Database
 
@@ -138,10 +146,12 @@ npm start
 1. **Accedi all'applicazione** come utente
 2. **Accetta le notifiche** quando richiesto dal browser
 3. **Verifica subscription**:
+
    - Apri: `http://localhost:8080/push/my-subscriptions`
    - Dovresti vedere la tua subscription
 
 4. **Invia notifica di test**:
+
    ```bash
    curl -X POST http://localhost:8080/push/test \
      -H "Content-Type: application/json" \
@@ -159,6 +169,7 @@ npm start
 ### 5. Test Cross-Browser
 
 Prova su:
+
 - ✅ Chrome Desktop
 - ✅ Firefox Desktop
 - ✅ Safari Desktop (macOS 13+)
@@ -168,16 +179,19 @@ Prova su:
 ## API Disponibili
 
 ### Per Utenti
+
 - `POST /push/subscribe` - Sottoscrivi alle notifiche
 - `POST /push/unsubscribe` - Annulla subscription
 - `GET /push/my-subscriptions` - Vedi le tue subscription
 
 ### Per Admin
+
 - `GET /push/subscriptions` - Lista tutte le subscription
 - `POST /push/force-admin-notify` - Invia notifica test agli admin
 - `GET /push/admin-subs` - Vedi subscription admin
 
 ### Debug
+
 - `GET /push/vapidPublicKey` - Ottieni chiave pubblica VAPID
 - `GET /push/debug` - Info autenticazione
 - `POST /push/test` - Invia notifica di test
@@ -185,25 +199,25 @@ Prova su:
 ## Funzioni Server
 
 ```javascript
-const pushService = require('./shared/services/webpush');
+const pushService = require("./shared/services/webpush");
 
 // Invia a utenti specifici
 await pushService.sendNotificationToUsers([userId1, userId2], {
-  title: 'Titolo',
-  body: 'Messaggio',
-  url: '/path'
+  title: "Titolo",
+  body: "Messaggio",
+  url: "/path",
 });
 
 // Invia agli admin
 await pushService.sendNotificationToAdmins({
-  title: 'Alert',
-  body: 'Richiede attenzione'
+  title: "Alert",
+  body: "Richiede attenzione",
 });
 
 // Invia a tutti
 await pushService.sendNotificationToAll({
-  title: 'Annuncio',
-  body: 'Per tutti'
+  title: "Annuncio",
+  body: "Per tutti",
 });
 
 // Pulizia subscription non valide
@@ -219,23 +233,23 @@ await pushService.cleanupFailedSubscriptions(5);
 SELECT COUNT(*) FROM push_subscriptions WHERE error_count < 5;
 
 -- Subscription problematiche
-SELECT user_id, error_count, last_error_at 
-FROM push_subscriptions 
+SELECT user_id, error_count, last_error_at
+FROM push_subscriptions
 WHERE error_count >= 3;
 
 -- Admin subscription
 SELECT COUNT(*) FROM push_subscriptions WHERE is_admin = true;
 
 -- Subscription per browser (da user_agent)
-SELECT 
-  CASE 
+SELECT
+  CASE
     WHEN user_agent LIKE '%Chrome%' THEN 'Chrome'
     WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
     WHEN user_agent LIKE '%Safari%' THEN 'Safari'
     ELSE 'Other'
   END as browser,
-  COUNT(*) 
-FROM push_subscriptions 
+  COUNT(*)
+FROM push_subscriptions
 GROUP BY browser;
 ```
 
@@ -244,7 +258,7 @@ GROUP BY browser;
 Considera di eseguire periodicamente (cron job):
 
 ```javascript
-const pushService = require('./shared/services/webpush');
+const pushService = require("./shared/services/webpush");
 // Rimuove subscription con >= 5 errori consecutivi
 await pushService.cleanupFailedSubscriptions(5);
 ```

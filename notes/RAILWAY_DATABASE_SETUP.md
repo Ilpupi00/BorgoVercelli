@@ -3,6 +3,7 @@
 ## ❌ Problema: SIGTERM durante il deploy
 
 L'applicazione viene terminata con `SIGTERM` perché:
+
 1. Non riesce a connettersi al database
 2. L'URL del database è errato o mancante
 3. Il database non è accessibile dall'esterno
@@ -12,15 +13,19 @@ L'applicazione viene terminata con `SIGTERM` perché:
 ## 🔍 Errore Comune: URL Interno vs URL Pubblico
 
 ### ❌ URL SBAGLIATO (Interno - NON funziona)
+
 ```
 postgresql://postgres:password@postgres.railway.internal:5432/railway
 ```
+
 **Problema**: `postgres.railway.internal` funziona solo **tra servizi Railway**, non dall'app al database.
 
 ### ✅ URL CORRETTO (Pubblico - Funziona)
+
 ```
 postgresql://postgres:password@roundhouse.proxy.rlwy.net:12345/railway
 ```
+
 **Soluzione**: Usa l'URL pubblico con il proxy di Railway (`*.proxy.rlwy.net`).
 
 ---
@@ -30,14 +35,17 @@ postgresql://postgres:password@roundhouse.proxy.rlwy.net:12345/railway
 ### Metodo 1: Railway Dashboard (Consigliato)
 
 1. **Vai su Railway Dashboard**
+
    - Apri [railway.app](https://railway.app)
    - Seleziona il tuo progetto
 
 2. **Apri il servizio Database**
+
    - Clicca sul servizio **PostgreSQL**
    - Vai nella tab **Variables**
 
 3. **Copia DATABASE_URL Pubblico**
+
    - Cerca la variabile `DATABASE_URL` (o `DATABASE_PUBLIC_URL`)
    - Dovrebbe essere simile a:
      ```
@@ -138,15 +146,17 @@ npm start
 Il codice è configurato per usare SSL automaticamente in produzione:
 
 ```javascript
-const useSSL = process.env.NODE_ENV === 'production' || process.env.PGSSLMODE === 'require';
+const useSSL =
+  process.env.NODE_ENV === "production" || process.env.PGSSLMODE === "require";
 
 const pool = new Pool({
-    connectionString,
-    ssl: useSSL ? { rejectUnauthorized: false } : false
+  connectionString,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 ```
 
 Railway PostgreSQL richiede SSL, quindi assicurati che:
+
 - `NODE_ENV=production` sia impostato su Railway
 - Oppure `PGSSLMODE=require`
 
@@ -159,6 +169,7 @@ Railway PostgreSQL richiede SSL, quindi assicurati che:
 **Causa**: URL del database errato o database non raggiungibile
 
 **Soluzione**:
+
 1. Verifica che `DATABASE_URL` sia l'URL **pubblico**
 2. Controlla che il servizio PostgreSQL su Railway sia attivo (Running)
 3. Verifica che non ci siano restrizioni di rete
@@ -168,6 +179,7 @@ Railway PostgreSQL richiede SSL, quindi assicurati che:
 **Causa**: Password errata nell'URL
 
 **Soluzione**:
+
 1. Copia nuovamente `DATABASE_URL` dalla dashboard Railway
 2. Assicurati di non aver modificato la password manualmente
 3. Il formato corretto è: `postgresql://user:password@host:port/database`
@@ -177,6 +189,7 @@ Railway PostgreSQL richiede SSL, quindi assicurati che:
 **Causa**: L'app non riesce a connettersi e si chiude
 
 **Soluzione**:
+
 1. Verifica `DATABASE_URL` sia configurato correttamente
 2. Controlla i logs per vedere l'errore specifico
 3. Assicurati che SSL sia abilitato (`NODE_ENV=production`)
@@ -186,6 +199,7 @@ Railway PostgreSQL richiede SSL, quindi assicurati che:
 **Causa**: Il database specificato nell'URL non esiste
 
 **Soluzione**:
+
 1. Verifica il nome del database nell'URL (di solito `railway`)
 2. Controlla nella dashboard PostgreSQL che il database esista
 3. Ricrea il database se necessario
@@ -200,7 +214,7 @@ Prima di fare il deploy su Railway, verifica:
 - [ ] `DATABASE_URL` è l'URL **pubblico** (contiene `.proxy.rlwy.net` o `.railway.app`)
 - [ ] `NODE_ENV=production` impostato
 - [ ] Servizio PostgreSQL su Railway è attivo (Running)
-- [ ] Altre variabili d'ambiente necessarie configurate (GMAIL_*, JWT_SECRET, ecc.)
+- [ ] Altre variabili d'ambiente necessarie configurate (GMAIL\_\*, JWT_SECRET, ecc.)
 - [ ] File `.env` è nel `.gitignore` (non commitare credenziali!)
 
 ---
@@ -228,6 +242,7 @@ git push origin main
 Dopo il deploy, monitora:
 
 1. **Logs del Deploy**
+
    ```
    [database] Tentativo di connessione a: postgresql://...
    [database] using Postgres via DATABASE_URL
@@ -237,6 +252,7 @@ Dopo il deploy, monitora:
    ```
 
 2. **Metriche Database**
+
    - Vai al servizio PostgreSQL
    - Tab **Metrics**
    - Verifica connessioni attive e performance
@@ -253,9 +269,11 @@ Dopo il deploy, monitora:
 Se continui ad avere problemi:
 
 1. **Verifica Railway Status**
+
    - [status.railway.app](https://status.railway.app)
 
 2. **Railway Discord**
+
    - Chiedi supporto nella community
 
 3. **Railway Docs**

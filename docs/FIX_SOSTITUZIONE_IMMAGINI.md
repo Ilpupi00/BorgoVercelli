@@ -4,7 +4,8 @@
 
 **Problema**: Quando si riapriva un evento/notizia con un'immagine esistente e si voleva sostituire l'immagine, il sistema richiedeva di caricarla due volte e faceva reload della pagina.
 
-**Causa**: 
+**Causa**:
+
 - Il sistema faceva `window.location.reload()` dopo ogni upload
 - Non c'era un modo chiaro per sostituire un'immagine esistente
 - L'UI non gestiva correttamente la transizione tra immagine esistente e nuova
@@ -13,7 +14,8 @@
 
 ### 1. Aggiunto Pulsante "Sostituisci"
 
-**File**: 
+**File**:
+
 - `src/features/eventi/views/evento.ejs`
 - `src/features/notizie/views/notizia.ejs`
 
@@ -21,57 +23,62 @@
 
 ```html
 <button type="button" class="btn btn-sm btn-success replace-image-btn">
-    <i class="bi bi-arrow-repeat"></i> Sostituisci
+  <i class="bi bi-arrow-repeat"></i> Sostituisci
 </button>
 ```
 
 ### 2. Rimosso Reload Automatico
 
-**File**: 
+**File**:
+
 - `src/public/assets/scripts/crea_evento.js`
 - `src/public/assets/scripts/crea_notizie.js`
 
 **Prima**:
+
 ```javascript
 if (result.success) {
-    showSuccessMessage('Immagine caricata con successo!');
-    setTimeout(() => {
-        window.location.reload();  // ❌ Reload forzato
-    }, 1500);
+  showSuccessMessage("Immagine caricata con successo!");
+  setTimeout(() => {
+    window.location.reload(); // ❌ Reload forzato
+  }, 1500);
 }
 ```
 
 **Dopo**:
+
 ```javascript
 if (result.success) {
-    showSuccessMessage('Immagine caricata con successo!');
-    // Aggiorna l'immagine nella preview senza reload
-    if (result.imageUrl) {
-        currentImageUrl = result.imageUrl;
-        previewImg.src = result.imageUrl;
-    }
+  showSuccessMessage("Immagine caricata con successo!");
+  // Aggiorna l'immagine nella preview senza reload
+  if (result.imageUrl) {
+    currentImageUrl = result.imageUrl;
+    previewImg.src = result.imageUrl;
+  }
 }
 ```
 
 ### 3. Gestione Intelligente delle Preview
 
 **Novità**:
+
 - Quando selezioni una nuova immagine, l'immagine esistente viene nascosta automaticamente
 - Il pulsante "Rimuovi" nella preview ripristina l'immagine esistente (se c'è)
 - L'eliminazione dell'immagine esistente mostra l'area upload senza reload
 
 **Codice**:
+
 ```javascript
 // Nascondi immagine corrente quando selezioni nuova foto
 if (currentImagePreview) {
-    currentImagePreview.classList.add('d-none');
+  currentImagePreview.classList.add("d-none");
 }
 
 // Pulsante Rimuovi ripristina immagine esistente
 if (currentImagePreview) {
-    currentImagePreview.classList.remove('d-none');
+  currentImagePreview.classList.remove("d-none");
 } else {
-    uploadArea.classList.remove('d-none');
+  uploadArea.classList.remove("d-none");
 }
 ```
 
@@ -82,11 +89,11 @@ if (currentImagePreview) {
 ```javascript
 // Edit preview
 if (editPreviewBtn) {
-    editPreviewBtn.addEventListener('click', () => {
-        if (currentImageUrl) {
-            openImageEditor(currentImageUrl);
-        }
-    });
+  editPreviewBtn.addEventListener("click", () => {
+    if (currentImageUrl) {
+      openImageEditor(currentImageUrl);
+    }
+  });
 }
 ```
 
@@ -98,20 +105,21 @@ if (editPreviewBtn) {
 
 ```javascript
 if (result.success) {
-    showSuccessMessage('Immagine eliminata con successo!');
-    // Nascondi preview corrente e mostra area upload
-    if (currentImagePreview) {
-        currentImagePreview.classList.add('d-none');
-    }
-    if (uploadArea) {
-        uploadArea.classList.remove('d-none');
-    }
+  showSuccessMessage("Immagine eliminata con successo!");
+  // Nascondi preview corrente e mostra area upload
+  if (currentImagePreview) {
+    currentImagePreview.classList.add("d-none");
+  }
+  if (uploadArea) {
+    uploadArea.classList.remove("d-none");
+  }
 }
 ```
 
 ## 🎯 Flusso Utente Migliorato
 
 ### Scenario 1: Creare Evento/Notizia con Immagine
+
 1. Apri form creazione
 2. Trascina/Seleziona immagine
 3. Visualizza preview
@@ -120,6 +128,7 @@ if (result.success) {
 6. ✅ Fatto - 1 solo caricamento
 
 ### Scenario 2: Sostituire Immagine Esistente
+
 1. Apri evento/notizia in modifica
 2. Vedi immagine corrente con 3 pulsanti:
    - **🔄 Sostituisci** - Apre selezione file
@@ -133,6 +142,7 @@ if (result.success) {
 8. ✅ Fatto - 1 solo caricamento, nessun reload
 
 ### Scenario 3: Modificare Immagine Esistente
+
 1. Apri evento/notizia in modifica
 2. Clicca "✂️ Modifica" sull'immagine
 3. Usa editor: crop, zoom, rotate, flip
@@ -141,6 +151,7 @@ if (result.success) {
 6. ✅ Fatto
 
 ### Scenario 4: Eliminare Immagine
+
 1. Apri evento/notizia in modifica
 2. Clicca "🗑️ Elimina"
 3. Conferma eliminazione
@@ -150,10 +161,11 @@ if (result.success) {
 ## 🔧 Variabili JavaScript Aggiunte
 
 ### crea_evento.js e crea_notizie.js
+
 ```javascript
-const replaceImageBtn = document.querySelector('.replace-image-btn');
-const editPreviewBtn = document.getElementById('editPreviewBtn');
-const currentImagePreview = document.getElementById('currentImagePreview');
+const replaceImageBtn = document.querySelector(".replace-image-btn");
+const editPreviewBtn = document.getElementById("editPreviewBtn");
+const currentImagePreview = document.getElementById("currentImagePreview");
 let currentImageUrl = null;
 ```
 
@@ -174,12 +186,14 @@ let currentImageUrl = null;
 ## 🎨 UI Aggiornata
 
 ### Pulsanti Immagine Esistente
+
 ```
 [🔄 Sostituisci] [✂️ Modifica] [🗑️ Elimina]
    Verde          Blu         Rosso
 ```
 
 ### Pulsanti Nuova Preview
+
 ```
 [✂️ Modifica] [❌ Rimuovi]
    Blu         Rosso
@@ -188,6 +202,7 @@ let currentImageUrl = null;
 ## 🚀 Come Testare
 
 1. **Test Sostituzione**:
+
    ```bash
    npm start
    # Vai a /evento/crea-evento/:id (con immagine esistente)
@@ -198,6 +213,7 @@ let currentImageUrl = null;
    ```
 
 2. **Test Eliminazione**:
+
    ```bash
    # Apri evento con immagine
    # Clicca "Elimina"

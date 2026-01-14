@@ -1,16 +1,20 @@
 # Changelog - Railway Volume Implementation
 
 ## 🎯 Obiettivo
+
 Implementare storage persistente per le immagini caricate dagli utenti su Railway utilizzando Volumes.
 
 ## ❌ Problema
+
 Su Railway, il filesystem del container è effimero. Ogni deploy cancellava tutte le immagini caricate dagli utenti, causando:
+
 - Perdita delle foto profilo
 - Perdita dei loghi squadre
 - Perdita delle immagini di notizie ed eventi
 - Perdita della galleria
 
 ## ✅ Soluzione
+
 Utilizzo di **Railway Volumes** - storage persistente montato su `/data/uploads` che sopravvive ai redeploy.
 
 ---
@@ -20,54 +24,62 @@ Utilizzo di **Railway Volumes** - storage persistente montato su `/data/uploads`
 ### File Modificati
 
 #### 1. `src/core/config/multer.js`
+
 - ✅ Aggiunto rilevamento automatico ambiente (Railway vs locale)
 - ✅ Path dinamico: `/data/uploads` su Railway, `src/public/uploads` in locale
 - ✅ Log per debugging
 - ✅ Creazione automatica directory
 
 ```javascript
-const uploadDir = process.env.RAILWAY_ENVIRONMENT 
-  ? '/data/uploads' 
-  : path.join(process.cwd(), 'src', 'public', 'uploads');
+const uploadDir = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/uploads"
+  : path.join(process.cwd(), "src", "public", "uploads");
 ```
 
 #### 2. `src/features/auth/routes/login_register.js`
+
 - ✅ Import configurazione multer centralizzata
 - ✅ Upload foto profilo usa `uploadDir` dinamico
 - ✅ Percorsi salvati nel DB come URL relativi (`/uploads/...`)
 - ✅ Log migliorati per debugging
 
 #### 3. `src/app.js`
+
 - ✅ Serving file statici da path dinamico
 - ✅ Supporto path legacy `/src/public/uploads` per retrocompatibilità
 - ✅ Rilevamento automatico ambiente Railway
 
 ```javascript
-const uploadsPath = process.env.RAILWAY_ENVIRONMENT 
-  ? '/data/uploads' 
-  : path.join(__dirname, 'public/uploads');
+const uploadsPath = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/uploads"
+  : path.join(__dirname, "public/uploads");
 ```
 
 #### 4. `src/features/galleria/services/dao-galleria.js`
+
 - ✅ Delete file usa path dinamico ambiente-aware
 - ✅ Supporto per eliminazione file da volume Railway
 - ✅ Fallback per path legacy
 
 #### 5. `railway.toml` (NUOVO)
+
 - ✅ Configurazione deploy Railway
 - ✅ Definizione volume `uploads-volume`
 - ✅ Mount path `/data`
 
 #### 6. `.gitignore`
+
 - ✅ Ignora `src/public/uploads/*` (file locali)
 - ✅ Mantiene `.gitkeep` per struttura directory
 
 #### 7. `.dockerignore`
+
 - ✅ Aggiunto ignore per `src/public/uploads/*`
 
 ### File Creati
 
 #### 8. `docs/RAILWAY_VOLUME_SETUP.md` (NUOVO)
+
 - ✅ Guida completa setup Railway Volume
 - ✅ Istruzioni passo-passo
 - ✅ Troubleshooting
@@ -75,23 +87,27 @@ const uploadsPath = process.env.RAILWAY_ENVIRONMENT
 - ✅ Script SQL per migrazione database
 
 #### 9. `scripts/verify-upload-config.js` (NUOVO)
+
 - ✅ Script di verifica configurazione
 - ✅ Controlla ambiente
 - ✅ Verifica percorsi
 - ✅ Valida railway.toml
 
 #### 10. `database/migrations/fix_image_paths.sql` (NUOVO)
+
 - ✅ Script SQL per migrare percorsi vecchi
 - ✅ Converte `src/public/uploads/` → `/uploads/`
 - ✅ Include verifiche prima/dopo
 
 #### 11. `README.md` (NUOVO)
+
 - ✅ Documentazione progetto
 - ✅ Quick start
 - ✅ Istruzioni Railway deploy
 - ✅ Struttura progetto
 
 #### 12. `src/public/uploads/.gitkeep` (NUOVO)
+
 - ✅ Mantiene directory uploads nel repository
 - ✅ Note per sviluppatori
 
@@ -100,6 +116,7 @@ const uploadsPath = process.env.RAILWAY_ENVIRONMENT
 ## 🔄 Flusso Upload Immagini
 
 ### Prima (❌ Problematico)
+
 ```
 1. Upload → src/public/uploads/file.jpg
 2. DB salva → 'src/public/uploads/file.jpg'
@@ -108,6 +125,7 @@ const uploadsPath = process.env.RAILWAY_ENVIRONMENT
 ```
 
 ### Dopo (✅ Funzionante)
+
 ```
 LOCALE:
 1. Upload → src/public/uploads/file.jpg
@@ -126,6 +144,7 @@ RAILWAY:
 ## 🧪 Testing
 
 ### Test Locale
+
 ```bash
 # 1. Verifica configurazione
 npm run verify-uploads
@@ -140,6 +159,7 @@ npm start
 ```
 
 ### Test Railway
+
 ```bash
 # 1. Crea volume su Railway dashboard
 #    - Name: uploads-volume
@@ -162,6 +182,7 @@ git push
 ## 📊 Impatto
 
 ### Copertura
+
 - ✅ Foto profilo utenti
 - ✅ Loghi squadre
 - ✅ Immagini notizie
@@ -169,6 +190,7 @@ git push
 - ✅ Galleria generale
 
 ### Compatibilità
+
 - ✅ Backward compatible con DB esistenti
 - ✅ Path legacy `/src/public/uploads` supportati
 - ✅ Nessuna modifica richiesta lato client

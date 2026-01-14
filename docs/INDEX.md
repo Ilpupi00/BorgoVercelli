@@ -4,34 +4,34 @@
 
 ### Standard e Guide
 
-| Documento | Descrizione | Link |
-|-----------|-------------|------|
-| **Standard Commentazione** | Guide complete per JSDoc, EJS e CSS | [COMMENT_STANDARDS.md](./COMMENT_STANDARDS.md) |
-| **Rapporto Commenti** | Stato implementazione e workflow | [COMMENTI_RAPPORTO.md](./COMMENTI_RAPPORTO.md) |
-| **Esempio DAO** | File di esempio completamente commentato | [ESEMPIO_DAO_COMMENTATO.js](./ESEMPIO_DAO_COMMENTATO.js) |
+| Documento                  | Descrizione                              | Link                                                     |
+| -------------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| **Standard Commentazione** | Guide complete per JSDoc, EJS e CSS      | [COMMENT_STANDARDS.md](./COMMENT_STANDARDS.md)           |
+| **Rapporto Commenti**      | Stato implementazione e workflow         | [COMMENTI_RAPPORTO.md](./COMMENTI_RAPPORTO.md)           |
+| **Esempio DAO**            | File di esempio completamente commentato | [ESEMPIO_DAO_COMMENTATO.js](./ESEMPIO_DAO_COMMENTATO.js) |
 
 ### Struttura Progetto
 
-| Documento | Descrizione | Link |
-|-----------|-------------|------|
-| **Struttura src/** | Organizzazione directory e moduli | [../src/README.md](../src/README.md) |
-| **Guida Riorganizzazione** | Modifiche e come orientarsi | [../RIORGANIZZAZIONE.md](../RIORGANIZZAZIONE.md) |
-| **Rapporto Riorganizzazione** | Report completo con statistiche | [../RAPPORTO_RIORGANIZZAZIONE.md](../RAPPORTO_RIORGANIZZAZIONE.md) |
+| Documento                     | Descrizione                       | Link                                                               |
+| ----------------------------- | --------------------------------- | ------------------------------------------------------------------ |
+| **Struttura src/**            | Organizzazione directory e moduli | [../src/README.md](../src/README.md)                               |
+| **Guida Riorganizzazione**    | Modifiche e come orientarsi       | [../RIORGANIZZAZIONE.md](../RIORGANIZZAZIONE.md)                   |
+| **Rapporto Riorganizzazione** | Report completo con statistiche   | [../RAPPORTO_RIORGANIZZAZIONE.md](../RAPPORTO_RIORGANIZZAZIONE.md) |
 
 ### Feature Specifiche
 
-| Documento | Descrizione | Link |
-|-----------|-------------|------|
-| **Admin System** | Miglioramenti pannello admin | [ADMIN_IMPROVEMENTS.md](./ADMIN_IMPROVEMENTS.md) |
-| **Sistema Sospensione/Ban** | Gestione utenti sospesi | [MODIFICHE_ADMIN_SYSTEM.md](./MODIFICHE_ADMIN_SYSTEM.md) |
-| **Modal e Bottoni** | UI components | [MODIFICHE_MODAL_BOTTONI.md](./MODIFICHE_MODAL_BOTTONI.md) |
+| Documento                   | Descrizione                  | Link                                                       |
+| --------------------------- | ---------------------------- | ---------------------------------------------------------- |
+| **Admin System**            | Miglioramenti pannello admin | [ADMIN_IMPROVEMENTS.md](./ADMIN_IMPROVEMENTS.md)           |
+| **Sistema Sospensione/Ban** | Gestione utenti sospesi      | [MODIFICHE_ADMIN_SYSTEM.md](./MODIFICHE_ADMIN_SYSTEM.md)   |
+| **Modal e Bottoni**         | UI components                | [MODIFICHE_MODAL_BOTTONI.md](./MODIFICHE_MODAL_BOTTONI.md) |
 
 ## 🛠️ Script e Tool
 
-| Script | Descrizione | Comando |
-|--------|-------------|---------|
-| **add-comments.sh** | Aggiunge header automatici | `./scripts/add-comments.sh` |
-| **create-admin** | Crea utente amministratore | `node src/server/create-admin.js` |
+| Script              | Descrizione                | Comando                           |
+| ------------------- | -------------------------- | --------------------------------- |
+| **add-comments.sh** | Aggiunge header automatici | `./scripts/add-comments.sh`       |
+| **create-admin**    | Crea utente amministratore | `node src/server/create-admin.js` |
 
 ## 📚 Guide Rapide
 
@@ -79,15 +79,15 @@ open http://localhost:3000
  * @param {tipo} param - Descrizione
  * @returns {tipo} Descrizione
  */
-exports.funzione = function(param) {
-    // ...
+exports.funzione = function (param) {
+  // ...
 };
 ```
 
 ### EJS
 
 ```ejs
-<%# 
+<%#
   File: nome.ejs
   Descrizione: Cosa fa
   Parametri: cosa riceve
@@ -109,16 +109,16 @@ exports.funzione = function(param) {
 
 ### Dove Trovare...
 
-| Cosa Cerchi | Dove Guardare |
-|-------------|---------------|
-| **Route di una feature** | `src/features/[feature]/routes/` |
-| **Logica business** | `src/features/[feature]/services/` |
-| **View template** | `src/features/[feature]/views/` |
-| **Modelli database** | `src/core/models/` |
-| **Middleware** | `src/core/middlewares/` |
-| **Config database** | `src/core/config/database.js` |
-| **JavaScript client** | `src/public/assets/scripts/` |
-| **Stili CSS** | `src/public/assets/styles/` |
+| Cosa Cerchi              | Dove Guardare                      |
+| ------------------------ | ---------------------------------- |
+| **Route di una feature** | `src/features/[feature]/routes/`   |
+| **Logica business**      | `src/features/[feature]/services/` |
+| **View template**        | `src/features/[feature]/views/`    |
+| **Modelli database**     | `src/core/models/`                 |
+| **Middleware**           | `src/core/middlewares/`            |
+| **Config database**      | `src/core/config/database.js`      |
+| **JavaScript client**    | `src/public/assets/scripts/`       |
+| **Stili CSS**            | `src/public/assets/styles/`        |
 
 ## 📊 Statistiche Progetto
 
@@ -145,17 +145,20 @@ Prima di considerare completo un modulo:
 ## 🎯 Priorità Documentazione
 
 ### 🔴 Alta Priorità
+
 1. File `app.js`
 2. Tutti i DAO in `features/*/services/`
 3. Middleware in `core/middlewares/`
 4. Route principali
 
 ### 🟡 Media Priorità
+
 5. Modelli in `core/models/`
 6. Route condivise
 7. JavaScript client-side
 
 ### 🟢 Bassa Priorità
+
 8. View EJS (header e sezioni)
 9. CSS (header e sezioni)
 

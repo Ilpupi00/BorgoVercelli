@@ -4,10 +4,10 @@
  * @module features/campionati/services/dao-campionati
  */
 
-'use strict';
+"use strict";
 
-const sqlite = require('../../../core/config/database');
-const Campionato = require('../../../core/models/campionato.js');
+const sqlite = require("../../../core/config/database");
+const Campionato = require("../../../core/models/campionato.js");
 
 /**
  * Factory function per creare istanze Campionato da righe database
@@ -31,23 +31,23 @@ const Campionato = require('../../../core/models/campionato.js');
  * @returns {Campionato} Istanza Campionato
  */
 const makeCampionato = (row) => {
-    return new Campionato(
-        row.id,
-        row.nome,
-        row.stagione,
-        row.categoria,
-        row.fonte_esterna_id,
-        row.url_fonte,
-        row.attivo,
-        row.created_at,
-        row.updated_at,
-        row.promozione_diretta,
-        row.playoff_start,
-        row.playoff_end,
-        row.playout_start,
-        row.playout_end,
-        row.retrocessione_diretta
-    );
+  return new Campionato(
+    row.id,
+    row.nome,
+    row.stagione,
+    row.categoria,
+    row.fonte_esterna_id,
+    row.url_fonte,
+    row.attivo,
+    row.created_at,
+    row.updated_at,
+    row.promozione_diretta,
+    row.playoff_start,
+    row.playoff_end,
+    row.playout_start,
+    row.playout_end,
+    row.retrocessione_diretta
+  );
 };
 
 /**
@@ -56,30 +56,35 @@ const makeCampionato = (row) => {
  * @returns {Promise<Campionato[]>} Array di tutti i campionati
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.getAllCampionati = async function() {
-    const sql = `
+exports.getAllCampionati = async function () {
+  const sql = `
         SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
                promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
         ORDER BY created_at DESC, nome ASC
     `;
 
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, campionati) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nel recupero dei campionati: ' + err.message });
-            }
-
-            try {
-                const result = campionati.map(makeCampionato) || [];
-                resolve(result);
-            } catch (e) {
-                console.error('Errore nella creazione degli oggetti Campionato:', e);
-                reject({ error: 'Errore nella creazione degli oggetti Campionato: ' + e.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, campionati) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nel recupero dei campionati: " + err.message,
         });
+      }
+
+      try {
+        const result = campionati.map(makeCampionato) || [];
+        resolve(result);
+      } catch (e) {
+        console.error("Errore nella creazione degli oggetti Campionato:", e);
+        reject({
+          error:
+            "Errore nella creazione degli oggetti Campionato: " + e.message,
+        });
+      }
     });
+  });
 };
 
 /**
@@ -88,8 +93,8 @@ exports.getAllCampionati = async function() {
  * @returns {Promise<Campionato[]>} Array di campionati attivi
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.getCampionati = async function() {
-    const sql = `
+exports.getCampionati = async function () {
+  const sql = `
         SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
                promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
@@ -97,22 +102,27 @@ exports.getCampionati = async function() {
         ORDER BY nome ASC
     `;
 
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, campionati) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nel recupero dei campionati: ' + err.message });
-            }
-
-            try {
-                const result = campionati.map(makeCampionato) || [];
-                resolve(result);
-            } catch (e) {
-                console.error('Errore nella creazione degli oggetti Campionato:', e);
-                reject({ error: 'Errore nella creazione degli oggetti Campionato: ' + e.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, campionati) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nel recupero dei campionati: " + err.message,
         });
+      }
+
+      try {
+        const result = campionati.map(makeCampionato) || [];
+        resolve(result);
+      } catch (e) {
+        console.error("Errore nella creazione degli oggetti Campionato:", e);
+        reject({
+          error:
+            "Errore nella creazione degli oggetti Campionato: " + e.message,
+        });
+      }
     });
+  });
 };
 
 /**
@@ -122,30 +132,34 @@ exports.getCampionati = async function() {
  * @returns {Promise<Campionato|null>} Istanza Campionato o null se non trovato
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.getCampionatoById = async function(id) {
-    const sql = `
+exports.getCampionatoById = async function (id) {
+  const sql = `
         SELECT id, nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, created_at, updated_at,
                promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
         WHERE id = ?
     `;
 
-    return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id], (err, row) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nel recupero del campionato: ' + err.message });
-            }
-
-            try {
-                const result = row ? makeCampionato(row) : null;
-                resolve(result);
-            } catch (e) {
-                console.error('Errore nella creazione dell\'oggetto Campionato:', e);
-                reject({ error: 'Errore nella creazione dell\'oggetto Campionato: ' + e.message });
-            }
+  return new Promise((resolve, reject) => {
+    sqlite.get(sql, [id], (err, row) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nel recupero del campionato: " + err.message,
         });
+      }
+
+      try {
+        const result = row ? makeCampionato(row) : null;
+        resolve(result);
+      } catch (e) {
+        console.error("Errore nella creazione dell'oggetto Campionato:", e);
+        reject({
+          error: "Errore nella creazione dell'oggetto Campionato: " + e.message,
+        });
+      }
     });
+  });
 };
 
 /**
@@ -167,41 +181,50 @@ exports.getCampionatoById = async function(id) {
  * @returns {Promise<number>} ID del campionato creato
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.createCampionato = async function(campionatoData) {
-    const sql = `
+exports.createCampionato = async function (campionatoData) {
+  const sql = `
         INSERT INTO CAMPIONATI (nome, stagione, categoria, fonte_esterna_id, url_fonte, attivo, 
                                 promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, 
                                 retrocessione_diretta, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `;
 
-    const values = [
-        campionatoData.nome,
-        campionatoData.stagione,
-        campionatoData.categoria || null,
-        campionatoData.fonte_esterna_id || null,
-        campionatoData.url_fonte || null,
-    campionatoData.attivo !== undefined ? (campionatoData.attivo ? true : false) : true,
-        campionatoData.promozione_diretta || 2,
-        campionatoData.playoff_start || 3,
-        campionatoData.playoff_end || 6,
-        campionatoData.playout_start || 11,
-        campionatoData.playout_end || 14,
-        campionatoData.retrocessione_diretta || 2
-    ];
+  const values = [
+    campionatoData.nome,
+    campionatoData.stagione,
+    campionatoData.categoria || null,
+    campionatoData.fonte_esterna_id || null,
+    campionatoData.url_fonte || null,
+    campionatoData.attivo !== undefined
+      ? campionatoData.attivo
+        ? true
+        : false
+      : true,
+    campionatoData.promozione_diretta || 2,
+    campionatoData.playoff_start || 3,
+    campionatoData.playoff_end || 6,
+    campionatoData.playout_start || 11,
+    campionatoData.playout_end || 14,
+    campionatoData.retrocessione_diretta || 2,
+  ];
 
-    const sqlWithReturning = sql + ' RETURNING id';
-    return new Promise((resolve, reject) => {
-        sqlite.run(sqlWithReturning, values, function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nella creazione del campionato: ' + err.message });
-            }
-
-            // Ritorna l'ID del nuovo campionato
-            resolve({ id: result.rows[0].id, message: 'Campionato creato con successo' });
+  const sqlWithReturning = sql + " RETURNING id";
+  return new Promise((resolve, reject) => {
+    sqlite.run(sqlWithReturning, values, function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nella creazione del campionato: " + err.message,
         });
+      }
+
+      // Ritorna l'ID del nuovo campionato
+      resolve({
+        id: result.rows[0].id,
+        message: "Campionato creato con successo",
+      });
     });
+  });
 };
 
 /**
@@ -224,8 +247,8 @@ exports.createCampionato = async function(campionatoData) {
  * @returns {Promise<Object>} Oggetto con messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.updateCampionato = async function(id, campionatoData) {
-    const sql = `
+exports.updateCampionato = async function (id, campionatoData) {
+  const sql = `
         UPDATE CAMPIONATI
         SET nome = ?, stagione = ?, categoria = ?, fonte_esterna_id = ?, url_fonte = ?, attivo = ?, 
             promozione_diretta = ?, playoff_start = ?, playoff_end = ?, playout_start = ?, playout_end = ?, 
@@ -233,37 +256,48 @@ exports.updateCampionato = async function(id, campionatoData) {
         WHERE id = ?
     `;
 
-    const values = [
-        campionatoData.nome,
-        campionatoData.stagione,
-        campionatoData.categoria || null,
-        campionatoData.fonte_esterna_id || null,
-        campionatoData.url_fonte || null,
-    campionatoData.attivo !== undefined ? (campionatoData.attivo ? true : false) : true,
-        campionatoData.promozione_diretta || 2,
-        campionatoData.playoff_start || 3,
-        campionatoData.playoff_end || 6,
-        campionatoData.playout_start || 11,
-        campionatoData.playout_end || 14,
-        campionatoData.retrocessione_diretta || 2,
-        id
-    ];
+  const values = [
+    campionatoData.nome,
+    campionatoData.stagione,
+    campionatoData.categoria || null,
+    campionatoData.fonte_esterna_id || null,
+    campionatoData.url_fonte || null,
+    campionatoData.attivo !== undefined
+      ? campionatoData.attivo
+        ? true
+        : false
+      : true,
+    campionatoData.promozione_diretta || 2,
+    campionatoData.playoff_start || 3,
+    campionatoData.playoff_end || 6,
+    campionatoData.playout_start || 11,
+    campionatoData.playout_end || 14,
+    campionatoData.retrocessione_diretta || 2,
+    id,
+  ];
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nell\'aggiornamento del campionato: ' + err.message });
-            }
-
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            if (changes === 0) {
-                return reject({ error: 'Campionato non trovato' });
-            }
-
-            resolve({ message: 'Campionato aggiornato con successo', id: id, changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, values, function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nell'aggiornamento del campionato: " + err.message,
         });
+      }
+
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (changes === 0) {
+        return reject({ error: "Campionato non trovato" });
+      }
+
+      resolve({
+        message: "Campionato aggiornato con successo",
+        id: id,
+        changes,
+      });
     });
+  });
 };
 
 /**
@@ -276,24 +310,27 @@ exports.updateCampionato = async function(id, campionatoData) {
  * @returns {Promise<Object>} Oggetto con messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.deleteCampionato = async function(id) {
-    const sql = 'DELETE FROM CAMPIONATI WHERE id = ?';
+exports.deleteCampionato = async function (id) {
+  const sql = "DELETE FROM CAMPIONATI WHERE id = ?";
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nell\'eliminazione del campionato: ' + err.message });
-            }
-
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            if (changes === 0) {
-                return reject({ error: 'Campionato non trovato' });
-            }
-
-            resolve({ message: 'Campionato eliminato con successo', changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [id], function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nell'eliminazione del campionato: " + err.message,
         });
+      }
+
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (changes === 0) {
+        return reject({ error: "Campionato non trovato" });
+      }
+
+      resolve({ message: "Campionato eliminato con successo", changes });
     });
+  });
 };
 
 /**
@@ -307,28 +344,36 @@ exports.deleteCampionato = async function(id) {
  * @returns {Promise<Object>} Oggetto con messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.toggleCampionatoStatus = async function(id, attivo) {
-    const sql = `
+exports.toggleCampionatoStatus = async function (id, attivo) {
+  const sql = `
         UPDATE CAMPIONATI
         SET attivo = ?, updated_at = datetime('now')
         WHERE id = ?
     `;
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [attivo ? true : false, id], function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nell\'aggiornamento dello stato del campionato: ' + err.message });
-            }
-
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            if (changes === 0) {
-                return reject({ error: 'Campionato non trovato' });
-            }
-
-            resolve({ message: 'Stato del campionato aggiornato con successo', changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [attivo ? true : false, id], function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error:
+            "Errore nell'aggiornamento dello stato del campionato: " +
+            err.message,
         });
+      }
+
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (changes === 0) {
+        return reject({ error: "Campionato non trovato" });
+      }
+
+      resolve({
+        message: "Stato del campionato aggiornato con successo",
+        changes,
+      });
     });
+  });
 };
 
 /**
@@ -341,63 +386,74 @@ exports.toggleCampionatoStatus = async function(id, attivo) {
  * @returns {Promise<Array<Object>>} Array di oggetti rappresentanti le righe della classifica
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.getClassificaByCampionatoId = async function(campionatoId) {
-    // Prima recupera le regole del campionato
-    const regoleSql = `
+exports.getClassificaByCampionatoId = async function (campionatoId) {
+  // Prima recupera le regole del campionato
+  const regoleSql = `
         SELECT promozione_diretta, playoff_start, playoff_end, playout_start, playout_end, retrocessione_diretta
         FROM CAMPIONATI
         WHERE id = ?
     `;
-    const regole = await new Promise((resolve, reject) => {
-        sqlite.get(regoleSql, [campionatoId], (err, row) => {
-            if (err) {
-                console.error('Errore SQL regole:', err);
-                return reject({ error: 'Error retrieving regole: ' + err.message });
-            }
-            resolve(row || {});
-        });
+  const regole = await new Promise((resolve, reject) => {
+    sqlite.get(regoleSql, [campionatoId], (err, row) => {
+      if (err) {
+        console.error("Errore SQL regole:", err);
+        return reject({ error: "Error retrieving regole: " + err.message });
+      }
+      resolve(row || {});
     });
+  });
 
-    const sql = `
+  const sql = `
         SELECT posizione, squadra_nome as nome, punti, nostra_squadra_id
         FROM CLASSIFICA
         WHERE campionato_id = ?
         ORDER BY posizione ASC
     `;
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [campionatoId], (err, classifica) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Error retrieving classifica: ' + err.message });
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [campionatoId], (err, classifica) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({ error: "Error retrieving classifica: " + err.message });
+      }
+      try {
+        // Aggiungi classe per posizione
+        const result =
+          classifica.map((squadra) => {
+            let classe = "";
+            if (squadra.posizione <= (regole.promozione_diretta || 2)) {
+              classe = "table-success"; // Promozione diretta
+            } else if (
+              squadra.posizione >= (regole.playoff_start || 3) &&
+              squadra.posizione <= (regole.playoff_end || 6)
+            ) {
+              classe = "table-secondary"; // Playoff
+            } else if (
+              !squadra.nostra_squadra_id &&
+              squadra.posizione >= (regole.playout_start || 11) &&
+              squadra.posizione <= (regole.playout_end || 14)
+            ) {
+              classe = "table-warning"; // Play-out (non per la nostra squadra)
+            } else if (
+              squadra.posizione >
+              16 - (regole.retrocessione_diretta || 2)
+            ) {
+              classe = "table-danger"; // Retrocessione diretta
             }
-            try {
-                // Aggiungi classe per posizione
-                const result = classifica.map(squadra => {
-                    let classe = '';
-                    if (squadra.posizione <= (regole.promozione_diretta || 2)) {
-                        classe = 'table-success'; // Promozione diretta
-                    } else if (squadra.posizione >= (regole.playoff_start || 3) && squadra.posizione <= (regole.playoff_end || 6)) {
-                        classe = 'table-secondary'; // Playoff
-                    } else if (!squadra.nostra_squadra_id && squadra.posizione >= (regole.playout_start || 11) && squadra.posizione <= (regole.playout_end || 14)) {
-                        classe = 'table-warning'; // Play-out (non per la nostra squadra)
-                    } else if (squadra.posizione > (16 - (regole.retrocessione_diretta || 2))) {
-                        classe = 'table-danger'; // Retrocessione diretta
-                    }
-                    // La nostra squadra mantiene la classe basata sulla posizione
-                    return {
-                        posizione: squadra.posizione,
-                        nome: squadra.nome,
-                        punti: squadra.punti,
-                        classe: classe
-                    };
-                }) || [];
-                resolve(result);
-            } catch (e) {
-                console.error('Errore nella mappatura:', e);
-                reject({ error: 'Error mapping classifica: ' + e.message });
-            }
-        });
+            // La nostra squadra mantiene la classe basata sulla posizione
+            return {
+              posizione: squadra.posizione,
+              nome: squadra.nome,
+              punti: squadra.punti,
+              classe: classe,
+            };
+          }) || [];
+        resolve(result);
+      } catch (e) {
+        console.error("Errore nella mappatura:", e);
+        reject({ error: "Error mapping classifica: " + e.message });
+      }
     });
+  });
 };
 
 /**
@@ -421,39 +477,45 @@ exports.getClassificaByCampionatoId = async function(campionatoId) {
  * @returns {Promise<Object>} Oggetto con id e messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.addSquadraCampionato = async function(campionatoId, squadraData) {
-    const sql = `
+exports.addSquadraCampionato = async function (campionatoId, squadraData) {
+  const sql = `
         INSERT INTO CLASSIFICA (campionato_id, squadra_nome, nostra_squadra_id, posizione, punti, 
                                partite_giocate, vittorie, pareggi, sconfitte, gol_fatti, gol_subiti, 
                                differenza_reti, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `;
 
-    const values = [
-        campionatoId,
-        squadraData.squadra_nome || squadraData.nome,
-        squadraData.nostra_squadra_id || null,
-        squadraData.posizione || 0,
-        squadraData.punti || 0,
-        (squadraData.partite_giocate || 0),
-        squadraData.vittorie || squadraData.vinte || 0,
-        squadraData.pareggi || squadraData.pareggiate || 0,
-        squadraData.sconfitte || squadraData.perse || 0,
-        squadraData.gol_fatti || 0,
-        squadraData.gol_subiti || 0,
-        (squadraData.differenza_reti || ((squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0)))
-    ];
+  const values = [
+    campionatoId,
+    squadraData.squadra_nome || squadraData.nome,
+    squadraData.nostra_squadra_id || null,
+    squadraData.posizione || 0,
+    squadraData.punti || 0,
+    squadraData.partite_giocate || 0,
+    squadraData.vittorie || squadraData.vinte || 0,
+    squadraData.pareggi || squadraData.pareggiate || 0,
+    squadraData.sconfitte || squadraData.perse || 0,
+    squadraData.gol_fatti || 0,
+    squadraData.gol_subiti || 0,
+    squadraData.differenza_reti ||
+      (squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0),
+  ];
 
-    const sqlWithReturning = sql + ' RETURNING id';
-    return new Promise((resolve, reject) => {
-        sqlite.run(sqlWithReturning, values, function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nell\'aggiunta della squadra: ' + err.message });
-            }
-            resolve({ id: result.rows[0].id, message: 'Squadra aggiunta con successo' });
+  const sqlWithReturning = sql + " RETURNING id";
+  return new Promise((resolve, reject) => {
+    sqlite.run(sqlWithReturning, values, function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nell'aggiunta della squadra: " + err.message,
         });
+      }
+      resolve({
+        id: result.rows[0].id,
+        message: "Squadra aggiunta con successo",
+      });
     });
+  });
 };
 
 /**
@@ -467,24 +529,28 @@ exports.addSquadraCampionato = async function(campionatoId, squadraData) {
  * @returns {Promise<Object>} Oggetto con messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.removeSquadraCampionato = async function(campionatoId, squadraNome) {
-    const sql = 'DELETE FROM CLASSIFICA WHERE campionato_id = ? AND squadra_nome = ?';
+exports.removeSquadraCampionato = async function (campionatoId, squadraNome) {
+  const sql =
+    "DELETE FROM CLASSIFICA WHERE campionato_id = ? AND squadra_nome = ?";
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [campionatoId, squadraNome], function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nella rimozione della squadra: ' + err.message });
-            }
-
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            if (changes === 0) {
-                return reject({ error: 'Squadra non trovata' });
-            }
-
-            resolve({ message: 'Squadra rimossa con successo', changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [campionatoId, squadraNome], function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nella rimozione della squadra: " + err.message,
         });
+      }
+
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (changes === 0) {
+        return reject({ error: "Squadra non trovata" });
+      }
+
+      resolve({ message: "Squadra rimossa con successo", changes });
     });
+  });
 };
 
 /**
@@ -497,8 +563,8 @@ exports.removeSquadraCampionato = async function(campionatoId, squadraNome) {
  * @returns {Promise<Array<Object>>} Array di oggetti squadra
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.getSquadreByCampionatoId = async function(campionatoId) {
-    const sql = `
+exports.getSquadreByCampionatoId = async function (campionatoId) {
+  const sql = `
         SELECT id, squadra_nome as nome, nostra_squadra_id, posizione, punti, 
                partite_giocate, vittorie, pareggi, sconfitte, gol_fatti, gol_subiti, differenza_reti
         FROM CLASSIFICA
@@ -506,15 +572,17 @@ exports.getSquadreByCampionatoId = async function(campionatoId) {
         ORDER BY posizione ASC
     `;
 
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [campionatoId], (err, squadre) => {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nel recupero delle squadre: ' + err.message });
-            }
-            resolve(squadre || []);
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [campionatoId], (err, squadre) => {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nel recupero delle squadre: " + err.message,
         });
+      }
+      resolve(squadre || []);
     });
+  });
 };
 
 /**
@@ -529,8 +597,12 @@ exports.getSquadreByCampionatoId = async function(campionatoId) {
  * @returns {Promise<Object>} Oggetto con messaggio di successo
  * @throws {Object} Oggetto errore con proprietà error
  */
-exports.updateSquadraCampionato = async function(campionatoId, squadraNome, squadraData) {
-    const sql = `
+exports.updateSquadraCampionato = async function (
+  campionatoId,
+  squadraNome,
+  squadraData
+) {
+  const sql = `
         UPDATE CLASSIFICA
         SET posizione = ?, punti = ?, partite_giocate = ?, vittorie = ?, pareggi = ?, 
             sconfitte = ?, gol_fatti = ?, gol_subiti = ?, differenza_reti = ?, 
@@ -538,33 +610,40 @@ exports.updateSquadraCampionato = async function(campionatoId, squadraNome, squa
         WHERE campionato_id = ? AND squadra_nome = ?
     `;
 
-    const values = [
-        squadraData.posizione || 0,
-        squadraData.punti || 0,
-        (squadraData.partite_giocate || ((squadraData.vittorie || squadraData.vinte || 0) + (squadraData.pareggi || squadraData.pareggiate || 0) + (squadraData.sconfitte || squadraData.perse || 0))),
-        squadraData.vittorie || squadraData.vinte || 0,
-        squadraData.pareggi || squadraData.pareggiate || 0,
-        squadraData.sconfitte || squadraData.perse || 0,
-        squadraData.gol_fatti || 0,
-        squadraData.gol_subiti || 0,
-        (squadraData.differenza_reti || ((squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0))),
-        campionatoId,
-        squadraNome
-    ];
+  const values = [
+    squadraData.posizione || 0,
+    squadraData.punti || 0,
+    squadraData.partite_giocate ||
+      (squadraData.vittorie || squadraData.vinte || 0) +
+        (squadraData.pareggi || squadraData.pareggiate || 0) +
+        (squadraData.sconfitte || squadraData.perse || 0),
+    squadraData.vittorie || squadraData.vinte || 0,
+    squadraData.pareggi || squadraData.pareggiate || 0,
+    squadraData.sconfitte || squadraData.perse || 0,
+    squadraData.gol_fatti || 0,
+    squadraData.gol_subiti || 0,
+    squadraData.differenza_reti ||
+      (squadraData.gol_fatti || 0) - (squadraData.gol_subiti || 0),
+    campionatoId,
+    squadraNome,
+  ];
 
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, values, function(err, result) {
-            if (err) {
-                console.error('Errore SQL:', err);
-                return reject({ error: 'Errore nell\'aggiornamento della squadra: ' + err.message });
-            }
-
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            if (changes === 0) {
-                return reject({ error: 'Squadra non trovata' });
-            }
-
-            resolve({ message: 'Squadra aggiornata con successo', changes });
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, values, function (err, result) {
+      if (err) {
+        console.error("Errore SQL:", err);
+        return reject({
+          error: "Errore nell'aggiornamento della squadra: " + err.message,
         });
+      }
+
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      if (changes === 0) {
+        return reject({ error: "Squadra non trovata" });
+      }
+
+      resolve({ message: "Squadra aggiornata con successo", changes });
     });
+  });
 };

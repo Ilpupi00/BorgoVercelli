@@ -5,10 +5,12 @@
 ### 🎉 Aggiunte
 
 #### Nuovi Ruoli
+
 - **Segretario (ID: 5)**: Gestione completa di tutte le squadre e contenuti
 - **Gestore Campo (ID: 6)**: Gestione dedicata di campi sportivi e prenotazioni
 
 #### Nuove Funzionalità
+
 - **Multi-squadra per Dirigenti**: I dirigenti possono ora gestire più squadre contemporaneamente
 - **Permessi Estesi**: Presidente, Vicepresidente e Segretario hanno accesso a tutte le squadre
 - **Badge Ruoli**: Visualizzazione migliorata dei ruoli nelle interfacce utente
@@ -16,7 +18,9 @@
 ### 🔄 Modifiche
 
 #### Backend
+
 - **Middleware Auth** (`src/core/middlewares/auth.js`):
+
   - Aggiunto `isGestoreCampo()` - verifica accesso gestore campo
   - Aggiunto `isStaffOrAdmin()` - verifica accesso staff generale
   - Aggiunto `canManageCampi()` - verifica permessi gestione campi
@@ -24,6 +28,7 @@
   - Aggiornato `canEditNotizia()` - permessi estesi per staff
 
 - **DAO Dirigenti** (`src/features/squadre/services/dao-dirigenti-squadre.js`):
+
   - `getDirigenteByUserId()` ora ritorna **array** invece di singolo oggetto
   - Supporto completo per dirigenti con multiple squadre
 
@@ -32,7 +37,9 @@
   - Route prenotazioni accessibili a Gestore Campo
 
 #### Frontend
+
 - **Profilo Utente** (`src/features/auth/views/profilo.ejs`):
+
   - Badge per nuovo ruolo Gestore Campo
   - Icona dedicata: 📋 Clipboard Check
 
@@ -44,12 +51,14 @@
 ### 🗄️ Database
 
 #### Migration
+
 - `database/migrations/add_new_roles.sql`:
   - Inserimento ruolo Segretario (ID: 5)
   - Inserimento ruolo Gestore Campo (ID: 6)
   - Gestione conflitti con ON CONFLICT
 
 #### Test
+
 - `database/migrations/test_new_roles.sql`:
   - Script di verifica per nuovi ruoli
   - Test integrità referenziale
@@ -58,6 +67,7 @@
 ### 📚 Documentazione
 
 #### Nuovi Documenti
+
 - `docs/SISTEMA_RUOLI_AGGIORNATO.md`:
   - Guida completa al nuovo sistema
   - Matrice permessi dettagliata
@@ -65,6 +75,7 @@
   - Scenari di testing
 
 #### Script
+
 - `scripts/deploy-new-roles.sh`:
   - Script automatizzato di deployment
   - Checklist interattiva
@@ -73,17 +84,18 @@
 ### ⚠️ Breaking Changes
 
 1. **DAO Dirigenti**:
+
    ```javascript
    // PRIMA (v1.x)
    const dirigente = await getDirigenteByUserId(userId);
    if (dirigente) {
      console.log(dirigente.squadra_id);
    }
-   
+
    // DOPO (v2.0)
    const dirigenti = await getDirigenteByUserId(userId);
    if (dirigenti.length > 0) {
-     dirigenti.forEach(d => console.log(d.squadra_id));
+     dirigenti.forEach((d) => console.log(d.squadra_id));
    }
    ```
 
@@ -93,15 +105,15 @@
 
 ### 🔐 Matrice Permessi Completa
 
-| Ruolo | Squadre | Contenuti | Campi | Prenotazioni | Utenti | Statistiche |
-|-------|---------|-----------|-------|--------------|--------|-------------|
-| Admin | ✅ Tutte | ✅ Tutti | ✅ | ✅ | ✅ | ✅ |
-| Presidente | ✅ Tutte | ✅ Tutti | ✅ | ✅ | ❌ | ❌ |
-| Vicepresidente | ✅ Tutte | ✅ Tutti | ✅ | ✅ | ❌ | ❌ |
-| Segretario | ✅ Tutte | ✅ Tutti | ✅ | ✅ | ❌ | ❌ |
-| Dirigente | ⚠️ Assegnate | ⚠️ Propri | ❌ | ❌ | ❌ | ❌ |
-| Gestore Campo | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Utente | ❌ | ❌ | ❌ | ⚠️ Proprie | ❌ | ❌ |
+| Ruolo          | Squadre      | Contenuti | Campi | Prenotazioni | Utenti | Statistiche |
+| -------------- | ------------ | --------- | ----- | ------------ | ------ | ----------- |
+| Admin          | ✅ Tutte     | ✅ Tutti  | ✅    | ✅           | ✅     | ✅          |
+| Presidente     | ✅ Tutte     | ✅ Tutti  | ✅    | ✅           | ❌     | ❌          |
+| Vicepresidente | ✅ Tutte     | ✅ Tutti  | ✅    | ✅           | ❌     | ❌          |
+| Segretario     | ✅ Tutte     | ✅ Tutti  | ✅    | ✅           | ❌     | ❌          |
+| Dirigente      | ⚠️ Assegnate | ⚠️ Propri | ❌    | ❌           | ❌     | ❌          |
+| Gestore Campo  | ❌           | ❌        | ✅    | ✅           | ❌     | ❌          |
+| Utente         | ❌           | ❌        | ❌    | ⚠️ Proprie   | ❌     | ❌          |
 
 ### 📋 Checklist Deployment
 
@@ -136,6 +148,7 @@
 ### 📞 Supporto
 
 Per problemi o domande:
+
 - Consulta `docs/SISTEMA_RUOLI_AGGIORNATO.md`
 - Verifica `database/migrations/test_new_roles.sql`
 - Esegui `scripts/deploy-new-roles.sh`

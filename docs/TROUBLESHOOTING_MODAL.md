@@ -25,6 +25,7 @@ Apri la console del browser (F12) e cerca eventuali errori JavaScript.
 **CAUSA:** I campi CF e Numero Documento sono **nascosti di default** finché non selezioni il tipo.
 
 **SOLUZIONE:**
+
 1. Nel modal, trova il menu a tendina "Tipo di Documento"
 2. Seleziona "Codice Fiscale" → apparirà il campo CF
 3. Oppure seleziona "Documento di Identità" → apparirà il campo per il numero documento
@@ -36,11 +37,12 @@ Questo è **comportamento corretto** - i campi appaiono solo quando scegli il ti
 #### Possibile causa 1: Conflitto CSS
 
 Apri la console e digita:
+
 ```javascript
-const footer = document.querySelector('#modalPrenotazioneCampo .modal-footer');
+const footer = document.querySelector("#modalPrenotazioneCampo .modal-footer");
 if (footer) {
-    console.log('Display:', window.getComputedStyle(footer).display);
-    console.log('Visibility:', window.getComputedStyle(footer).visibility);
+  console.log("Display:", window.getComputedStyle(footer).display);
+  console.log("Visibility:", window.getComputedStyle(footer).visibility);
 }
 ```
 
@@ -57,8 +59,9 @@ Il modal potrebbe essere tagliato dallo scroll.
 #### Possibile causa 3: Bootstrap non caricato
 
 Verifica che Bootstrap sia caricato:
+
 ```javascript
-console.log('Bootstrap:', typeof bootstrap !== 'undefined');
+console.log("Bootstrap:", typeof bootstrap !== "undefined");
 ```
 
 ### 🧪 Script di Test Completo
@@ -70,6 +73,7 @@ Copia e incolla nella console del browser (dopo aver cliccato "Prenota"):
 ```
 
 Oppure carica direttamente:
+
 ```html
 <script src="/scripts/test-modal-prenotazione-browser.js"></script>
 ```
@@ -80,24 +84,24 @@ Se i bottoni continuano a non vedersi, apri la console e digita:
 
 ```javascript
 // Fix footer invisibile
-const footer = document.querySelector('#modalPrenotazioneCampo .modal-footer');
+const footer = document.querySelector("#modalPrenotazioneCampo .modal-footer");
 if (footer) {
-    footer.style.display = 'flex !important';
-    footer.style.visibility = 'visible !important';
-    footer.style.opacity = '1 !important';
-    console.log('✅ Footer forzato visibile');
+  footer.style.display = "flex !important";
+  footer.style.visibility = "visible !important";
+  footer.style.opacity = "1 !important";
+  console.log("✅ Footer forzato visibile");
 }
 
 // Mostra campi documento per test
-const cfGroup = document.querySelector('#codiceFiscaleGroup');
-const numDocGroup = document.querySelector('#numeroDocumentoGroup');
+const cfGroup = document.querySelector("#codiceFiscaleGroup");
+const numDocGroup = document.querySelector("#numeroDocumentoGroup");
 if (cfGroup) {
-    cfGroup.style.display = 'block';
-    console.log('✅ Campo CF mostrato');
+  cfGroup.style.display = "block";
+  console.log("✅ Campo CF mostrato");
 }
 if (numDocGroup) {
-    numDocGroup.style.display = 'block';
-    console.log('✅ Campo numero documento mostrato');
+  numDocGroup.style.display = "block";
+  console.log("✅ Campo numero documento mostrato");
 }
 ```
 
@@ -139,12 +143,14 @@ Il modal dovrebbe mostrare:
 Verifica che questi file siano stati aggiornati correttamente:
 
 1. **modalPrenotazione.js**
+
    ```bash
    # Deve contenere il nuovo HTML con footer
    grep -n "modal-footer" src/public/assets/scripts/utils/modalPrenotazione.js
    ```
 
 2. **modalPrenotazione.css**
+
    ```bash
    # Deve esistere
    ls -la src/public/assets/styles/modalPrenotazione.css

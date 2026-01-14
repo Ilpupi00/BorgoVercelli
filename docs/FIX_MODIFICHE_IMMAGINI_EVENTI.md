@@ -15,6 +15,7 @@ Quando si modificavano le immagini degli eventi o notizie usando l'editor (crop,
 ### Problema 2: File Orfani nel Volume Persistente ⚠️
 
 Quando si **sostituiva o eliminava** un'immagine:
+
 - ✅ Il record nel database veniva aggiornato/cancellato
 - ❌ Il **file fisico** nel volume persistente NON veniva eliminato
 - ❌ **Accumulo di file inutilizzati** che occupavano spazio su Railway
@@ -32,12 +33,13 @@ Quando si **sostituiva o eliminava** un'immagine:
 #### Modifiche a `image-editor-common.js`
 
 **Cosa fa ora**:
+
 1. Converte il blob modificato in un `File` object con nome timestamp
 2. Aggiorna la variabile globale `window.selectedFile` con il file modificato
 3. **Upload automatico** per eventi/notizie esistenti
 4. Mostra messaggio di successo appropriato
 
-```javascript
+````javascript
 // Salva modifiche nell'editor
 const editedFile = new File([blob], fileName, { type: 'image/jpeg' });
 
@@ -70,7 +72,7 @@ try {
 // Poi carica la nuova immagine
 const imageUrl = '/uploads/' + req.file.filename;
 await daoAdmin.insertImmagine(imageUrl, 'evento', 'evento', eventoId, 1);
-```
+````
 
 #### B. Pulizia in Caso di Errore
 
@@ -79,7 +81,7 @@ Se l'upload fallisce, **elimina il file temporaneo** per evitare orfani:
 ```javascript
 } catch (error) {
   console.error('[UPLOAD EVENTO] ❌ Errore:', error);
-  
+
   // ⚠️ Se l'upload fallisce, elimina il file caricato
   if (req.file && req.file.path) {
     const fs = require('fs');
@@ -88,7 +90,7 @@ Se l'upload fallisce, **elimina il file temporaneo** per evitare orfani:
       console.log('[UPLOAD EVENTO] 🗑️ File temporaneo eliminato');
     }
   }
-  
+
   res.status(500).json({ error: 'Errore upload' });
 }
 ```
@@ -102,7 +104,7 @@ function deleteImmaginiByEntita(entitaRiferimento, entitaId) {
   // 1. Recupera URL immagini dal DB
   const selectSql = 'SELECT url FROM IMMAGINI WHERE ...';
   const rows = await db.query(selectSql, [entitaRiferimento, entitaId]);
-  
+
   // 2. Elimina file fisici dal disco
   const { deleteImageFile } = require('../../../shared/utils/file-helper');
   rows.forEach(row => {
@@ -110,7 +112,7 @@ function deleteImmaginiByEntita(entitaRiferimento, entitaId) {
       deleteImageFile(row.url); // Cancella da /data/uploads o src/public/uploads
     }
   });
-  
+
   // 3. Elimina record dal database
   const deleteSql = 'DELETE FROM IMMAGINI WHERE ...';
   await db.query(deleteSql, [entitaRiferimento, entitaId]);
@@ -130,13 +132,14 @@ node scripts/cleanup-uploads.js
 ```
 
 Lo script:
+
 - Scansiona la directory `/data/uploads` (o locale)
 - Confronta con il database (tabella IMMAGINI)
 - Identifica file orfani (su disco ma non in DB)
 - Calcola spazio recuperabile
 - Elimina i file orfani (se non --dry-run)
 
-### 
+###
 
 ### Modifiche a `crea_evento.js`
 
@@ -146,6 +149,7 @@ Lo script:
 2. **`window.uploadImageToServer`**: Funzione per caricare immagini sul server
 
 **Mantiene sincronizzazione**:
+
 - Quando viene selezionato un file → aggiorna `window.selectedFile`
 - Quando viene rimossa l'anteprima → resetta `window.selectedFile`
 
@@ -190,6 +194,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **Righe modificate**: ~310-345
 
 **Cambiamenti**:
+
 - Converte blob in File object
 - Aggiorna `window.selectedFile`
 - Upload automatico per eventi/notizie esistenti
@@ -200,6 +205,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **Righe modificate**: ~5, ~470, ~385, ~510, ~560
 
 **Cambiamenti**:
+
 - Espone `window.selectedFile` globalmente
 - Sincronizza `selectedFile` con `window.selectedFile`
 - Espone `uploadImageToServer` globalmente
@@ -209,6 +215,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **Righe modificate**: ~348, ~400, ~470, ~493, ~548
 
 **Cambiamenti**:
+
 - Stesse modifiche di `crea_evento.js` per notizie
 
 ### 4. `src/features/eventi/routes/eventi.js` ⚠️ NUOVO
@@ -216,6 +223,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **Righe modificate**: ~217-228, ~257-275
 
 **Cambiamenti**:
+
 - ✅ Elimina vecchia immagine PRIMA di caricare la nuova
 - ✅ Pulizia file temporaneo se upload fallisce
 - ✅ Log dettagliati per debugging
@@ -225,6 +233,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **Righe modificate**: ~318-329, ~338-356
 
 **Cambiamenti**:
+
 - ✅ Elimina vecchia immagine PRIMA di caricare la nuova
 - ✅ Pulizia file temporaneo se upload fallisce
 - ✅ Log dettagliati per debugging
@@ -234,6 +243,7 @@ Stesse modifiche di `crea_evento.js` per mantenere la coerenza.
 **File completamente nuovo**
 
 **Funzionalità**:
+
 - Scansiona directory uploads
 - Confronta con database
 - Identifica e rimuove file orfani
@@ -256,10 +266,12 @@ Quando modifichi un'immagine dovresti vedere:
 ### Test Manuale
 
 1. **Test 1 - Modifica evento esistente**:
+
    - Modifica immagine → Salva editor → Ricarica pagina
    - ✅ Immagine modificata deve persistere
 
 2. **Test 2 - Nuovo evento con modifica**:
+
    - Seleziona immagine → Modifica → Salva evento
    - ✅ Immagine salvata deve essere quella modificata
 
@@ -272,6 +284,7 @@ Quando modifichi un'immagine dovresti vedere:
 ### Database
 
 **Tabella IMMAGINI**:
+
 ```sql
 CREATE TABLE IMMAGINI (
   id SERIAL PRIMARY KEY,
@@ -309,9 +322,9 @@ name = "uploads-volume"
 **File**: `src/core/config/multer.js`
 
 ```javascript
-const uploadDir = process.env.RAILWAY_ENVIRONMENT 
-  ? '/data/uploads' 
-  : path.join(process.cwd(), 'src', 'public', 'uploads');
+const uploadDir = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/uploads"
+  : path.join(process.cwd(), "src", "public", "uploads");
 ```
 
 ### Express Static
@@ -319,11 +332,11 @@ const uploadDir = process.env.RAILWAY_ENVIRONMENT
 **File**: `src/app.js`
 
 ```javascript
-const uploadsPath = process.env.RAILWAY_ENVIRONMENT 
-  ? '/data/uploads' 
-  : path.join(__dirname, 'public/uploads');
+const uploadsPath = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/uploads"
+  : path.join(__dirname, "public/uploads");
 
-app.use('/uploads', express.static(uploadsPath));
+app.use("/uploads", express.static(uploadsPath));
 ```
 
 ## 🐛 Troubleshooting
@@ -333,11 +346,13 @@ app.use('/uploads', express.static(uploadsPath));
 **Sintomo**: Le modifiche dell'editor non persistono
 
 **Cause possibili**:
+
 1. Console mostra errori JavaScript
 2. `window.selectedFile` non è definito
 3. Upload fallisce per errore server
 
 **Soluzione**:
+
 1. Controlla console browser per errori
 2. Verifica che `crea_evento.js` sia caricato
 3. Controlla network tab per response upload
@@ -347,11 +362,13 @@ app.use('/uploads', express.static(uploadsPath));
 **Sintomo**: Errore durante upload immagine modificata
 
 **Cause possibili**:
+
 1. Evento non esiste (ID errato)
 2. Permessi insufficienti
 3. File troppo grande
 
 **Soluzione**:
+
 1. Verifica che l'evento esista nel DB
 2. Controlla autenticazione (`isLoggedIn`, `isAdminOrDirigente`)
 3. Verifica limite dimensione file (5MB max)
@@ -361,12 +378,14 @@ app.use('/uploads', express.static(uploadsPath));
 **Sintomo**: Immagine modificata visibile ma sparisce dopo refresh
 
 **Cause possibili**:
+
 1. Upload non completato
 2. File non salvato su disco
 3. Volume Railway non montato
 4. **File eliminato per errore da pulizia automatica** ⚠️
 
 **Soluzione**:
+
 1. Verifica che upload sia completato (network tab)
 2. Controlla log server per errori scrittura file
 3. Verifica volume Railway nella dashboard
@@ -377,11 +396,13 @@ app.use('/uploads', express.static(uploadsPath));
 **Sintomo**: Spazio volume Railway si riempie progressivamente
 
 **Cause possibili**:
+
 1. Sostituzione immagini senza eliminazione vecchie
 2. Upload falliti che lasciano file temporanei
 3. Eliminazione manuale record DB senza rimuovere file
 
 **Soluzione**:
+
 ```bash
 # 1. Verifica file orfani
 node scripts/cleanup-uploads.js --dry-run
@@ -406,11 +427,13 @@ node scripts/cleanup-uploads.js --dry-run
 **Sintomo**: Upload immagini molto lento (>10 secondi)
 
 **Cause possibili**:
+
 1. File molto grande (>2MB)
 2. Compressione immagine disabilitata
 3. Problemi rete Railway
 
 **Soluzione**:
+
 1. Usa editor per ridurre dimensioni (max 1920x1080)
 2. Verifica qualità JPEG (95% è buona)
 3. Controlla performance volume Railway
@@ -421,6 +444,7 @@ node scripts/cleanup-uploads.js --dry-run
 
 **Originale**: Qualsiasi dimensione (max 5MB upload)
 **Modificata**: Ottimizzata automaticamente
+
 - Max Width: 1920px
 - Max Height: 1080px
 - [x] **Eliminazione vecchie immagini funziona** ⚠️
@@ -439,16 +463,19 @@ node scripts/cleanup-uploads.js --dry-run
 ### Benefici Aggiuntivi ⚠️
 
 **Spazio Disco**:
+
 - Prima: File si accumulavano indefinitamente
 - Dopo: Vecchi file eliminati automaticamente
 - Risparmio: ~50-70% spazio su lungo periodo
 
 **Performance**:
+
 - Meno file da scansionare
 - Backup più veloci
 - Volume più ordinato
 
 **Costi Railway**:
+
 - Riduzione utilizzo volume
 - Possibile downgrade piano storage
 - Costi ottimizzati
@@ -471,11 +498,13 @@ node scripts/cleanup-uploads.js            # Elimina
 # 3. Verifica spazio volume
 railway volume ls
 ```
+
 - Quality: 95% (JPEG)
 
 ### Conversione Formato
 
 Tutte le immagini modificate vengono convertite in **JPEG** per:
+
 - Dimensione file ridotta
 - Compatibilità universale
 - Performance migliore
@@ -487,20 +516,23 @@ Tutte le immagini modificate vengono convertite in **JPEG** per:
 Per aggiungere il sistema di modifica immagini ad altre entità (es. profilo, squadre):
 
 1. **Includi gli script**:
+
    ```html
-   <link rel="stylesheet" href="/assets/styles/image-editor.css">
+   <link rel="stylesheet" href="/assets/styles/image-editor.css" />
    <script src="/assets/scripts/image-editor-common.js"></script>
    ```
 
 2. **Esponi variabili globali**:
+
    ```javascript
    window.selectedFile = null;
    window.uploadImageToServer = async (file, entityId) => { ... };
    ```
 
 3. **Aggiungi data attribute al form**:
+
    ```html
-   <form id="yourForm" data-your-id="<%= entity.id %>">
+   <form id="yourForm" data-your-id="<%= entity.id %>"></form>
    ```
 
 4. **L'editor si collegherà automaticamente** ai pulsanti con classe `.edit-image-btn`

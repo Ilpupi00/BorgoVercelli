@@ -9,6 +9,7 @@ Il progetto è stato completamente riorganizzato per migliorare la manutenibilit
 #### 1. **Struttura delle Directory**
 
 **PRIMA:**
+
 ```
 src/
 ├── bin/
@@ -25,6 +26,7 @@ src/
 ```
 
 **DOPO:**
+
 ```
 src/
 ├── server/              # Script di avvio (ex bin/)
@@ -58,11 +60,13 @@ src/
 #### 2. **Organizzazione per Feature**
 
 Ogni funzionalità principale ora ha la sua directory con:
+
 - `routes/` - Gestione endpoint HTTP
 - `services/` - Logica business e DAO
 - `views/` - Template EJS specifici
 
 Esempio per la feature "notizie":
+
 ```
 features/notizie/
 ├── routes/
@@ -79,36 +83,41 @@ features/notizie/
 
 Gli URL degli asset sono stati aggiornati:
 
-| Prima | Dopo |
-|-------|------|
-| `/images/logo.png` | `/assets/images/logo.png` |
-| `/javascripts/login.js` | `/assets/scripts/login.js` |
-| `/stylesheets/Common.css` | `/assets/styles/Common.css` |
-| `/uploads/photo.jpg` | `/uploads/photo.jpg` ✓ (invariato) |
+| Prima                     | Dopo                               |
+| ------------------------- | ---------------------------------- |
+| `/images/logo.png`        | `/assets/images/logo.png`          |
+| `/javascripts/login.js`   | `/assets/scripts/login.js`         |
+| `/stylesheets/Common.css` | `/assets/styles/Common.css`        |
+| `/uploads/photo.jpg`      | `/uploads/photo.jpg` ✓ (invariato) |
 
 ### 📝 File Modificati
 
 Tutti i seguenti file sono stati aggiornati con i nuovi path:
 
 #### File di Configurazione
+
 - ✅ `package.json` - Script di avvio aggiornato
 - ✅ `src/app.js` - Import e configurazione views
 - ✅ `src/core/config/database.js` - Path database corretto
 
 #### Route
+
 - ✅ Tutte le route in `src/features/*/routes/*.js`
 - ✅ Route condivise in `src/shared/routes/*.js`
 
 #### Servizi (DAO)
+
 - ✅ Tutti i DAO in `src/features/*/services/*.js`
 - ✅ Servizio email in `src/shared/services/email-service.js`
 
 #### Middleware
+
 - ✅ `src/core/middlewares/auth.js`
 - ✅ `src/core/middlewares/jwt.js`
 - ✅ `src/core/middlewares/getUser.js`
 
 #### Views
+
 - ✅ Tutte le view `.ejs` aggiornate con nuovi path asset
 - ✅ Views organizzate per feature
 - ✅ Views condivise in `src/shared/views/`
@@ -124,6 +133,7 @@ Tutti i seguenti file sono stati aggiornati con i nuovi path:
 ### 🔍 Come Orientarsi
 
 #### Per trovare una funzionalità:
+
 ```
 Cerco la gestione delle prenotazioni?
 → features/prenotazioni/
@@ -144,24 +154,27 @@ Cerco uno script JavaScript client-side?
 ### ⚙️ Import Pattern
 
 #### Da una feature ad un'altra:
+
 ```javascript
 // In features/admin/routes/admin.js
-const userDao = require('../../users/services/dao-user');
-const notizieDao = require('../../notizie/services/dao-notizie');
+const userDao = require("../../users/services/dao-user");
+const notizieDao = require("../../notizie/services/dao-notizie");
 ```
 
 #### Da una feature al core:
+
 ```javascript
 // In features/eventi/services/dao-eventi.js
-const db = require('../../../core/config/database');
-const Evento = require('../../../core/models/evento');
+const db = require("../../../core/config/database");
+const Evento = require("../../../core/models/evento");
 ```
 
 #### Da shared:
+
 ```javascript
 // In shared/routes/index.js
-const daoNotizie = require('../../features/notizie/services/dao-notizie');
-const { isLoggedIn } = require('../../core/middlewares/auth');
+const daoNotizie = require("../../features/notizie/services/dao-notizie");
+const { isLoggedIn } = require("../../core/middlewares/auth");
 ```
 
 ### ✅ Verifiche Effettuate
@@ -176,15 +189,18 @@ const { isLoggedIn } = require('../../core/middlewares/auth');
 ### 🚀 Per Continuare lo Sviluppo
 
 1. **Aggiungere una nuova feature:**
+
    ```bash
    mkdir -p src/features/nuova-feature/{routes,services,views}
    ```
 
 2. **Aggiungere route alla feature:**
+
    - Crea `src/features/nuova-feature/routes/nuova-feature.js`
    - Importala in `src/app.js`
 
 3. **Aggiungere views:**
+
    - Crea le view in `src/features/nuova-feature/views/`
    - Aggiungi il path in `app.set('views', [...])` in `src/app.js`
 
@@ -201,15 +217,18 @@ Consulta `src/README.md` per la documentazione completa della struttura.
 ### 🐛 Troubleshooting
 
 **Errore "Cannot find module"?**
+
 - Verifica i path relativi (usa `../`, `../../`, `../../../`)
 - I modelli sono in `core/models/`
 - Le configurazioni sono in `core/config/`
 
 **Asset non caricati?**
+
 - Verifica che usi `/assets/` come prefix
 - Gli upload sono in `/uploads/` (senza assets)
 
 **Database non trovato?**
+
 - Il path è `../../../database/database.db` da `core/config/`
 - Il database è nella root del progetto
 

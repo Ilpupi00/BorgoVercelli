@@ -10,9 +10,11 @@
 ## 📚 Documentazione Creata
 
 ### 1. **Standard di Commentazione Completi**
+
 **File:** `docs/COMMENT_STANDARDS.md`
 
 Contiene:
+
 - ✅ Standard JSDoc per JavaScript/Node.js
 - ✅ Standard per commenti EJS
 - ✅ Standard per commenti CSS
@@ -21,9 +23,11 @@ Contiene:
 - ✅ Best practices e checklist
 
 ### 2. **Script di Automazione**
+
 **File:** `scripts/add-comments.sh`
 
 Funzionalità:
+
 - ✅ Aggiunge header automatici a file JS, EJS, CSS
 - ✅ Verifica se il file ha già un header
 - ✅ Contatore file modificati
@@ -36,6 +40,7 @@ Funzionalità:
 ### Core
 
 #### ✅ `src/core/config/database.js`
+
 ```javascript
 /**
  * @fileoverview Configurazione e connessione al database SQLite
@@ -43,12 +48,14 @@ Funzionalità:
  * @description Gestisce la connessione al database SQLite del progetto.
  */
 ```
+
 - Header completo con @fileoverview
 - Costanti documentate con @constant
 - Variabili con @type
 - Export documentato con @exports
 
 #### ✅ `src/core/middlewares/auth.js`
+
 ```javascript
 /**
  * @fileoverview Middleware di autenticazione e autorizzazione
@@ -59,16 +66,18 @@ Funzionalità:
  * Middleware per verificare se l'utente è autenticato
  * @function isLoggedIn
  * @param {Object} req - Oggetto richiesta Express
- * @param {Object} res - Oggetto risposta Express  
+ * @param {Object} res - Oggetto risposta Express
  * @param {Function} next - Callback next di Express
  * @returns {void}
  */
 ```
+
 - Tutte le funzioni export con JSDoc completo
 - Parametri documentati
 - Sezioni logiche separate
 
 #### ✅ `src/core/middlewares/jwt.js`
+
 ```javascript
 /**
  * @fileoverview Gestione autenticazione JWT per "Ricordami"
@@ -86,12 +95,14 @@ Funzionalità:
 ```
 
 #### ✅ `src/app.js` (Parziale)
+
 ```javascript
 /**
  * @fileoverview File principale dell'applicazione Express
  * @description Configura middleware, autenticazione, route e gestione errori
  */
 ```
+
 - Header completo
 - Sezioni divise con commenti
 - Configurazione Passport documentata
@@ -99,6 +110,7 @@ Funzionalità:
 ### Features - DAO
 
 #### ✅ `src/features/users/services/dao-user.js` (Parziale)
+
 ```javascript
 /**
  * @fileoverview Data Access Object per la gestione degli utenti
@@ -118,6 +130,7 @@ Funzionalità:
 ```
 
 #### ✅ `src/features/prenotazioni/services/dao-prenotazione.js` (Parziale)
+
 ```javascript
 /**
  * @fileoverview Data Access Object per la gestione delle prenotazioni campi
@@ -188,12 +201,12 @@ exports.get[Entità]ById = async function(id) {
  * @description Definisce endpoint HTTP per [funzionalità]
  */
 
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const dao = require('../services/dao-[nome]');
-const { isLoggedIn } = require('../../../core/middlewares/auth');
+const dao = require("../services/dao-[nome]");
+const { isLoggedIn } = require("../../../core/middlewares/auth");
 
 // ==================== ENDPOINT PUBBLICI ====================
 
@@ -201,8 +214,8 @@ const { isLoggedIn } = require('../../../core/middlewares/auth');
  * GET /[path]
  * Descrizione endpoint
  */
-router.get('/[path]', async (req, res) => {
-    // Implementazione
+router.get("/[path]", async (req, res) => {
+  // Implementazione
 });
 
 // ==================== ENDPOINT PROTETTI ====================
@@ -211,8 +224,8 @@ router.get('/[path]', async (req, res) => {
  * POST /[path]
  * Descrizione endpoint (solo utenti autenticati)
  */
-router.post('/[path]', isLoggedIn, async (req, res) => {
-    // Implementazione
+router.post("/[path]", isLoggedIn, async (req, res) => {
+  // Implementazione
 });
 
 module.exports = router;
@@ -221,11 +234,11 @@ module.exports = router;
 ### Template EJS
 
 ```ejs
-<%# 
+<%#
   File: nome-file.ejs
   Descrizione: Descrizione pagina
   Feature: nome-feature
-  
+
   Parametri richiesti:
   - parametro1: Tipo e descrizione
   - parametro2: Tipo e descrizione
@@ -237,7 +250,7 @@ module.exports = router;
     <%# ==================== META E TITOLO ==================== %>
     <meta charset="UTF-8">
     <title>Titolo Pagina</title>
-    
+
     <%# ==================== STILI ==================== %>
     <link href="/assets/styles/Common.css" rel="stylesheet">
 </head>
@@ -245,12 +258,12 @@ module.exports = router;
 <body>
     <%# ==================== HEADER ==================== %>
     <%- include('../partials/navbar') %>
-    
+
     <%# ==================== CONTENUTO PRINCIPALE ==================== %>
     <main>
         <%# Descrizione sezione %>
     </main>
-    
+
     <%# ==================== FOOTER ==================== %>
     <%- include('../partials/footer') %>
 </body>
@@ -268,19 +281,19 @@ module.exports = router;
 
 /* ==================== LAYOUT PRINCIPALE ==================== */
 .container {
-    /* Stili */
+  /* Stili */
 }
 
 /* ==================== COMPONENTI ==================== */
 /* Descrizione componente */
 .componente {
-    /* Stili */
+  /* Stili */
 }
 
 /* ==================== RESPONSIVE ==================== */
 /* Tablet */
 @media (max-width: 768px) {
-    /* Stili responsive */
+  /* Stili responsive */
 }
 ```
 
@@ -303,12 +316,14 @@ Lo script aggiungerà header base a tutti i file con TODO da completare.
 ### Opzione 2: Manuale (Raccomandato per qualità)
 
 1. **Priorità Alta** - Commentare per primi:
+
    - `src/app.js` - Entry point
    - Tutti i DAO in `features/*/services/`
    - Tutti i middleware in `core/middlewares/`
    - Route principali in `features/*/routes/`
 
 2. **Priorità Media**:
+
    - Modelli in `core/models/`
    - Route condivise in `shared/routes/`
    - JavaScript client-side in `public/assets/scripts/`
@@ -339,16 +354,16 @@ Per ogni file:
 
 ### File da Commentare
 
-| Tipo | Quantità Stimata | Priorità |
-|------|------------------|----------|
-| **JavaScript (DAO)** | ~12 file | 🔴 Alta |
-| **JavaScript (Route)** | ~14 file | 🔴 Alta |
-| **JavaScript (Middleware)** | ~3 file | 🔴 Alta |
-| **JavaScript (Models)** | ~11 file | 🟡 Media |
-| **JavaScript (Client)** | ~20 file | 🟡 Media |
-| **EJS Views** | ~44 file | 🟢 Bassa |
-| **CSS** | ~30 file | 🟢 Bassa |
-| **Totale** | ~150 file | - |
+| Tipo                        | Quantità Stimata | Priorità |
+| --------------------------- | ---------------- | -------- |
+| **JavaScript (DAO)**        | ~12 file         | 🔴 Alta  |
+| **JavaScript (Route)**      | ~14 file         | 🔴 Alta  |
+| **JavaScript (Middleware)** | ~3 file          | 🔴 Alta  |
+| **JavaScript (Models)**     | ~11 file         | 🟡 Media |
+| **JavaScript (Client)**     | ~20 file         | 🟡 Media |
+| **EJS Views**               | ~44 file         | 🟢 Bassa |
+| **CSS**                     | ~30 file         | 🟢 Bassa |
+| **Totale**                  | ~150 file        | -        |
 
 ### Tempo Stimato
 

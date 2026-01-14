@@ -82,6 +82,7 @@ curl -X POST http://localhost:3000/prenotazione/prenotazioni/check \
 ```
 
 **Risposta attesa (OK):**
+
 ```json
 {
   "ok": true
@@ -89,6 +90,7 @@ curl -X POST http://localhost:3000/prenotazione/prenotazioni/check \
 ```
 
 **Risposta attesa (conflitto):**
+
 ```json
 {
   "ok": false,
@@ -113,6 +115,7 @@ curl -X POST http://localhost:3000/prenotazione/prenotazioni \
 ```
 
 **Risposta attesa (successo):**
+
 ```json
 {
   "success": true,
@@ -122,6 +125,7 @@ curl -X POST http://localhost:3000/prenotazione/prenotazioni \
 ```
 
 **Risposta attesa (conflitto):**
+
 ```json
 {
   "error": "Orario si sovrappone a una prenotazione esistente",
@@ -135,44 +139,44 @@ curl -X POST http://localhost:3000/prenotazione/prenotazioni \
 
 ```sql
 -- Setup: crea una prenotazione
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 
 -- Test 1: Duplicato esatto (deve fallire)
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- ERRORE ATTESO: conflicting key value violates exclusion constraint "prenotazioni_no_overlap"
 
 -- Test 2: Sovrapposizione (deve fallire)
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '11:00', '13:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- ERRORE ATTESO: conflicting key value violates exclusion constraint "prenotazioni_no_overlap"
 
 -- Test 3: Adiacenti (deve riuscire)
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '12:00', '14:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- SUCCESSO ATTESO
 
 -- Test 4: Stesso orario ma campo diverso (deve riuscire)
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (2, '2025-12-20', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- SUCCESSO ATTESO
 
 -- Test 5: Stesso orario ma data diversa (deve riuscire)
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-21', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- SUCCESSO ATTESO
 
 -- Test 6: Prenotazione annullata non blocca (deve riuscire)
 UPDATE PRENOTAZIONI SET stato = 'annullata' WHERE id = 1;
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-20', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(), NOW());
 -- SUCCESSO ATTESO (la prenotazione annullata non conta)
 ```
@@ -181,8 +185,8 @@ VALUES (1, '2025-12-20', '10:00', '12:00', 'in_attesa', '+39 3331234567', NOW(),
 
 ```sql
 -- Inserisci una prenotazione
-INSERT INTO PRENOTAZIONI 
-(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at) 
+INSERT INTO PRENOTAZIONI
+(campo_id, data_prenotazione, ora_inizio, ora_fine, stato, telefono, created_at, updated_at)
 VALUES (1, '2025-12-25', '14:00', '16:00', 'in_attesa', '+39 3331234567', NOW(), NOW())
 RETURNING id, inizio_timestamp, fine_timestamp;
 
@@ -212,6 +216,7 @@ RETURNING id, inizio_timestamp, fine_timestamp;
 ## 6. Troubleshooting Comuni
 
 ### Errore: "Cannot find module modalPrenotazione.js"
+
 ```bash
 # Verifica che il file esista
 ls src/public/assets/scripts/utils/modalPrenotazione.js
@@ -220,12 +225,14 @@ npm restart
 ```
 
 ### Errore: "btree_gist extension not available"
+
 ```sql
 -- Come superuser
 CREATE EXTENSION btree_gist;
 ```
 
 ### Errore: "Constraint already exists"
+
 ```sql
 -- Rimuovi e ricrea
 ALTER TABLE PRENOTAZIONI DROP CONSTRAINT IF EXISTS prenotazioni_no_overlap;
@@ -233,15 +240,17 @@ ALTER TABLE PRENOTAZIONI DROP CONSTRAINT IF EXISTS prenotazioni_no_overlap;
 ```
 
 ### Modal non mostra sezione custom time
+
 ```javascript
 // Apri console browser (F12)
 // Verifica errori JavaScript
 // Controlla che gli elementi esistano:
-console.log(document.querySelector('#linkOrarioCustom'));
-console.log(document.querySelector('#customTimeSection'));
+console.log(document.querySelector("#linkOrarioCustom"));
+console.log(document.querySelector("#customTimeSection"));
 ```
 
 ### Check endpoint sempre restituisce "ok: true" anche con conflitto
+
 ```javascript
 // Verifica che la funzione checkOrarioCustom sia stata aggiunta
 // In dao-prenotazione.js cerca:
@@ -255,8 +264,8 @@ exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
 1. **Network tab:**
    - Verifica chiamata POST a `/prenotazioni/check`
    - Status 200, response `{ "ok": true/false }`
-   
 2. **Console:**
+
    - Nessun errore JavaScript
    - Log di debug: "Chiamata checkOrarioCustom..."
 
@@ -268,7 +277,7 @@ exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
 
 ```sql
 -- Verifica prenotazioni create
-SELECT id, campo_id, data_prenotazione, ora_inizio, ora_fine, 
+SELECT id, campo_id, data_prenotazione, ora_inizio, ora_fine,
        stato, inizio_timestamp, fine_timestamp, created_at
 FROM PRENOTAZIONI
 ORDER BY created_at DESC
@@ -280,8 +289,8 @@ LIMIT 10;
 ```sql
 -- Verifica indici
 EXPLAIN ANALYZE
-SELECT id FROM PRENOTAZIONI 
-WHERE campo_id = 1 
+SELECT id FROM PRENOTAZIONI
+WHERE campo_id = 1
   AND data_prenotazione = '2025-12-20'
   AND stato != 'annullata'
   AND NOT (ora_fine <= '14:00' OR ora_inizio >= '16:00');

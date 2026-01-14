@@ -1,4 +1,4 @@
-import { setupEmailFormListener } from './send_email.js';
+import { setupEmailFormListener } from "./send_email.js";
 
 class FooterButtons {
   constructor() {
@@ -8,8 +8,8 @@ class FooterButtons {
   }
 
   init() {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.run());
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => this.run());
     } else {
       this.run();
     }
@@ -18,10 +18,14 @@ class FooterButtons {
   run() {
     try {
       // Ensure footer email form is handled by our email component
-      try { setupEmailFormListener(); } catch (e) { /* ignore */ }
+      try {
+        setupEmailFormListener();
+      } catch (e) {
+        /* ignore */
+      }
       // Keep other light button fixes if needed in future
     } catch (err) {
-      console.error('FooterButtons run error:', err);
+      console.error("FooterButtons run error:", err);
     }
   }
 }

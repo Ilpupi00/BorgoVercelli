@@ -53,18 +53,23 @@
 
 .btn-prenota:hover {
   background: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
-  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
   transform: translateY(-2px);
 }
 
 .btn-prenota::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -107,16 +112,16 @@
   .campo-img {
     margin-bottom: 15px;
   }
-  
+
   .col-md-2 {
     margin-top: 15px;
   }
-  
+
   .btn-prenota {
     width: 100%;
     padding: 10px 20px;
   }
-  
+
   .campo-prenotazione {
     margin: 10px 0;
   }
@@ -127,7 +132,7 @@
   .campo-img {
     margin-bottom: 20px;
   }
-  
+
   .btn-prenota {
     width: 100%;
   }
@@ -156,18 +161,23 @@
 
 .btn-primary:hover {
   background: linear-gradient(135deg, #22b14c 0%, #0d6efd 100%);
-  box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
   transform: translateY(-2px);
 }
 
 .btn-primary::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -196,13 +206,18 @@
 }
 
 .btn-cancel::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -215,7 +230,7 @@
   .campo-img {
     height: 300px;
   }
-  
+
   .campo-img img {
     min-height: 300px;
     max-height: 300px;
@@ -226,7 +241,7 @@
   .campo-img {
     height: 250px;
   }
-  
+
   .campo-img img {
     min-height: 250px;
     max-height: 250px;

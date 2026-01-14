@@ -5,9 +5,9 @@
  * @module features/recensioni/services/dao-recensioni
  */
 
-'use strict';
+"use strict";
 
-const sqlite = require('../../../core/config/database');
+const sqlite = require("../../../core/config/database");
 
 /**
  * Recupera le recensioni visibili più recenti
@@ -15,7 +15,7 @@ const sqlite = require('../../../core/config/database');
  * @returns {Promise<Array<Object>>} Array di recensioni con informazioni utente
  */
 exports.getRecensioni = async () => {
-    const sql = `SELECT
+  const sql = `SELECT
     RECENSIONI.id,
     RECENSIONI.valutazione,
     RECENSIONI.titolo,
@@ -37,16 +37,16 @@ exports.getRecensioni = async () => {
         RECENSIONI.visibile = true
     ORDER BY
         RECENSIONI.data_recensione DESC`;
-        
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, reviews) => {
-            if (err) {
-                return reject({ error: 'Error retrieving reviews: ' + err.message });
-            }
-            resolve(reviews);
-        });
+
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, reviews) => {
+      if (err) {
+        return reject({ error: "Error retrieving reviews: " + err.message });
+      }
+      resolve(reviews);
     });
-}
+  });
+};
 
 /**
  * Calcola la valutazione media delle recensioni visibili
@@ -54,17 +54,20 @@ exports.getRecensioni = async () => {
  * @returns {Promise<number|null>} Valore medio (float) o null se non esistono recensioni
  */
 exports.getValutaMediaRecensioni = async () => {
-    const sql = 'SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = true';
-    
-    return new Promise((resolve, reject) => {
-        sqlite.get(sql, (err, media) => {
-            if (err) {
-                return reject({ error: 'Error retrieving average rating: ' + err.message });
-            }
-            resolve(media.media);
+  const sql =
+    "SELECT AVG(valutazione) AS media FROM RECENSIONI WHERE visibile = true";
+
+  return new Promise((resolve, reject) => {
+    sqlite.get(sql, (err, media) => {
+      if (err) {
+        return reject({
+          error: "Error retrieving average rating: " + err.message,
         });
+      }
+      resolve(media.media);
     });
-}
+  });
+};
 
 /**
  * Inserisce una nuova recensione collegata ad una entità (es. evento)
@@ -78,19 +81,24 @@ exports.getValutaMediaRecensioni = async () => {
  * @param {string} [recensione.contenuto]
  * @returns {Promise<Object>} { success: true, id } o { success: false, error }
  */
-exports.inserisciRecensione=async(recensione)=>{
-    // Estraggo i dati
-    const { valutazione, titolo, contenuto, entita_tipo, entita_id, utente_id } = recensione;
-    const sql = `INSERT INTO RECENSIONI (utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto, data_recensione, visibile) VALUES (?, ?, ?, ?, ?, ?, NOW(), true) RETURNING id`;
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto], function(err, result) {
-            if (err) {
-                return resolve({ success: false, error: err.message });
-            }
-            resolve({ success: true, id: result.rows[0].id });
-        });
-    });
-}
+exports.inserisciRecensione = async (recensione) => {
+  // Estraggo i dati
+  const { valutazione, titolo, contenuto, entita_tipo, entita_id, utente_id } =
+    recensione;
+  const sql = `INSERT INTO RECENSIONI (utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto, data_recensione, visibile) VALUES (?, ?, ?, ?, ?, ?, NOW(), true) RETURNING id`;
+  return new Promise((resolve, reject) => {
+    sqlite.run(
+      sql,
+      [utente_id, entita_tipo, entita_id, valutazione, titolo, contenuto],
+      function (err, result) {
+        if (err) {
+          return resolve({ success: false, error: err.message });
+        }
+        resolve({ success: true, id: result.rows[0].id });
+      }
+    );
+  });
+};
 
 /**
  * Recupera le recensioni visibili scritte da uno specifico utente
@@ -99,7 +107,7 @@ exports.inserisciRecensione=async(recensione)=>{
  * @returns {Promise<Array<Object>>} Array di recensioni
  */
 exports.getRecensioniByUserId = async (userId) => {
-    const sql = `SELECT
+  const sql = `SELECT
     RECENSIONI.id,
     RECENSIONI.valutazione,
     RECENSIONI.titolo,
@@ -114,16 +122,18 @@ exports.getRecensioniByUserId = async (userId) => {
         RECENSIONI.utente_id = ? AND RECENSIONI.visibile = true
     ORDER BY
         RECENSIONI.data_recensione DESC`;
-        
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, [userId], (err, reviews) => {
-            if (err) {
-                return reject({ error: 'Error retrieving user reviews: ' + err.message });
-            }
-            resolve(reviews);
+
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, [userId], (err, reviews) => {
+      if (err) {
+        return reject({
+          error: "Error retrieving user reviews: " + err.message,
         });
+      }
+      resolve(reviews);
     });
-}
+  });
+};
 
 /**
  * Aggiorna una recensione (solo se appartiene all'utente)
@@ -134,20 +144,25 @@ exports.getRecensioniByUserId = async (userId) => {
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.updateRecensione = async (recensioneId, userId, dati) => {
-    const { valutazione, titolo, contenuto } = dati;
-    const sql = `UPDATE RECENSIONI SET valutazione = ?, titolo = ?, contenuto = ?, data_recensione = NOW() 
+  const { valutazione, titolo, contenuto } = dati;
+  const sql = `UPDATE RECENSIONI SET valutazione = ?, titolo = ?, contenuto = ?, data_recensione = NOW() 
                  WHERE id = ? AND utente_id = ? AND visibile = true`;
-    
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [valutazione, titolo, contenuto, recensioneId, userId], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error updating review: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
-        });
-    });
-}
+
+  return new Promise((resolve, reject) => {
+    sqlite.run(
+      sql,
+      [valutazione, titolo, contenuto, recensioneId, userId],
+      function (err, result) {
+        if (err) {
+          return reject({ error: "Error updating review: " + err.message });
+        }
+        const changes =
+          result && typeof result.rowCount === "number" ? result.rowCount : 0;
+        resolve({ success: true, changes });
+      }
+    );
+  });
+};
 
 /**
  * Segna una recensione come non visibile (soft-delete) se appartiene all'utente
@@ -157,18 +172,19 @@ exports.updateRecensione = async (recensioneId, userId, dati) => {
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.deleteRecensione = async (recensioneId, userId) => {
-    const sql = `UPDATE RECENSIONI SET visibile = false WHERE id = ? AND utente_id = ?`;
-    
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [recensioneId, userId], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error deleting review: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
-        });
+  const sql = `UPDATE RECENSIONI SET visibile = false WHERE id = ? AND utente_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [recensioneId, userId], function (err, result) {
+      if (err) {
+        return reject({ error: "Error deleting review: " + err.message });
+      }
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      resolve({ success: true, changes });
     });
-}
+  });
+};
 
 /**
  * Recupera tutte le recensioni (admin view) con immagini utente se presenti
@@ -176,7 +192,7 @@ exports.deleteRecensione = async (recensioneId, userId) => {
  * @returns {Promise<Array<Object>>} Array di recensioni complete
  */
 exports.getAllRecensioni = async () => {
-    const sql = `SELECT
+  const sql = `SELECT
     RECENSIONI.id,
     RECENSIONI.valutazione,
     RECENSIONI.titolo,
@@ -196,16 +212,16 @@ exports.getAllRecensioni = async () => {
             AND (IMMAGINI.ordine = 1 OR IMMAGINI.ordine IS NULL)
     ORDER BY
         RECENSIONI.data_recensione DESC`;
-        
-    return new Promise((resolve, reject) => {
-        sqlite.all(sql, (err, reviews) => {
-            if (err) {
-                return reject({ error: 'Error retrieving reviews: ' + err.message });
-            }
-            resolve(reviews);
-        });
+
+  return new Promise((resolve, reject) => {
+    sqlite.all(sql, (err, reviews) => {
+      if (err) {
+        return reject({ error: "Error retrieving reviews: " + err.message });
+      }
+      resolve(reviews);
     });
-}
+  });
+};
 
 /**
  * Recupera una recensione per ID
@@ -214,7 +230,7 @@ exports.getAllRecensioni = async () => {
  * @returns {Promise<Object|null>} Oggetto recensione o null
  */
 exports.getRecensioneById = async (id) => {
-    const sql = `SELECT
+  const sql = `SELECT
     RECENSIONI.id,
     RECENSIONI.valutazione,
     RECENSIONI.titolo,
@@ -229,16 +245,16 @@ exports.getRecensioneById = async (id) => {
         UTENTI ON RECENSIONI.utente_id = UTENTI.id
     WHERE
         RECENSIONI.id = ?`;
-        
-    return new Promise((resolve, reject) => {
-        sqlite.get(sql, [id], (err, review) => {
-            if (err) {
-                return reject({ error: 'Error retrieving review: ' + err.message });
-            }
-            resolve(review);
-        });
+
+  return new Promise((resolve, reject) => {
+    sqlite.get(sql, [id], (err, review) => {
+      if (err) {
+        return reject({ error: "Error retrieving review: " + err.message });
+      }
+      resolve(review);
     });
-}
+  });
+};
 
 /**
  * Aggiorna il flag di visibilità di una recensione (usato per moderazione)
@@ -248,18 +264,21 @@ exports.getRecensioneById = async (id) => {
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.updateRecensioneVisibile = async (id, visibile) => {
-    const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
-    
-    return new Promise((resolve, reject) => {
-    sqlite.run(sql, [visibile ? true : false, id], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error updating review visibility: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
+  const sql = `UPDATE RECENSIONI SET visibile = ? WHERE id = ?`;
+
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [visibile ? true : false, id], function (err, result) {
+      if (err) {
+        return reject({
+          error: "Error updating review visibility: " + err.message,
         });
+      }
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      resolve({ success: true, changes });
     });
-}
+  });
+};
 
 /**
  * Elimina permanentemente una recensione (uso admin)
@@ -268,15 +287,16 @@ exports.updateRecensioneVisibile = async (id, visibile) => {
  * @returns {Promise<Object>} { success: true, changes }
  */
 exports.deleteRecensioneAdmin = async (id) => {
-    const sql = `DELETE FROM RECENSIONI WHERE id = ?`;
-    
-    return new Promise((resolve, reject) => {
-        sqlite.run(sql, [id], function(err, result) {
-            if (err) {
-                return reject({ error: 'Error deleting review: ' + err.message });
-            }
-            const changes = (result && typeof result.rowCount === 'number') ? result.rowCount : 0;
-            resolve({ success: true, changes });
-        });
+  const sql = `DELETE FROM RECENSIONI WHERE id = ?`;
+
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [id], function (err, result) {
+      if (err) {
+        return reject({ error: "Error deleting review: " + err.message });
+      }
+      const changes =
+        result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      resolve({ success: true, changes });
     });
-}
+  });
+};

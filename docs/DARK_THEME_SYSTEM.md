@@ -22,6 +22,7 @@ Il sito di Borgo Vercelli ora include un sistema di tema scuro completo, moderno
 ### 🎨 Design
 
 Il sistema utilizza:
+
 - **CSS Variables** per una facile personalizzazione
 - **Gradient moderni** per sfumature accattivanti
 - **Box shadows** per profondità
@@ -55,18 +56,22 @@ Il tema viene applicato immediatamente durante il caricamento della pagina per e
 
 ```javascript
 // In theme-includes.ejs
-(function() {
-    const savedTheme = localStorage.getItem('site-theme-preference') || 'auto';
-    const effectiveTheme = savedTheme === 'auto' 
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : savedTheme;
-    document.documentElement.setAttribute('data-theme', effectiveTheme);
+(function () {
+  const savedTheme = localStorage.getItem("site-theme-preference") || "auto";
+  const effectiveTheme =
+    savedTheme === "auto"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : savedTheme;
+  document.documentElement.setAttribute("data-theme", effectiveTheme);
 })();
 ```
 
 ### 2. Gestione Tema
 
 Il `ThemeManager` gestisce:
+
 - Caricamento della preferenza salvata
 - Applicazione del tema
 - Ascolto dei cambiamenti delle preferenze di sistema
@@ -78,17 +83,17 @@ I temi sono definiti utilizzando CSS Variables:
 
 ```css
 :root[data-theme="light"] {
-    --bg-primary: #ffffff;
-    --text-primary: #1e293b;
-    --primary-color: #0d6efd;
-    /* ... */
+  --bg-primary: #ffffff;
+  --text-primary: #1e293b;
+  --primary-color: #0d6efd;
+  /* ... */
 }
 
 :root[data-theme="dark"] {
-    --bg-primary: #0f172a;
-    --text-primary: #f1f5f9;
-    --primary-color: #3b82f6;
-    /* ... */
+  --bg-primary: #0f172a;
+  --text-primary: #f1f5f9;
+  --primary-color: #3b82f6;
+  /* ... */
 }
 ```
 
@@ -97,12 +102,14 @@ I temi sono definiti utilizzando CSS Variables:
 Il sistema di tema supporta tutti i componenti del sito:
 
 ### Layout Base
+
 - ✅ Navbar
 - ✅ Footer
 - ✅ Sidebar (Admin)
 - ✅ Hero Section
 
 ### Componenti UI
+
 - ✅ Cards (News, Events, Reviews)
 - ✅ Forms (Input, Select, Textarea)
 - ✅ Buttons (Primary, Secondary, Outline)
@@ -117,6 +124,7 @@ Il sistema di tema supporta tutti i componenti del sito:
 - ✅ Popovers
 
 ### Pagine Specifiche
+
 - ✅ Homepage
 - ✅ Notizie
 - ✅ Eventi
@@ -137,9 +145,9 @@ Il sistema di tema supporta tutti i componenti del sito:
 
 ```html
 <head>
-    <!-- ... altri link ... -->
-    <%- include('partials/theme-includes') %>
-    <!-- ... -->
+  <!-- ... altri link ... -->
+  <%- include('partials/theme-includes') %>
+  <!-- ... -->
 </head>
 ```
 
@@ -147,10 +155,10 @@ Il sistema di tema supporta tutti i componenti del sito:
 
 ```css
 .my-component {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
 }
 ```
 
@@ -161,22 +169,22 @@ Se hai bisogno di stili specifici per il tema scuro:
 ```css
 /* Stile normale */
 .my-element {
-    background: white;
+  background: white;
 }
 
 /* Stile tema scuro */
 :root[data-theme="dark"] .my-element {
-    background: var(--bg-primary);
+  background: var(--bg-primary);
 }
 ```
 
 ### Ascoltare Cambiamenti di Tema
 
 ```javascript
-window.addEventListener('themechange', (e) => {
-    console.log('Nuovo tema:', e.detail.theme);
-    console.log('Preferenza:', e.detail.preference);
-    // Il tuo codice qui
+window.addEventListener("themechange", (e) => {
+  console.log("Nuovo tema:", e.detail.theme);
+  console.log("Preferenza:", e.detail.preference);
+  // Il tuo codice qui
 });
 ```
 
@@ -190,9 +198,9 @@ console.log(themeInfo.preference); // 'light', 'dark', o 'auto'
 console.log(themeInfo.isDark); // boolean
 
 // Cambia tema programmaticamente
-window.themeManager.applyTheme('dark');
-window.themeManager.applyTheme('light');
-window.themeManager.applyTheme('auto');
+window.themeManager.applyTheme("dark");
+window.themeManager.applyTheme("light");
+window.themeManager.applyTheme("auto");
 
 // Toggle tra light e dark
 window.themeManager.toggleTheme();
@@ -201,33 +209,41 @@ window.themeManager.toggleTheme();
 ## Variabili CSS Disponibili
 
 ### Colori Base
+
 - `--primary-color`, `--primary-hover`, `--primary-active`
 - `--secondary-color`, `--secondary-dark`
 - `--accent-color`
 
 ### Backgrounds
+
 - `--bg-primary`, `--bg-secondary`, `--bg-tertiary`
 - `--bg-elevated`, `--bg-hover`, `--bg-active`
 
 ### Testo
+
 - `--text-primary`, `--text-secondary`, `--text-tertiary`
 - `--text-on-primary`, `--text-muted`
 
 ### Bordi
+
 - `--border-color`, `--border-hover`, `--border-focus`
 
 ### Shadows
+
 - `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`
 - `--shadow-colored`
 
 ### Cards
+
 - `--card-bg`, `--card-border`, `--card-shadow`, `--card-hover-shadow`
 
 ### Forms
+
 - `--input-bg`, `--input-border`, `--input-text`, `--input-placeholder`
 - `--input-focus-border`, `--input-focus-ring`
 
 ### Status
+
 - `--success`, `--danger`, `--warning`, `--info`
 
 ## Browser Support
@@ -253,7 +269,7 @@ Per testare il sistema:
 
 1. **Tema Chiaro**: Clicca sul menu tema nella navbar e seleziona "Tema Chiaro"
 2. **Tema Scuro**: Clicca sul menu tema nella navbar e seleziona "Tema Scuro"
-3. **Preferenza Sistema**: 
+3. **Preferenza Sistema**:
    - Windows 10/11: Impostazioni → Personalizzazione → Colori
    - macOS: Preferenze di Sistema → Generale → Aspetto
    - Linux: Varia a seconda del desktop environment
@@ -299,6 +315,7 @@ Possibili miglioramenti futuri:
 ## Credits
 
 Sistema di tema implementato con:
+
 - CSS Custom Properties (Variables)
 - JavaScript ES6+
 - LocalStorage API
