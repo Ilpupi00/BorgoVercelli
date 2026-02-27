@@ -5,6 +5,7 @@ const router = express.Router();
 const passport = require("passport");
 const getLoggedUser = require("../../core/middlewares/getUser");
 const { generateToken } = require("../../core/middlewares/jwt");
+const { redisClient } = require("../../core/config/redis");
 
 // Login
 router.post("/session", (req, res, next) => {
@@ -52,6 +53,13 @@ router.post("/session", (req, res, next) => {
     req.logIn(user, async (err) => {
       if (err) return next(err);
 
+      // Log sessione salvata in Redis
+      console.log(
+        `[SESSION] 📝 Sessione creata per utente ${user.id} (${user.email})`
+      );
+      console.log(`[SESSION] 🔑 Session ID: ${req.sessionID}`);
+      console.log(`[SESSION] 💾 Salvata in Redis con TTL: 7 giorni`);
+
       // Se l'utente ha selezionato "Ricordami", genera un JWT token
       if (req.body.remember) {
         const token = generateToken(user);
@@ -86,8 +94,17 @@ router.post("/session", (req, res, next) => {
 
 // Logout
 router.delete("/session", (req, res, next) => {
+  const sessionID = req.sessionID;
+  const userId = req.user?.id || "unknown";
+
   req.logout(function (err) {
     if (err) return next(err);
+
+    // Log sessione cancellata da Redis
+    console.log(`[SESSION] 📝 Sessione cancellata per utente ${userId}`);
+    console.log(`[SESSION] 🔑 Session ID: ${sessionID}`);
+    console.log(`[SESSION] 🗑️  Rimossa da Redis`);
+
     // Rimuovi il token JWT se presente
     res.clearCookie("rememberToken");
     res.status(200).json({ message: "Logout effettuato" });
@@ -100,5 +117,112 @@ router.get("/session", (req, res) => {
 });
 
 router.get("/session/user", getLoggedUser);
+
+/**
+ * Endpoint per ottenere statistiche sessioni Redis
+ * Usato per debugging e monitoraggio
+ * Requires: admin role
+ */
+router.get("/session/stats/redis", async (req, res) => {
+  try {
+    // Solo admin può accedere
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({ error: "Non autorizzato" });
+    }
+
+    // Ottieni tutte le sessioni da Redis
+    const sessionKeys = await redisClient.keys("sess:*");
+
+    console.log(`[SESSION] 📊 Richiesta statistiche sessioni Redis`);
+    console.log(`[SESSION] 📊 Sessioni attive: ${sessionKeys.length}`);
+
+    // Leggi le sessioni
+    const sessions = [];
+    for (const key of sessionKeys) {
+      try {
+        const sessionData = await redisClient.get(key);
+        if (sessionData) {
+          const parsed = JSON.parse(sessionData);
+          sessions.push({
+            id: key.replace("sess:", ""),
+            userId: parsed.passport?.user || null,
+            createdAt:
+              new Date(parsed.cookie?.originalMaxAge).toISOString() || null,
+          });
+        }
+      } catch (e) {
+        console.error(
+          `[SESSION] ❌ Errore parsing sessione ${key}:`,
+          e.message
+        );
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      totalSessions: sessionKeys.length,
+      sessions: sessions,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error(
+      "[SESSION] ❌ Errore recupero statistiche Redis:",
+      error.message
+    );
+    return res.status(500).json({
+      error: "Errore recupero statistiche sessioni",
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * Endpoint per cancellare tutte le sessioni Redis
+ * Usato per logout forzato di tutti gli utenti
+ * Requires: admin role
+ */
+router.delete("/session/admin/clear-all", async (req, res) => {
+  try {
+    // Solo admin può accedere
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({ error: "Non autorizzato" });
+    }
+
+    // Ottieni tutte le sessioni
+    const sessionKeys = await redisClient.keys("sess:*");
+
+    if (sessionKeys.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "Nessuna sessione da cancellare",
+        clearedSessions: 0,
+      });
+    }
+
+    // Cancella tutte le sessioni
+    for (const key of sessionKeys) {
+      await redisClient.del(key);
+    }
+
+    console.log(
+      `[SESSION] 🗑️  Tutte le sessioni Redis cancellate (${sessionKeys.length} sessioni)`
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Tutte le sessioni sono state cancellate",
+      clearedSessions: sessionKeys.length,
+    });
+  } catch (error) {
+    console.error(
+      "[SESSION] ❌ Errore cancellazione sessioni Redis:",
+      error.message
+    );
+    return res.status(500).json({
+      error: "Errore cancellazione sessioni",
+      message: error.message,
+    });
+  }
+});
 
 module.exports = router;

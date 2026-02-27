@@ -23,6 +23,10 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 
+// Redis per sessioni e notifiche
+const { RedisStore } = require("connect-redis");
+const { redisClient, initRedis } = require("./core/config/redis");
+
 // ==================== IMPORT ROUTE ====================
 // Route condivise
 const routes = require("./shared/routes/index");
@@ -151,16 +155,26 @@ app.use(
 // ==================== CONFIGURAZIONE SESSIONI ====================
 
 /**
- * Configura sessione Express
+ * Configura sessione Express con Redis Store
+ * - store: RedisStore per persistenza sessioni in Redis
  * - secret: chiave per firmare il cookie di sessione
  * - resave: non salva sessione se non modificata
- * - saveUninitialized: salva anche sessioni nuove vuote
+ * - saveUninitialized: non salva sessioni vuote non autenticate
+ * - cookie: secure: false in sviluppo, true in production con HTTPS
  */
 app.use(
   session({
-    secret: "your-secret-key",
+    store: new RedisStore({ client: redisClient }),
+    secret:
+      process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // true solo con HTTPS
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 giorni
+      sameSite: "lax",
+    },
   })
 );
 

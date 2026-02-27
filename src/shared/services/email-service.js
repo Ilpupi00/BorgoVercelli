@@ -1054,6 +1054,185 @@ exports.sendRevocaEmail = async function (toEmail, userName) {
   }
 };
 
+exports.SendPrenotazioneConfermataEmail = async function (
+  toEmail,
+  userName,
+  PrenotazioneDetails
+) {
+  try {
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Prenotazione Confermata - Borgo Vercelli",
+      html: `
+            <!DOCTYPE html>
+            <html lang="it">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    :root { --primary: #0d6efd; --success: #28a745; }
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f4f7fa;
+                        margin: 0;
+                        padding: 0;
+                        color: #333;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, var(--success) 0%, #22b14c 100%);
+                        color: #0d6efd;
+                        padding: 30px 20px;
+                        text-align: center;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: 600;
+                    } 
+                        .content {
+                                    padding: 30px 20px;
+                                  }
+                                  .success-box {
+                                    background-color: #d4edda;
+                                    border-left: 4px solid var(--success);
+                                    padding: 15px;
+                                    margin: 20px 0;
+                                    border-radius: 8px;
+                                    color: #155724;
+                                  }
+                                  .details-box {
+                                    background-color: #fbfdff;
+                                    border-left: 4px solid var(--primary);
+                                    padding: 15px;
+                                    margin: 15px 0;
+                                    border-radius: 8px;
+                                  }
+                                  .details-box strong {
+                                    color: var(--primary);
+                                    display: block;
+                                    margin-bottom: 5px;
+                                    font-size: 14px;
+                                  }
+                                  .details-box p {
+                                    margin: 5px 0;
+                                    color: #333;
+                                  }
+                                  .button {
+                                    display: inline-block;
+                                    padding: 12px 30px;
+                                    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+                                    color: white;
+                                    text-decoration: none;
+                                    border-radius: 8px;
+                                    font-weight: 600;
+                                    margin: 20px 0;
+                                  }
+                                  .footer {
+                                    background-color: #f7fafc;
+                                    padding: 20px;
+                                    text-align: center;
+                                    font-size: 14px;
+                                    color: #666;
+                                  }
+                                </style>
+                              </head>
+                              <body>
+                                <div class="container">
+                                  <div class="header">
+                                    <h1>✅ Prenotazione Confermata</h1>
+                                  </div>
+                                  <div class="content">
+                                    <p>Gentile <strong>${userName}</strong>,</p>
+                                    
+                                    <div class="success-box">
+                                      <strong>La tua prenotazione è stata confermata con successo!</strong>
+                                    </div>
+
+                                    <p>Ecco i dettagli della tua prenotazione:</p>
+
+                                    <div class="details-box">
+                                      <strong>📅 Data e Ora</strong>
+                                      <p>${
+                                        PrenotazioneDetails.dataOra ||
+                                        "Non disponibile"
+                                      }</p>
+                                    </div>
+
+                                    <div class="details-box">
+                                      <strong>⚽ Attività</strong>
+                                      <p>${
+                                        PrenotazioneDetails.attivita ||
+                                        "Non disponibile"
+                                      }</p>
+                                    </div>
+
+                                    <div class="details-box">
+                                      <strong>👥 Numero Partecipanti</strong>
+                                      <p>${
+                                        PrenotazioneDetails.numPartecipanti ||
+                                        "Non disponibile"
+                                      }</p>
+                                    </div>
+
+                                    <div class="details-box">
+                                      <strong>📍 Luogo</strong>
+                                      <p>${
+                                        PrenotazioneDetails.luogo ||
+                                        "Non disponibile"
+                                      }</p>
+                                    </div>
+
+                                    <div class="details-box">
+                                      <strong>🎟️ Numero Prenotazione</strong>
+                                      <p>${
+                                        PrenotazioneDetails.numeroPrenotazione ||
+                                        "N/A"
+                                      }</p>
+                                    </div>
+
+                                    <p>Se hai domande o necessiti di modificare la tua prenotazione, contattaci pure!</p>
+
+                                    <p style="text-align: center;">
+                                      <a href="${
+                                        process.env.BASE_URL ||
+                                        "http://localhost:3000"
+                                      }/prenotazioni" class="button">Visualizza Prenotazioni</a>
+                                    </p>
+                                  </div>
+                                  <div class="footer">
+                                    <p><strong>Borgo Vercelli</strong></p>
+                                    <p>Società Sportiva Dilettantistica</p>
+                                  </div>
+                                </div>
+                              </body>
+                              </html>
+            `,
+    };
+
+    const info = await sendWithRetry(mailOptions);
+    console.log(
+      "Email prenotazione confermata inviata:",
+      info && info.messageId
+    );
+    return { messageId: info.messageId };
+  } catch (error) {
+    console.error(
+      "Errore durante l'invio dell'email prenotazione confermata:",
+      error
+    );
+    throw error;
+  }
+};
+
 // Export helpers for diagnostics/tests
 exports.verifyTransporter = verifyTransporter;
 exports.sendWithRetry = sendWithRetry;
