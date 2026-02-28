@@ -12,6 +12,15 @@ const {
   canManageCampi,
   canEditNotizia,
 } = require("../../../core/middlewares/auth");
+const {
+  validateAdminCreateUser,
+  validateAdminUpdateUser,
+  validateSospendiUtente,
+  validateBannaUtente,
+  validateAddOrario,
+  validateCampoModifica,
+  validateCampionato,
+} = require("../../../core/middlewares/validators");
 const userDao = require("../../users/services/dao-user");
 const notizieDao = require("../../notizie/services/dao-notizie");
 const eventiDao = require("../../eventi/services/dao-eventi");
@@ -301,15 +310,10 @@ router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo utente
-router.post("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
+router.post("/admin/utenti", isLoggedIn, isAdmin, validateAdminCreateUser, async (req, res) => {
   try {
     const { nome, cognome, email, telefono, tipo_utente_id, password } =
       req.body;
-    if (!nome || !cognome || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Nome, cognome, email e password sono obbligatori" });
-    }
     const user = {
       nome,
       cognome,
@@ -327,7 +331,7 @@ router.post("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per modificare un utente
-router.put("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+router.put("/admin/utenti/:id", isLoggedIn, isAdmin, validateAdminUpdateUser, async (req, res) => {
   try {
     const userId = req.params.id;
     const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
@@ -764,6 +768,7 @@ router.post(
   "/admin/campi/:id/orari",
   isLoggedIn,
   canManageCampi,
+  validateAddOrario,
   async (req, res) => {
     try {
       const campoId = req.params.id;
@@ -931,13 +936,14 @@ router.put(
   isLoggedIn,
   canManageCampi,
   upload.single("immagine"),
+  validateCampoModifica,
   async (req, res) => {
     try {
       const campoId = req.params.id;
       const campoData = req.body;
       console.log("Dati ricevuti per la modifica del campo:", campoData);
 
-      // Sanitize input data
+      // Sanitize input data con express-validator già applicato
       campoData.nome =
         typeof campoData.nome === "string" ? campoData.nome.trim() : "";
       campoData.indirizzo =
@@ -1200,7 +1206,7 @@ router.get("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-router.post("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
+router.post("/api/admin/campionati", isLoggedIn, isAdmin, validateCampionato, async (req, res) => {
   try {
     const campionatoData = {
       nome: req.body.nome,
@@ -1383,17 +1389,11 @@ router.post(
   "/api/admin/utenti/:id/sospendi",
   isLoggedIn,
   isAdmin,
+  validateSospendiUtente,
   async (req, res) => {
     try {
       const userId = req.params.id;
       const { motivo, durataGiorni } = req.body;
-
-      if (!motivo || !durataGiorni) {
-        return res.status(400).json({
-          success: false,
-          error: "Motivo e durata sono obbligatori",
-        });
-      }
 
       // Calcola data fine sospensione
       const moment = require("moment");
@@ -1440,17 +1440,11 @@ router.post(
   "/api/admin/utenti/:id/banna",
   isLoggedIn,
   isAdmin,
+  validateBannaUtente,
   async (req, res) => {
     try {
       const userId = req.params.id;
       const { motivo } = req.body;
-
-      if (!motivo) {
-        return res.status(400).json({
-          success: false,
-          error: "Il motivo è obbligatorio",
-        });
-      }
 
       // Recupera dati utente
       const utente = await userDao.getUserById(userId);

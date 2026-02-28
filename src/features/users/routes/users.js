@@ -2,9 +2,12 @@ const express = require("express");
 const router = express.Router();
 const daoUser = require("../services/dao-user");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
+const {
+  validateUserUpdate,
+} = require("../../../core/middlewares/validators");
 
 // PUT /update - Update user profile
-router.put("/update", isLoggedIn, async (req, res) => {
+router.put("/update", isLoggedIn, ...validateUserUpdate, async (req, res) => {
   try {
     const userId = req.user.id;
     const updateData = {

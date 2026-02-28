@@ -11,6 +11,11 @@ const {
 } = require("../../../core/middlewares/auth");
 const multer = require("multer");
 const { upload } = require("../../../core/config/multer");
+const {
+  validateNotizia,
+  handleValidationRender,
+  handleValidation,
+} = require("../../../core/middlewares/validators");
 
 function parseIdParam(param) {
   const id = parseInt(param, 10);
@@ -157,6 +162,8 @@ router.post(
   isAdminOrDirigente,
   isLoggedIn,
   upload.single("immagine_principale"),
+  ...validateNotizia(),
+  handleValidationRender("notizia", (req) => ({ user: req.user, notizia: null })),
   async (req, res) => {
     try {
       const {
@@ -168,32 +175,6 @@ router.post(
         template,
       } = req.body;
       const templateName = "notizia";
-
-      if (!titolo || !contenuto) {
-        return res.render(templateName, {
-          user: req.user,
-          notizia: null,
-          error: "Titolo e contenuto sono obbligatori",
-        });
-      }
-
-      if (contenuto && Buffer.byteLength(contenuto, "utf8") > 5 * 1024 * 1024) {
-        return res.render(templateName, {
-          user: req.user,
-          notizia: null,
-          error: "Il contenuto della notizia è troppo grande (max 5MB).",
-        });
-      }
-
-      const textContent = contenuto.replace(/<[^>]*>/g, "").trim();
-      if (textContent.length < 1) {
-        return res.render(templateName, {
-          user: req.user,
-          notizia: null,
-          error:
-            "Il contenuto della notizia deve contenere del testo effettivo",
-        });
-      }
 
       let immagineId = immagine_principale_id || null;
       if (req.file) {
@@ -240,6 +221,8 @@ router.post(
   "/notizie/:id",
   canEditNotizia,
   upload.single("immagine_principale"),
+  ...validateNotizia(true),
+  handleValidationRender("notizia", (req) => ({ user: req.user, notizia: null })),
   async (req, res) => {
     try {
       // Check if this is actually a PUT request (method override)
@@ -263,35 +246,6 @@ router.post(
         template,
       } = req.body;
       const templateName = "notizia";
-
-      if (!titolo || !contenuto) {
-        const notizia = await dao.getNotiziaById(id);
-        return res.render(templateName, {
-          user: req.user,
-          notizia,
-          error: "Titolo e contenuto sono obbligatori",
-        });
-      }
-
-      if (contenuto && Buffer.byteLength(contenuto, "utf8") > 5 * 1024 * 1024) {
-        const notizia = await dao.getNotiziaById(id);
-        return res.render(templateName, {
-          user: req.user,
-          notizia,
-          error: "Il contenuto della notizia è troppo grande (max 5MB).",
-        });
-      }
-
-      const textContent = contenuto.replace(/<[^>]*>/g, "").trim();
-      if (textContent.length < 1) {
-        const notizia = await dao.getNotiziaById(id);
-        return res.render(templateName, {
-          user: req.user,
-          notizia,
-          error:
-            "Il contenuto della notizia deve contenere del testo effettivo",
-        });
-      }
 
       let immagineId = immagine_principale_id || null;
       if (req.file) {

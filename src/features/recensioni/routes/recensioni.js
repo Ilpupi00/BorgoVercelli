@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const dao = require("../services/dao-recensioni");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
+const {
+  validateRecensioneCreate,
+  validateRecensioneUpdate,
+} = require("../../../core/middlewares/validators");
 
 router.get("/recensioni", async (req, res) => {
   try {
@@ -54,7 +58,7 @@ router.get("/recensioni/all", async (req, res) => {
 });
 
 // Salva una nuova recensione
-router.post("/recensione", isLoggedIn, async (req, res) => {
+router.post("/recensione", isLoggedIn, validateRecensioneCreate, async (req, res) => {
   try {
     // Verifica stato utente
     if (req.user.isBannato && req.user.isBannato()) {
@@ -87,22 +91,7 @@ router.post("/recensione", isLoggedIn, async (req, res) => {
     const { valutazione, titolo, contenuto, entita_tipo, entita_id } = req.body;
     console.log("DEBUG RECENSIONE POST: req.user =", req.user);
     const utente_id = req.user?.id;
-    if (
-      !valutazione ||
-      !titolo ||
-      !contenuto ||
-      !entita_tipo ||
-      !entita_id ||
-      !utente_id
-    ) {
-      console.log("DEBUG RECENSIONE POST: dati mancanti", {
-        valutazione,
-        titolo,
-        contenuto,
-        entita_tipo,
-        entita_id,
-        utente_id,
-      });
+    if (!utente_id) {
       return res.json({ success: false, error: "Dati mancanti" });
     }
     // Salva la recensione tramite DAO
@@ -141,15 +130,11 @@ router.get("/recensioni/mie", isLoggedIn, async (req, res) => {
 });
 
 // Modifica una recensione dell'utente
-router.put("/recensioni/:id", isLoggedIn, async (req, res) => {
+router.put("/recensioni/:id", isLoggedIn, validateRecensioneUpdate, async (req, res) => {
   try {
     const recensioneId = req.params.id;
     const userId = req.user.id;
     const { valutazione, titolo, contenuto } = req.body;
-
-    if (!valutazione || !titolo || !contenuto) {
-      return res.status(400).json({ success: false, error: "Dati mancanti" });
-    }
 
     await dao.updateRecensione(recensioneId, userId, {
       valutazione,

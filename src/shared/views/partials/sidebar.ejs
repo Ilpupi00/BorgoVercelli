@@ -10,11 +10,11 @@
                 <!-- Sezione Contenuti -->
                 <% if ([1, 2, 3, 5].includes(user.tipo_utente_id)) { %>
                 <li class="nav-item">
-                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuContenuti" aria-expanded="true">
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuContenuti" aria-expanded="false">
                         📄 Contenuti
                     </div>
                 </li>
-                <div class="collapse show" id="menuContenuti">
+                <div class="collapse" id="menuContenuti">
                     <li class="nav-item">
                         <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/notizie')) ? 'active' : '' %>" href="/admin/notizie">
                             📰 Gestisci Notizie
@@ -57,11 +57,11 @@
                 <% } else if (user.tipo_utente_id === 4) { %>
                 <!-- Dirigente vede solo Squadre -->
                 <li class="nav-item">
-                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuSquadre" aria-expanded="true">
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuSquadre" aria-expanded="false">
                         👥 Squadre
                     </div>
                 </li>
-                <div class="collapse show" id="menuSquadre">
+                <div class="collapse" id="menuSquadre">
                     <li class="nav-item">
                         <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/squadre')) ? 'active' : '' %>" href="/admin/squadre">
                             👥 Gestisci Squadre
@@ -71,11 +71,11 @@
                 <% } else if (user.tipo_utente_id === 6) { %>
                 <!-- Gestore Campo vede solo Campi -->
                 <li class="nav-item">
-                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuCampi" aria-expanded="true">
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuCampi" aria-expanded="false">
                         ⚽ Campi
                     </div>
                 </li>
-                <div class="collapse show" id="menuCampi">
+                <div class="collapse" id="menuCampi">
                     <li class="nav-item">
                         <a class="nav-link submenu text-white <%= (currentPath && currentPath.match(/^\/admin\/campi(\/|$)/)) ? 'active' : '' %>" href="/admin/campi">
                             ⚽ Gestisci Campi
@@ -87,11 +87,11 @@
                 <!-- Sezione Utenti (solo Admin) -->
                 <% if (user.tipo_utente_id === 1) { %>
                 <li class="nav-item mt-3">
-                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuUtenti" aria-expanded="true">
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuUtenti" aria-expanded="false">
                         👥 Utenti
                     </div>
                 </li>
-                <div class="collapse show" id="menuUtenti">
+                <div class="collapse" id="menuUtenti">
                     <li class="nav-item">
                         <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/utenti')) ? 'active' : '' %>" href="/admin/utenti">
                             👤 Gestore Utenti
@@ -107,11 +107,11 @@
 
                 <!-- Sezione Strumenti -->
                 <li class="nav-item mt-3">
-                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuStrumenti" aria-expanded="true">
+                    <div class="nav-link section-header text-white" data-bs-toggle="collapse" data-bs-target="#menuStrumenti" aria-expanded="false">
                         🔧 Strumenti
                     </div>
                 </li>
-                <div class="collapse show" id="menuStrumenti">
+                <div class="collapse" id="menuStrumenti">
                     <li class="nav-item">
                         <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/prenotazioni')) ? 'active' : '' %>" href="/admin/prenotazioni">
                             📋 Prenotazioni

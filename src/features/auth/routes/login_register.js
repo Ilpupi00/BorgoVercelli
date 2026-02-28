@@ -9,6 +9,13 @@ const path = require("path");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
 const { upload, uploadDir } = require("../../../core/config/multer");
 const multer = require("multer");
+const {
+  validateRegistrazione,
+  validateProfiloUpdate,
+  validateChangePassword,
+  validateForgotPassword,
+  validateResetPassword,
+} = require("../../../core/middlewares/validators");
 
 // Configurazione upload specifico per foto profilo utente
 const userStorage = multer.diskStorage({
@@ -38,7 +45,7 @@ const uploadProfilePic = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-router.post("/registrazione", async (req, res) => {
+router.post("/registrazione", validateRegistrazione, async (req, res) => {
   try {
     await userDao.createUser(req.body);
     res.status(201).json({ message: "Registrazione avvenuta con successo" });
@@ -246,19 +253,16 @@ router.get("/api/user/profile-pic", async (req, res) => {
   }
 });
 // Route per aggiornare il profilo utente (alias per /update)
-router.put("/profilo", async (req, res) => {
+router.put("/profilo", validateProfiloUpdate, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ success: false, error: "Non autenticato" });
   }
   try {
     // Aggiorna solo i dati profilo
     let updateFields = {};
-    if (req.body.nome && req.body.nome.trim() !== "")
-      updateFields.nome = req.body.nome;
-    if (req.body.cognome && req.body.cognome.trim() !== "")
-      updateFields.cognome = req.body.cognome;
-    if (req.body.email && req.body.email.trim() !== "")
-      updateFields.email = req.body.email;
+    if (req.body.nome) updateFields.nome = req.body.nome;
+    if (req.body.cognome) updateFields.cognome = req.body.cognome;
+    if (req.body.email) updateFields.email = req.body.email;
     if (req.body.telefono !== undefined)
       updateFields.telefono = req.body.telefono || "";
     if (req.body.ruolo_preferito !== undefined)
@@ -337,25 +341,12 @@ router.post(
 );
 
 // Route per cambio password
-router.post("/api/user/change-password", async (req, res) => {
+router.post("/api/user/change-password", validateChangePassword, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Non autenticato" });
   }
 
   const { currentPassword, newPassword } = req.body;
-
-  // Validazione input
-  if (!currentPassword || !newPassword) {
-    return res
-      .status(400)
-      .json({ error: "Password attuale e nuova password sono obbligatorie" });
-  }
-
-  if (newPassword.length < 6) {
-    return res
-      .status(400)
-      .json({ error: "La nuova password deve essere di almeno 6 caratteri" });
-  }
 
   try {
     await userDao.changePassword(req.user.id, currentPassword, newPassword);
@@ -398,11 +389,8 @@ router.get("/forgot-password", (req, res) => {
   res.render("forgot-password");
 });
 
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", validateForgotPassword, async (req, res) => {
   const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: "Email richiesta" });
-  }
   try {
     // Verifica se l'utente esiste
     const user = await userDao.getUserByEmail(email);
@@ -491,16 +479,12 @@ router.get("/reset-password/:token", async (req, res) => {
   }
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", validateResetPassword, async (req, res) => {
   const { token, password } = req.body;
   console.log("Reset password request:", {
     token: token ? "present" : "missing",
     password: password ? "present" : "missing",
   });
-  if (!token || !password) {
-    console.log("Missing token or password");
-    return res.status(400).json({ error: "Token e password richiesti" });
-  }
   try {
     const user = await userDao.getUserByResetToken(token);
     if (!user) {

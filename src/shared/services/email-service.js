@@ -1175,27 +1175,12 @@ exports.SendPrenotazioneConfermataEmail = async function (
                                       }</p>
                                     </div>
 
-                                    <div class="details-box">
-                                      <strong>👥 Numero Partecipanti</strong>
-                                      <p>${
-                                        PrenotazioneDetails.numPartecipanti ||
-                                        "Non disponibile"
-                                      }</p>
-                                    </div>
 
                                     <div class="details-box">
                                       <strong>📍 Luogo</strong>
                                       <p>${
                                         PrenotazioneDetails.luogo ||
                                         "Non disponibile"
-                                      }</p>
-                                    </div>
-
-                                    <div class="details-box">
-                                      <strong>🎟️ Numero Prenotazione</strong>
-                                      <p>${
-                                        PrenotazioneDetails.numeroPrenotazione ||
-                                        "N/A"
                                       }</p>
                                     </div>
 
@@ -1227,6 +1212,202 @@ exports.SendPrenotazioneConfermataEmail = async function (
   } catch (error) {
     console.error(
       "Errore durante l'invio dell'email prenotazione confermata:",
+      error
+    );
+    throw error;
+  }
+};
+
+exports
+
+/**
+ * Email di notifica all'admin per nuova prenotazione
+ */
+exports.sendPrenotazioneAdminEmail = async function (
+  adminEmail,
+  userName,
+  PrenotazioneDetails
+) {
+  try {
+    const to =
+      adminEmail ||
+      process.env.ADMIN_EMAIL ||
+      "info.asdborgovercelli2022@gmail.com";
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: to,
+      subject: `Nuova Prenotazione da ${userName} - Borgo Vercelli`,
+      html: `
+            <!DOCTYPE html>
+            <html lang="it">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    :root { --primary: #0d6efd; --info: #17a2b8; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; color: #333; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+                    .header { background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%); color: #fff; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 24px; font-weight: 600; color: #fff; }
+                    .content { padding: 30px 20px; }
+                    .info-box { background-color: #d1ecf1; border-left: 4px solid var(--info); padding: 15px; margin: 20px 0; border-radius: 8px; color: #0c5460; }
+                    .details-box { background-color: #fbfdff; border-left: 4px solid var(--primary); padding: 15px; margin: 15px 0; border-radius: 8px; }
+                    .details-box strong { color: var(--primary); display: block; margin-bottom: 5px; font-size: 14px; }
+                    .details-box p { margin: 5px 0; color: #333; }
+                    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+                    .footer { background-color: #f7fafc; padding: 20px; text-align: center; font-size: 14px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                  <div class="header">
+                    <h1>\uD83D\uDD14 Nuova Prenotazione</h1>
+                  </div>
+                  <div class="content">
+                    <div class="info-box">
+                      <strong>È stata effettuata una nuova prenotazione da <em>${userName}</em></strong>
+                    </div>
+                    <p>Dettagli della prenotazione:</p>
+                    <div class="details-box">
+                      <strong>\uD83D\uDCC5 Data e Ora</strong>
+                      <p>${PrenotazioneDetails.dataOra || "Non disponibile"}</p>
+                    </div>
+                    <div class="details-box">
+                      <strong>\u26BD Attività</strong>
+                      <p>${PrenotazioneDetails.attivita || "Non disponibile"}</p>
+                    </div>
+                    <div class="details-box">
+                      <strong>\uD83D\uDCCD Luogo</strong>
+                      <p>${PrenotazioneDetails.luogo || "Non disponibile"}</p>
+                    </div>
+                    <div class="details-box">
+                      <strong>\uD83D\uDC64 Prenotante</strong>
+                      <p>${userName}</p>
+                    </div>
+                    <p style="text-align: center;">
+                      <a href="${process.env.BASE_URL || "http://localhost:3000"}/admin" class="button">Gestisci Prenotazioni</a>
+                    </p>
+                  </div>
+                  <div class="footer">
+                    <p><strong>Borgo Vercelli</strong></p>
+                    <p>Società Sportiva Dilettantistica</p>
+                  </div>
+                </div>
+            </body>
+            </html>
+      `,
+    };
+
+    const info = await sendWithRetry(mailOptions);
+    console.log(
+      "Email nuova prenotazione (admin) inviata:",
+      info && info.messageId
+    );
+    return { messageId: info.messageId };
+  } catch (error) {
+    console.error(
+      "Errore durante l'invio dell'email prenotazione admin:",
+      error
+    );
+    throw error;
+  }
+};
+
+/**
+ * Email promemoria prenotazione — inviata sia all'utente che all'admin
+ */
+exports.sendReminderEmail = async function (
+  toEmail,
+  userName,
+  PrenotazioneDetails,
+  { isAdmin = false } = {}
+) {
+  try {
+    const subjectPrefix = isAdmin ? "[Admin] " : "";
+    const greeting = isAdmin
+      ? `<p>Promemoria: <strong>${userName}</strong> ha una prenotazione tra poco.</p>`
+      : `<p>Gentile <strong>${userName}</strong>,</p>`;
+    const reminderText = isAdmin
+      ? "Un utente ha una prenotazione imminente."
+      : "Ti ricordiamo che hai una prenotazione tra poco!";
+    const ctaUrl = isAdmin
+      ? `${process.env.BASE_URL || "http://localhost:3000"}/admin`
+      : `${process.env.BASE_URL || "http://localhost:3000"}/profilo`;
+    const ctaLabel = isAdmin
+      ? "Gestisci Prenotazioni"
+      : "Visualizza Prenotazione";
+
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: `${subjectPrefix}Promemoria Prenotazione - Borgo Vercelli`,
+      html: `
+            <!DOCTYPE html>
+            <html lang="it">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    :root { --primary: #0d6efd; --warning: #ffc107; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; color: #333; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+                    .header { background: linear-gradient(135deg, var(--warning) 0%, #ff9800 100%); color: #333; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+                    .content { padding: 30px 20px; }
+                    .reminder-box { background-color: #fff3cd; border-left: 4px solid var(--warning); padding: 15px; margin: 20px 0; border-radius: 8px; color: #856404; }
+                    .details-box { background-color: #fbfdff; border-left: 4px solid var(--primary); padding: 15px; margin: 15px 0; border-radius: 8px; }
+                    .details-box strong { color: var(--primary); display: block; margin-bottom: 5px; font-size: 14px; }
+                    .details-box p { margin: 5px 0; color: #333; }
+                    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+                    .footer { background-color: #f7fafc; padding: 20px; text-align: center; font-size: 14px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                  <div class="header">
+                    <h1>\u23F0 Promemoria Prenotazione</h1>
+                  </div>
+                  <div class="content">
+                    ${greeting}
+                    <div class="reminder-box">
+                      <strong>${reminderText}</strong>
+                    </div>
+                    <p>Dettagli:</p>
+                    <div class="details-box">
+                      <strong>\uD83D\uDCC5 Data e Ora</strong>
+                      <p>${PrenotazioneDetails.dataOra || "Non disponibile"}</p>
+                    </div>
+                    <div class="details-box">
+                      <strong>\u26BD Attività</strong>
+                      <p>${PrenotazioneDetails.attivita || "Campo prenotato"}</p>
+                    </div>
+                    <div class="details-box">
+                      <strong>\uD83D\uDCCD Luogo</strong>
+                      <p>${PrenotazioneDetails.luogo || "Non disponibile"}</p>
+                    </div>
+                    <p style="text-align: center;">
+                      <a href="${ctaUrl}" class="button">${ctaLabel}</a>
+                    </p>
+                  </div>
+                  <div class="footer">
+                    <p><strong>Borgo Vercelli</strong></p>
+                    <p>Società Sportiva Dilettantistica</p>
+                  </div>
+                </div>
+            </body>
+            </html>
+      `,
+    };
+
+    const info = await sendWithRetry(mailOptions);
+    console.log(
+      `Email promemoria (${isAdmin ? "admin" : "utente"}) inviata:`,
+      info && info.messageId
+    );
+    return { messageId: info.messageId };
+  } catch (error) {
+    console.error(
+      `Errore invio email promemoria (${isAdmin ? "admin" : "utente"}):`,
       error
     );
     throw error;

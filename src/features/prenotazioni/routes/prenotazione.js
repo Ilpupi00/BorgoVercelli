@@ -5,6 +5,15 @@ const daoCampi = require("../services/dao-campi");
 const db = require("../../../core/config/database");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
 const notifications = require("../../../shared/services/notifications");
+const emailService = require("../../../shared/services/email-service");
+const {
+  validatePrenotazioneCheck,
+  validatePrenotazioneCreate,
+  validatePrenotazioneUpdate,
+  validatePrenotazioneStato,
+  validateDisponibilita,
+  validateExportReport,
+} = require("../../../core/middlewares/validators");
 
 // 1. Lista campi attivi
 router.get("/campi", async (req, res) => {
@@ -17,10 +26,9 @@ router.get("/campi", async (req, res) => {
 });
 
 // 2. Orari disponibili per un campo in una data
-router.get("/campi/:id/disponibilita", async (req, res) => {
+router.get("/campi/:id/disponibilita", validateDisponibilita, async (req, res) => {
   const campoId = req.params.id;
   const data = req.query.data;
-  if (!data) return res.status(400).json({ error: "Data richiesta" });
   try {
     const disponibili = await daoPrenotazione.getDisponibilitaCampo(
       campoId,
@@ -33,33 +41,8 @@ router.get("/campi/:id/disponibilita", async (req, res) => {
 });
 
 // 2b. Controlla disponibilità orario custom (prima di prenotare)
-router.post("/prenotazioni/check", isLoggedIn, async (req, res) => {
+router.post("/prenotazioni/check", isLoggedIn, validatePrenotazioneCheck, async (req, res) => {
   const { campo_id, data, inizio, fine } = req.body;
-
-  if (!campo_id || !data || !inizio || !fine) {
-    return res.status(400).json({
-      ok: false,
-      message: "Dati obbligatori mancanti: campo_id, data, inizio, fine",
-    });
-  }
-
-  // Validazione formato orari (HH:MM)
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-  if (!timeRegex.test(inizio) || !timeRegex.test(fine)) {
-    return res.status(400).json({
-      ok: false,
-      message: "Formato orario non valido. Usa HH:MM",
-    });
-  }
-
-  // Validazione ordine orari (inizio < fine)
-  if (inizio >= fine) {
-    return res.status(400).json({
-      ok: false,
-      message:
-        "Intervallo non valido: l'orario di inizio deve essere precedente alla fine",
-    });
-  }
 
   // Validazione anticipo minimo 2 ore
   try {
@@ -100,7 +83,7 @@ router.post("/prenotazioni/check", isLoggedIn, async (req, res) => {
 });
 
 // 3. Prenota un campo
-router.post("/prenotazioni", isLoggedIn, async (req, res) => {
+router.post("/prenotazioni", isLoggedIn, validatePrenotazioneCreate, async (req, res) => {
   // Verifica stato utente
   if (req.user.isBannato && req.user.isBannato()) {
     return res.status(403).json({
@@ -142,73 +125,6 @@ router.post("/prenotazioni", isLoggedIn, async (req, res) => {
     numero_documento,
   } = req.body;
   console.log("[PRENOTAZIONE] Dati ricevuti:", req.body);
-  if (!campo_id || !data_prenotazione || !ora_inizio || !ora_fine) {
-    return res.status(400).json({ error: "Dati obbligatori mancanti" });
-  }
-
-  // Validazione telefono obbligatorio
-  if (!telefono || telefono.trim().length === 0) {
-    return res.status(400).json({
-      error: "Numero di telefono obbligatorio",
-      field: "telefono",
-      message:
-        "Devi fornire un numero di telefono per completare la prenotazione",
-    });
-  }
-
-  // Validazione documento di identità (se fornito)
-  if (tipo_documento) {
-    // Tipo documento deve essere 'CF' o 'ID'
-    if (tipo_documento !== "CF" && tipo_documento !== "ID") {
-      return res.status(400).json({
-        error: "Tipo documento non valido",
-        field: "tipo_documento",
-        message:
-          'Il tipo documento deve essere "CF" (Codice Fiscale) o "ID" (Documento Identità)',
-      });
-    }
-
-    // Se tipo_documento='CF', richiede codice_fiscale di 16 caratteri
-    if (tipo_documento === "CF") {
-      if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
-        return res.status(400).json({
-          error: "Codice fiscale non valido",
-          field: "codice_fiscale",
-          message:
-            "Il codice fiscale deve essere esattamente 16 caratteri alfanumerici",
-        });
-      }
-      // Pattern CF italiano: 6 lettere, 2 numeri, 1 lettera, 2 numeri, 1 lettera, 3 numeri, 1 lettera
-      const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
-      if (!cfPattern.test(codice_fiscale.trim())) {
-        return res.status(400).json({
-          error: "Formato codice fiscale non valido",
-          field: "codice_fiscale",
-          message:
-            "Il codice fiscale non rispetta il formato italiano standard",
-        });
-      }
-    }
-
-    // Se tipo_documento='ID', richiede numero_documento (minimo 5 caratteri)
-    if (tipo_documento === "ID") {
-      if (!numero_documento || numero_documento.trim().length < 5) {
-        return res.status(400).json({
-          error: "Numero documento non valido",
-          field: "numero_documento",
-          message: "Il numero del documento deve contenere almeno 5 caratteri",
-        });
-      }
-    }
-  }
-
-  // Validazione formato orari (HH:MM)
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:\d{2})?$/;
-  if (!timeRegex.test(ora_inizio) || !timeRegex.test(ora_fine)) {
-    return res.status(400).json({
-      error: "Formato orario non valido. Usa HH:MM",
-    });
-  }
 
   // Normalizza gli orari rimuovendo i secondi se presenti
   const ora_inizio_norm = ora_inizio.substring(0, 5);
@@ -343,6 +259,60 @@ router.post("/prenotazioni", isLoggedIn, async (req, res) => {
           userPushErr
         );
       }
+
+      // Invia email di conferma prenotazione all'utente e all'admin
+      try {
+        const userEmail = req.user && req.user.email;
+        const userFullName = req.user
+          ? `${req.user.nome || ""} ${req.user.cognome || ""}`.trim()
+          : "Utente";
+        const prenotazioneDetails = {
+          dataOra: `${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
+          attivita: tipo_attivita || campoNome,
+          luogo: campoNome,
+        };
+
+        // Email all'utente
+        if (userEmail) {
+          emailService
+            .SendPrenotazioneConfermataEmail(
+              userEmail,
+              userFullName,
+              prenotazioneDetails
+            )
+            .then(() =>
+              console.log(
+                "[EMAIL] Email conferma prenotazione inviata all'utente"
+              )
+            )
+            .catch((err) =>
+              console.error(
+                "[EMAIL] Errore invio email conferma all'utente:",
+                err
+              )
+            );
+        }
+
+        // Email all'admin
+        emailService
+          .sendPrenotazioneAdminEmail(null, userFullName, prenotazioneDetails)
+          .then(() =>
+            console.log(
+              "[EMAIL] Email nuova prenotazione inviata all'admin"
+            )
+          )
+          .catch((err) =>
+            console.error(
+              "[EMAIL] Errore invio email prenotazione all'admin:",
+              err
+            )
+          );
+      } catch (emailErr) {
+        console.error(
+          "[EMAIL] Errore preparazione email prenotazione:",
+          emailErr
+        );
+      }
     } catch (pushErr) {
       console.error("[PUSH] Errore invio notifica admin:", pushErr);
       // Non blocca la risposta se la notifica fallisce
@@ -437,10 +407,9 @@ router.get("/prenotazioni/:id", async (req, res) => {
 });
 
 // 5. Aggiorna stato prenotazione
-router.patch("/prenotazioni/:id/stato", isLoggedIn, async (req, res) => {
+router.patch("/prenotazioni/:id/stato", isLoggedIn, validatePrenotazioneStato, async (req, res) => {
   const id = req.params.id;
   const { stato } = req.body;
-  if (!stato) return res.status(400).json({ error: "Stato richiesto" });
 
   console.log(
     `[ROUTE] PATCH /prenotazioni/${id}/stato - stato richiesto: ${stato}`
@@ -553,7 +522,7 @@ router.patch("/prenotazioni/:id/stato", isLoggedIn, async (req, res) => {
 });
 
 // 6. Aggiorna prenotazione
-router.put("/prenotazioni/:id", isLoggedIn, async (req, res) => {
+router.put("/prenotazioni/:id", isLoggedIn, validatePrenotazioneUpdate, async (req, res) => {
   const id = req.params.id;
   const {
     campo_id,
@@ -577,103 +546,6 @@ router.put("/prenotazioni/:id", isLoggedIn, async (req, res) => {
   console.log(
     `[UPDATE PRENOTAZIONE] ID: ${id}, isAdmin: ${isAdmin}, modified_by_admin flag: ${modified_by_admin}`
   );
-
-  // Validazione campi obbligatori
-  if (!campo_id) {
-    return res.status(400).json({
-      error: "Campo obbligatorio",
-      field: "campo_id",
-      message: "Devi selezionare un campo",
-    });
-  }
-
-  if (!data_prenotazione || data_prenotazione.trim().length === 0) {
-    return res.status(400).json({
-      error: "Data prenotazione obbligatoria",
-      field: "data_prenotazione",
-      message: "Devi fornire una data per la prenotazione",
-    });
-  }
-
-  // Validazione formato data (YYYY-MM-DD)
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(data_prenotazione.trim())) {
-    return res.status(400).json({
-      error: "Formato data non valido",
-      field: "data_prenotazione",
-      message: "La data deve essere nel formato YYYY-MM-DD (es: 2026-01-15)",
-    });
-  }
-
-  if (!ora_inizio || !ora_fine) {
-    return res.status(400).json({
-      error: "Orari obbligatori",
-      field: "orari",
-      message: "Devi fornire ora inizio e ora fine",
-    });
-  }
-
-  // Validazione telefono obbligatorio
-  if (!telefono || telefono.trim().length === 0) {
-    return res.status(400).json({
-      error: "Numero di telefono obbligatorio",
-      field: "telefono",
-      message: "Devi fornire un numero di telefono",
-    });
-  }
-
-  // Validazione formato telefono
-  const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
-  if (!phoneRegex.test(telefono.trim())) {
-    return res.status(400).json({
-      error: "Formato telefono non valido",
-      field: "telefono",
-      message:
-        "Il numero deve essere in formato: +39 seguito da 9-10 cifre (es: +39 3331234567)",
-    });
-  }
-
-  // Validazione documento di identità (se fornito)
-  if (tipo_documento) {
-    if (tipo_documento !== "CF" && tipo_documento !== "ID") {
-      return res.status(400).json({
-        error: "Tipo documento non valido",
-        field: "tipo_documento",
-        message:
-          'Il tipo documento deve essere "CF" (Codice Fiscale) o "ID" (Documento Identità)',
-      });
-    }
-
-    if (tipo_documento === "CF") {
-      if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
-        return res.status(400).json({
-          error: "Codice fiscale non valido",
-          field: "codice_fiscale",
-          message:
-            "Il codice fiscale deve essere esattamente 16 caratteri alfanumerici",
-        });
-      }
-      const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
-      if (!cfPattern.test(codice_fiscale.trim())) {
-        return res.status(400).json({
-          error: "Formato codice fiscale non valido",
-          field: "codice_fiscale",
-          message:
-            "Il codice fiscale non rispetta il formato italiano standard",
-        });
-      }
-    }
-
-    if (tipo_documento === "ID") {
-      if (!numero_documento || numero_documento.trim().length < 5) {
-        return res.status(400).json({
-          error: "Numero documento non valido",
-          field: "numero_documento",
-          message: "Il numero del documento deve contenere almeno 5 caratteri",
-        });
-      }
-    }
-  }
 
   try {
     // Recupera prenotazione corrente per verificare lo stato e inviare notifiche
@@ -990,14 +862,8 @@ router.post("/prenotazioni/auto-accept", async (req, res) => {
 });
 
 // 12. Esporta report prenotazioni in Excel
-router.get("/export-report", async (req, res) => {
+router.get("/export-report", validateExportReport, async (req, res) => {
   const { dataInizio, dataFine, campo, stato } = req.query;
-
-  if (!dataInizio || !dataFine) {
-    return res
-      .status(400)
-      .json({ error: "Data inizio e data fine sono obbligatorie" });
-  }
 
   try {
     const ExcelJS = require("exceljs");

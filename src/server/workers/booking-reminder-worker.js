@@ -12,6 +12,7 @@ const { redisQueueClient, redisClient } = require("../../core/config/redis");
 const {
   queueNotificationForUsers,
 } = require("../../shared/services/notifications");
+const emailService = require("../../shared/services/email-service");
 
 // Configurazione
 const CONFIG = {
@@ -147,8 +148,56 @@ async function sendBookingReminder(booking) {
       `[BOOKING-REMINDER] 📋 Dettagli: ${campo_nome} - ${dataFormatted} ${ora_inizio}-${ora_fine}`
     );
 
-    // Accoda la notifica
+    // Accoda la notifica push
     await queueNotificationForUsers([utente_id], payload);
+
+    // Invia email promemoria all'utente
+    const prenotazioneDetails = {
+      dataOra: `${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
+      attivita: campo_nome,
+      luogo: campo_nome,
+    };
+    const nomeCompleto = `${utente_nome || ""} ${utente_cognome || ""}`.trim() || "Utente";
+
+    if (booking.utente_email) {
+      emailService
+        .sendReminderEmail(
+          booking.utente_email,
+          nomeCompleto,
+          prenotazioneDetails,
+          { isAdmin: false }
+        )
+        .then(() =>
+          console.log(
+            `[BOOKING-REMINDER] \u2709\uFE0F Email promemoria inviata all'utente ${booking.utente_email}`
+          )
+        )
+        .catch((err) =>
+          console.error(
+            `[BOOKING-REMINDER] \u274C Errore invio email promemoria all'utente:`,
+            err
+          )
+        );
+    }
+
+    // Invia email promemoria all'admin
+    const adminEmail =
+      process.env.ADMIN_EMAIL || "info.asdborgovercelli2022@gmail.com";
+    emailService
+      .sendReminderEmail(adminEmail, nomeCompleto, prenotazioneDetails, {
+        isAdmin: true,
+      })
+      .then(() =>
+        console.log(
+          `[BOOKING-REMINDER] \u2709\uFE0F Email promemoria inviata all'admin`
+        )
+      )
+      .catch((err) =>
+        console.error(
+          `[BOOKING-REMINDER] \u274C Errore invio email promemoria all'admin:`,
+          err
+        )
+      );
 
     // Marca come inviato
     await markReminderSent(id);
