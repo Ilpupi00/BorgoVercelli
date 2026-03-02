@@ -96,6 +96,11 @@ initOAuth();
 // ==================== CREAZIONE APP EXPRESS ====================
 const app = express();
 
+// Railway (e altri PaaS) terminano HTTPS al reverse proxy e inoltrano in HTTP.
+// Senza trust proxy, Express non vede la connessione come sicura e il cookie
+// secure:true non viene impostato/inviato → sessione persa dopo OAuth redirect.
+app.set("trust proxy", 1);
+
 // ==================== ROUTE PRINCIPALE ====================
 /**
  * Redirect dalla root alla homepage
