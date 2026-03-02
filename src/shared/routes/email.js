@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const emailService = require("../services/email-service");
+const {
+  validateSendEmail,
+} = require("../../core/middlewares/validators");
 
 // Legacy endpoint ancora utilizzato da componenti che puntano a /send-email
-router.post("/send-email", async (req, res) => {
+router.post("/send-email", ...validateSendEmail, async (req, res) => {
   const { name, email, subject, message, phone } = req.body;
 
   console.log("[POST /send-email] Received data:", {
@@ -13,10 +16,6 @@ router.post("/send-email", async (req, res) => {
     phone,
     hasMessage: !!message,
   });
-
-  if (!name || !email || !subject || !message) {
-    return res.status(400).json({ error: "Tutti i campi sono obbligatori." });
-  }
 
   try {
     const info = await emailService.sendEmail({

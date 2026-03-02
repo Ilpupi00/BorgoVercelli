@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anteprima - Prenotazione Confermata</title>
+    <style>
+      :root {
+        --primary: #0d6efd;
+        --success: #28a745;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7fa;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, var(--success) 0%, #22b14c 100%);
+        color: #fff;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+      .content {
+        padding: 30px 20px;
+      }
+      .success-box {
+        background: #d4edda;
+        border-left: 4px solid var(--success);
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 8px;
+        color: #155724;
+      }
+      .details-box {
+        background: #fbfdff;
+        border-left: 4px solid var(--primary);
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 8px;
+      }
+      .details-box strong {
+        color: var(--primary);
+        display: block;
+        margin-bottom: 6px;
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 28px;
+        background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .footer {
+        background: #f7fafc;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>✅ Prenotazione Confermata</h1>
+      </div>
+      <div class="content">
+        <p>Gentile <strong>Mario Rossi</strong>,</p>
+
+        <div class="success-box">
+          <strong>La tua prenotazione è stata confermata con successo!</strong>
+        </div>
+
+        <p>Ecco i dettagli della tua prenotazione:</p>
+
+        <div class="details-box">
+          <strong>📅 Data e Ora</strong>
+          <p>25/03/2026 18:30</p>
+        </div>
+
+        <div class="details-box">
+          <strong>⚽ Attività</strong>
+          <p>Calcetto</p>
+        </div>
+
+        <div class="details-box">
+          <strong>👥 Numero Partecipanti</strong>
+          <p>6</p>
+        </div>
+
+        <div class="details-box">
+          <strong>📍 Luogo</strong>
+          <p>Campo A</p>
+        </div>
+
+        <div class="details-box">
+          <strong>🎟️ Numero Prenotazione</strong>
+          <p>BV-20260325-1234</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 18px">
+          <a href="https://localhost:3000/prenotazioni" class="button"
+            >Visualizza Prenotazioni</a
+          >
+        </p>
+
+        <p>
+          Se hai domande o necessiti di modificare la tua prenotazione,
+          contattaci pure!
+        </p>
+      </div>
+      <div class="footer">
+        <p><strong>Borgo Vercelli</strong></p>
+        <p>Società Sportiva Dilettantistica</p>
+      </div>
+    </div>
+  </body>
+</html>

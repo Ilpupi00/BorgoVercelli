@@ -1,14 +1,18 @@
 /**
- * @fileoverview Worker integrato per processare notifiche push in coda
+ * @fileoverview Worker integrato per processare notifiche push in coda Redis
  * @description Worker in-process che gira nel server principale.
- * Processa notifiche pending dal database con retry, backoff esponenziale,
+ * Processa notifiche dalla coda Redis con retry, backoff esponenziale,
  * cleanup automatico e gestione errori avanzata.
  */
 
 "use strict";
 
-const db = require("../../core/config/database");
 const pushService = require("../../shared/services/webpush");
+const {
+  redisQueueClient,
+  redisClient,
+  getQueueLength,
+} = require("../../core/config/redis");
 
 // Configurazione
 const CONFIG = {
@@ -20,7 +24,8 @@ const CONFIG = {
   CLEANUP_INTERVAL_MS: 3600000, // Cleanup ogni ora
   CLEANUP_AFTER_DAYS: 7, // Rimuovi notifiche vecchie di 7 giorni
   PROCESSING_TIMEOUT_MS: 30000, // Timeout per processamento singola notifica (30s)
-  MAX_STUCK_MINUTES: 10, // Notifiche in "sending" da più di 10 min = stuck
+  MAX_RETRY_ATTEMPTS: 3, // Max tentativi di invio
+  QUEUE_NAME: "notifications:queue", // Nome della coda Redis
 };
 
 let isProcessing = false;
@@ -102,14 +107,7 @@ async function processNotification(notification) {
 
     result = await Promise.race([sendPromise, timeoutPromise]);
 
-    // Marca come inviata
-    await db.query(
-      `UPDATE notifications 
-             SET status = $1, sent_at = NOW(), updated_at = NOW(), attempts = $2
-             WHERE id = $3`,
-      ["sent", attempts + 1, id]
-    );
-
+    // Log successo (no database update needed)
     processedCount++;
     console.log(
       `[WORKER] ✅ Notifica ${id} inviata (sent: ${
@@ -143,99 +141,85 @@ async function processNotification(notification) {
     }
 
     const newAttempts = attempts + 1;
-    const notification_row = await db.query(
-      "SELECT max_attempts FROM notifications WHERE id = $1",
-      [id]
-    );
-    const maxAttempts = notification_row.rows[0]?.max_attempts || 3;
+    const maxAttempts = CONFIG.MAX_RETRY_ATTEMPTS;
 
-    // Se non retry-able o superato max attempts, marca come failed
-    if (!shouldRetry || newAttempts >= maxAttempts) {
-      const errorMsg = `[${errorType}] ${error.message}`;
-      await db.query(
-        `UPDATE notifications 
-                 SET status = $1, last_error = $2, attempts = $3, updated_at = NOW()
-                 WHERE id = $4`,
-        ["failed", errorMsg.substring(0, 500), newAttempts, id]
-      );
+    // Se superato max attempts, scarta
+    if (newAttempts >= maxAttempts) {
       failedCount++;
-      console.log(`[WORKER] 💀 Notifica ${id} marcata FAILED (${errorType})`);
-    } else {
-      // Riprogramma per retry con backoff esponenziale
-      const retryDelay = calculateRetryDelay(newAttempts);
-      const sendAfter = new Date(Date.now() + retryDelay);
-      const errorMsg = `[${errorType}] ${error.message}`;
-
-      await db.query(
-        `UPDATE notifications 
-                 SET status = $1, last_error = $2, attempts = $3, send_after = $4, updated_at = NOW()
-                 WHERE id = $5`,
-        ["pending", errorMsg.substring(0, 500), newAttempts, sendAfter, id]
-      );
-
       console.log(
-        `[WORKER] 🔄 Notifica ${id} -> PENDING (retry ${newAttempts}/${maxAttempts} tra ${Math.round(
-          retryDelay / 1000
-        )}s)`
+        `[WORKER] 💀 Notifica ${id} marcata FAILED (max retry: ${maxAttempts})`
       );
+    } else {
+      // Rimetti in coda per retry con backoff
+      const retryDelay = calculateRetryDelay(newAttempts);
+
+      // Crea una copia della notifica con attempts incrementato
+      const retryNotification = {
+        ...notification,
+        attempts: newAttempts,
+        lastError: error.message,
+      };
+
+      // Attendi del tempo che equivale al backoff, poi rimetti in coda
+      setTimeout(async () => {
+        try {
+          await redisQueueClient.rpush(
+            CONFIG.QUEUE_NAME,
+            JSON.stringify(retryNotification)
+          );
+          console.log(
+            `[WORKER] 🔄 Notifica ${id} -> rimessa in coda (retry ${newAttempts}/${maxAttempts})`
+          );
+        } catch (requeueErr) {
+          console.error(
+            "[WORKER] ❌ Errore rimessa in coda:",
+            requeueErr.message
+          );
+        }
+      }, retryDelay);
     }
 
-    return { success: false, error: error.message, errorType };
+    return { success: false, error: error.message };
   }
 }
 
 /**
- * Recupera notifiche da processare usando FOR UPDATE SKIP LOCKED
+ * Recupera notifiche da processare dalla coda Redis
+ * Legge max BATCH_SIZE notifiche dalla coda
  */
 async function fetchPendingNotifications() {
   try {
-    const client = await db.pool.connect();
-    try {
-      await client.query("BEGIN");
+    const notifications = [];
 
-      const selectSql = `
-                SELECT id
-                FROM notifications
-                WHERE status = 'pending'
-                  AND send_after <= NOW()
-                ORDER BY priority DESC, created_at ASC
-                LIMIT $1
-                FOR UPDATE SKIP LOCKED
-            `;
+    // Leggi fino a BATCH_SIZE notifiche dalla coda
+    for (let i = 0; i < CONFIG.BATCH_SIZE; i++) {
+      // BLPOP con timeout 0 per non bloccare
+      const result = await redisQueueClient.lpop(CONFIG.QUEUE_NAME);
 
-      const sel = await client.query(selectSql, [CONFIG.BATCH_SIZE]);
-      if (!sel.rows || sel.rows.length === 0) {
-        await client.query("COMMIT");
-        return [];
-      }
+      if (!result) break; // Coda vuota
 
-      const ids = sel.rows.map((r) => r.id);
-
-      const updateSql = `
-                UPDATE notifications
-                SET status = 'sending', updated_at = NOW()
-                WHERE id = ANY($1::int[])
-                RETURNING id, type, user_ids, payload, attempts, max_attempts
-            `;
-
-      const updated = await client.query(updateSql, [ids]);
-      await client.query("COMMIT");
-
-      return updated.rows;
-    } catch (txErr) {
       try {
-        await client.query("ROLLBACK");
-      } catch (e) {}
-      console.error(
-        "[WORKER] Errore transazione fetchPendingNotifications:",
-        txErr
-      );
-      return [];
-    } finally {
-      client.release();
+        const notification = JSON.parse(result);
+        // Assicurati che il tentativo sia registrato
+        notification.attempts = notification.attempts || 0;
+        notifications.push(notification);
+      } catch (parseErr) {
+        console.error(
+          "[WORKER] ❌ Errore parsing notifica Redis:",
+          parseErr.message
+        );
+      }
     }
+
+    if (notifications.length > 0) {
+      console.log(
+        `[WORKER] 📥 Lette ${notifications.length} notifiche dalla coda`
+      );
+    }
+
+    return notifications;
   } catch (error) {
-    console.error("[WORKER] Errore recupero notifiche:", error);
+    console.error("[WORKER] ❌ Errore lettura coda Redis:", error.message);
     return [];
   }
 }
@@ -281,49 +265,6 @@ async function processLoop() {
 }
 
 /**
- * Reset notifiche stuck in "sending"
- */
-async function resetStuckNotifications() {
-  try {
-    const result = await db.query(
-      `UPDATE notifications
-             SET status = 'pending', updated_at = NOW()
-             WHERE status = 'sending'
-               AND updated_at < NOW() - INTERVAL '${CONFIG.MAX_STUCK_MINUTES} minutes'
-             RETURNING id`
-    );
-
-    if (result.rows.length > 0) {
-      console.log(`[WORKER] 🔧 Reset ${result.rows.length} notifiche stuck`);
-    }
-  } catch (error) {
-    console.error("[WORKER] Errore reset stuck:", error);
-  }
-}
-
-/**
- * Cleanup notifiche vecchie
- */
-async function cleanupOldNotifications() {
-  try {
-    const result = await db.query(
-      `DELETE FROM notifications
-             WHERE (status = 'sent' OR status = 'failed')
-               AND created_at < NOW() - INTERVAL '${CONFIG.CLEANUP_AFTER_DAYS} days'
-             RETURNING id`
-    );
-
-    if (result.rows.length > 0) {
-      console.log(
-        `[WORKER] 🧹 Cleanup: ${result.rows.length} notifiche vecchie rimosse`
-      );
-    }
-  } catch (error) {
-    console.error("[WORKER] Errore cleanup:", error);
-  }
-}
-
-/**
  * Avvia il worker
  */
 async function startWorker() {
@@ -343,25 +284,15 @@ async function startWorker() {
   processedCount = 0;
   failedCount = 0;
 
-  // Verifica database
-  try {
-    await db.query("SELECT 1 FROM notifications LIMIT 1");
-    console.log("[WORKER] ✅ Connessione database OK");
-  } catch (error) {
-    console.error("[WORKER] ❌ Errore connessione database:", error.message);
-    throw new Error("Worker cannot start: database not ready");
-  }
-
-  // Reset stuck notifications all'avvio
-  await resetStuckNotifications();
-
-  // Avvia polling
+  // Avvia polling dalla coda Redis
   pollInterval = setInterval(processLoop, CONFIG.POLL_INTERVAL_MS);
 
-  // Avvia cleanup periodico
+  console.log("[WORKER] ✅ Worker notifiche avviato - coda Redis pronta");
+
+  // Avvia cleanup periodico (opzionale per Redis)
   cleanupInterval = setInterval(async () => {
-    await cleanupOldNotifications();
-    await resetStuckNotifications();
+    const queueLen = await getQueueLength(CONFIG.QUEUE_NAME);
+    console.log(`[WORKER] 📊 State: ${queueLen} notifiche in coda`);
   }, CONFIG.CLEANUP_INTERVAL_MS);
 
   console.log("[WORKER] ✅ Worker avviato e in esecuzione");

@@ -80,9 +80,11 @@
 
       <form class="d-flex ms-auto mt-3 mt-lg-0">
         <% if (typeof isLogged !== 'undefined' && isLogged) { %>
-          <a href="/profilo" class="text-light d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
-            <% if (typeof imageUrl !== 'undefined' && imageUrl) { %>
-              <img src="<%= imageUrl %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+          <a href="<%= (user && user.tipo_utente_id === 1) ? '/admin' : '/profilo' %>" class="text-light d-flex justify-content-center align-items-center" id="Profilo" title="Profilo">
+            <% const _navFoto = (typeof imageUrl !== 'undefined' && imageUrl) ? imageUrl : (user && user.foto_oauth ? user.foto_oauth : null); %>
+            <% if (_navFoto) { %>
+              <img src="<%= _navFoto %>" alt="Foto Profilo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+              <i class="bi bi-person-circle" style="font-size: 1.8rem; display:none;"></i>
             <% } else { %>
               <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
             <% } %>

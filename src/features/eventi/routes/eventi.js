@@ -10,6 +10,9 @@ const {
 } = require("../../../core/middlewares/auth");
 const multer = require("multer");
 const { upload } = require("../../../core/config/multer");
+const {
+  validateEvento,
+} = require("../../../core/middlewares/validators");
 
 // Route per eventi/all gestita dal router
 
@@ -92,6 +95,7 @@ router.post(
   "/evento/nuovo",
   isLoggedIn,
   isAdminOrDirigente,
+  ...validateEvento,
   async (req, res) => {
     try {
       const eventoData = {
@@ -187,7 +191,7 @@ router.get(
 );
 
 // Update existing event
-router.put("/evento/:id", isLoggedIn, isAdminOrDirigente, async (req, res) => {
+router.put("/evento/:id", isLoggedIn, isAdminOrDirigente, ...validateEvento, async (req, res) => {
   try {
     const id = req.params.id;
     const eventoData = {

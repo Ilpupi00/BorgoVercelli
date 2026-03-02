@@ -16,6 +16,13 @@ const {
   isAdminOrDirigente,
 } = require("../../../core/middlewares/auth");
 const { uploadSquadra: upload } = require("../../../core/config/multer");
+const {
+  validateSquadra,
+  validateSquadraAlias,
+  validateAddDirigente,
+  validateUpdateDirigente,
+  validateGiocatore,
+} = require("../../../core/middlewares/validators");
 
 router.get("/getsquadre", async (req, res) => {
   try {
@@ -43,14 +50,9 @@ router.get("/getgiocatori", (req, res) => {
     });
 });
 
-router.post("/createsquadra", isLoggedIn, isAdmin, async (req, res) => {
+router.post("/createsquadra", isLoggedIn, isAdmin, validateSquadra, async (req, res) => {
   try {
     const { nome, annoFondazione } = req.body;
-    if (!nome || !annoFondazione) {
-      return res
-        .status(400)
-        .json({ error: "Nome e anno fondazione sono obbligatori" });
-    }
     const result = await daoSquadre.createSquadra(
       nome,
       parseInt(annoFondazione)
@@ -71,15 +73,11 @@ router.put(
   isLoggedIn,
   isAdmin,
   upload.single("foto"),
+  validateSquadra,
   async (req, res) => {
     try {
       const { id } = req.params;
       const { nome, annoFondazione } = req.body;
-      if (!nome || !annoFondazione) {
-        return res
-          .status(400)
-          .json({ error: "Nome e anno fondazione sono obbligatori" });
-      }
 
       let id_immagine = null;
       if (req.file) {
@@ -263,15 +261,11 @@ router.put(
   isLoggedIn,
   isAdmin,
   upload.single("logo"),
+  validateSquadraAlias,
   async (req, res) => {
     try {
       const { id } = req.params;
       const { nome, anno } = req.body;
-      if (!nome || !anno) {
-        return res
-          .status(400)
-          .json({ error: "Nome e anno fondazione sono obbligatori" });
-      }
       let id_immagine = null;
       if (req.file) {
         id_immagine = await daoGalleria.uploadImmagine(req.file, "squadra");
@@ -413,7 +407,7 @@ router.get("/squadre/gestione/:id", isAdminOrDirigente, async (req, res) => {
   }
 });
 
-router.post("/squadre/:id/dirigenti", isSquadraDirigente, async (req, res) => {
+router.post("/squadre/:id/dirigenti", isSquadraDirigente, validateAddDirigente, async (req, res) => {
   try {
     const { id: squadraIdParam } = req.params;
     // Log request for debugging (will appear in server logs on Railway)
@@ -435,15 +429,6 @@ router.post("/squadre/:id/dirigenti", isSquadraDirigente, async (req, res) => {
     const data_scadenza = req.body.data_scadenza;
     const squadra_id = squadraIdParam ? parseInt(squadraIdParam, 10) : null;
 
-    if (!userId || !Number.isInteger(userId)) {
-      console.warn(
-        "[POST /squadre/:id/dirigenti] Missing or invalid userId:",
-        rawUserId
-      );
-      return res
-        .status(400)
-        .json({ error: "ID utente è obbligatorio e deve essere numerico" });
-    }
     if (!squadra_id || !Number.isInteger(squadra_id)) {
       console.warn(
         "[POST /squadre/:id/dirigenti] Missing or invalid squadra id:",
@@ -581,14 +566,11 @@ router.post("/squadre/:id/dirigenti", isSquadraDirigente, async (req, res) => {
 router.put(
   "/squadre/:id/dirigenti/:managerId",
   isSquadraDirigente,
+  validateUpdateDirigente,
   async (req, res) => {
     try {
       const { managerId } = req.params;
       const { ruolo, data_nomina, data_scadenza } = req.body;
-
-      if (!ruolo) {
-        return res.status(400).json({ error: "Il ruolo è obbligatorio" });
-      }
 
       await daoDirigenti.updateDirigente(managerId, {
         ruolo: ruolo,
@@ -679,6 +661,7 @@ router.post(
   "/squadre/:id/giocatori",
   isSquadraDirigente,
   upload.single("foto"),
+  validateGiocatore,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -691,12 +674,6 @@ router.post(
         piede_preferito,
         nazionalita,
       } = req.body;
-
-      if (!nome || !cognome) {
-        return res
-          .status(400)
-          .json({ error: "Nome e cognome sono obbligatori" });
-      }
 
       let immagini_id = null;
       if (req.file) {
@@ -732,6 +709,7 @@ router.put(
   "/squadre/:id/giocatori/:playerId",
   isSquadraDirigente,
   upload.single("foto"),
+  validateGiocatore,
   async (req, res) => {
     try {
       const { playerId } = req.params;
@@ -744,12 +722,6 @@ router.put(
         piede_preferito,
         nazionalita,
       } = req.body;
-
-      if (!nome || !cognome) {
-        return res
-          .status(400)
-          .json({ error: "Nome e cognome sono obbligatori" });
-      }
 
       let immagini_id = null;
       if (req.file) {

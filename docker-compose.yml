@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: borgo-vercelli-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - borgo-network
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: borgo-vercelli-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/dump.sql:/docker-entrypoint-initdb.d/01-dump.sql
+      - ./database/migrations:/docker-entrypoint-initdb.d/migrations
+    environment:
+      - POSTGRES_USER=${DB_USER:-borgovercelli}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_DB=${DB_NAME:-borgovercelli}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-borgovercelli}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - borgo-network
+
+  app:
+    build: .
+    container_name: borgo-vercelli-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-borgovercelli}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_NAME=${DB_NAME:-borgovercelli}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - SESSION_SECRET=${SESSION_SECRET:-your-secret-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - uploads_data:/data/uploads
+    networks:
+      - borgo-network
+    command: npm start
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+
+networks:
+  borgo-network:
+    driver: bridge

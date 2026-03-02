@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -26,8 +26,9 @@
         <header class="profile-modern-header reveal reveal--fade-up text-center">
             <!-- Avatar Section with Action Buttons -->
             <div class="profile-avatar-container">
-                <% if (imageUrl) { %>
-                  <img src="<%= imageUrl %>?t=<%= Date.now() %>" alt="Foto profilo di <%= user.nome %> <%= user.cognome %>" class="profile-avatar-modern" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
+                <% const _fotoSrc = imageUrl || (user && user.foto_oauth) || null; %>
+                <% if (_fotoSrc) { %>
+                  <img src="<%= _fotoSrc %>" alt="Foto profilo di <%= user.nome %> <%= user.cognome %>" class="profile-avatar-modern" onerror="this.onerror=null; this.src='/assets/images/Campo.png';">
                 <% } else { %>
                   <div class="profile-avatar-placeholder" aria-hidden="true">
                     <svg class="person-ic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -98,7 +99,7 @@
                     <div class="col-12 col-sm-6 col-lg-3">
                         <div class="d-flex align-items-center justify-content-center gap-2">
                             <i class="bi bi-calendar3 fs-5"></i>
-                            <span class="small"><%= new Date(user.data_nascita).toLocaleDateString('it-IT') %></span>
+                            <span class="small"><%= String(user.data_nascita).split('T')[0].split('-').reverse().join('/') %></span>
                         </div>
                     </div>
                     <% } %>
@@ -114,8 +115,8 @@
             </div>
             <!-- Floating Action Buttons: spostati sotto la scritta per migliore layout -->
             <div class="profile-actions-overlay">
-              <% if (imageUrl) { %>
-              <button type="button" class="profile-action-btn-modern btn-edit-photo" title="Modifica foto" aria-label="Modifica foto profilo" onclick="window.openImageEditor('<%= imageUrl %>')">
+              <% if (_fotoSrc) { %>
+              <button type="button" class="profile-action-btn-modern btn-edit-photo" title="Modifica foto" aria-label="Modifica foto profilo" onclick="window.openImageEditor('<%= _fotoSrc %>')">
                 <i class="bi bi-scissors"></i>
               </button>
               <% } %>
@@ -675,7 +676,7 @@
             <div class="col-md-6 mb-3">
               <label for="editDataNascita" class="form-label">Data di Nascita</label>
               <input type="date" class="form-control" id="editDataNascita" name="data_nascita" 
-                     value="<%= user.data_nascita ? new Date(user.data_nascita).toISOString().split('T')[0] : '' %>" 
+                     value="<%= user.data_nascita ? String(user.data_nascita).split('T')[0] : '' %>" 
                      max="<%= new Date().toISOString().split('T')[0] %>"
                      autocomplete="bday">
               <div class="form-text"><i class="bi bi-info-circle me-1"></i>Opzionale</div>
@@ -870,212 +871,20 @@
 </div>
 
         <%- include('partials/footer') %>
+
         <script>
-          // Validazione telefono in tempo reale nel form modifica profilo
-          document.addEventListener('DOMContentLoaded', function() {
-            const telefonoInput = document.getElementById('editTelefono');
-            if (telefonoInput) {
-              // Auto-normalizza con +39
-              telefonoInput.addEventListener('input', function() {
-                let val = this.value.trim();
-                // Auto-aggiungi +39 se l'utente inizia a digitare numeri
-                if (val.length > 0 && !val.startsWith('+')) {
-                  this.value = '+39' + val.replace(/^0/, '');
-                }
-                // Rimuovi caratteri non validi (permetti solo +, numeri e spazi)
-                this.value = this.value.replace(/[^+0-9\\s]/g, '');
-              });
-              
-              // Valida al blur
-              telefonoInput.addEventListener('blur', function() {
-                let val = this.value.trim();
-                if (val && !val.startsWith('+39')) {
-                  this.value = '+39' + val.replace(/^0/, '');
-                }
-                // Valida il formato
-                const phoneRegex = /^\\+39\\s?[0-9]{9,10}$/;
-                if (val && !phoneRegex.test(this.value)) {
-                  this.classList.add('is-invalid');
-                  this.classList.remove('is-valid');
-                } else if (val) {
-                  this.classList.remove('is-invalid');
-                  this.classList.add('is-valid');
-                }
-              });
-              
-              // Pre-normalizza il valore esistente
-              if (telefonoInput.value) {
-                let tel = telefonoInput.value.trim();
-                if (tel && !tel.startsWith('+39')) {
-                  telefonoInput.value = '+39' + tel.replace(/^0/, '');
-                }
-              }
-            }
-          });
-        </script>
-        <script>
-          // Show notification enable modal from Profile page
-          (function(){
-            function createNotificationModal() {
-              if (document.getElementById('notificationModal')) return;
-              const modalHtml = `
-                <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header border-0">
-                                <h5 class="modal-title fw-bold" id="notificationModalLabel">
-                                    <i class="bi bi-bell-fill text-primary me-2"></i>Abilita le Notifiche
-                                </h5>
-                            </div>
-                            <div class="modal-body text-center py-4">
-                                <div class="mb-3">
-                                    <i class="bi bi-calendar-check display-1 text-primary"></i>
-                                </div>
-                                <h6 class="mb-3">Resta aggiornato sulle tue prenotazioni!</h6>
-                                <p class="text-muted mb-0">
-                                    Riceverai notifiche quando:
-                                </p>
-                                <ul class="list-unstyled mt-3">
-                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Una prenotazione viene confermata</li>
-                                    <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i>Una prenotazione viene annullata</li>
-                                    <li class="mb-2"><i class="bi bi-bell-fill text-info me-2"></i>Nuove comunicazioni importanti</li>
-                                </ul>
-                            </div>
-                            <div class="modal-footer border-0 d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary flex-fill" id="skipNotifications">
-                                    Più tardi
-                                </button>
-                                <button type="button" class="btn btn-primary flex-fill" id="enableNotifications">
-                                    Abilita
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-              `;
-              document.body.insertAdjacentHTML('beforeend', modalHtml);
-            }
-
-            async function showProfileNotificationPrompt() {
-              if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                showNotificationResult('error', 'Browser non supportato', 'Il tuo browser non supporta le notifiche push.');
-                return;
-              }
-
-              if (Notification.permission === 'granted') {
-                // Verifica se già subscription esiste
-                try {
-                  const checkRes = await fetch('/push/my-subscriptions', { credentials: 'include' });
-                  const checkData = await checkRes.json();
-                  if (checkData.count > 0) {
-                    showNotificationResult('info', 'Notifiche già abilitate', 'Hai già abilitato le notifiche per questo dispositivo.');
-                    return;
-                  }
-                  // Non ha subscription, inizializza
-                  if (window.initPushNotifications) {
-                    await window.initPushNotifications();
-                    showNotificationResult('success', 'Notifiche abilitate!', 'Riceverai notifiche per aggiornamenti importanti.');
-                  }
-                } catch (err) {
-                  console.error('Errore verifica subscription:', err);
-                  if (window.initPushNotifications) await window.initPushNotifications();
-                }
-                return;
-              }
-              if (Notification.permission === 'denied') {
-                showNotificationResult('error', 'Permessi negati', 'Hai bloccato le notifiche. Abilitale nelle impostazioni del browser.');
-                return;
-              }
-
-              createNotificationModal();
-              const modalEl = document.getElementById('notificationModal');
-              const bsModal = new bootstrap.Modal(modalEl);
-              const enableBtn = document.getElementById('enableNotifications');
-              const skipBtn = document.getElementById('skipNotifications');
-
-              enableBtn.addEventListener('click', async () => {
-                bsModal.hide();
-                try {
-                  if (window.initPushNotifications) {
-                    await window.initPushNotifications();
-                    showNotificationResult('success', 'Notifiche abilitate!', 'Riceverai notifiche per aggiornamenti importanti.');
-                  }
-                } catch (err) {
-                  console.error('Errore attivazione notifiche:', err);
-                  showNotificationResult('error', 'Errore attivazione', 'Si è verificato un errore. Riprova più tardi.');
-                }
-              }, { once: true });
-
-              skipBtn.addEventListener('click', () => {
-                bsModal.hide();
-              }, { once: true });
-
-              modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
-              bsModal.show();
-            }
-            
-            function showNotificationResult(type, title, message) {
-              const iconMap = { success: 'check-circle-fill', error: 'x-circle-fill', info: 'info-circle-fill' };
-              const colorMap = { success: 'success', error: 'danger', info: 'primary' };
-              const resultHtml = `
-                <div class="modal fade" id="notificationResultModal" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                      <div class="modal-body text-center py-4">
-                        <i class="bi bi-${iconMap[type]} text-${colorMap[type]}" style="font-size: 3rem;"></i>
-                        <h5 class="mt-3 fw-bold">${title}</h5>
-                        <p class="text-muted">${message}</p>
-                        <button type="button" class="btn btn-${colorMap[type]} mt-2" data-bs-dismiss="modal">OK</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `;
-              const existingModal = document.getElementById('notificationResultModal');
-              if (existingModal) existingModal.remove();
-              document.body.insertAdjacentHTML('beforeend', resultHtml);
-              const modalEl = document.getElementById('notificationResultModal');
-              const bsModal = new bootstrap.Modal(modalEl);
-              modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
-              bsModal.show();
-            }
-
-            // Esponi dati utente globalmente per Profilo.js
-            window.currentUser = {
-              id: <%= user.id %>,
-              nome: '<%= user.nome %>',
-              cognome: '<%= user.cognome %>',
-              email: '<%= user.email %>',
-              telefono: '<%= user.telefono || "" %>',
-              data_nascita: '<%= user.data_nascita || "" %>',
-              codice_fiscale: '<%= user.codice_fiscale || "" %>',
-              ruolo_preferito: '<%= user.ruolo_preferito || "" %>',
-              piede_preferito: '<%= user.piede_preferito || "" %>'
-            };
-
-            document.addEventListener('DOMContentLoaded', function(){
-              const btn = document.getElementById('enablePushBtn');
-              if (btn) btn.addEventListener('click', function(e){ e.preventDefault(); showProfileNotificationPrompt(); });
-              
-              // Precompila TUTTI i campi del form profilo con i valori attuali
-              const ruoloPreferito = '<%= user.ruolo_preferito || "" %>';
-              const piedePreferito = '<%= user.piede_preferito || "" %>';
-              
-              if (ruoloPreferito) {
-                const ruoloSelect = document.getElementById('ruoloPreferito');
-                if (ruoloSelect) {
-                  ruoloSelect.value = ruoloPreferito;
-                }
-              }
-              
-              if (piedePreferito) {
-                const piedeSelect = document.getElementById('piedePreferito');
-                if (piedeSelect) {
-                  piedeSelect.value = piedePreferito;
-                }
-              }
-            });
-          })();
+          // Dati utente esposti per Profilo.js
+          window.currentUser = {
+            id: <%- user.id %>,
+            nome: <%- JSON.stringify(user.nome || "") %>,
+            cognome: <%- JSON.stringify(user.cognome || "") %>,
+            email: <%- JSON.stringify(user.email || "") %>,
+            telefono: <%- JSON.stringify(user.telefono || "") %>,
+            data_nascita: <%- JSON.stringify(user.data_nascita ? String(user.data_nascita) : "") %>,
+            codice_fiscale: <%- JSON.stringify(user.codice_fiscale || "") %>,
+            ruolo_preferito: <%- JSON.stringify(user.ruolo_preferito || "") %>,
+            piede_preferito: <%- JSON.stringify(user.piede_preferito || "") %>
+          };
         </script>
         <script src="/assets/scripts/scroll-reveal.js"></script>
 </body>

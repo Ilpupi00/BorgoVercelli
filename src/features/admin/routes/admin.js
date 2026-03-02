@@ -12,7 +12,19 @@ const {
   canManageCampi,
   canEditNotizia,
 } = require("../../../core/middlewares/auth");
+const {
+  validateAdminCreateUser,
+  validateAdminUpdateUser,
+  validateSospendiUtente,
+  validateBannaUtente,
+  validateAddOrario,
+  validateCampoModifica,
+  validateCampionato,
+} = require("../../../core/middlewares/validators");
 const userDao = require("../../users/services/dao-user");
+const daoSospensioni = require("../../users/services/dao-sospensioni");
+const daoPreferenze = require("../../users/services/dao-preferenze");
+const daoDatiPersonali = require("../../users/services/dao-dati-personali");
 const notizieDao = require("../../notizie/services/dao-notizie");
 const eventiDao = require("../../eventi/services/dao-eventi");
 const galleriDao = require("../../galleria/services/dao-galleria");
@@ -24,6 +36,7 @@ const dirigenteDao = require("../../squadre/services/dao-dirigenti-squadre");
 const campionatiDao = require("../../campionati/services/dao-campionati");
 const adminDao = require("../services/dao-admin");
 const notifications = require("../../../shared/services/notifications");
+const emailService = require("../../../shared/services/email-service");
 
 /**
  * Admin Routes per la gestione del sito
@@ -197,6 +210,19 @@ router.get("/admin/squadre", isLoggedIn, isStaffOrAdmin, async (req, res) => {
 router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
   try {
     const utenti = await userDao.getAllUsers();
+    // Arricchisci utenti sospesi/bannati con dati sospensione
+    for (const u of utenti) {
+      if (u.stato === 'sospeso' || u.stato === 'bannato') {
+        try {
+          const sosp = await daoSospensioni.getByUtenteId(u.id);
+          if (sosp) {
+            u.motivo_sospensione = sosp.motivo;
+            u.data_inizio_sospensione = sosp.data_inizio;
+            u.data_fine_sospensione = sosp.data_fine;
+          }
+        } catch (e) { /* ignora */ }
+      }
+    }
     // Recupera i tipi utente per popolare i select nella UI
     let tipiUtente = [];
     try {
@@ -279,6 +305,31 @@ router.get("/api/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
     const utente = await userDao.getUserById(userId);
     const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
     utente.immagine_profilo = imageUrl;
+
+    // Arricchisci con dati dalle tabelle separate
+    try {
+      const sospensione = await daoSospensioni.getByUtenteId(userId);
+      if (sospensione) {
+        utente.motivo_sospensione = sospensione.motivo;
+        utente.data_inizio_sospensione = sospensione.data_inizio;
+        utente.data_fine_sospensione = sospensione.data_fine;
+      }
+    } catch (e) { /* nessuna sospensione */ }
+    try {
+      const pref = await daoPreferenze.getByUtenteId(userId);
+      if (pref) {
+        utente.ruolo_preferito = pref.ruolo_preferito;
+        utente.piede_preferito = pref.piede_preferito;
+      }
+    } catch (e) { /* nessuna preferenza */ }
+    try {
+      const dati = await daoDatiPersonali.getByUtenteId(userId);
+      if (dati) {
+        utente.data_nascita = dati.data_nascita;
+        utente.codice_fiscale = dati.codice_fiscale;
+      }
+    } catch (e) { /* nessun dato personale */ }
+
     res.json(utente);
   } catch (err) {
     console.error("Errore nel caricamento dei dettagli utente:", err);
@@ -293,6 +344,31 @@ router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
     const utente = await userDao.getUserById(userId);
     const imageUrl = await userDao.getImmagineProfiloByUserId(userId);
     utente.immagine_profilo = imageUrl;
+
+    // Arricchisci con dati dalle tabelle separate
+    try {
+      const sospensione = await daoSospensioni.getByUtenteId(userId);
+      if (sospensione) {
+        utente.motivo_sospensione = sospensione.motivo;
+        utente.data_inizio_sospensione = sospensione.data_inizio;
+        utente.data_fine_sospensione = sospensione.data_fine;
+      }
+    } catch (e) { /* nessuna sospensione */ }
+    try {
+      const pref = await daoPreferenze.getByUtenteId(userId);
+      if (pref) {
+        utente.ruolo_preferito = pref.ruolo_preferito;
+        utente.piede_preferito = pref.piede_preferito;
+      }
+    } catch (e) { /* nessuna preferenza */ }
+    try {
+      const dati = await daoDatiPersonali.getByUtenteId(userId);
+      if (dati) {
+        utente.data_nascita = dati.data_nascita;
+        utente.codice_fiscale = dati.codice_fiscale;
+      }
+    } catch (e) { /* nessun dato personale */ }
+
     res.json(utente);
   } catch (err) {
     console.error("Errore nel caricamento dei dettagli utente:", err);
@@ -301,15 +377,10 @@ router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo utente
-router.post("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
+router.post("/admin/utenti", isLoggedIn, isAdmin, validateAdminCreateUser, async (req, res) => {
   try {
     const { nome, cognome, email, telefono, tipo_utente_id, password } =
       req.body;
-    if (!nome || !cognome || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Nome, cognome, email e password sono obbligatori" });
-    }
     const user = {
       nome,
       cognome,
@@ -327,7 +398,7 @@ router.post("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per modificare un utente
-router.put("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
+router.put("/admin/utenti/:id", isLoggedIn, isAdmin, validateAdminUpdateUser, async (req, res) => {
   try {
     const userId = req.params.id;
     const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
@@ -510,6 +581,26 @@ router.put(
           console.log(
             `[ADMIN] Notifica conferma accodata per utente ${prenotazione.utente_id}`
           );
+
+          // Invia email di conferma all'utente
+          try {
+            const utenteData = await userDao.getUserById(prenotazione.utente_id);
+            if (utenteData && utenteData.email) {
+              const nomeCognome = `${utenteData.nome || ''} ${utenteData.cognome || ''}`.trim();
+              emailService.SendPrenotazioneConfermataEmail(
+                utenteData.email,
+                nomeCognome,
+                {
+                  dataOra: `${dataFormatted} ${oraInfo}`,
+                  attivita: prenotazione.tipo_attivita || campoNome,
+                  luogo: campoNome,
+                }
+              ).then(() => console.log(`[EMAIL] Email prenotazione confermata inviata a ${utenteData.email}`))
+               .catch(err => console.error("[EMAIL] Errore invio email conferma:", err));
+            }
+          } catch (emailErr) {
+            console.error("[ADMIN] Errore preparazione email conferma:", emailErr);
+          }
         } catch (pushErr) {
           console.error("[ADMIN] Errore invio notifica conferma:", pushErr);
         }
@@ -764,6 +855,7 @@ router.post(
   "/admin/campi/:id/orari",
   isLoggedIn,
   canManageCampi,
+  validateAddOrario,
   async (req, res) => {
     try {
       const campoId = req.params.id;
@@ -931,13 +1023,14 @@ router.put(
   isLoggedIn,
   canManageCampi,
   upload.single("immagine"),
+  validateCampoModifica,
   async (req, res) => {
     try {
       const campoId = req.params.id;
       const campoData = req.body;
       console.log("Dati ricevuti per la modifica del campo:", campoData);
 
-      // Sanitize input data
+      // Sanitize input data con express-validator già applicato
       campoData.nome =
         typeof campoData.nome === "string" ? campoData.nome.trim() : "";
       campoData.indirizzo =
@@ -1028,6 +1121,32 @@ router.get("/admin/profilo", isLoggedIn, isAdmin, async (req, res) => {
       dirigente = await dirigenteDao.getDirigenteByUserId(user.id);
     } catch (dirErr) {
       console.error("Errore recupero dirigente:", dirErr);
+    }
+
+    // Recupera preferenze sportive dalla tabella dedicata
+    try {
+      const preferenze = await daoPreferenze.getByUtenteId(user.id);
+      user.ruolo_preferito = (preferenze && preferenze.ruolo_preferito) || "";
+      user.piede_preferito = (preferenze && preferenze.piede_preferito) || "";
+    } catch (e) {
+      console.error("Errore recupero preferenze:", e);
+      user.ruolo_preferito = "";
+      user.piede_preferito = "";
+    }
+
+    // Recupera dati personali (data_nascita, codice_fiscale)
+    try {
+      const datiP = await daoDatiPersonali.getByUtenteId(user.id);
+      // Normalizza data_nascita a stringa "YYYY-MM-DD" (pg può restituire oggetto Date)
+      const rawDateAdmin = (datiP && datiP.data_nascita) || null;
+      user.data_nascita = rawDateAdmin instanceof Date
+        ? rawDateAdmin.toISOString().split('T')[0]
+        : (rawDateAdmin ? String(rawDateAdmin).split('T')[0] : "");
+      user.codice_fiscale = (datiP && datiP.codice_fiscale) || "";
+    } catch (e) {
+      console.error("Errore recupero dati personali:", e);
+      user.data_nascita = "";
+      user.codice_fiscale = "";
     }
 
     // Recupera statistiche e attività recenti
@@ -1200,7 +1319,7 @@ router.get("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-router.post("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
+router.post("/api/admin/campionati", isLoggedIn, isAdmin, validateCampionato, async (req, res) => {
   try {
     const campionatoData = {
       nome: req.body.nome,
@@ -1376,24 +1495,16 @@ router.put(
 
 // ==================== GESTIONE SOSPENSIONE/BAN UTENTI ====================
 
-const emailService = require("../../../shared/services/email-service");
-
 // Route per sospendere un utente
 router.post(
   "/api/admin/utenti/:id/sospendi",
   isLoggedIn,
   isAdmin,
+  validateSospendiUtente,
   async (req, res) => {
     try {
       const userId = req.params.id;
       const { motivo, durataGiorni } = req.body;
-
-      if (!motivo || !durataGiorni) {
-        return res.status(400).json({
-          success: false,
-          error: "Motivo e durata sono obbligatori",
-        });
-      }
 
       // Calcola data fine sospensione
       const moment = require("moment");
@@ -1405,7 +1516,7 @@ router.post(
       const utente = await userDao.getUserById(userId);
 
       // Sospendi utente
-      await userDao.sospendiUtente(userId, req.user.id, motivo, dataFine);
+      await daoSospensioni.sospendiUtente(userId, req.user.id, motivo, dataFine);
 
       // Invia email
       try {
@@ -1440,23 +1551,17 @@ router.post(
   "/api/admin/utenti/:id/banna",
   isLoggedIn,
   isAdmin,
+  validateBannaUtente,
   async (req, res) => {
     try {
       const userId = req.params.id;
       const { motivo } = req.body;
 
-      if (!motivo) {
-        return res.status(400).json({
-          success: false,
-          error: "Il motivo è obbligatorio",
-        });
-      }
-
       // Recupera dati utente
       const utente = await userDao.getUserById(userId);
 
       // Banna utente
-      await userDao.bannaUtente(userId, req.user.id, motivo);
+      await daoSospensioni.bannaUtente(userId, req.user.id, motivo);
 
       // Invia email
       try {
@@ -1497,7 +1602,7 @@ router.post(
       const utente = await userDao.getUserById(userId);
 
       // Revoca sospensione/ban
-      await userDao.revocaSospensioneBan(userId);
+      await daoSospensioni.revocaSospensioneBan(userId);
 
       // Invia email
       try {
@@ -1532,7 +1637,7 @@ router.get(
   async (req, res) => {
     try {
       const userId = req.params.id;
-      const stato = await userDao.getStatoUtente(userId);
+      const stato = await daoSospensioni.getStatoUtente(userId);
       res.json({ success: true, stato });
     } catch (err) {
       console.error("Errore nel recupero stato:", err);
@@ -1547,6 +1652,19 @@ router.get(
 router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
   try {
     const utenti = await userDao.getAllUsers();
+    // Arricchisci utenti sospesi/bannati con dati sospensione
+    for (const u of utenti) {
+      if (u.stato === 'sospeso' || u.stato === 'bannato') {
+        try {
+          const sosp = await daoSospensioni.getByUtenteId(u.id);
+          if (sosp) {
+            u.motivo_sospensione = sosp.motivo;
+            u.data_inizio_sospensione = sosp.data_inizio;
+            u.data_fine_sospensione = sosp.data_fine;
+          }
+        } catch (e) { /* ignora */ }
+      }
+    }
     let tipiUtente = [];
     try {
       tipiUtente = await userDao.getTipiUtente();

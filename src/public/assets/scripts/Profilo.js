@@ -6,6 +6,9 @@ class Profilo {
 
   init() {
     this.setupEventListeners();
+    this.setupTelefonoValidation();
+    this.setupPushNotifications();
+    this.setupSelectPrefill();
     this.caricaRecensioniUtente();
     this.caricaNotizieEventiUtente();
   }
@@ -120,12 +123,10 @@ class Profilo {
       document.getElementById("editTelefono").value =
         this.currentUser.telefono || "";
 
-      // Data di nascita (converte da timestamp a formato YYYY-MM-DD)
+      // Data di nascita: usa la stringa diretta (evita shift di timezone con new Date())
       if (this.currentUser.data_nascita) {
-        const dataNascita = new Date(this.currentUser.data_nascita);
-        document.getElementById("editDataNascita").value = dataNascita
-          .toISOString()
-          .split("T")[0];
+        document.getElementById("editDataNascita").value =
+          String(this.currentUser.data_nascita).split("T")[0];
       }
 
       // Codice fiscale
@@ -580,7 +581,7 @@ class Profilo {
     // La validazione è già gestita dal pattern HTML5 del form
 
     try {
-      const response = await fetch("/users/update", {
+      const response = await fetch("/profilo", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -726,6 +727,225 @@ class Profilo {
       document.getElementById("uploadPicMsg").innerHTML =
         '<div class="alert alert-danger">Errore di connessione. Riprova più tardi.</div>';
     }
+  }
+  // ──────────────────────────────────────────────
+  // Validazione telefono in tempo reale
+  // ──────────────────────────────────────────────
+  setupTelefonoValidation() {
+    const telefonoInput = document.getElementById("editTelefono");
+    if (!telefonoInput) return;
+
+    // Auto-normalizza con +39
+    telefonoInput.addEventListener("input", function () {
+      let val = this.value.trim();
+      if (val.length > 0 && !val.startsWith("+")) {
+        this.value = "+39" + val.replace(/^0/, "");
+      }
+      // Rimuovi caratteri non validi (permetti solo +, numeri e spazi)
+      this.value = this.value.replace(/[^+0-9\s]/g, "");
+    });
+
+    // Valida al blur
+    telefonoInput.addEventListener("blur", function () {
+      let val = this.value.trim();
+      if (val && !val.startsWith("+39")) {
+        this.value = "+39" + val.replace(/^0/, "");
+      }
+      const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
+      if (val && !phoneRegex.test(this.value)) {
+        this.classList.add("is-invalid");
+        this.classList.remove("is-valid");
+      } else if (val) {
+        this.classList.remove("is-invalid");
+        this.classList.add("is-valid");
+      }
+    });
+
+    // Pre-normalizza il valore esistente
+    if (telefonoInput.value) {
+      let tel = telefonoInput.value.trim();
+      if (tel && !tel.startsWith("+39")) {
+        telefonoInput.value = "+39" + tel.replace(/^0/, "");
+      }
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // Prefill dei select sportivi da window.currentUser
+  // ──────────────────────────────────────────────
+  setupSelectPrefill() {
+    const cu = window.currentUser || {};
+    if (cu.ruolo_preferito) {
+      const ruoloSelect = document.getElementById("ruoloPreferito");
+      if (ruoloSelect) ruoloSelect.value = cu.ruolo_preferito;
+    }
+    if (cu.piede_preferito) {
+      const piedeSelect = document.getElementById("piedePreferito");
+      if (piedeSelect) piedeSelect.value = cu.piede_preferito;
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // Push notifications dal profilo
+  // ──────────────────────────────────────────────
+  setupPushNotifications() {
+    const btn = document.getElementById("enablePushBtn");
+    if (btn) {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.showProfileNotificationPrompt();
+      });
+    }
+  }
+
+  createNotificationModal() {
+    if (document.getElementById("notificationModal")) return;
+    const modalHtml = `
+      <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header border-0">
+              <h5 class="modal-title fw-bold" id="notificationModalLabel">
+                <i class="bi bi-bell-fill text-primary me-2"></i>Abilita le Notifiche
+              </h5>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-3">
+                <i class="bi bi-calendar-check display-1 text-primary"></i>
+              </div>
+              <h6 class="mb-3">Resta aggiornato sulle tue prenotazioni!</h6>
+              <p class="text-muted mb-0">Riceverai notifiche quando:</p>
+              <ul class="list-unstyled mt-3">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Una prenotazione viene confermata</li>
+                <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i>Una prenotazione viene annullata</li>
+                <li class="mb-2"><i class="bi bi-bell-fill text-info me-2"></i>Nuove comunicazioni importanti</li>
+              </ul>
+            </div>
+            <div class="modal-footer border-0 d-flex gap-2">
+              <button type="button" class="btn btn-outline-secondary flex-fill" id="skipNotifications">Più tardi</button>
+              <button type="button" class="btn btn-primary flex-fill" id="enableNotifications">Abilita</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+  }
+
+  async showProfileNotificationPrompt() {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      this.showNotificationResult(
+        "error",
+        "Browser non supportato",
+        "Il tuo browser non supporta le notifiche push."
+      );
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      try {
+        const checkRes = await fetch("/push/my-subscriptions", {
+          credentials: "include",
+        });
+        const checkData = await checkRes.json();
+        if (checkData.count > 0) {
+          this.showNotificationResult(
+            "info",
+            "Notifiche già abilitate",
+            "Hai già abilitato le notifiche per questo dispositivo."
+          );
+          return;
+        }
+        if (window.initPushNotifications) {
+          await window.initPushNotifications();
+          this.showNotificationResult(
+            "success",
+            "Notifiche abilitate!",
+            "Riceverai notifiche per aggiornamenti importanti."
+          );
+        }
+      } catch (err) {
+        console.error("Errore verifica subscription:", err);
+        if (window.initPushNotifications) await window.initPushNotifications();
+      }
+      return;
+    }
+
+    if (Notification.permission === "denied") {
+      this.showNotificationResult(
+        "error",
+        "Permessi negati",
+        "Hai bloccato le notifiche. Abilitale nelle impostazioni del browser."
+      );
+      return;
+    }
+
+    this.createNotificationModal();
+    const modalEl = document.getElementById("notificationModal");
+    const bsModal = new bootstrap.Modal(modalEl);
+    const enableBtn = document.getElementById("enableNotifications");
+    const skipBtn = document.getElementById("skipNotifications");
+
+    enableBtn.addEventListener(
+      "click",
+      async () => {
+        bsModal.hide();
+        try {
+          if (window.initPushNotifications) {
+            await window.initPushNotifications();
+            this.showNotificationResult(
+              "success",
+              "Notifiche abilitate!",
+              "Riceverai notifiche per aggiornamenti importanti."
+            );
+          }
+        } catch (err) {
+          console.error("Errore attivazione notifiche:", err);
+          this.showNotificationResult(
+            "error",
+            "Errore attivazione",
+            "Si è verificato un errore. Riprova più tardi."
+          );
+        }
+      },
+      { once: true }
+    );
+
+    skipBtn.addEventListener("click", () => bsModal.hide(), { once: true });
+    modalEl.addEventListener("hidden.bs.modal", function () {
+      this.remove();
+    });
+    bsModal.show();
+  }
+
+  showNotificationResult(type, title, message) {
+    const iconMap = {
+      success: "check-circle-fill",
+      error: "x-circle-fill",
+      info: "info-circle-fill",
+    };
+    const colorMap = { success: "success", error: "danger", info: "primary" };
+    const resultHtml = `
+      <div class="modal fade" id="notificationResultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-body text-center py-4">
+              <i class="bi bi-${iconMap[type]} text-${colorMap[type]}" style="font-size: 3rem;"></i>
+              <h5 class="mt-3 fw-bold">${title}</h5>
+              <p class="text-muted">${message}</p>
+              <button type="button" class="btn btn-${colorMap[type]} mt-2" data-bs-dismiss="modal">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    const existingModal = document.getElementById("notificationResultModal");
+    if (existingModal) existingModal.remove();
+    document.body.insertAdjacentHTML("beforeend", resultHtml);
+    const modalEl = document.getElementById("notificationResultModal");
+    const bsModal = new bootstrap.Modal(modalEl);
+    modalEl.addEventListener("hidden.bs.modal", function () {
+      this.remove();
+    });
+    bsModal.show();
   }
 }
 

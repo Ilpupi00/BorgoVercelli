@@ -9,7 +9,46 @@ class RegistrazionePage {
     document.addEventListener("DOMContentLoaded", () => {
       this.setupEventListeners();
       this.setupPrivacyOverlay();
+      this.setupSocialButtons();
     });
+  }
+
+  setupSocialButtons() {
+    const googleBtn = document.getElementById("googleRegisterBtn");
+    const facebookBtn = document.getElementById("facebookRegisterBtn");
+    const appleBtn = document.getElementById("appleRegisterBtn");
+
+    if (googleBtn) {
+      googleBtn.addEventListener("click", () => {
+        window.location.href = "/auth/google";
+      });
+    }
+    if (facebookBtn) {
+      facebookBtn.addEventListener("click", () => {
+        window.location.href = "/auth/facebook";
+      });
+    }
+    if (appleBtn) {
+      appleBtn.addEventListener("click", () => {
+        window.location.href = "/auth/apple";
+      });
+    }
+  }
+
+  setLoading(loading) {
+    const btn = document.getElementById("registerSubmitBtn");
+    if (!btn) return;
+    const textEl = btn.querySelector(".btn-text");
+    const loaderEl = btn.querySelector(".btn-loader");
+    if (loading) {
+      textEl.classList.add("d-none");
+      loaderEl.classList.remove("d-none");
+      btn.disabled = true;
+    } else {
+      textEl.classList.remove("d-none");
+      loaderEl.classList.add("d-none");
+      btn.disabled = false;
+    }
   }
 
   setupEventListeners() {
@@ -69,11 +108,13 @@ class RegistrazionePage {
       passwordField.addEventListener("input", () => {
         document.getElementById("passwordError").style.display = "none";
         this.updatePasswordStrength(passwordField.value);
+        this.checkPasswordMatch();
       });
     }
     if (confirmPasswordField) {
       confirmPasswordField.addEventListener("input", () => {
         document.getElementById("passwordError").style.display = "none";
+        this.checkPasswordMatch();
       });
     }
 
@@ -113,6 +154,8 @@ class RegistrazionePage {
       document.getElementById("registerPassword").focus();
       return;
     }
+
+    this.setLoading(true);
     try {
       const response = await fetch("/registrazione", {
         method: "POST",
@@ -137,12 +180,14 @@ class RegistrazionePage {
         } else {
           alert("Registrazione fallita. Riprova.");
         }
+        this.setLoading(false);
       }
     } catch (error) {
       console.error("Errore durante la registrazione:", error);
       alert(
         "Si è verificato un errore durante la registrazione. Riprova più tardi."
       );
+      this.setLoading(false);
     }
   }
 
@@ -204,12 +249,38 @@ class RegistrazionePage {
   }
 
   updateRequirement(reqId, satisfied) {
-    const li = document.getElementById(reqId);
-    const icon = li.querySelector("i");
+    const el = document.getElementById(reqId);
+    if (!el) return;
+    const icon = el.querySelector("i");
     if (satisfied) {
       icon.className = "bi bi-check-circle-fill text-success";
+      el.classList.add("satisfied");
     } else {
       icon.className = "bi bi-circle text-muted";
+      el.classList.remove("satisfied");
+    }
+  }
+
+  checkPasswordMatch() {
+    const password = document.getElementById("registerPassword").value;
+    const confirm = document.getElementById("confirmPassword").value;
+    const indicator = document.getElementById("passwordMatchIndicator");
+    const matchText = document.getElementById("passwordMatchText");
+
+    if (!indicator || !matchText) return;
+
+    if (confirm.length === 0) {
+      indicator.classList.add("d-none");
+      return;
+    }
+
+    indicator.classList.remove("d-none");
+    if (password === confirm) {
+      matchText.className = "text-success";
+      matchText.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Le password corrispondono';
+    } else {
+      matchText.className = "text-danger";
+      matchText.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>Le password non corrispondono';
     }
   }
 

@@ -6,6 +6,8 @@ class LoginPage {
   init() {
     document.addEventListener("DOMContentLoaded", () => {
       this.setupEventListeners();
+      this.setupSocialButtons();
+      this.checkUrlErrors();
     });
   }
 
@@ -33,11 +35,67 @@ class LoginPage {
     }
   }
 
+  setupSocialButtons() {
+    const googleBtn = document.getElementById("googleLoginBtn");
+    const facebookBtn = document.getElementById("facebookLoginBtn");
+    const appleBtn = document.getElementById("appleLoginBtn");
+
+    if (googleBtn) {
+      googleBtn.addEventListener("click", () => {
+        window.location.href = "/auth/google";
+      });
+    }
+    if (facebookBtn) {
+      facebookBtn.addEventListener("click", () => {
+        window.location.href = "/auth/facebook";
+      });
+    }
+    if (appleBtn) {
+      appleBtn.addEventListener("click", () => {
+        window.location.href = "/auth/apple";
+      });
+    }
+  }
+
+  setLoading(loading) {
+    const btn = document.getElementById("loginSubmitBtn");
+    if (!btn) return;
+    const textEl = btn.querySelector(".btn-text");
+    const loaderEl = btn.querySelector(".btn-loader");
+    if (loading) {
+      textEl.classList.add("d-none");
+      loaderEl.classList.remove("d-none");
+      btn.disabled = true;
+    } else {
+      textEl.classList.remove("d-none");
+      loaderEl.classList.add("d-none");
+      btn.disabled = false;
+    }
+  }
+
+  /**
+   * Controlla se nella URL ci sono parametri di errore (es. da OAuth redirect)
+   */
+  checkUrlErrors() {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (error) {
+      const messages = {
+        google_failed: "Autenticazione con Google fallita. Riprova.",
+        facebook_failed: "Autenticazione con Facebook fallita. Riprova.",
+      };
+      this.showError(messages[error] || decodeURIComponent(error));
+      // Rimuovi il parametro dalla URL senza ricaricare
+      window.history.replaceState({}, document.title, "/login");
+    }
+  }
+
   async handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById("exampleInputEmail1").value;
     const password = document.getElementById("exampleInputPassword1").value;
     const remember = document.getElementById("rememberMe").checked;
+    this.setLoading(true);
     try {
       const res = await fetch("/session", {
         method: "POST",
@@ -49,18 +107,15 @@ class LoginPage {
         const data = await res.json();
 
         // Mostra richiesta notifiche push dopo login
-        if (data.showNotificationPrompt) {
-          // Imposta una flag temporanea per mostrare il prompt dopo il redirect
-          // in modo da garantire che il cookie di sessione sia stato applicato.
+        const redirectUrl = data.isAdmin ? "/admin" : "/homepage";
+        if (data.showNotificationPrompt && !data.isAdmin) {
           try {
             sessionStorage.setItem("showPushPrompt", "1");
           } catch (e) {
             console.warn("Impossibile accedere a sessionStorage:", e);
           }
-          window.location.href = "/homepage";
-        } else {
-          window.location.href = "/homepage";
         }
+        window.location.href = redirectUrl;
       } else {
         const data = await res.json();
 
@@ -83,9 +138,11 @@ class LoginPage {
         else {
           this.showError(data.error || "Email o password errate. Riprova.");
         }
+        this.setLoading(false);
       }
     } catch (error) {
       this.showError("Errore di connessione. Riprova più tardi.");
+      this.setLoading(false);
     }
   }
 

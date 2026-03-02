@@ -1,16 +1,18 @@
 /**
  * @fileoverview Worker per inviare promemoria automatici delle prenotazioni
  * @description Controlla periodicamente le prenotazioni imminenti e invia notifiche push
- * agli utenti per ricordare loro dell'appuntamento.
+ * gli utenti per ricordare loro dell'appuntamento tramite Redis queue.
  * Invia notifiche 2 ore prima dell'inizio della prenotazione confermata.
  */
 
 "use strict";
 
 const db = require("../../core/config/database");
+const { redisQueueClient, redisClient } = require("../../core/config/redis");
 const {
   queueNotificationForUsers,
 } = require("../../shared/services/notifications");
+const emailService = require("../../shared/services/email-service");
 
 // Configurazione
 const CONFIG = {
@@ -24,7 +26,8 @@ let checkInterval = null;
 
 /**
  * Ottiene le prenotazioni che necessitano un promemoria
- * Trova prenotazioni confermate che iniziano tra 2 ore (±15 min) e che non hanno già ricevuto promemoria
+ * Trova prenotazioni confermate che iniziano tra 2 ore (±15 min)
+ * Controlla i reminder inviati in Redis
  */
 async function getBookingsNeedingReminder() {
   const query = `
@@ -35,15 +38,14 @@ async function getBookingsNeedingReminder() {
             p.data_prenotazione as data,
             p.ora_inizio,
             p.ora_fine,
-            p.reminder_sent,
             c.nome as campo_nome,
             u.nome as utente_nome,
-            u.cognome as utente_cognome
+            u.cognome as utente_cognome,
+            u.email as utente_email
         FROM PRENOTAZIONI p
         JOIN CAMPI c ON p.campo_id = c.id
         JOIN UTENTI u ON p.utente_id = u.id
         WHERE p.stato = 'confermata'
-        AND p.reminder_sent = false
         AND p.data_prenotazione = CURRENT_DATE
         AND (
             EXTRACT(EPOCH FROM (
@@ -57,7 +59,19 @@ async function getBookingsNeedingReminder() {
 
   try {
     const result = await db.query(query);
-    return result.rows;
+
+    // Filtra: mantieni solo prenotazioni che non hanno già ricevuto reminder
+    const filtered = [];
+    for (const booking of result.rows) {
+      const reminderKey = `booking:reminder:sent:${booking.id}`;
+      const alreadySent = await redisClient.exists(reminderKey);
+
+      if (!alreadySent) {
+        filtered.push(booking);
+      }
+    }
+
+    return filtered;
   } catch (error) {
     console.error(
       "[BOOKING-REMINDER] ❌ Errore nel recupero prenotazioni:",
@@ -68,22 +82,18 @@ async function getBookingsNeedingReminder() {
 }
 
 /**
- * Marca una prenotazione come "promemoria inviato"
+ * Marca una prenotazione come "promemoria inviato" in Redis
  */
 async function markReminderSent(bookingId) {
-  const query = `
-        UPDATE PRENOTAZIONI 
-        SET reminder_sent = true, 
-            updated_at = NOW()
-        WHERE id = $1
-    `;
+  const reminderKey = `booking:reminder:sent:${bookingId}`;
 
   try {
-    await db.query(query, [bookingId]);
+    // Salva in Redis con TTL di 24 ore (per evitare duplicati nello stesso giorno)
+    await redisClient.setEx(reminderKey, 86400, "true");
     return true;
   } catch (error) {
     console.error(
-      `[BOOKING-REMINDER] ❌ Errore nell'aggiornamento prenotazione ${bookingId}:`,
+      `[BOOKING-REMINDER] ❌ Errore nel salvare reminder in Redis ${bookingId}:`,
       error
     );
     return false;
@@ -138,8 +148,56 @@ async function sendBookingReminder(booking) {
       `[BOOKING-REMINDER] 📋 Dettagli: ${campo_nome} - ${dataFormatted} ${ora_inizio}-${ora_fine}`
     );
 
-    // Accoda la notifica
+    // Accoda la notifica push
     await queueNotificationForUsers([utente_id], payload);
+
+    // Invia email promemoria all'utente
+    const prenotazioneDetails = {
+      dataOra: `${dataFormatted} dalle ${ora_inizio} alle ${ora_fine}`,
+      attivita: campo_nome,
+      luogo: campo_nome,
+    };
+    const nomeCompleto = `${utente_nome || ""} ${utente_cognome || ""}`.trim() || "Utente";
+
+    if (booking.utente_email) {
+      emailService
+        .sendReminderEmail(
+          booking.utente_email,
+          nomeCompleto,
+          prenotazioneDetails,
+          { isAdmin: false }
+        )
+        .then(() =>
+          console.log(
+            `[BOOKING-REMINDER] \u2709\uFE0F Email promemoria inviata all'utente ${booking.utente_email}`
+          )
+        )
+        .catch((err) =>
+          console.error(
+            `[BOOKING-REMINDER] \u274C Errore invio email promemoria all'utente:`,
+            err
+          )
+        );
+    }
+
+    // Invia email promemoria all'admin
+    const adminEmail =
+      process.env.ADMIN_EMAIL || "info.asdborgovercelli2022@gmail.com";
+    emailService
+      .sendReminderEmail(adminEmail, nomeCompleto, prenotazioneDetails, {
+        isAdmin: true,
+      })
+      .then(() =>
+        console.log(
+          `[BOOKING-REMINDER] \u2709\uFE0F Email promemoria inviata all'admin`
+        )
+      )
+      .catch((err) =>
+        console.error(
+          `[BOOKING-REMINDER] \u274C Errore invio email promemoria all'admin:`,
+          err
+        )
+      );
 
     // Marca come inviato
     await markReminderSent(id);

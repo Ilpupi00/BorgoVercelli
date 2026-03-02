@@ -1,56 +1,43 @@
 /**
  * Servizio centralizzato per gestione notifiche push
- * Accoda le notifiche nel database per essere processate dal worker
+ * Accoda le notifiche in Redis per essere processate dal worker
  */
 
-const db = require("../../core/config/database");
 const pushService = require("./webpush");
+const { redisQueueClient } = require("../../core/config/redis");
+
+const QUEUE_NAME = "notifications:queue";
 
 /**
  * Accoda una notifica per gli admin
- * @param {Object} payload - Dati della notifica (title, body, icon, url, tag, requireInteraction)
+ * @param {Object} payload - Dati della notifica
  * @param {Object} options - Opzioni aggiuntive
- * @param {number} options.priority - Priorità (0=normale, 1=alta, 2=critica)
- * @param {Date} options.sendAfter - Quando inviare (default: subito)
- * @param {number} options.maxAttempts - Tentativi massimi (default: 3)
  * @returns {Promise<Object>} Risultato dell'operazione
  */
 async function queueNotificationForAdmins(payload, options = {}) {
-  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
+  const { priority = 0, maxAttempts = 3 } = options;
 
   try {
-    // If no explicit sendAfter provided, let Postgres use CURRENT_TIMESTAMP to avoid
-    // any timezone conversion issues between Node and the DB driver.
-    if (!sendAfter) {
-      const result = await db.query(
-        `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
-                 VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
-                 RETURNING id`,
-        ["admin", JSON.stringify(payload), "pending", priority, maxAttempts]
-      );
-      console.log(
-        `[NOTIFICATIONS] Notifica admin accodata con ID ${result.rows[0].id}`
-      );
-      return { success: true, id: result.rows[0].id, queued: true };
-    }
+    const notification = {
+      id: `admin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: "admin",
+      payload,
+      priority,
+      maxAttempts,
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+    };
 
-    const result = await db.query(
-      `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
-             VALUES ($1, $2, $3, $4, $5, $6)
-             RETURNING id`,
-      [
-        "admin",
-        JSON.stringify(payload),
-        "pending",
-        priority,
-        sendAfter,
-        maxAttempts,
-      ]
+    await redisQueueClient.rpush(QUEUE_NAME, JSON.stringify(notification));
+
+    console.log(
+      `[NOTIFICATIONS] Notifica admin accodata con ID ${notification.id}`
     );
+    return { success: true, id: notification.id, queued: true };
   } catch (error) {
     console.error("[NOTIFICATIONS] Errore accodamento notifica admin:", error);
 
-    // Fallback: invio diretto se il DB fallisce
+    // Fallback: invio diretto se Redis fallisce
     console.log("[NOTIFICATIONS] Fallback: invio diretto notifica admin");
     try {
       await pushService.sendNotificationToAdmins(payload);
@@ -78,48 +65,30 @@ async function queueNotificationForUsers(userIds, payload, options = {}) {
     return { success: false, error: "No users specified" };
   }
 
-  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
+  const { priority = 0, maxAttempts = 3 } = options;
 
   try {
-    // Use DB-side CURRENT_TIMESTAMP when sendAfter not explicitly provided
-    if (!sendAfter) {
-      const result = await db.query(
-        `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
-                 VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
-                 RETURNING id`,
-        [
-          "user",
-          userIds,
-          JSON.stringify(payload),
-          "pending",
-          priority,
-          maxAttempts,
-        ]
-      );
-      console.log(
-        `[NOTIFICATIONS] Notifica utenti accodata con ID ${result.rows[0].id} per ${userIds.length} utenti`
-      );
-      return { success: true, id: result.rows[0].id, queued: true };
-    }
+    const notification = {
+      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: "user",
+      user_ids: userIds,
+      payload,
+      priority,
+      maxAttempts,
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+    };
 
-    const result = await db.query(
-      `INSERT INTO notifications (type, user_ids, payload, status, priority, send_after, max_attempts)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id`,
-      [
-        "user",
-        userIds,
-        JSON.stringify(payload),
-        "pending",
-        priority,
-        sendAfter,
-        maxAttempts,
-      ]
+    await redisQueueClient.rpush(QUEUE_NAME, JSON.stringify(notification));
+
+    console.log(
+      `[NOTIFICATIONS] Notifica utenti accodata con ID ${notification.id} per ${userIds.length} utenti`
     );
+    return { success: true, id: notification.id, queued: true };
   } catch (error) {
     console.error("[NOTIFICATIONS] Errore accodamento notifica utenti:", error);
 
-    // Fallback: invio diretto se il DB fallisce
+    // Fallback: invio diretto se Redis fallisce
     console.log("[NOTIFICATIONS] Fallback: invio diretto notifica utenti");
     try {
       await pushService.sendNotificationToUsers(userIds, payload);
@@ -141,42 +110,32 @@ async function queueNotificationForUsers(userIds, payload, options = {}) {
  * @returns {Promise<Object>} Risultato dell'operazione
  */
 async function queueNotificationForAll(payload, options = {}) {
-  const { priority = 0, sendAfter = null, maxAttempts = 3 } = options;
+  const { priority = 0, maxAttempts = 3 } = options;
 
   try {
-    if (!sendAfter) {
-      const result = await db.query(
-        `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
-                 VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)
-                 RETURNING id`,
-        ["all", JSON.stringify(payload), "pending", priority, maxAttempts]
-      );
-      console.log(
-        `[NOTIFICATIONS] Notifica broadcast accodata con ID ${result.rows[0].id}`
-      );
-      return { success: true, id: result.rows[0].id, queued: true };
-    }
+    const notification = {
+      id: `all_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: "all",
+      payload,
+      priority,
+      maxAttempts,
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+    };
 
-    const result = await db.query(
-      `INSERT INTO notifications (type, payload, status, priority, send_after, max_attempts)
-             VALUES ($1, $2, $3, $4, $5, $6)
-             RETURNING id`,
-      [
-        "all",
-        JSON.stringify(payload),
-        "pending",
-        priority,
-        sendAfter,
-        maxAttempts,
-      ]
+    await redisQueueClient.rpush(QUEUE_NAME, JSON.stringify(notification));
+
+    console.log(
+      `[NOTIFICATIONS] Notifica broadcast accodata con ID ${notification.id}`
     );
+    return { success: true, id: notification.id, queued: true };
   } catch (error) {
     console.error(
       "[NOTIFICATIONS] Errore accodamento notifica broadcast:",
       error
     );
 
-    // Fallback: invio diretto se il DB fallisce
+    // Fallback: invio diretto se Redis fallisce
     console.log("[NOTIFICATIONS] Fallback: invio diretto notifica broadcast");
     try {
       await pushService.sendNotificationToAll(payload);
@@ -192,31 +151,20 @@ async function queueNotificationForAll(payload, options = {}) {
 }
 
 /**
- * Ottiene statistiche sulle notifiche in coda
+ * Ottiene statistiche sulla coda Redis
  * @returns {Promise<Object>} Statistiche
  */
 async function getQueueStats() {
   try {
-    const result = await db.query(`
-            SELECT 
-                status,
-                COUNT(*) as count
-            FROM notifications
-            GROUP BY status
-        `);
+    const queueLength = await redisQueueClient.llen(QUEUE_NAME);
 
-    const stats = {
-      pending: 0,
+    return {
+      pending: queueLength,
       sending: 0,
       sent: 0,
       failed: 0,
+      total: queueLength,
     };
-
-    result.rows.forEach((row) => {
-      stats[row.status] = parseInt(row.count);
-    });
-
-    return stats;
   } catch (error) {
     console.error("[NOTIFICATIONS] Errore recupero statistiche:", error);
     return null;

@@ -82,9 +82,30 @@
     // Se è stata impostata la flag dopo il login, mostra un modal che chiede
     // all'utente di abilitare le notifiche. La richiesta di permesso deve
     // avvenire in risposta a un gesto utente per funzionare correttamente.
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       try {
         if (sessionStorage && sessionStorage.getItem('showPushPrompt') === '1') {
+          // Se il permesso è già concesso, verifica se esiste già una subscription attiva
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              const reg = await navigator.serviceWorker.ready;
+              const existingSub = await reg.pushManager.getSubscription();
+              if (existingSub) {
+                // Già abilitato e sottoscritto: non mostrare il modal
+                console.log('[Push] Notifiche già abilitate, skip prompt');
+                try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+                return;
+              }
+            } catch (swErr) {
+              console.warn('[Push] Errore verifica subscription:', swErr);
+            }
+          }
+          // Se il permesso è stato negato, non mostrare il modal
+          if ('Notification' in window && Notification.permission === 'denied') {
+            console.log('[Push] Permesso negato, skip prompt');
+            try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+            return;
+          }
           // Costruisci il modal (ricalca il markup usato altrove)
           const modalHtml = `
             <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">

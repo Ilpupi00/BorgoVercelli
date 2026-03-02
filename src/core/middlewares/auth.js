@@ -23,7 +23,7 @@ const moment = require("moment");
  *   res.render('profilo');
  * });
  */
-const isLoggedIn = function (req, res, next) {
+const isLoggedIn = async function (req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     // Safety: ensure req.user is present. In some edge cases passport may report
     // isAuthenticated() true while req.user is null/undefined; handle gracefully.
@@ -68,42 +68,52 @@ const isLoggedIn = function (req, res, next) {
     }
 
     if (req.user.isSospeso && req.user.isSospeso()) {
-      // Verifica se la sospensione è scaduta
-      if (req.user.isSospensioneScaduta && req.user.isSospensioneScaduta()) {
-        // Sospensione scaduta, riattiva automaticamente
-        const userDao = require("../../features/users/services/dao-user");
-        userDao.revocaSospensioneBan(req.user.id).catch((err) => {
-          console.error("Errore riattivazione automatica:", err);
-        });
-        // Continua l'accesso
-        return next();
-      }
+      // Recupera dettagli sospensione dalla tabella dedicata
+      const daoSospensioni = require("../../features/users/services/dao-sospensioni");
+      try {
+        const sospensione = await daoSospensioni.getByUtenteId(req.user.id);
+        const dataFineRaw = sospensione ? sospensione.data_fine : null;
 
-      req.logout(function (err) {
-        if (err) {
-          console.error("Errore logout:", err);
+        // Verifica se la sospensione è scaduta
+        if (dataFineRaw && new Date(dataFineRaw) < new Date()) {
+          // Sospensione scaduta, riattiva automaticamente
+          daoSospensioni.revocaSospensioneBan(req.user.id).catch((err) => {
+            console.error("Errore riattivazione automatica:", err);
+          });
+          // Continua l'accesso
+          return next();
         }
-      });
 
-      const dataFine = req.user.data_fine_sospensione
-        ? moment(req.user.data_fine_sospensione).format("DD/MM/YYYY HH:mm")
-        : "Non specificato";
-
-      if (
-        req.headers.accept &&
-        req.headers.accept.includes("application/json")
-      ) {
-        return res.status(403).json({
-          error: "Account sospeso",
-          message: `Il tuo account è sospeso fino al ${dataFine}. Motivo: ${
-            req.user.motivo_sospensione || "Non specificato"
-          }`,
+        req.logout(function (err) {
+          if (err) {
+            console.error("Errore logout:", err);
+          }
         });
-      } else {
+
+        const dataFine = dataFineRaw
+          ? moment(dataFineRaw).format("DD/MM/YYYY HH:mm")
+          : "Non specificato";
+        const motivo = (sospensione && sospensione.motivo) || "Non specificato";
+
+        if (
+          req.headers.accept &&
+          req.headers.accept.includes("application/json")
+        ) {
+          return res.status(403).json({
+            error: "Account sospeso",
+            message: `Il tuo account è sospeso fino al ${dataFine}. Motivo: ${motivo}`,
+          });
+        } else {
+          return res.status(403).render("error", {
+            message: `Account sospeso: il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${motivo}`,
+            error: { status: 403 },
+          });
+        }
+      } catch (sosErr) {
+        console.error("Errore recupero sospensione in middleware:", sosErr);
+        // In caso di errore nel DB, blocca comunque l'utente sospeso
         return res.status(403).render("error", {
-          message: `Account sospeso: il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${
-            req.user.motivo_sospensione || "Non specificato"
-          }`,
+          message: "Account sospeso. Contatta l'amministrazione.",
           error: { status: 403 },
         });
       }
