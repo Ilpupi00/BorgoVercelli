@@ -16,8 +16,9 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 const AppleStrategy = require("passport-apple");
 const db = require("./database");
 
-const CALLBACK_BASE =
-  process.env.OAUTH_CALLBACK_BASE_URL || "http://localhost:3000";
+const CALLBACK_BASE = (
+  process.env.OAUTH_CALLBACK_BASE_URL || "http://localhost:3000"
+).replace(/\/+$/, "");
 
 // ==================== HELPER ====================
 
