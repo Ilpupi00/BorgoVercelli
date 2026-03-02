@@ -46,7 +46,11 @@ router.get(
     console.log(
       `[OAuth] ✅ Login Google riuscito per utente ${req.user.id} (${req.user.email})`
     );
-    res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    // Salva la sessione in Redis prima del redirect per evitare 401
+    req.session.save((err) => {
+      if (err) console.error("[OAuth] Errore salvataggio sessione:", err);
+      res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    });
   }
 );
 
@@ -83,7 +87,10 @@ router.get(
     console.log(
       `[OAuth] ✅ Login Facebook riuscito per utente ${req.user.id} (${req.user.email})`
     );
-    res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    req.session.save((err) => {
+      if (err) console.error("[OAuth] Errore salvataggio sessione:", err);
+      res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    });
   }
 );
 
@@ -119,7 +126,10 @@ router.post(
     console.log(
       `[OAuth] ✅ Login Apple riuscito per utente ${req.user.id} (${req.user.email})`
     );
-    res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    req.session.save((err) => {
+      if (err) console.error("[OAuth] Errore salvataggio sessione:", err);
+      res.redirect(req.user.tipo_utente_id === 1 ? "/admin" : "/homepage");
+    });
   }
 );
 
