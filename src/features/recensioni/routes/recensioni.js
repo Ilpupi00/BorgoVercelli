@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const dao = require("../services/dao-recensioni");
+const daoSospensioni = require("../../users/services/dao-sospensioni");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
 const {
   validateRecensioneCreate,
@@ -73,18 +74,18 @@ router.post("/recensione", isLoggedIn, validateRecensioneCreate, async (req, res
 
     if (req.user.isSospeso && req.user.isSospeso()) {
       const moment = require("moment");
-      const dataFine = req.user.data_fine_sospensione
-        ? moment(req.user.data_fine_sospensione).format("DD/MM/YYYY HH:mm")
+      const sospensione = await daoSospensioni.getByUtenteId(req.user.id);
+      const dataFine = sospensione && sospensione.data_fine
+        ? moment(sospensione.data_fine).format("DD/MM/YYYY HH:mm")
         : "Non specificato";
+      const motivo = (sospensione && sospensione.motivo) || "Non specificato";
       return res.status(403).json({
         success: false,
         error: "Account sospeso",
         type: "suspended",
-        message: `Non puoi scrivere recensioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${
-          req.user.motivo_sospensione || "Non specificato"
-        }`,
+        message: `Non puoi scrivere recensioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${motivo}`,
         dataFine: dataFine,
-        motivo: req.user.motivo_sospensione || "Non specificato",
+        motivo: motivo,
       });
     }
 

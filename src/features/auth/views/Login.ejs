@@ -17,37 +17,86 @@
     <main class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card position-relative reveal reveal--fade-up">
             <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeLogin" aria-label="Chiudi"></button>
-            <h1 class="text-center mb-4 title">Accedi</h1>
+            
+            <!-- Logo / Brand -->
+            <div class="text-center mb-3">
+                <div class="brand-icon mx-auto">
+                    <i class="bi bi-shield-fill-check"></i>
+                </div>
+            </div>
+            <h1 class="text-center title">Bentornato</h1>
+            <p class="text-center text-muted mb-4 subtitle">Accedi al tuo account per continuare</p>
+
+            <!-- Social Login Buttons -->
+            <div class="social-login-section mb-3">
+                <button type="button" class="btn btn-social btn-google w-100 mb-2" id="googleLoginBtn">
+                    <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>Continua con Google</span>
+                </button>
+                <button type="button" class="btn btn-social btn-facebook w-100 mb-2" style="display:none" id="facebookLoginBtn">
+                    <i class="bi bi-facebook social-icon-fa"></i>
+                    <span>Continua con Facebook</span>
+                </button>
+                <!-- Apple login: nascosto fino a configurazione completata -->
+                <button type="button" class="btn btn-social btn-apple w-100" id="appleLoginBtn" style="display:none" hidden>
+                    <i class="bi bi-apple social-icon-fa"></i>
+                    <span>Continua con Apple</span>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider-wrapper my-3">
+                <div class="divider-line"></div>
+                <span class="divider-text">oppure</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <!-- Email/Password Form -->
             <form id="authForm">
                 <div id="errorAlert" class="alert alert-danger d-none" role="alert">
-                    <strong>Errore:</strong> <span id="errorMessage"></span>
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i><span id="errorMessage"></span>
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Indirizzo Email</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" name="email" aria-describedby="emailHelp" placeholder="Inserisci la tua email" required autocomplete="email">
+                    <div class="input-group input-group-icon">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="exampleInputEmail1" name="email" aria-describedby="emailHelp" placeholder="nome@esempio.com" required autocomplete="email">
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <div class="input-group">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="exampleInputPassword1" class="form-label mb-0">Password</label>
+                        <a href="/forgot-password" class="forgot-link small">Password dimenticata?</a>
+                    </div>
+                    <div class="input-group input-group-icon mt-1">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
                         <input type="password" class="form-control" id="exampleInputPassword1" name="password" placeholder="Inserisci la tua password" required autocomplete="current-password">
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <button class="btn btn-outline-secondary btn-toggle-pw" type="button" id="togglePassword">
                             <i class="bi bi-eye"></i>
                         </button>
                     </div>
                 </div>
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
-                    <label class="form-check-label" for="rememberMe">
+                    <label class="form-check-label small" for="rememberMe">
                         Ricordami per 7 giorni
                     </label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Accedi</button>
+                <button type="submit" class="btn btn-primary btn-login w-100" id="loginSubmitBtn">
+                    <span class="btn-text">Accedi</span>
+                    <span class="btn-loader d-none"><span class="spinner-border spinner-border-sm me-2" role="status"></span>Accesso in corso...</span>
+                </button>
             </form>
-            <div class="text-center mt-3">
-                <a href="/forgot-password" class="text-decoration-none">Hai dimenticato la password?</a>
-            </div>
-            <div class="text-center mt-3">
-                <a href="/registrazione">Registrati</a>
+
+            <!-- Footer -->
+            <div class="text-center mt-4 auth-footer">
+                <span class="text-muted">Non hai un account?</span>
+                <a href="/registrazione" class="fw-semibold ms-1">Registrati</a>
             </div>
         </div>
     </main>

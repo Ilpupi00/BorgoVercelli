@@ -1054,6 +1054,65 @@ exports.sendRevocaEmail = async function (toEmail, userName) {
   }
 };
 
+/**
+ * Email inviata all'utente quando crea una prenotazione (in attesa di conferma)
+ */
+exports.sendPrenotazioneRicevutaEmail = async function (
+  toEmail,
+  userName,
+  PrenotazioneDetails
+) {
+  try {
+    const mailOptions = {
+      from: process.env.DEFAULT_FROM || "noreply@asdborgovercelli.app",
+      to: toEmail,
+      subject: "Prenotazione Ricevuta - Borgo Vercelli",
+      html: `
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; color: #333; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+            .header { background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%); color: #fff; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .content { padding: 30px 20px; }
+            .info-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 8px; color: #856404; }
+            .details-box { background-color: #fbfdff; border-left: 4px solid #0d6efd; padding: 15px; margin: 15px 0; border-radius: 8px; }
+            .details-box strong { color: #0d6efd; display: block; margin-bottom: 5px; font-size: 14px; }
+            .footer { background-color: #f7fafc; padding: 20px; text-align: center; font-size: 14px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header"><h1>📋 Prenotazione Ricevuta</h1></div>
+            <div class="content">
+              <p>Ciao <strong>${userName}</strong>,</p>
+              <div class="info-box">
+                <strong>⏳ La tua prenotazione è in attesa di conferma da parte dell'amministratore.</strong>
+                <p style="margin:8px 0 0">Riceverai un'altra email quando verrà confermata.</p>
+              </div>
+              <p>Dettagli della prenotazione:</p>
+              <div class="details-box"><strong>📅 Data e Ora</strong><p>${PrenotazioneDetails.dataOra || "Non disponibile"}</p></div>
+              <div class="details-box"><strong>⚽ Attività</strong><p>${PrenotazioneDetails.attivita || "Non disponibile"}</p></div>
+              <div class="details-box"><strong>📍 Luogo</strong><p>${PrenotazioneDetails.luogo || "Non disponibile"}</p></div>
+            </div>
+            <div class="footer"><p><strong>Borgo Vercelli</strong></p><p>Società Sportiva Dilettantistica</p></div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+    const info = await sendWithRetry(mailOptions);
+    return { messageId: info.messageId };
+  } catch (err) {
+    console.error("Errore invio email prenotazione ricevuta:", err);
+    throw err;
+  }
+};
+
 exports.SendPrenotazioneConfermataEmail = async function (
   toEmail,
   userName,

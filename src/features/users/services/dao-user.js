@@ -185,26 +185,52 @@ exports.getUserByEmail = function (email) {
 };
 
 /**
+ * Converte URL esterne (es. Google CDN) in URL proxy locale
+ * per evitare blocchi browser su immagini cross-origin
+ */
+function proxyExternalUrl(url) {
+  if (!url) return null;
+  if (!url.startsWith('http')) return url; // già locale
+  if (url.startsWith('http://localhost') || url.startsWith('http://127.')) return url;
+  return '/api/proxy-image?url=' + encodeURIComponent(url);
+}
+
+/**
  * Recupera l'URL dell'immagine profilo per un dato utente
  * @function getImmagineProfiloByUserId
  * @param {number} userId - ID dell'utente
  * @returns {Promise<string|null>} URL dell'immagine o null se non presente
  */
 exports.getImmagineProfiloByUserId = async (userId) => {
-  const sql = `SELECT url FROM IMMAGINI WHERE entita_riferimento = 'utente' AND entita_id = ? ORDER BY ordine LIMIT 1`;
-  return new Promise((resolve, reject) => {
-    sqlite.get(sql, [userId], (err, row) => {
-      if (err) return reject(err);
-      resolve(row ? row.url : null);
-    });
-  });
+  try {
+    // Prima cerca in IMMAGINI (foto caricate manualmente o via OAuth)
+    const imgResult = await sqlite.query(
+      `SELECT url FROM immagini WHERE entita_riferimento = 'utente' AND entita_id = $1 AND tipo = 'profilo' ORDER BY ordine LIMIT 1`,
+      [userId]
+    );
+    if (imgResult.rows && imgResult.rows[0] && imgResult.rows[0].url) {
+      return proxyExternalUrl(imgResult.rows[0].url);
+    }
+    // Fallback: usa foto_oauth da utenti (backup resiliente per foto da Google/Facebook)
+    const userResult = await sqlite.query(
+      `SELECT foto_oauth FROM utenti WHERE id = $1 LIMIT 1`,
+      [userId]
+    );
+    if (userResult.rows && userResult.rows[0] && userResult.rows[0].foto_oauth) {
+      return proxyExternalUrl(userResult.rows[0].foto_oauth);
+    }
+    return null;
+  } catch (err) {
+    console.error('[getImmagineProfiloByUserId] Errore:', err.message);
+    return null;
+  }
 };
 
 /**
  * Aggiorna campi del profilo utente forniti in `fields`
  * @function updateUser
  * @param {number} userId - ID dell'utente da aggiornare
- * @param {Object} fields - Campi da aggiornare (nome, cognome, email, telefono, tipo_utente_id, ruolo_preferito, piede_preferito)
+ * @param {Object} fields - Campi da aggiornare (nome, cognome, email, telefono, tipo_utente_id)
  * @returns {Promise<boolean>} true se aggiornato correttamente, false altrimenti
  */
 exports.updateUser = async (userId, fields) => {
@@ -230,22 +256,6 @@ exports.updateUser = async (userId, fields) => {
   if (fields.tipo_utente_id !== undefined) {
     updates.push("tipo_utente_id = ?");
     values.push(fields.tipo_utente_id);
-  }
-  if (fields.ruolo_preferito !== undefined) {
-    updates.push("ruolo_preferito = ?");
-    values.push(fields.ruolo_preferito);
-  }
-  if (fields.piede_preferito !== undefined) {
-    updates.push("piede_preferito = ?");
-    values.push(fields.piede_preferito);
-  }
-  if (fields.data_nascita !== undefined) {
-    updates.push("data_nascita = ?");
-    values.push(fields.data_nascita);
-  }
-  if (fields.codice_fiscale !== undefined) {
-    updates.push("codice_fiscale = ?");
-    values.push(fields.codice_fiscale);
   }
   if (updates.length === 0) {
     console.log("Nessun campo da aggiornare");
@@ -394,7 +404,7 @@ exports.getAllUsers = function () {
   return new Promise((resolve, reject) => {
     const sql = `
             SELECT u.id, u.nome, u.cognome, u.email, u.telefono, u.tipo_utente_id, u.data_registrazione,
-                   u.stato, u.motivo_sospensione, u.data_inizio_sospensione, u.data_fine_sospensione,
+                   u.stato,
                    i.url AS immagine_profilo
             FROM UTENTI u
             LEFT JOIN IMMAGINI i ON i.entita_riferimento = 'utente' AND i.entita_id = u.id AND (i.ordine = 1 OR i.ordine IS NULL)
@@ -679,7 +689,29 @@ exports.deleteUser = async function (userId) {
         );
       });
 
-      // 10. Infine, elimina l'utente
+      // 10. Elimina dati dalle tabelle 1:1 (CASCADE li rimuoverebbe, ma per sicurezza)
+      await new Promise((res, rej) => {
+        sqlite.run("DELETE FROM UTENTI_SOSPENSIONI WHERE utente_id = ?", [userId], (err) => {
+          if (err) rej(err); else res();
+        });
+      });
+      await new Promise((res, rej) => {
+        sqlite.run("DELETE FROM UTENTI_RESET_TOKEN WHERE utente_id = ?", [userId], (err) => {
+          if (err) rej(err); else res();
+        });
+      });
+      await new Promise((res, rej) => {
+        sqlite.run("DELETE FROM UTENTI_PREFERENZE WHERE utente_id = ?", [userId], (err) => {
+          if (err) rej(err); else res();
+        });
+      });
+      await new Promise((res, rej) => {
+        sqlite.run("DELETE FROM UTENTI_DATI_PERSONALI WHERE utente_id = ?", [userId], (err) => {
+          if (err) rej(err); else res();
+        });
+      });
+
+      // 11. Infine, elimina l'utente
       await new Promise((res, rej) => {
         sqlite.run("DELETE FROM UTENTI WHERE id = ?", [userId], function (err) {
           if (err) rej(err);
@@ -1256,324 +1288,6 @@ exports.searchUsers = function (query, onlyDirigenti = false) {
         resolve((users || []).map((user) => User.from(user)));
       });
     }
-  });
-};
-
-/**
- * Salva il token di reset password con scadenza per un utente
- * @function saveResetToken
- * @param {number} userId - ID utente
- * @param {string} token - Token generato
- * @param {Date} expiresAt - Data di scadenza del token
- * @returns {Promise<Object>} Messaggio di successo
- */
-exports.saveResetToken = function (userId, token, expiresAt) {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE UTENTI SET reset_token = ?, reset_expires = ? WHERE id = ?`;
-    sqlite.run(sql, [token, expiresAt.toISOString(), userId], function (err) {
-      if (err) {
-        reject({ error: "Error saving reset token: " + err.message });
-      } else {
-        resolve({ message: "Reset token saved successfully" });
-      }
-    });
-  });
-};
-
-/**
- * Recupera l'utente dato un token di reset valido
- * @function getUserByResetToken
- * @param {string} token - Token di reset
- * @returns {Promise<Object|null>} Utente o null
- */
-exports.getUserByResetToken = function (token) {
-  return new Promise((resolve, reject) => {
-    const sql = `
-            SELECT u.*, t.nome AS tipo_utente_nome
-            FROM UTENTI u
-            LEFT JOIN TIPI_UTENTE t ON u.tipo_utente_id = t.id
-            WHERE u.reset_token = ? AND u.reset_expires > ?
-        `;
-    sqlite.get(sql, [token, new Date().toISOString()], (err, user) => {
-      if (err) {
-        return reject({
-          error: "Error retrieving user by reset token: " + err.message,
-        });
-      }
-      resolve(user ? User.from(user) : null);
-    });
-  });
-};
-
-/**
- * Invalida il token di reset per un utente (imposta a NULL)
- * @function invalidateResetToken
- * @param {number} userId - ID utente
- * @returns {Promise<Object>} Messaggio di successo
- */
-exports.invalidateResetToken = function (userId) {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE UTENTI SET reset_token = NULL, reset_expires = NULL WHERE id = ?`;
-    sqlite.run(sql, [userId], function (err) {
-      if (err) {
-        reject({ error: "Error invalidating reset token: " + err.message });
-      } else {
-        resolve({ message: "Reset token invalidated successfully" });
-      }
-    });
-  });
-};
-
-/**
- * Aggiorna l'hash della password e invalida i token di reset
- * @function updatePassword
- * @param {number} userId - ID utente
- * @param {string} newPasswordHash - Nuovo hash della password
- * @returns {Promise<Object>} Messaggio di successo
- */
-exports.updatePassword = function (userId, newPasswordHash) {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE UTENTI SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?`;
-    sqlite.run(sql, [newPasswordHash, userId], function (err) {
-      if (err) {
-        reject({ error: "Error updating password: " + err.message });
-      } else {
-        resolve({ message: "Password updated successfully" });
-      }
-    });
-  });
-};
-
-// Funzioni per gestione stato utente (sospensione/ban)
-
-/**
- * Sospende temporaneamente un utente
- * @function sospendiUtente
- * @param {number} userId - ID dell'utente da sospendere
- * @param {number} adminId - ID dell'admin che effettua la sospensione
- * @param {string} motivo - Motivo della sospensione
- * @param {string|null} dataFine - Data fine sospensione (ISO string) o null per sospensione senza termine
- * @returns {Promise<Object>} Oggetto con messaggio e dettagli della sospensione
- * @throws {Object} Oggetto errore con proprietà error
- */
-exports.sospendiUtente = function (userId, adminId, motivo, dataFine) {
-  return new Promise((resolve, reject) => {
-    const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const sql = `UPDATE UTENTI 
-                     SET stato = 'sospeso',
-                         motivo_sospensione = ?,
-                         data_inizio_sospensione = ?,
-                         data_fine_sospensione = ?,
-                         admin_sospensione_id = ?,
-                         updated_at = ?
-                     WHERE id = ?`;
-
-    console.log("[DAO] sospendiUtente - Parametri:", {
-      userId,
-      adminId,
-      motivo,
-      dataFine,
-      now,
-    });
-
-    sqlite.run(
-      sql,
-      [motivo, now, dataFine, adminId, now, userId],
-      function (err, result) {
-        if (err) {
-          console.error("[DAO] sospendiUtente - Errore SQL:", err);
-          reject({
-            error: "Errore nella sospensione dell'utente: " + err.message,
-          });
-        } else {
-          const changes =
-            result && typeof result.rowCount === "number" ? result.rowCount : 0;
-          if (changes === 0) {
-            console.warn(
-              "[DAO] sospendiUtente - Nessuna riga aggiornata per userId:",
-              userId
-            );
-            reject({ error: "Utente non trovato" });
-          } else {
-            console.log(
-              "[DAO] sospendiUtente - Successo, righe aggiornate:",
-              changes
-            );
-            resolve({
-              message: "Utente sospeso con successo",
-              userId: userId,
-              dataFine: dataFine,
-            });
-          }
-        }
-      }
-    );
-  });
-};
-
-/**
- * Banna permanentemente un utente
- * @function bannaUtente
- * @param {number} userId - ID dell'utente da bannare
- * @param {number} adminId - ID dell'admin che effettua il ban
- * @param {string} motivo - Motivo del ban
- * @returns {Promise<Object>} Oggetto con messaggio e dettagli
- * @throws {Object} Oggetto errore con proprietà error
- */
-exports.bannaUtente = function (userId, adminId, motivo) {
-  return new Promise((resolve, reject) => {
-    const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const sql = `UPDATE UTENTI 
-                     SET stato = 'bannato',
-                         motivo_sospensione = ?,
-                         data_inizio_sospensione = ?,
-                         data_fine_sospensione = NULL,
-                         admin_sospensione_id = ?,
-                         updated_at = ?
-                     WHERE id = ?`;
-
-    console.log("[DAO] bannaUtente - Parametri:", {
-      userId,
-      adminId,
-      motivo,
-      now,
-    });
-
-    sqlite.run(
-      sql,
-      [motivo, now, adminId, now, userId],
-      function (err, result) {
-        if (err) {
-          console.error("[DAO] bannaUtente - Errore SQL:", err);
-          reject({ error: "Errore nel ban dell'utente: " + err.message });
-        } else {
-          const changes =
-            result && typeof result.rowCount === "number" ? result.rowCount : 0;
-          if (changes === 0) {
-            console.warn(
-              "[DAO] bannaUtente - Nessuna riga aggiornata per userId:",
-              userId
-            );
-            reject({ error: "Utente non trovato" });
-          } else {
-            console.log(
-              "[DAO] bannaUtente - Successo, righe aggiornate:",
-              changes
-            );
-            resolve({
-              message: "Utente bannato con successo",
-              userId: userId,
-            });
-          }
-        }
-      }
-    );
-  });
-};
-
-/**
- * Revoca sospensione o ban per un utente riportandolo ad 'attivo'
- * @function revocaSospensioneBan
- * @param {number} userId - ID dell'utente
- * @returns {Promise<Object>} Oggetto con messaggio di successo
- * @throws {Object} Oggetto errore con proprietà error
- */
-exports.revocaSospensioneBan = function (userId) {
-  return new Promise((resolve, reject) => {
-    const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const sql = `UPDATE UTENTI 
-                     SET stato = 'attivo',
-                         motivo_sospensione = NULL,
-                         data_inizio_sospensione = NULL,
-                         data_fine_sospensione = NULL,
-                         admin_sospensione_id = NULL,
-                         updated_at = ?
-                     WHERE id = ?`;
-
-    console.log("[DAO] revocaSospensioneBan - Parametri:", { userId, now });
-
-    sqlite.run(sql, [now, userId], function (err, result) {
-      if (err) {
-        console.error("[DAO] revocaSospensioneBan - Errore SQL:", err);
-        reject({ error: "Errore nella revoca: " + err.message });
-      } else {
-        const changes =
-          result && typeof result.rowCount === "number" ? result.rowCount : 0;
-        if (changes === 0) {
-          console.warn(
-            "[DAO] revocaSospensioneBan - Nessuna riga aggiornata per userId:",
-            userId
-          );
-          reject({ error: "Utente non trovato" });
-        } else {
-          resolve({
-            message: "Sospensione/Ban revocato con successo",
-            userId: userId,
-          });
-        }
-      }
-    });
-  });
-};
-
-/**
- * Verifica e riattiva automaticamente le sospensioni scadute
- * Cerca utenti con stato 'sospeso' e data_fine_sospensione passata e li imposta ad 'attivo'
- * @function verificaSospensioniScadute
- * @returns {Promise<Object>} Oggetto con messaggio e numero di record aggiornati
- * @throws {Object} Oggetto errore con proprietà error
- */
-exports.verificaSospensioniScadute = function () {
-  return new Promise((resolve, reject) => {
-    const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const sql = `UPDATE UTENTI 
-                     SET stato = 'attivo',
-                         motivo_sospensione = NULL,
-                         data_inizio_sospensione = NULL,
-                         data_fine_sospensione = NULL,
-                         admin_sospensione_id = NULL
-                     WHERE stato = 'sospeso' 
-                     AND data_fine_sospensione IS NOT NULL 
-                     AND data_fine_sospensione < ?`;
-
-    sqlite.run(sql, [now], function (err, result) {
-      if (err) {
-        reject({ error: "Errore nella verifica sospensioni: " + err.message });
-      } else {
-        const changes =
-          result && typeof result.rowCount === "number" ? result.rowCount : 0;
-        resolve({
-          message: "Verifica completata",
-          aggiornati: changes,
-        });
-      }
-    });
-  });
-};
-
-/**
- * Recupera lo stato corrente di un utente (attivo/sospeso/bannato) e i dettagli della sospensione
- * @function getStatoUtente
- * @param {number} userId - ID dell'utente
- * @returns {Promise<Object>} Oggetto con campi: stato, motivo_sospensione, data_inizio_sospensione, data_fine_sospensione, admin_sospensione_id
- * @throws {Object} Oggetto errore con proprietà error
- */
-exports.getStatoUtente = function (userId) {
-  return new Promise((resolve, reject) => {
-    const sql = `SELECT stato, motivo_sospensione, data_inizio_sospensione, 
-                            data_fine_sospensione, admin_sospensione_id
-                     FROM UTENTI
-                     WHERE id = ?`;
-
-    sqlite.get(sql, [userId], (err, row) => {
-      if (err) {
-        reject({ error: "Errore nel recupero stato utente: " + err.message });
-      } else if (!row) {
-        reject({ error: "Utente non trovato" });
-      } else {
-        resolve(row);
-      }
-    });
   });
 };
 

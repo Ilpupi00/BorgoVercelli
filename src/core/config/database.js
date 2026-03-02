@@ -31,6 +31,11 @@ console.log("[database] Tentativo di connessione a:", maskedUrl);
 
 const { Pool } = require("pg");
 
+// Forza il parser di DATE (OID 1082) a restituire la stringa grezza "YYYY-MM-DD"
+// invece di un oggetto Date JS (che causa off-by-one per i fusi orari non-UTC)
+const { types } = require("pg");
+types.setTypeParser(1082, (val) => val);
+
 const connectionString = process.env.DATABASE_URL;
 const useSSL =
   process.env.NODE_ENV === "production" || process.env.PGSSLMODE === "require";

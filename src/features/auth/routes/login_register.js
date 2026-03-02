@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const userDao = require("../../users/services/dao-user");
+const daoResetToken = require("../../users/services/dao-reset-token");
+const daoPreferenze = require("../../users/services/dao-preferenze");
+const daoDatiPersonali = require("../../users/services/dao-dati-personali");
 const dirigenteDao = require("../../squadre/services/dao-dirigenti-squadre");
 const notizieDao = require("../../notizie/services/dao-notizie");
 const eventiDao = require("../../eventi/services/dao-eventi");
@@ -63,9 +66,7 @@ router.get("/me", async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
-  if (req.user.tipo_utente_id === 1) {
-    return res.redirect("/admin");
-  }
+  // Admins possono vedere il loro profilo personale
   try {
     const user = await userDao.getUserById(req.user.id);
     const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
@@ -77,6 +78,22 @@ router.get("/me", async (req, res) => {
     } catch (dirErr) {
       console.error("Errore recupero dirigente:", dirErr);
     }
+
+    // Recupera dati dalle tabelle separate e li merge nell'oggetto user
+    try {
+      const preferenze = await daoPreferenze.getByUtenteId(user.id);
+      user.ruolo_preferito = (preferenze && preferenze.ruolo_preferito) || user.ruolo_preferito || "";
+      user.piede_preferito = (preferenze && preferenze.piede_preferito) || user.piede_preferito || "";
+    } catch (e) { console.error("Errore recupero preferenze:", e); user.ruolo_preferito = user.ruolo_preferito || ""; user.piede_preferito = user.piede_preferito || ""; }
+    try {
+      const datiP = await daoDatiPersonali.getByUtenteId(user.id);
+      // Normalizza data_nascita a "YYYY-MM-DD" (pg può restituire oggetto Date)
+      const rawDate = (datiP && datiP.data_nascita) || user.data_nascita || null;
+      user.data_nascita = rawDate instanceof Date
+        ? rawDate.toISOString().split('T')[0]
+        : (rawDate ? String(rawDate).split('T')[0] : "");
+      user.codice_fiscale = (datiP && datiP.codice_fiscale) || user.codice_fiscale || "";
+    } catch (e) { console.error("Errore recupero dati personali:", e); user.data_nascita = user.data_nascita || ""; user.codice_fiscale = user.codice_fiscale || ""; }
 
     // Recupera statistiche e attività recenti
     let stats = {
@@ -140,9 +157,7 @@ router.get("/profilo", async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
-  if (req.user.tipo_utente_id === 1) {
-    return res.redirect("/admin");
-  }
+  // Admins possono vedere il loro profilo personale
   try {
     const user = await userDao.getUserById(req.user.id);
     const imageUrl = await userDao.getImmagineProfiloByUserId(user.id);
@@ -159,6 +174,22 @@ router.get("/profilo", async (req, res) => {
     } catch (dirErr) {
       console.error("Errore recupero dirigente:", dirErr);
     }
+
+    // Recupera dati dalle tabelle separate e li merge nell'oggetto user
+    try {
+      const preferenze = await daoPreferenze.getByUtenteId(user.id);
+      user.ruolo_preferito = (preferenze && preferenze.ruolo_preferito) || user.ruolo_preferito || "";
+      user.piede_preferito = (preferenze && preferenze.piede_preferito) || user.piede_preferito || "";
+    } catch (e) { console.error("Errore recupero preferenze:", e); user.ruolo_preferito = user.ruolo_preferito || ""; user.piede_preferito = user.piede_preferito || ""; }
+    try {
+      const datiP = await daoDatiPersonali.getByUtenteId(user.id);
+      // Normalizza data_nascita a "YYYY-MM-DD" (pg può restituire oggetto Date)
+      const rawDate = (datiP && datiP.data_nascita) || user.data_nascita || null;
+      user.data_nascita = rawDate instanceof Date
+        ? rawDate.toISOString().split('T')[0]
+        : (rawDate ? String(rawDate).split('T')[0] : "");
+      user.codice_fiscale = (datiP && datiP.codice_fiscale) || user.codice_fiscale || "";
+    } catch (e) { console.error("Errore recupero dati personali:", e); user.data_nascita = user.data_nascita || ""; user.codice_fiscale = user.codice_fiscale || ""; }
 
     // Recupera statistiche e attività recenti
     let stats = {
@@ -187,14 +218,14 @@ router.get("/profilo", async (req, res) => {
     const isDirigenteArray = Array.isArray(dirigente)
       ? dirigente.length > 0
       : !!dirigente;
-    if (isDirigenteArray || user.isAdmin) {
+    if (isDirigenteArray || [1, 2, 3, 4, 5].includes(user.tipo_utente_id)) {
       try {
-        notiziePersonali = await daoNotizie.getNotiziePersonali(user.id);
+        notiziePersonali = await notizieDao.getNotiziePersonali(user.id);
       } catch (err) {
         console.error("Errore recupero notizie personali:", err);
       }
       try {
-        eventiPersonali = await daoEventi.getEventiPersonali(user.id);
+        eventiPersonali = await eventiDao.getEventiPersonali(user.id);
       } catch (err) {
         console.error("Errore recupero eventi personali:", err);
       }
@@ -258,20 +289,36 @@ router.put("/profilo", validateProfiloUpdate, async (req, res) => {
     return res.status(401).json({ success: false, error: "Non autenticato" });
   }
   try {
-    // Aggiorna solo i dati profilo
+    // Aggiorna solo i dati profilo core
     let updateFields = {};
     if (req.body.nome) updateFields.nome = req.body.nome;
     if (req.body.cognome) updateFields.cognome = req.body.cognome;
     if (req.body.email) updateFields.email = req.body.email;
     if (req.body.telefono !== undefined)
       updateFields.telefono = req.body.telefono || "";
-    if (req.body.ruolo_preferito !== undefined)
-      updateFields.ruolo_preferito = req.body.ruolo_preferito || null;
-    if (req.body.piede_preferito !== undefined)
-      updateFields.piede_preferito = req.body.piede_preferito || null;
     if (Object.keys(updateFields).length > 0) {
       await userDao.updateUser(req.user.id, updateFields);
     }
+
+    // Aggiorna preferenze nella tabella dedicata
+    if (req.body.ruolo_preferito !== undefined || req.body.piede_preferito !== undefined) {
+      const prefData = {};
+      if (req.body.ruolo_preferito !== undefined) prefData.ruolo_preferito = req.body.ruolo_preferito || null;
+      if (req.body.piede_preferito !== undefined) prefData.piede_preferito = req.body.piede_preferito || null;
+      await daoPreferenze.upsert(req.user.id, prefData);
+    }
+
+    // Aggiorna dati personali (data di nascita, codice fiscale)
+    // Solo se almeno un campo è valorizzato (stringa non vuota)
+    const dataNascitaVal = req.body.data_nascita && req.body.data_nascita.trim() ? req.body.data_nascita.trim() : null;
+    const codiceFiscaleVal = req.body.codice_fiscale && req.body.codice_fiscale.trim() ? req.body.codice_fiscale.trim().toUpperCase() : null;
+    if (dataNascitaVal !== undefined || codiceFiscaleVal !== undefined) {
+      await daoDatiPersonali.upsert(req.user.id, {
+        data_nascita: dataNascitaVal,
+        codice_fiscale: codiceFiscaleVal
+      });
+    }
+
     res.json({ success: true });
   } catch (err) {
     console.error("Errore aggiornamento profilo:", err);
@@ -405,8 +452,8 @@ router.post("/forgot-password", validateForgotPassword, async (req, res) => {
     // Genera token di reset
     const resetToken = require("crypto").randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 ora
-    // Salva token nel DB (aggiungeremo colonna reset_token e reset_expires)
-    await userDao.saveResetToken(user.id, resetToken, expiresAt);
+    // Salva token nel DB (tabella dedicata UTENTI_RESET_TOKEN)
+    await daoResetToken.saveResetToken(user.id, resetToken, expiresAt);
     // Invia email
     // Normalizza BASE_URL: se è impostata senza protocollo aggiungi https:// per evitare link non validi
     let baseUrlEnv = (process.env.BASE_URL || "").toString().trim();
@@ -466,7 +513,7 @@ router.get("/reset-password/:token", async (req, res) => {
   const { token } = req.params;
   console.log("Accessing reset-password with token:", token);
   try {
-    const user = await userDao.getUserByResetToken(token);
+    const user = await daoResetToken.getUserByResetToken(token);
     if (!user) {
       console.log("Token invalid or expired");
       return res.render("reset-password", { tokenExpired: true });
@@ -486,7 +533,7 @@ router.post("/reset-password", validateResetPassword, async (req, res) => {
     password: password ? "present" : "missing",
   });
   try {
-    const user = await userDao.getUserByResetToken(token);
+    const user = await daoResetToken.getUserByResetToken(token);
     if (!user) {
       console.log("Invalid or expired token");
       return res.status(400).json({ error: "Token non valido o scaduto" });
@@ -496,7 +543,7 @@ router.post("/reset-password", validateResetPassword, async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     await userDao.updatePassword(user.id, hash);
     // Invalida il token dopo l'uso
-    await userDao.invalidateResetToken(user.id);
+    await daoResetToken.invalidateResetToken(user.id);
     console.log("Password reset successful for user:", user.id);
     // Redirect alla pagina di successo invece di JSON
     res.redirect("/reset-success");

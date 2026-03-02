@@ -112,6 +112,17 @@ const validateProfiloUpdate = [
   body("piede_preferito")
     .optional({ values: "undefined" })
     .trim(),
+  body("data_nascita")
+    .optional({ values: "falsy" })
+    .isISO8601()
+    .withMessage("Formato data non valido"),
+  body("codice_fiscale")
+    .optional({ values: "falsy" })
+    .trim()
+    .isLength({ min: 16, max: 16 })
+    .withMessage("Il codice fiscale deve essere di 16 caratteri")
+    .matches(/^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i)
+    .withMessage("Formato codice fiscale non valido"),
   handleValidation,
 ];
 

@@ -25,32 +25,47 @@ router.post("/session", (req, res, next) => {
     }
 
     if (user.isSospeso && user.isSospeso()) {
-      // Verifica se la sospensione è scaduta
-      if (user.isSospensioneScaduta && user.isSospensioneScaduta()) {
-        // Sospensione scaduta, riattiva automaticamente
-        const userDao = require("../../features/users/services/dao-user");
-        userDao.revocaSospensioneBan(user.id).catch((err) => {
-          console.error("Errore riattivazione automatica:", err);
-        });
-        // Continua con il login
-      } else {
-        const moment = require("moment");
-        const dataFine = user.data_fine_sospensione
-          ? moment(user.data_fine_sospensione).format("DD/MM/YYYY HH:mm")
-          : "Non specificato";
-        return res.status(403).json({
-          error: "Account sospeso",
-          type: "suspended",
-          message: `Il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${
-            user.motivo_sospensione || "Non specificato"
-          }`,
-          dataFine: dataFine,
-          motivo: user.motivo_sospensione || "Non specificato",
-        });
-      }
+      // Recupera dettagli sospensione dalla tabella dedicata
+      const daoSospensioni = require("../../features/users/services/dao-sospensioni");
+      return daoSospensioni.getByUtenteId(user.id).then((sospensione) => {
+        // Verifica se la sospensione è scaduta
+        if (sospensione && sospensione.data_fine && new Date(sospensione.data_fine) < new Date()) {
+          // Sospensione scaduta, riattiva automaticamente
+          daoSospensioni.revocaSospensioneBan(user.id).catch((err) => {
+            console.error("Errore riattivazione automatica:", err);
+          });
+          // Continua con il login
+          return doLogin(req, res, next, user);
+        } else {
+          const moment = require("moment");
+          const dataFine = sospensione && sospensione.data_fine
+            ? moment(sospensione.data_fine).format("DD/MM/YYYY HH:mm")
+            : "Non specificato";
+          return res.status(403).json({
+            error: "Account sospeso",
+            type: "suspended",
+            message: `Il tuo account è temporaneamente sospeso fino al ${dataFine}. Motivo: ${
+              (sospensione && sospensione.motivo) || "Non specificato"
+            }`,
+            dataFine: dataFine,
+            motivo: (sospensione && sospensione.motivo) || "Non specificato",
+          });
+        }
+      }).catch((err) => {
+        console.error("Errore recupero sospensione:", err);
+        return doLogin(req, res, next, user);
+      });
     }
 
-    req.logIn(user, async (err) => {
+    doLogin(req, res, next, user);
+  })(req, res, next);
+});
+
+/**
+ * Helper: esegue il login effettivo dell'utente (dopo i controlli stato)
+ */
+function doLogin(req, res, next, user) {
+  req.logIn(user, async (err) => {
       if (err) return next(err);
 
       // Log sessione salvata in Redis
@@ -86,11 +101,12 @@ router.post("/session", (req, res, next) => {
 
       return res.status(200).json({
         message: "Login effettuato",
-        showNotificationPrompt: !hasSubscription, // Mostra prompt solo se non ha subscription
+        showNotificationPrompt: !hasSubscription,
+        tipo_utente_id: user.tipo_utente_id,
+        isAdmin: user.tipo_utente_id === 1,
       });
-    });
-  })(req, res, next);
-});
+  });
+}
 
 // Logout
 router.delete("/session", (req, res, next) => {

@@ -2295,6 +2295,11 @@ class ExportStatisticheController {
       try {
         // Recupera record completo utente
         const full = await userDao.getUserById(u.id);
+        // Recupera dati dalle tabelle separate
+        const daoPreferenze = require("../../users/services/dao-preferenze");
+        const daoDatiPersonali = require("../../users/services/dao-dati-personali");
+        const preferenze = await daoPreferenze.getByUtenteId(u.id).catch(() => null);
+        const datiPersonali = await daoDatiPersonali.getByUtenteId(u.id).catch(() => null);
         // Recupera prenotazioni utente
         const prenotazioni = await prenotazioneDao.getPrenotazioniByUserId(
           u.id
@@ -2313,10 +2318,10 @@ class ExportStatisticheController {
           full.tipo_utente_nome || full.tipo_utente_id || "";
         row.getCell(7).value = full.data_registrazione || full.created_at || "";
         row.getCell(8).value = full.updated_at || full.ultimo_accesso || "";
-        row.getCell(9).value = full.data_nascita || "";
-        row.getCell(10).value = full.codice_fiscale || "";
-        row.getCell(11).value = full.ruolo_preferito || "";
-        row.getCell(12).value = full.piede_preferito || "";
+        row.getCell(9).value = (datiPersonali && datiPersonali.data_nascita) || "";
+        row.getCell(10).value = (datiPersonali && datiPersonali.codice_fiscale) || "";
+        row.getCell(11).value = (preferenze && preferenze.ruolo_preferito) || "";
+        row.getCell(12).value = (preferenze && preferenze.piede_preferito) || "";
         row.getCell(13).value = full.livello_abilita || "";
         row.getCell(14).value = full.citta || "";
         row.getCell(15).value = totalePren;

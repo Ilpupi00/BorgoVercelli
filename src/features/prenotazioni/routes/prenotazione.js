@@ -14,6 +14,7 @@ const {
   validateDisponibilita,
   validateExportReport,
 } = require("../../../core/middlewares/validators");
+const daoSospensioni = require("../../users/services/dao-sospensioni");
 
 // 1. Lista campi attivi
 router.get("/campi", async (req, res) => {
@@ -96,17 +97,17 @@ router.post("/prenotazioni", isLoggedIn, validatePrenotazioneCreate, async (req,
 
   if (req.user.isSospeso && req.user.isSospeso()) {
     const moment = require("moment");
-    const dataFine = req.user.data_fine_sospensione
-      ? moment(req.user.data_fine_sospensione).format("DD/MM/YYYY HH:mm")
+    const sospensione = await daoSospensioni.getByUtenteId(req.user.id);
+    const dataFine = sospensione && sospensione.data_fine
+      ? moment(sospensione.data_fine).format("DD/MM/YYYY HH:mm")
       : "Non specificato";
+    const motivo = (sospensione && sospensione.motivo) || "Non specificato";
     return res.status(403).json({
       error: "Account sospeso",
       type: "suspended",
-      message: `Non puoi effettuare prenotazioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${
-        req.user.motivo_sospensione || "Non specificato"
-      }`,
+      message: `Non puoi effettuare prenotazioni perché il tuo account è sospeso fino al ${dataFine}. Motivo: ${motivo}`,
       dataFine: dataFine,
-      motivo: req.user.motivo_sospensione || "Non specificato",
+      motivo: motivo,
     });
   }
 
@@ -272,22 +273,22 @@ router.post("/prenotazioni", isLoggedIn, validatePrenotazioneCreate, async (req,
           luogo: campoNome,
         };
 
-        // Email all'utente
+        // Email all'utente: prenotazione ricevuta, in attesa di conferma
         if (userEmail) {
           emailService
-            .SendPrenotazioneConfermataEmail(
+            .sendPrenotazioneRicevutaEmail(
               userEmail,
               userFullName,
               prenotazioneDetails
             )
             .then(() =>
               console.log(
-                "[EMAIL] Email conferma prenotazione inviata all'utente"
+                "[EMAIL] Email prenotazione ricevuta inviata all'utente"
               )
             )
             .catch((err) =>
               console.error(
-                "[EMAIL] Errore invio email conferma all'utente:",
+                "[EMAIL] Errore invio email prenotazione all'utente:",
                 err
               )
             );

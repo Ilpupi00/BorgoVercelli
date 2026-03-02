@@ -42,6 +42,7 @@ const notificationsWorker = require("./server/workers/notifications-worker");
 const routesNotizie = require("./features/notizie/routes/notizie");
 const routesEventi = require("./features/eventi/routes/eventi");
 const routesRegistrazione = require("./features/auth/routes/login_register");
+const routesOAuth = require("./features/auth/routes/oauth");
 const routesRecensioni = require("./features/recensioni/routes/recensioni");
 const routesSquadre = require("./features/squadre/routes/squadre");
 const routesGalleria = require("./features/galleria/routes/galleria");
@@ -87,6 +88,10 @@ passport.deserializeUser(function (id, done) {
     done(null, user);
   });
 });
+
+// Inizializza strategie OAuth (Google, Facebook)
+const { initOAuth } = require("./core/config/passport-oauth");
+initOAuth();
 
 // ==================== CREAZIONE APP EXPRESS ====================
 const app = express();
@@ -235,7 +240,8 @@ app.use(async function (req, res, next) {
         await daoPrenotazione.autoAcceptPendingBookings();
 
         // 3. Verifica e riattiva sospensioni scadute
-        await userDao.verificaSospensioniScadute();
+        const daoSospensioni = require("./features/users/services/dao-sospensioni");
+        await daoSospensioni.verificaSospensioniScadute();
       } catch (error) {
         console.error(
           "[AUTO-CHECK] Errore durante il controllo automatico:",
@@ -283,6 +289,29 @@ app.use(async function (req, res, next) {
  * Organizzate per feature e funzionalità
  */
 app.use("/", routes); // Homepage e pagine generiche
+
+// Proxy immagini esterne (es. foto Google OAuth) per evitare blocchi browser/CSP
+app.get("/api/proxy-image", async (req, res) => {
+  const url = req.query.url;
+  if (!url || typeof url !== 'string') return res.status(400).end();
+  // Consenti solo URL https (sicurezza)
+  if (!url.startsWith('https://')) return res.status(403).end();
+  try {
+    const https = require('https');
+    const request = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
+      if (imgRes.statusCode >= 400) return res.status(imgRes.statusCode).end();
+      const ct = imgRes.headers['content-type'] || 'image/jpeg';
+      res.setHeader('Content-Type', ct);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      imgRes.pipe(res);
+    });
+    request.on('error', () => res.status(500).end());
+    request.setTimeout(8000, () => { request.destroy(); res.status(504).end(); });
+  } catch (e) {
+    res.status(500).end();
+  }
+});
 // Debug endpoint: collect client-side computed styles for navbar (development only)
 app.post("/__debug-navbar", express.json(), (req, res) => {
   try {
@@ -300,6 +329,7 @@ app.use("/", routesPush); // Web Push Notifications
 app.use("/", routesNotizie); // Gestione notizie
 app.use("/", routesEventi); // Gestione eventi
 app.use("/", routesRegistrazione); // Login e registrazione
+app.use("/", routesOAuth); // OAuth (Google, Facebook, Apple)
 app.use("/", routesSession); // Gestione sessioni
 app.use("/", routesRecensioni); // Sistema recensioni
 app.use("/", routesSendEmail); // Invio email

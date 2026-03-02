@@ -1,6 +1,8 @@
 /**
  * @fileoverview Model per l'entità Utente
- * Rappresenta un utente del sistema con le sue proprietà e metodi di validazione
+ * Rappresenta un utente del sistema con le sue proprietà core.
+ * I dati aggiuntivi (sospensione, preferenze, dati personali) sono gestiti
+ * da tabelle ed entità separate con i rispettivi DAO.
  * @module core/models/user
  */
 
@@ -8,7 +10,9 @@
 
 /**
  * Classe User
- * Rappresenta un utente con dati personali, preferenze calcistiche e stato account
+ * Rappresenta un utente con dati anagrafici e stato account.
+ * I campi extra (preferenze, dati personali, sospensione) possono
+ * essere aggiunti dinamicamente tramite Object.assign nel metodo from().
  *
  * @class User
  */
@@ -23,13 +27,7 @@ class User {
    * @param {string} email - Email dell'utente (usata per login)
    * @param {string} telefono - Numero di telefono
    * @param {string} tipo_utente - Tipo utente: 'giocatore', 'dirigente', 'admin'
-   * @param {string} ruolo_preferito - Ruolo preferito in campo (es: 'portiere', 'difensore')
-   * @param {string} piede_preferito - Piede preferito: 'destro', 'sinistro', 'ambidestro'
    * @param {string} stato - Stato account: 'attivo', 'sospeso', 'bannato'
-   * @param {string|null} motivo_sospensione - Motivo della sospensione/ban
-   * @param {string|null} data_inizio_sospensione - Data inizio sospensione (ISO format)
-   * @param {string|null} data_fine_sospensione - Data fine sospensione (ISO format)
-   * @param {number|null} admin_sospensione_id - ID dell'admin che ha sospeso l'utente
    */
   constructor(
     id,
@@ -38,15 +36,7 @@ class User {
     email,
     telefono,
     tipo_utente,
-    ruolo_preferito,
-    piede_preferito,
-    stato,
-    motivo_sospensione,
-    data_inizio_sospensione,
-    data_fine_sospensione,
-    admin_sospensione_id,
-    data_nascita,
-    codice_fiscale
+    stato
   ) {
     this.id = id;
     this.nome = nome;
@@ -54,15 +44,7 @@ class User {
     this.email = email;
     this.telefono = telefono;
     this.tipo_utente = tipo_utente;
-    this.ruolo_preferito = ruolo_preferito;
-    this.piede_preferito = piede_preferito;
     this.stato = stato || "attivo"; // Default: 'attivo'
-    this.motivo_sospensione = motivo_sospensione;
-    this.data_inizio_sospensione = data_inizio_sospensione;
-    this.data_fine_sospensione = data_fine_sospensione;
-    this.admin_sospensione_id = admin_sospensione_id;
-    this.data_nascita = data_nascita || null;
-    this.codice_fiscale = codice_fiscale || null;
   }
 
   // ==================== METODI STATICI ====================
@@ -143,17 +125,18 @@ class User {
 
   /**
    * Verifica se la sospensione temporanea è scaduta
-   * Controlla se la data di fine sospensione è nel passato
+   * Richiede che i dati sospensione siano stati aggiunti all'oggetto
+   * (es. tramite JOIN o merge con dati da dao-sospensioni)
    *
+   * @param {Object} [sospensione] - Dati sospensione (opzionali, altrimenti cerca su this)
+   * @param {string} [sospensione.data_fine] - Data fine sospensione
    * @returns {boolean} true se la sospensione è scaduta, false altrimenti
    */
-  isSospensioneScaduta() {
-    // Non sospeso o senza data fine → non scaduta
-    if (this.stato !== "sospeso" || !this.data_fine_sospensione) {
-      return false;
-    }
-    // Confronta data fine con data corrente
-    return new Date(this.data_fine_sospensione) < new Date();
+  isSospensioneScaduta(sospensione) {
+    if (this.stato !== "sospeso") return false;
+    const dataFine = sospensione ? sospensione.data_fine : this.data_fine_sospensione;
+    if (!dataFine) return false;
+    return new Date(dataFine) < new Date();
   }
 }
 

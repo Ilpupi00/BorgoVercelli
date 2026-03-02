@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const daoUser = require("../services/dao-user");
+const daoPreferenze = require("../services/dao-preferenze");
+const daoDatiPersonali = require("../services/dao-dati-personali");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
 const {
   validateUserUpdate,
@@ -10,18 +12,31 @@ const {
 router.put("/update", isLoggedIn, ...validateUserUpdate, async (req, res) => {
   try {
     const userId = req.user.id;
+
+    // 1. Aggiorna dati core in UTENTI
     const updateData = {
       nome: req.body.nome,
       cognome: req.body.cognome,
       email: req.body.email,
       telefono: req.body.telefono,
-      ruolo_preferito: req.body.ruolo_preferito,
-      piede_preferito: req.body.piede_preferito,
-      data_nascita: req.body.data_nascita,
-      codice_fiscale: req.body.codice_fiscale,
     };
-
     await daoUser.updateUser(userId, updateData);
+
+    // 2. Aggiorna preferenze (tabella dedicata)
+    if (req.body.ruolo_preferito !== undefined || req.body.piede_preferito !== undefined) {
+      await daoPreferenze.upsert(userId, {
+        ruolo_preferito: req.body.ruolo_preferito,
+        piede_preferito: req.body.piede_preferito,
+      });
+    }
+
+    // 3. Aggiorna dati personali (tabella dedicata)
+    if (req.body.data_nascita !== undefined || req.body.codice_fiscale !== undefined) {
+      await daoDatiPersonali.upsert(userId, {
+        data_nascita: req.body.data_nascita,
+        codice_fiscale: req.body.codice_fiscale,
+      });
+    }
 
     res.json({ success: true, message: "Profilo aggiornato con successo" });
   } catch (error) {
