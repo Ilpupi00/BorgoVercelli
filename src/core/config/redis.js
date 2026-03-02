@@ -13,6 +13,7 @@ const { createClient } = require("redis");
 const IORedis = require("ioredis");
 
 // Configurazione Redis base
+// Priorità: REDIS_URL (Railway) > variabili singole > default localhost
 const REDIS_HOST = process.env.REDIS_HOST || "127.0.0.1";
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 const REDIS_DB = Number(process.env.REDIS_DB) || 0;
@@ -21,10 +22,14 @@ const REDIS_PASSWORD =
     ? process.env.REDIS_PASSWORD
     : undefined;
 
-// URL per il client ufficiale redis
-const REDIS_URL = REDIS_PASSWORD
-  ? `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}`
-  : `redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}`;
+// URL per il client ufficiale redis - usa REDIS_URL da Railway se disponibile
+const REDIS_URL = process.env.REDIS_URL
+  ? process.env.REDIS_URL
+  : REDIS_PASSWORD
+    ? `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}`
+    : `redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}`;
+
+console.log(`[Redis] Usando URL: ${process.env.REDIS_URL ? 'REDIS_URL (Railway)' : `costruito da host/port (${REDIS_HOST}:${REDIS_PORT})`}`);
 
 /**
  * Client Redis per sessioni (pacchetto ufficiale 'redis' v5)
@@ -56,30 +61,45 @@ redisClient.on("reconnecting", () => {
 });
 
 // Configurazione IORedis per funzionalità avanzate
-const IOREDIS_CONFIG = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  db: REDIS_DB,
-  password: REDIS_PASSWORD,
-  retryStrategy: (times) => {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-  lazyConnect: true,
-};
+// Se REDIS_URL è disponibile (Railway), ioredis lo parsa automaticamente
+const IOREDIS_CONFIG = process.env.REDIS_URL
+  ? {
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      lazyConnect: true,
+    }
+  : {
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      db: REDIS_DB,
+      password: REDIS_PASSWORD,
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      lazyConnect: true,
+    };
 
 /**
  * Client IORedis per Pub/Sub notifiche push
  * Separato dal client principale per evitare conflitti
  */
-const redisPubSubClient = new IORedis(IOREDIS_CONFIG);
+const redisPubSubClient = process.env.REDIS_URL
+  ? new IORedis(process.env.REDIS_URL, IOREDIS_CONFIG)
+  : new IORedis(IOREDIS_CONFIG);
 
 /**
  * Client IORedis per code di notifiche
  */
-const redisQueueClient = new IORedis(IOREDIS_CONFIG);
+const redisQueueClient = process.env.REDIS_URL
+  ? new IORedis(process.env.REDIS_URL, IOREDIS_CONFIG)
+  : new IORedis(IOREDIS_CONFIG);
 
 redisPubSubClient.on("connect", () => {
   console.log("✅ Redis Pub/Sub connesso");
