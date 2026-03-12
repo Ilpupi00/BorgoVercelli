@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Prenotazioni - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
+<link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/theme-admin.css">
+    <!-- Styles specific for Gestione Prenotazioni -->
+    <link rel="stylesheet" href="/assets/styles/GestionePrenotazione.css">
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header reveal reveal--fade-up">
+                        <div class="admin-page-header-content">
+                            <h1><i class="bi bi-calendar-check-fill"></i> Gestione Prenotazioni</h1>
+                            <p class="admin-page-subtitle">Gestisci prenotazioni campi sportivi</p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="<%= user.tipo_utente_id === 1 ? '/admin' : '/profilo' %>" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline"><%= user.tipo_utente_id === 1 ? 'Pannello' : 'Profilo' %></span>
+                            </a>
+                            <a href="/Logout" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <section class="section-header reveal reveal--fade-up reveal--delay-1">
+                        <h2 class="section-title mb-0"><i class="bi bi-list-ul me-2"></i>Tutte le Prenotazioni</h2>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-success btn-sm"><i class="bi bi-check-circle me-1"></i>Confermate</button>
+                            <button class="btn btn-warning btn-sm"><i class="bi bi-clock me-1"></i>In Attesa</button>
+                            <button class="btn btn-danger btn-sm"><i class="bi bi-x-circle me-1"></i>Annullate</button>
+                            <button class="btn btn-secondary btn-sm"><i class="bi bi-calendar-x me-1"></i>Scadute</button>
+                            <button id="deleteScaduteBtn" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Elimina Scadute
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="search-section reveal reveal--fade-up reveal--delay-2">
+                        <input type="text" id="searchInput" name="q" class="form-control form-control-lg" placeholder="🔍 Cerca prenotazioni...">
+                    </section>
+
+                    <section class="content-card reveal reveal--fade-up reveal--delay-3">
+                        <div class="table-responsive">
+                            <table class="table admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Campo</th>
+                                        <th>Utente</th>
+                                        <th>Squadra</th>
+                                        <th>Data</th>
+                                        <th>Orario</th>
+                                        <th>Tipo Attività</th>
+                                        <th>Note</th>
+                                        <th>Stato</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                                <% if (prenotazioni && prenotazioni.length > 0) { %>
+                                                    <% prenotazioni.forEach(prenotazione => { %>
+                                                        <tr>
+                                                            <td><%= prenotazione.id %></td>
+                                                            <td><%= prenotazione.campo_nome || 'Campo ' + prenotazione.campo_id %></td>
+                                                            <td>
+                                                                <% if (prenotazione.utente_nome) { %>
+                                                                    <%= prenotazione.utente_nome %> <%= prenotazione.utente_cognome %>
+                                                                <% } else { %>
+                                                                    -
+                                                                <% } %>
+                                                            </td>
+                                                            <td><%= prenotazione.squadra_nome || '-' %></td>
+                                                            <td><%= prenotazione.data_prenotazione ? new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') : '-' %></td>
+                                                            <td><%= prenotazione.ora_inizio %> - <%= prenotazione.ora_fine %></td>
+                                                            <td><%= prenotazione.tipo_attivita || '-' %></td>
+                                                            <td>
+                                                                <% if (prenotazione.note && prenotazione.note.trim() !== '') { %>
+                                                                    <span class="text-truncate d-inline-block" style="max-width: 150px;" title="<%= prenotazione.note %>">
+                                                                        <%= prenotazione.note %>
+                                                                    </span>
+                                                                <% } else { %>
+                                                                    <span class="text-muted">-</span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (prenotazione.stato === 'confermata') { %>
+                                                                    <span class="badge badge-success">Confermata</span>
+                                                                <% } else if (prenotazione.stato === 'in_attesa') { %>
+                                                                    <span class="badge badge-warning">In Attesa</span>
+                                                                <% } else if (prenotazione.stato === 'annullata') { %>
+                                                                    <span class="badge badge-danger">Annullata</span>
+                                                                <% } else if (prenotazione.stato === 'scaduta') { %>
+                                                                    <span class="badge badge-secondary">Scaduta</span>
+                                                                <% } else { %>
+                                                                    <span class="badge badge-secondary"><%= prenotazione.stato %></span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group" role="group">
+                                                                    <button class="btn btn-sm btn-outline-primary" title="Visualizza" data-id="<%= prenotazione.id %>">
+                                                                        <i class="bi bi-eye"></i>
+                                                                    </button>
+                                                                    <% if (prenotazione.stato === 'in_attesa') { %>
+                                                                        <button class="btn btn-sm btn-outline-success" title="Conferma" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-check"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-x"></i>
+                                                                        </button>
+                                                                    <% } else if (prenotazione.stato === 'confermata') { %>
+                                                                        <button class="btn btn-sm btn-outline-warning" title="Modifica" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-pencil"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-sm btn-outline-danger" title="Annulla" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-x"></i>
+                                                                        </button>
+                                                                    <% } else if (prenotazione.stato === 'annullata') { %>
+                                                                        <button class="btn btn-sm btn-outline-success" title="Riattiva" data-id="<%= prenotazione.id %>">
+                                                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                                                        </button>
+                                                                    <% } %>
+                                                                    <button class="btn btn-sm btn-outline-danger" title="Elimina" data-id="<%= prenotazione.id %>">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="9" class="text-center text-muted py-4">
+                                                            <i class="bi bi-info-circle display-4 mb-3"></i>
+                                                            <p>Nessuna prenotazione presente nel sistema.</p>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>  
+                                <section class="calendario-section calendario-center mt-4 reveal reveal--scale-up reveal--delay-4 py-4 container-fluid">
+                                    <div class="section-header mb-4 text-center">
+                                    <h2 class="section-title mb-3"><i class="bi bi-calendar3-event me-2"></i>Calendario Prenotazioni</h2>
+                                    <div id="calendarioPrenotazioni" class="d-flex justify-content-center">
+                                    <a href="/prenotazione/calendario" class="btn btn-primary">
+                                        <i class="bi bi-calendar3-event me-2"></i>Vai al Calendario Prenotazioni 
+                                    </a>
+                                </div>
+                                </div>
+                                </section>
+                </main>         
+
+        </div>
+
+
+       
+    </div>
+
+    <!-- Modal Dettagli Prenotazione -->
+    <div class="modal fade" id="visualizzaPrenotazioneModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Dettagli Prenotazione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalPrenotazioneBody">
+                    <!-- Contenuto dinamico caricato da JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Chiudi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Prenotazione Admin -->
+    <div class="modal fade" id="modificaPrenotazioneModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Modifica Prenotazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modificaPrenotazioneForm">
+                        <input type="hidden" id="modPrenId">
+                        <input type="hidden" id="modPrenUtenteId">
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Nota Admin:</strong> Come amministratore, puoi modificare tutti i campi senza cambiare lo stato della prenotazione.
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenCampo" class="form-label"><i class="bi bi-geo-alt me-1"></i>Campo *</label>
+                                <select class="form-select" id="modPrenCampo" required>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenData" class="form-label"><i class="bi bi-calendar me-1"></i>Data *</label>
+                                <input type="date" class="form-control" id="modPrenData" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenOraInizio" class="form-label"><i class="bi bi-clock me-1"></i>Ora Inizio *</label>
+                                <input type="time" class="form-control" id="modPrenOraInizio" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenOraFine" class="form-label"><i class="bi bi-clock-fill me-1"></i>Ora Fine *</label>
+                                <input type="time" class="form-control" id="modPrenOraFine" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenTelefono" class="form-label"><i class="bi bi-telephone me-1"></i>Telefono *</label>
+                                <input type="tel" class="form-control" id="modPrenTelefono" 
+                                       pattern="^\+39\s?[0-9]{9,10}$" 
+                                       placeholder="+39 3xx xxxxxxx" required>
+                                <div class="invalid-feedback">
+                                    Formato richiesto: +39 seguito da 9-10 cifre
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modPrenTipoDoc" class="form-label"><i class="bi bi-card-text me-1"></i>Tipo Documento</label>
+                                <select class="form-select" id="modPrenTipoDoc">
+                                    <option value="">Nessuno</option>
+                                    <option value="CF">Codice Fiscale</option>
+                                    <option value="ID">Documento Identità</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="modPrenCFContainer" style="display:none;">
+                                <label for="modPrenCodiceFiscale" class="form-label"><i class="bi bi-person-vcard me-1"></i>Codice Fiscale</label>
+                                <input type="text" class="form-control text-uppercase" id="modPrenCodiceFiscale" 
+                                       maxlength="16" pattern="[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]">
+                            </div>
+                            <div class="col-md-6 mb-3" id="modPrenIDContainer" style="display:none;">
+                                <label for="modPrenNumeroDoc" class="form-label"><i class="bi bi-credit-card me-1"></i>Numero Documento</label>
+                                <input type="text" class="form-control text-uppercase" id="modPrenNumeroDoc" minlength="5">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="modPrenNote" class="form-label"><i class="bi bi-chat-left-text me-1"></i>Note</label>
+                            <textarea class="form-control" id="modPrenNote" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Annulla
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="salvaModificaPrenotazione()">
+                        <i class="bi bi-check-circle me-1"></i>Salva Modifiche
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <!-- Modal Conferma Eliminazione -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler eliminare questa prenotazione?</p>
+                    <p class="text-muted mb-0">Questa azione non può essere annullata.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Annulla
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-2"></i>Elimina
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle tipo documento fields nel modal modifica
+        document.getElementById('modPrenTipoDoc')?.addEventListener('change', function() {
+            const tipo = this.value;
+            const cfContainer = document.getElementById('modPrenCFContainer');
+            const idContainer = document.getElementById('modPrenIDContainer');
+            const cfInput = document.getElementById('modPrenCodiceFiscale');
+            const idInput = document.getElementById('modPrenNumeroDoc');
+            
+            if (tipo === 'CF') {
+                cfContainer.style.display = 'block';
+                idContainer.style.display = 'none';
+                cfInput.required = true;
+                idInput.required = false;
+                idInput.value = '';
+            } else if (tipo === 'ID') {
+                cfContainer.style.display = 'none';
+                idContainer.style.display = 'block';
+                cfInput.required = false;
+                idInput.required = true;
+                cfInput.value = '';
+            } else {
+                cfContainer.style.display = 'none';
+                idContainer.style.display = 'none';
+                cfInput.required = false;
+                idInput.required = false;
+                cfInput.value = '';
+                idInput.value = '';
+            }
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
+    <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
+    <script src="/assets/scripts/components/AdminGlobal.js"></script>
+    <script src="/assets/scripts/components/Admin.js"></script>
+    <script src="/assets/scripts/components/AdminSidebar.js"></script>
+    <script src="/assets/scripts/GestionePrenotazione.js"></script>
+</body>
+</html>

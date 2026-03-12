@@ -1,0 +1,2322 @@
+/* ===================================
+   Dark Theme System - Modern & Sophisticated
+   =================================== */
+
+/* Light Theme (Default) */
+:root[data-theme="light"] {
+  /* Primary Colors */
+  --primary-color: #0d6efd;
+  --primary-variant: #2563eb;
+  --primary-hover: #0a58ca;
+  --primary-active: #084298;
+
+  /* Secondary Colors */
+  --secondary-color: #22b14c;
+  --secondary-dark: #1a8e3a;
+  --accent-color: #ffc107;
+
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #e9ecef;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f1f5f9;
+  --bg-active: #e2e8f0;
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #e9ecef;
+
+  /* Text Colors */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-on-primary: #ffffff;
+  --text-muted: #6c757d;
+
+  /* Border Colors */
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-focus: #0d6efd;
+
+  /* Shadow Colors */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-colored: 0 10px 30px rgba(13, 110, 253, 0.15);
+
+  /* Card Specific */
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --card-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  /* Input & Forms */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #1e293b;
+  --input-placeholder: #94a3b8;
+  --input-focus-border: #0d6efd;
+  --input-focus-ring: rgba(13, 110, 253, 0.15);
+
+  /* Navbar */
+  --navbar-bg: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+  --navbar-text: #ffffff;
+  --navbar-hover: rgba(255, 255, 255, 0.1);
+  --navbar-active: rgba(255, 255, 255, 0.2);
+
+  /* Footer */
+  --footer-bg: #1e293b;
+  --footer-text: #cbd5e1;
+  --footer-heading: #ffffff;
+
+  /* Status Colors */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Hero Section */
+  --hero-gradient-start: #0d6efd;
+  --hero-gradient-end: #22b14c;
+  --hero-overlay: rgba(0, 0, 0, 0.3);
+  --hero-text: #ffffff;
+
+  /* Glass Morphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Dark Theme */
+:root[data-theme="dark"] {
+  /* Primary Colors - Mantiene il blu del sito ma più chiaro */
+  --primary-color: #4a9eff;
+  --primary-variant: #3b82f6;
+  --primary-hover: #5dadff;
+  --primary-active: #70b8ff;
+
+  /* Secondary Colors - Verde coerente */
+  --secondary-color: #3cc566;
+  --secondary-dark: #2fb357;
+  --accent-color: #ffc107;
+
+  /* Background Colors - Modern Web2.0 layered gradients for depth */
+  /* Main page background: deep navy / indigo duotone with subtle warmth */
+  --bg-primary: linear-gradient(180deg, #070714 0%, #0e1530 45%, #111522 100%);
+  /* Secondary layers for sections (soft, slightly warmer) */
+  --bg-secondary: linear-gradient(
+    180deg,
+    rgba(28, 36, 70, 0.9) 0%,
+    rgba(24, 30, 54, 0.9) 100%
+  );
+  --bg-tertiary: linear-gradient(
+    180deg,
+    rgba(20, 24, 44, 0.9) 0%,
+    rgba(18, 20, 36, 0.9) 100%
+  );
+  /* Elevated surfaces (cards, modals) use a subtle frosted gradient */
+  --bg-elevated: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  --bg-hover: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  --bg-active: linear-gradient(
+    180deg,
+    rgba(74, 158, 255, 0.04),
+    rgba(45, 64, 160, 0.02)
+  );
+  --bg-gradient-start: #0b1230;
+  --bg-gradient-end: #111522;
+
+  /* Text Colors - Testo molto più leggibile */
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #cbd5e1;
+  --text-on-primary: #ffffff;
+  --text-muted: #94a3b8;
+
+  /* Border Colors - Più visibili */
+  --border-color: #3a4261;
+  --border-hover: #4a5575;
+  --border-focus: #4a9eff;
+
+  /* Shadow Colors - More pronounced in dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
+
+  /* Card Specific - glassy elevated panels with subtle gradient */
+  --card-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  --card-border: rgba(255, 255, 255, 0.04);
+  --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
+  --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
+
+  /* Input & Forms */
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --input-text: #f1f5f9;
+  --input-placeholder: #64748b;
+  --input-focus-border: #3b82f6;
+  --input-focus-ring: rgba(59, 130, 246, 0.25);
+
+  /* Navbar - Blu scuro acceso #2D40A0 */
+  --navbar-bg: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%);
+  --navbar-text: #ffffff;
+  --navbar-hover: rgba(255, 255, 255, 0.1);
+  --navbar-active: rgba(255, 255, 255, 0.15);
+
+  /* Footer - Stesso blu scuro navbar */
+  --footer-bg: #2d40a0;
+  --footer-text: #ffffff;
+  --footer-heading: #ffffff;
+
+  /* Solid navbar color fallback (useful for small elements like toggler) */
+  --navbar-solid: #2d40a0;
+
+  /* Status Colors - Adjusted for dark mode */
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Hero Section - bold duotone accent with indigo highlights */
+  --hero-gradient-start: linear-gradient(
+    135deg,
+    rgba(13, 24, 77, 0.96) 0%,
+    rgba(24, 36, 80, 0.92) 50%
+  );
+  --hero-gradient-end: linear-gradient(
+    135deg,
+    rgba(30, 44, 86, 0.9) 50%,
+    rgba(17, 21, 42, 0.95) 100%
+  );
+  --hero-overlay: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35),
+    rgba(0, 0, 0, 0.55)
+  );
+  --hero-text: #f3f6ff;
+
+  /* Glass Morphism */
+  --glass-bg: rgba(7, 9, 12, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Light-mode checkbox visibility fixes
+   Ensure the checked state is clearly visible in light theme */
+:root[data-theme="light"] .form-check-input {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+:root[data-theme="light"] .form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+:root[data-theme="light"] .form-check-label {
+  color: var(--text-primary) !important;
+}
+
+/* System Preference (Auto) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Same as dark theme */
+    --primary-color: #3b82f6;
+    --primary-variant: #2563eb;
+    --primary-hover: #60a5fa;
+    --primary-active: #93c5fd;
+    --secondary-color: #10b981;
+    --secondary-dark: #059669;
+    --accent-color: #fbbf24;
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-elevated: #1e293b;
+    --bg-hover: #334155;
+    --bg-active: #475569;
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --text-on-primary: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --border-hover: #475569;
+    --border-focus: #3b82f6;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --input-bg: #1e293b;
+    --input-border: #334155;
+    --input-text: #f1f5f9;
+    --input-placeholder: #64748b;
+    --input-focus-border: #3b82f6;
+    --input-focus-ring: rgba(59, 130, 246, 0.25);
+    --navbar-bg: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%);
+    --navbar-text: #ffffff;
+    --navbar-hover: rgba(255, 255, 255, 0.1);
+    --navbar-active: rgba(255, 255, 255, 0.15);
+    --footer-bg: #2d40a0;
+    --footer-text: #ffffff;
+    --footer-heading: #f1f5f9;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --hero-gradient-start: #1e293b;
+    --hero-gradient-end: #0f172a;
+    --hero-overlay: rgba(0, 0, 0, 0.5);
+    --hero-text: #f1f5f9;
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+}
+
+/* ===================================
+   Apply Theme to Elements - ONLY IN DARK MODE
+   =================================== */
+
+/* Body & Base - Only apply in dark mode */
+:root[data-theme="dark"] body,
+body[data-theme="dark"] {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary);
+  transition: 0.35s ease, color 0.3s ease;
+}
+
+/* Backgrounds - Only apply in dark mode */
+:root[data-theme="dark"] .bg-light,
+:root[data-theme="dark"] .bg-secondary,
+body[data-theme="dark"] .bg-light,
+body[data-theme="dark"] .bg-secondary {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .bg-white,
+body[data-theme="dark"] .bg-white {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .bg-dark,
+body[data-theme="dark"] .bg-dark {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-on-primary) !important;
+}
+
+/* Text Colors - Only apply in dark mode */
+:root[data-theme="dark"] .text-dark,
+:root[data-theme="dark"] .text-primary,
+body[data-theme="dark"] .text-dark,
+body[data-theme="dark"] .text-primary {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .text-muted,
+:root[data-theme="dark"] .text-secondary,
+body[data-theme="dark"] .text-muted,
+body[data-theme="dark"] .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Navbar - Only apply in dark mode */
+:root[data-theme="dark"] .navbar,
+body[data-theme="dark"] .navbar {
+  background: var(--navbar-bg) !important;
+  color: var(--navbar-text) !important;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.navbar .nav-link {
+  color: var(--navbar-text) !important;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+  background: var(--navbar-hover) !important;
+  color: var(--navbar-text) !important;
+}
+
+.navbar .nav-link.active {
+  background: var(--navbar-active) !important;
+  color: var(--navbar-text) !important;
+}
+
+/* ==========================================
+   NAVBAR DARK MODE - FORZATURA TOTALE #2D40A0
+   ========================================== */
+
+/* Targeting TUTTI i selettori possibili per forzare il colore della navbar */
+:root[data-theme="dark"] .navbar,
+:root[data-theme="dark"] #navbar,
+:root[data-theme="dark"] nav.navbar,
+:root[data-theme="dark"] nav#navbar,
+:root[data-theme="dark"] .navbar.bg-primary,
+:root[data-theme="dark"] nav.navbar.bg-primary,
+:root[data-theme="dark"] .navbar-expand-lg,
+:root[data-theme="dark"] .navbar.sticky-top {
+  /* Force navbar background only on the main <nav> element. Do not apply
+       the same background to .navbar-collapse to avoid a double-layered
+       background when the collapse/container sits under the navbar. */
+  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
+  background-color: #2d40a0 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Forza anche sui media query mobile */
+@media (max-width: 576px) {
+  :root[data-theme="dark"] nav#navbar,
+  :root[data-theme="dark"] .navbar {
+    /* On mobile keep the navbar background, but do not apply it to
+           the collapse container itself; that should remain transparent. */
+    background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
+    background-color: #2d40a0 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Link della navbar in dark mode */
+:root[data-theme="dark"] .navbar .nav-link,
+:root[data-theme="dark"] #navbar .nav-link,
+:root[data-theme="dark"] .navbar a.nav-link {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .navbar .nav-link:hover,
+:root[data-theme="dark"] #navbar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .navbar .nav-link.active,
+:root[data-theme="dark"] #navbar .nav-link.active,
+:root[data-theme="dark"] .navbar-nav .nav-link.active {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Fix per TUTTI i link e anchor nella navbar */
+:root[data-theme="dark"] .navbar a,
+:root[data-theme="dark"] .navbar .nav-link,
+:root[data-theme="dark"] .navbar-brand,
+:root[data-theme="dark"] .navbar-brand:hover,
+:root[data-theme="dark"] .navbar-brand:focus {
+  color: #ffffff !important;
+  background: transparent !important;
+  text-decoration: none !important;
+}
+
+/* Override Bootstrap .bg-primary in dark mode */
+:root[data-theme="dark"] .bg-primary {
+  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
+  background-color: #2d40a0 !important;
+}
+
+/* Dropdown menu nella navbar */
+:root[data-theme="dark"] .navbar .dropdown-menu {
+  background: linear-gradient(180deg, #2d40a0 0%, #3a51c7 100%) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item:hover,
+:root[data-theme="dark"] .navbar .dropdown-item:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .navbar a:hover,
+:root[data-theme="dark"] .navbar .nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  text-decoration: none !important;
+}
+
+/* Rimuovi sfondo dai link navbar */
+:root[data-theme="dark"] .navbar .nav-link.active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  text-decoration: none !important;
+}
+
+/* Rimuovi sottolineature e colori strani dai link */
+:root[data-theme="dark"] .navbar a:focus,
+:root[data-theme="dark"] .navbar a:active,
+:root[data-theme="dark"] .navbar .nav-link:focus,
+:root[data-theme="dark"] .navbar .nav-link:active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  text-decoration: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================
+   NAVBAR LIGHT MODE - FORCE WHITE TEXT/ICONS
+   ========================================== */
+
+/* Force ALL navbar text and icons to be WHITE in light mode */
+:root[data-theme="light"] .navbar,
+:root[data-theme="light"] .navbar *,
+:root[data-theme="light"] .navbar a,
+:root[data-theme="light"] .navbar .nav-link,
+:root[data-theme="light"] .navbar .navbar-brand,
+:root[data-theme="light"] .navbar .dropdown-menu a,
+:root[data-theme="light"] .navbar .dropdown-item,
+:root[data-theme="light"] .navbar i,
+:root[data-theme="light"] .navbar svg,
+:root[data-theme="light"] .navbar span {
+  color: #ffffff !important;
+}
+
+:root[data-theme="light"] .navbar svg,
+:root[data-theme="light"] .navbar i {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+:root[data-theme="light"] .navbar .dropdown-menu {
+  background: rgba(13, 110, 253, 0.95) !important;
+}
+
+:root[data-theme="light"] .navbar .dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Fix login button e icona profilo - devono essere SEMPRE visibili */
+:root[data-theme="dark"] #Login,
+:root[data-theme="dark"] .btn-outline-light {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] #Login:hover,
+:root[data-theme="dark"] .btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+:root[data-theme="dark"] #Login i,
+:root[data-theme="dark"] .bi-box-arrow-in-right,
+:root[data-theme="dark"] .bi-person-circle {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* Fix per tema chiaro - login button e cerca trasparenti */
+:root[data-theme="light"] #Login,
+:root[data-theme="light"] .btn-outline-light {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  font-weight: 600;
+}
+
+:root[data-theme="light"] #Login:hover,
+:root[data-theme="light"] .btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+/* Navbar active in tema chiaro */
+:root[data-theme="light"] .navbar .nav-link.active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Search button in tema chiaro */
+:root[data-theme="light"] form[role="search"] .btn {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+:root[data-theme="light"] form[role="search"] .btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Search button in tema scuro */
+:root[data-theme="dark"] form[role="search"] .btn {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+:root[data-theme="dark"] form[role="search"] .btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] form[role="search"] .form-control {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] form[role="search"] .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+:root[data-theme="dark"] form[role="search"] .form-control:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.navbar .navbar-toggler {
+  border-color: var(--navbar-text);
+}
+
+.navbar .dropdown-menu {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.navbar .dropdown-item {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix dropdown specifico per dark theme */
+:root[data-theme="dark"] .navbar .dropdown-menu {
+  background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* Cards */
+.card,
+.news-card,
+.review-card,
+.event-card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.card:hover,
+.news-card:hover,
+.review-card:hover {
+  box-shadow: var(--card-hover-shadow);
+}
+
+.card-header,
+.card-footer {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.card-body {
+  color: var(--text-primary);
+}
+
+.card-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.card-text {
+  color: var(--text-secondary) !important;
+}
+
+/* Links nelle card */
+:root[data-theme="dark"] .card a:not(.btn),
+:root[data-theme="dark"] .news-card a:not(.btn),
+:root[data-theme="dark"] .review-card a:not(.btn) {
+  color: var(--primary-color) !important;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme="dark"] .card a:not(.btn):hover,
+:root[data-theme="dark"] .news-card a:not(.btn):hover,
+:root[data-theme="dark"] .review-card a:not(.btn):hover {
+  color: var(--primary-variant) !important;
+  text-decoration: underline;
+}
+
+/* Forms */
+.form-control,
+input,
+textarea,
+select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--input-text) !important;
+  transition: all 0.3s ease;
+  background-image: none !important;
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+.form-control:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-focus-border) !important;
+  box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
+  background-image: none !important;
+}
+
+.form-label {
+  color: var(--text-primary) !important;
+}
+
+/* Buttons */
+.btn,
+button {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* In light mode preferiamo non forzare i colori delle icone/SVG nei bottoni
+   per permettere ai fogli di stile delle singole pagine (o alle icone stesse)
+   di mantenere i loro colori originali. */
+/* Nota: se serve contrasto specifico per alcuni bottoni, definire regole
+   puntuali in quei fogli di stile (es. footer o theme-*.css) invece di
+   impostare regole globali qui. */
+
+/* Forza testo bianco dentro i bottoni in dark mode (anche per icone/SVG) */
+:root[data-theme="dark"] .btn,
+:root[data-theme="dark"] button,
+:root[data-theme="dark"] input[type="button"],
+:root[data-theme="dark"] input[type="submit"],
+:root[data-theme="dark"] .btn *,
+:root[data-theme="dark"] button * {
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .btn svg,
+:root[data-theme="dark"] .btn line,
+:root[data-theme="dark"] .btn path,
+:root[data-theme="dark"] .btn circle {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.btn-primary {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover {
+  background: var(--primary-variant) !important;
+  border-color: var(--primary-variant) !important;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary,
+.btn-outline-light {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-light:hover {
+  background-color: var(--primary-color) !important;
+  color: var(--text-on-primary) !important;
+}
+
+:root[data-theme="dark"] .btn-secondary {
+  background: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+  color: var(--text-on-primary) !important;
+  box-shadow: 0 2px 8px rgba(60, 197, 102, 0.25);
+}
+
+:root[data-theme="dark"] .btn-secondary:hover {
+  background: var(--secondary-dark) !important;
+  border-color: var(--secondary-dark) !important;
+  color: var(--text-on-primary) !important;
+  box-shadow: 0 4px 12px rgba(47, 179, 87, 0.35);
+}
+
+:root[data-theme="dark"] .btn-outline-secondary {
+  color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+:root[data-theme="dark"] .btn-outline-secondary:hover {
+  background: var(--secondary-color) !important;
+  color: var(--text-on-primary) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+:root[data-theme="dark"] .btn-outline-dark {
+  color: var(--text-primary) !important;
+  border-color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .btn-outline-dark:hover {
+  background: var(--text-primary) !important;
+  color: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .btn-light {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .btn-light:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* Login/Auth buttons - massima visibilità */
+:root[data-theme="dark"] .btn-login,
+:root[data-theme="dark"] .btn-auth,
+:root[data-theme="dark"] a.btn-primary,
+:root[data-theme="dark"] .navbar .btn-primary {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+  border: 2px solid var(--primary-color) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.3);
+}
+
+:root[data-theme="dark"] .btn-login:hover,
+:root[data-theme="dark"] .btn-auth:hover,
+:root[data-theme="dark"] a.btn-primary:hover,
+:root[data-theme="dark"] .navbar .btn-primary:hover {
+  background: var(--primary-variant) !important;
+  border-color: var(--primary-variant) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Tables */
+.table {
+  color: var(--text-primary);
+  background-color: var(--card-bg);
+}
+
+.table thead th {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.table tbody tr {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.table tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--bg-secondary);
+}
+
+/* Modals (scoped to dark theme) */
+:root[data-theme="dark"] .modal-content {
+  background-color: #1e293b !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-2xl);
+}
+
+:root[data-theme="dark"] .modal-body {
+  background-color: #1e293b !important;
+  background-image: none !important;
+}
+
+:root[data-theme="dark"] .modal-header,
+:root[data-theme="dark"] .modal-footer {
+  background-color: #1a2332 !important;
+  background-image: none !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .modal-header .btn-close {
+  filter: var(--bs-btn-close-white-filter);
+}
+
+:root[data-theme="dark"] .modal-title {
+  color: var(--text-primary) !important;
+}
+
+/* Alerts */
+.alert {
+  border-color: var(--border-color);
+}
+
+.alert-info {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--info);
+}
+
+.alert-warning {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--warning);
+}
+
+.alert-danger {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--danger);
+}
+
+.alert-success {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--success);
+}
+
+/* Badges */
+.badge {
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
+}
+
+/* ===================================
+   CARDS - GLOBAL STYLING
+   =================================== */
+
+/* Base Card Styling */
+:root[data-theme="dark"] .card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] .card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Card Header */
+:root[data-theme="dark"] .card-header {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Card Body */
+:root[data-theme="dark"] .card-body {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Card Footer */
+:root[data-theme="dark"] .card-footer {
+  background: var(--bg-secondary) !important;
+  border-top: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Card Title & Subtitle */
+:root[data-theme="dark"] .card-title {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .card-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Card Text */
+:root[data-theme="dark"] .card-text {
+  color: var(--text-primary) !important;
+}
+
+/* Card Links */
+:root[data-theme="dark"] .card-link {
+  color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .card-link:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* Card Image Container */
+:root[data-theme="dark"] .card-img-container {
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .card-img-top,
+:root[data-theme="dark"] .card-img-bottom {
+  border-color: var(--border-color);
+}
+
+/* Card with List Group */
+:root[data-theme="dark"] .card .list-group-item {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .card .list-group-item:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* Special Card Types */
+:root[data-theme="dark"] .action-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .action-card:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: var(--shadow-lg);
+}
+
+:root[data-theme="dark"] .stats-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .content-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Card Buttons */
+:root[data-theme="dark"] .card .btn {
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .card .btn-primary {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .card .btn-primary:hover {
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .card-button {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .card-button:hover {
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+}
+
+/* Enforce white text/icons inside card buttons for dark mode (high specificity) */
+:root[data-theme="dark"] .card-button,
+:root[data-theme="dark"] .card-button i,
+:root[data-theme="dark"] .card-button svg {
+  color: #ffffff !important;
+}
+
+/* Footer - Tema Chiaro: Uguale navbar tema chiaro */
+:root[data-theme="light"] footer,
+:root[data-theme="light"] .footer {
+  background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="light"] footer h1,
+:root[data-theme="light"] footer h2,
+:root[data-theme="light"] footer h3,
+:root[data-theme="light"] footer h4,
+:root[data-theme="light"] footer h5,
+:root[data-theme="light"] footer h6,
+:root[data-theme="light"] .footer h1,
+:root[data-theme="light"] .footer h2,
+:root[data-theme="light"] .footer h3,
+:root[data-theme="light"] .footer h4,
+:root[data-theme="light"] .footer h5,
+:root[data-theme="light"] .footer h6 {
+  color: #ffffff !important;
+}
+
+:root[data-theme="light"] footer a,
+:root[data-theme="light"] .footer a {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none;
+}
+
+:root[data-theme="light"] footer a:hover,
+:root[data-theme="light"] .footer a:hover {
+  color: #ffffff !important;
+  text-decoration: underline;
+}
+
+:root[data-theme="light"] footer p,
+:root[data-theme="light"] footer span,
+:root[data-theme="light"] .footer p,
+:root[data-theme="light"] .footer span {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Footer - Tema Scuro: Blu scuro #2D40A0 uguale navbar */
+:root[data-theme="dark"] footer,
+:root[data-theme="dark"] .footer {
+  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
+  color: #ffffff !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] footer h1,
+:root[data-theme="dark"] footer h2,
+:root[data-theme="dark"] footer h3,
+:root[data-theme="dark"] footer h4,
+:root[data-theme="dark"] footer h5,
+:root[data-theme="dark"] footer h6,
+:root[data-theme="dark"] .footer h1,
+:root[data-theme="dark"] .footer h2,
+:root[data-theme="dark"] .footer h3,
+:root[data-theme="dark"] .footer h4,
+:root[data-theme="dark"] .footer h5,
+:root[data-theme="dark"] .footer h6 {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer a,
+:root[data-theme="dark"] .footer a {
+  color: #fbbf24 !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+:root[data-theme="dark"] footer#footer a.text-white,
+:root[data-theme="dark"] footer#footer a.text-white-50 {
+  color: #fbbf24 !important;
+}
+
+:root[data-theme="dark"] footer#footer a.text-white:hover,
+:root[data-theme="dark"] footer#footer a.text-white-50:hover {
+  color: #fcd34d !important;
+}
+
+:root[data-theme="dark"] footer .text-white,
+:root[data-theme="dark"] .footer .text-white {
+  color: #f3f4f6 !important;
+}
+
+:root[data-theme="dark"] footer .text-white-50,
+:root[data-theme="dark"] .footer .text-white-50 {
+  color: rgba(243, 244, 246, 0.75) !important;
+}
+
+:root[data-theme="dark"] footer a:hover,
+:root[data-theme="dark"] .footer a:hover {
+  color: #fcd34d !important;
+  text-decoration: underline;
+}
+
+:root[data-theme="dark"] footer p,
+:root[data-theme="dark"] footer span,
+:root[data-theme="dark"] .footer p,
+:root[data-theme="dark"] .footer span {
+  color: #f3f4f6 !important;
+}
+
+footer p,
+footer span,
+.footer p,
+.footer span {
+  color: #f3f4f6 !important;
+}
+
+footer .social-links a,
+.footer .social-links a {
+  color: rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.2s ease;
+}
+
+footer .social-links a:hover,
+.footer .social-links a:hover {
+  color: #ffffff !important;
+  transform: scale(1.1);
+}
+
+/* Footer Form Components */
+:root[data-theme="dark"] footer .form-label,
+:root[data-theme="dark"] .footer .form-label {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+:root[data-theme="dark"] footer .form-control,
+:root[data-theme="dark"] .footer .form-control {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer .form-control::placeholder,
+:root[data-theme="dark"] .footer .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+:root[data-theme="dark"] footer .form-control:focus,
+:root[data-theme="dark"] .footer .form-control:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer .form-check-input,
+:root[data-theme="dark"] .footer .form-check-input {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+:root[data-theme="dark"] footer .form-check-input:checked,
+:root[data-theme="dark"] .footer .form-check-input:checked {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer .form-check-label,
+:root[data-theme="dark"] .footer .form-check-label {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer .form-check-label a,
+:root[data-theme="dark"] .footer .form-check-label a {
+  color: #fbbf24 !important;
+  font-weight: bold !important;
+  text-decoration: underline !important;
+}
+
+:root[data-theme="dark"] footer .form-check-label a:hover,
+:root[data-theme="dark"] .footer .form-check-label a:hover {
+  color: #fcd34d !important;
+}
+
+:root[data-theme="dark"] footer .text-warning,
+:root[data-theme="dark"] .footer .text-warning {
+  color: #fbbf24 !important;
+}
+
+:root[data-theme="dark"] footer .btn-light,
+:root[data-theme="dark"] .footer .btn-light {
+  /* Usa lo stesso stile dei bottoni chiari in dark mode: sfondo semitrasparente e testo bianco */
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] footer .btn-light:hover,
+:root[data-theme="dark"] .footer .btn-light:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Extra: forza il testo e le icone bianche per i bottoni nel footer (dark mode)
+   e gestisce lo stato di loading/disabilitato per mantenere contrasto corretto */
+:root[data-theme="dark"] #footer .btn,
+:root[data-theme="dark"] #footer .btn *,
+:root[data-theme="dark"] .footer #footer .btn,
+:root[data-theme="dark"] .footer #footer .btn * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+:root[data-theme="dark"] #footer .btn.btn-loading,
+:root[data-theme="dark"] #footer .btn.btn-loading * {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] #footer .btn:disabled,
+:root[data-theme="dark"] #footer .btn[disabled],
+:root[data-theme="dark"] .footer .btn:disabled,
+:root[data-theme="dark"] .footer .btn[disabled] {
+  opacity: 0.9 !important;
+  color: #ffffff !important;
+}
+
+/* Assicura che le icone FontAwesome ereditino il colore corretto */
+:root[data-theme="dark"] .btn .fa,
+:root[data-theme="dark"] .btn .fas,
+:root[data-theme="dark"] .btn .far,
+:root[data-theme="dark"] .btn .fab {
+  color: inherit !important;
+}
+
+/* Evita doppio spinner: alcune pagine usano `.btn-loading::after` (CSS)
+   mentre lo script inserisce un'icona spinner inline. In dark-mode
+   disattiviamo lo pseudo-spinner per evitare sovrapposizioni. */
+:root[data-theme="dark"] .btn-loading::after {
+  display: none !important;
+}
+
+/* Forza testo e icone bianche per bottoni outline e link-button in dark mode
+   Questo risolve i casi in cui il testo risulta invisibile su sfondi scuri/gradienti */
+:root[data-theme="dark"] a.btn,
+:root[data-theme="dark"] .btn,
+:root[data-theme="dark"] .btn-outline-primary,
+:root[data-theme="dark"] a.btn-outline-primary,
+:root[data-theme="dark"] .btn-outline-light,
+:root[data-theme="dark"] a.btn-outline-light,
+:root[data-theme="dark"] .btn-lg,
+:root[data-theme="dark"] a.btn-lg {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .btn-outline-primary:hover,
+:root[data-theme="dark"] a.btn-outline-primary:hover,
+:root[data-theme="dark"] .btn-outline-light:hover,
+:root[data-theme="dark"] a.btn-outline-light:hover {
+  color: #ffffff !important;
+}
+
+/* Ensure SVG/icon fills are white inside these buttons */
+:root[data-theme="dark"] a.btn svg,
+:root[data-theme="dark"] .btn svg,
+:root[data-theme="dark"] a.btn .bi,
+:root[data-theme="dark"] .btn .bi {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Footer Links Bottom */
+:root[data-theme="dark"] footer hr,
+:root[data-theme="dark"] .footer hr {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  opacity: 1 !important;
+}
+
+:root[data-theme="dark"] footer .text-white,
+:root[data-theme="dark"] .footer .text-white {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer .text-white-50,
+:root[data-theme="dark"] .footer .text-white-50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Social Icons */
+:root[data-theme="dark"] footer .social-icons a,
+:root[data-theme="dark"] .footer .social-icons a {
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] footer .social-icons a:hover,
+:root[data-theme="dark"] .footer .social-icons a:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transform: scale(1.15);
+}
+
+:root[data-theme="dark"] footer .social-icons i,
+:root[data-theme="dark"] .footer .social-icons i {
+  color: #ffffff !important;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(
+    135deg,
+    var(--hero-gradient-start),
+    var(--hero-gradient-end)
+  ) !important;
+  color: var(--hero-text) !important;
+}
+
+.hero-overlay {
+  background: var(--hero-overlay);
+}
+
+/* Sidebar (Admin) */
+.sidebar,
+.admin-sidebar {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar .nav-link,
+.admin-sidebar .nav-link {
+  color: var(--text-primary) !important;
+}
+
+.sidebar .nav-link:hover,
+.admin-sidebar .nav-link:hover {
+  background-color: var(--bg-hover) !important;
+  color: #ffffff !important;
+}
+
+.sidebar .nav-link.active,
+.admin-sidebar .nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: var(--text-on-primary) !important;
+}
+
+.admin-sidebar .sidebar-header h5 {
+  color: var(--text-primary) !important;
+}
+
+.admin-sidebar .section-header {
+  color: var(--text-primary) !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.breadcrumb-item a {
+  color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+  color: var(--text-secondary);
+}
+
+/* Pagination */
+.pagination .page-link {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.pagination .page-link:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-on-primary);
+}
+
+/* Lists */
+.list-group-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.list-group-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.list-group-item.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-on-primary);
+}
+
+/* Progress Bars */
+.progress {
+  background-color: var(--bg-tertiary);
+}
+
+.progress-bar {
+  background-color: var(--primary-color);
+}
+
+/* Borders */
+hr {
+  border-color: var(--border-color);
+  opacity: 1;
+}
+
+/* Tooltips & Popovers */
+.tooltip-inner {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.popover {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.popover-header {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.popover-body {
+  color: var(--text-primary);
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Image filters for dark mode */
+:root[data-theme="dark"]
+  img:not(.no-filter):not(.hero-img):not(.homepage-hero-img) {
+  opacity: 0.92;
+  filter: brightness(0.98) contrast(1.02);
+}
+
+/* Mantieni foto header homepage visibile in dark mode */
+:root[data-theme="dark"] .hero-img,
+:root[data-theme="dark"] .homepage-hero-img,
+:root[data-theme="dark"] .hero-section img,
+:root[data-theme="dark"] header img {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+:root[data-theme="dark"] .card-img-container img,
+:root[data-theme="dark"] #notizie-section img,
+:root[data-theme="dark"] #eventi-section img,
+:root[data-theme="dark"] .news-card img,
+:root[data-theme="dark"] .notizia-image,
+:root[data-theme="dark"] .homepage-gallery img,
+:root[data-theme="dark"] .gallery-card img,
+:root[data-theme="dark"] .carousel-item img {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+:root[data-theme="dark"] .logo,
+:root[data-theme="dark"] .navbar-logo {
+  filter: brightness(0.9);
+}
+
+/* Code blocks */
+pre,
+code {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Scrollbar styling */
+:root[data-theme="dark"] ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+/* ============================================
+   REGOLE AGGIUNTIVE PER COMPONENTI
+   ============================================ */
+
+/* Links generali - devono essere visibili in dark mode */
+:root[data-theme="dark"]
+  a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand) {
+  color: var(--primary-color) !important;
+  transition: color 0.2s ease;
+}
+
+:root[data-theme="dark"]
+  a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand):hover {
+  color: var(--primary-variant) !important;
+}
+
+/* Badge e tag */
+:root[data-theme="dark"] .badge {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .badge-primary {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .badge-success {
+  background: var(--success-color) !important;
+  color: #ffffff !important;
+}
+
+/* Tooltip e popover */
+:root[data-theme="dark"] .tooltip-inner {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .popover {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .popover-header {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .popover-body {
+  color: var(--text-primary) !important;
+}
+
+/* Progress bars */
+:root[data-theme="dark"] .progress {
+  background: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .progress-bar {
+  background: var(--primary-color) !important;
+}
+
+/* Spinner e loader */
+:root[data-theme="dark"] .spinner-border,
+:root[data-theme="dark"] .spinner-grow {
+  border-color: var(--primary-color);
+  border-right-color: transparent;
+}
+
+/* Footer - Stesso colore navbar #2D40A0 */
+:root[data-theme="dark"] footer,
+:root[data-theme="dark"] .footer {
+  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
+  color: #ffffff !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] footer a,
+:root[data-theme="dark"] .footer a {
+  color: #fbbf24 !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+:root[data-theme="dark"] footer a:hover,
+:root[data-theme="dark"] .footer a:hover {
+  color: #fcd34d !important;
+  text-decoration: underline;
+}
+
+:root[data-theme="dark"] footer h1,
+:root[data-theme="dark"] footer h2,
+:root[data-theme="dark"] footer h3,
+:root[data-theme="dark"] footer h4,
+:root[data-theme="dark"] footer h5,
+:root[data-theme="dark"] footer h6,
+:root[data-theme="dark"] .footer h1,
+:root[data-theme="dark"] .footer h2,
+:root[data-theme="dark"] .footer h3,
+:root[data-theme="dark"] .footer h4,
+:root[data-theme="dark"] .footer h5,
+:root[data-theme="dark"] .footer h6 {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] footer p,
+:root[data-theme="dark"] footer span,
+:root[data-theme="dark"] .footer p,
+:root[data-theme="dark"] .footer span {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Jumbotron / Hero sections */
+:root[data-theme="dark"] .jumbotron,
+:root[data-theme="dark"] .hero {
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary),
+    var(--bg-tertiary)
+  ) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+}
+
+/* Accordion */
+:root[data-theme="dark"] .accordion-item {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .accordion-button {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .accordion-button:not(.collapsed) {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .accordion-body {
+  color: var(--text-primary) !important;
+}
+
+/* Carousel */
+:root[data-theme="dark"] .carousel-caption {
+  background: rgba(26, 31, 53, 0.8) !important;
+}
+
+:root[data-theme="dark"] .carousel-indicators button {
+  background: var(--primary-color) !important;
+}
+
+/* Offcanvas */
+:root[data-theme="dark"] .offcanvas {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .offcanvas-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Close buttons */
+:root[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Input groups */
+:root[data-theme="dark"] .input-group-text {
+  background: var(--bg-secondary) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Custom checkbox e radio */
+:root[data-theme="dark"] .form-check-input {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+}
+
+:root[data-theme="dark"] .form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Select dropdown */
+:root[data-theme="dark"] select option {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   ⚡ NUCLEAR DARK MODE TEXT FIX ⚡
+   ABSOLUTE MAXIMUM PRIORITY - CANNOT BE OVERRIDDEN
+   This uses the highest possible CSS specificity
+   ============================================ */
+
+/* Force EVERY SINGLE text element to be white in dark mode - NUCLEAR OPTION */
+:root[data-theme="dark"]
+  html
+  body
+  *:not(input):not(textarea):not(select):not(.btn):not(button):not(
+    [type="button"]
+  ):not([type="submit"]) {
+  color: #f8fafc !important;
+}
+
+/* Specific overrides for common elements with extra specificity */
+:root[data-theme="dark"] html body h1,
+:root[data-theme="dark"] html body h2,
+:root[data-theme="dark"] html body h3,
+:root[data-theme="dark"] html body h4,
+:root[data-theme="dark"] html body h5,
+:root[data-theme="dark"] html body h6,
+:root[data-theme="dark"] html body p,
+:root[data-theme="dark"] html body span:not(.badge),
+:root[data-theme="dark"] html body div,
+:root[data-theme="dark"] html body li,
+:root[data-theme="dark"] html body td,
+:root[data-theme="dark"] html body th,
+:root[data-theme="dark"] html body label,
+:root[data-theme="dark"] html body a:not(.btn),
+:root[data-theme="dark"] html body .card-title,
+:root[data-theme="dark"] html body .card-text,
+:root[data-theme="dark"] html body .result-card .card-title,
+:root[data-theme="dark"] html body .result-card .card-text,
+:root[data-theme="dark"] html body .stat-number,
+:root[data-theme="dark"] html body .stat-label,
+:root[data-theme="dark"] html body .review-text,
+:root[data-theme="dark"] html body .news-card p,
+:root[data-theme="dark"] html body .description,
+:root[data-theme="dark"] html body .lead,
+:root[data-theme="dark"] html body strong,
+:root[data-theme="dark"] html body em,
+:root[data-theme="dark"] html body i:not([class*="bi-"]):not([class*="fa-"]),
+:root[data-theme="dark"] html body article,
+:root[data-theme="dark"] html body section {
+  color: #f8fafc !important;
+}
+
+/* Secondary text elements */
+:root[data-theme="dark"] html body .text-muted,
+:root[data-theme="dark"] html body .card-subtitle,
+:root[data-theme="dark"] html body small,
+:root[data-theme="dark"] html body .result-meta {
+  color: #cbd5e1 !important;
+}
+
+/* ⚡ NUCLEAR BUTTON TEXT OVERRIDE - WHITE ALWAYS ⚡ */
+:root[data-theme="dark"] html body .btn,
+:root[data-theme="dark"] html body button,
+:root[data-theme="dark"] html body input[type="button"],
+:root[data-theme="dark"] html body input[type="submit"],
+:root[data-theme="dark"] html body .btn *,
+:root[data-theme="dark"] html body button *,
+:root[data-theme="dark"] html body .btn span,
+:root[data-theme="dark"] html body .btn i,
+:root[data-theme="dark"] html body button span,
+:root[data-theme="dark"] html body button i {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+:root[data-theme="dark"] html body .btn svg,
+:root[data-theme="dark"] html body .btn svg *,
+:root[data-theme="dark"] html body button svg,
+:root[data-theme="dark"] html body button svg *,
+:root[data-theme="dark"] html body .btn line,
+:root[data-theme="dark"] html body .btn path,
+:root[data-theme="dark"] html body .btn circle,
+:root[data-theme="dark"] html body .btn polygon,
+:root[data-theme="dark"] html body .btn rect {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Also ensure outline / link buttons and btn-light in footer are white */
+:root[data-theme="dark"] html body a.btn,
+:root[data-theme="dark"] html body .btn-outline-primary,
+:root[data-theme="dark"] html body .btn-outline-light,
+:root[data-theme="dark"] html body .btn-light,
+:root[data-theme="dark"] html body .card .btn,
+:root[data-theme="dark"] html body .card button {
+  color: #ffffff !important;
+}
+
+/* ============================================
+   REGOLE GLOBALI PER VISIBILITÀ TESTI
+   ============================================ */
+
+/* Tutti i titoli devono essere visibili */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Paragrafi e testi generici */
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] span,
+:root[data-theme="dark"] div {
+  color: var(--text-primary);
+}
+
+/* Label e small text */
+:root[data-theme="dark"] label,
+:root[data-theme="dark"] small {
+  color: var(--text-secondary) !important;
+}
+
+/* Strong e bold */
+:root[data-theme="dark"] strong,
+:root[data-theme="dark"] b {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+/* Lists */
+:root[data-theme="dark"] ul,
+:root[data-theme="dark"] ol,
+:root[data-theme="dark"] li {
+  color: var(--text-primary);
+}
+
+/* Blockquote */
+:root[data-theme="dark"] blockquote {
+  color: var(--text-secondary) !important;
+  border-left: 4px solid var(--primary-color);
+  background: var(--bg-secondary);
+}
+
+/* ============================================
+   FIX SPECIFICI PER ADMIN E PROFILO
+   ============================================ */
+
+/* Admin panel specifics */
+:root[data-theme="dark"] .admin-header,
+:root[data-theme="dark"] .admin-title {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-sidebar {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .admin-sidebar .nav-link {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-sidebar .nav-link:hover {
+  background: var(--bg-hover) !important;
+}
+
+:root[data-theme="dark"] .admin-content {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Profile page */
+:root[data-theme="dark"] .profile-header {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .profile-info {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .profile-label {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .profile-value {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+}
+
+/* ============================================
+   FIX PER LANDING PAGES
+   ============================================ */
+
+/* Hero sections */
+:root[data-theme="dark"] .hero-section,
+:root[data-theme="dark"] .hero {
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary),
+    var(--bg-tertiary)
+  ) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .hero-title {
+  color: var(--text-primary) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .hero-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Feature sections */
+:root[data-theme="dark"] .feature-card {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .feature-title {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .feature-description {
+  color: var(--text-secondary) !important;
+}
+
+/* Section titles */
+:root[data-theme="dark"] .section-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .section-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Container backgrounds */
+:root[data-theme="dark"] .container,
+:root[data-theme="dark"] .container-fluid {
+  color: var(--text-primary);
+}
+
+/* Row backgrounds */
+:root[data-theme="dark"] .row {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   FIX PER COMPONENTI BOOTSTRAP
+   ============================================ */
+
+/* Breadcrumb text */
+:root[data-theme="dark"] .breadcrumb-item {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .breadcrumb-item.active {
+  color: var(--text-primary) !important;
+}
+
+/* Nav pills e tabs */
+:root[data-theme="dark"] .nav-pills .nav-link,
+:root[data-theme="dark"] .nav-tabs .nav-link {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .nav-pills .nav-link.active,
+:root[data-theme="dark"] .nav-tabs .nav-link.active {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* Pagination text */
+:root[data-theme="dark"] .pagination .page-link {
+  color: var(--text-primary) !important;
+}
+
+/* List group text */
+:root[data-theme="dark"] .list-group-item {
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   MIGLIORAMENTI CONTRASTO
+   ============================================ */
+
+/* Testi su sfondi colorati */
+:root[data-theme="dark"] .bg-primary {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .bg-secondary {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .bg-success {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .bg-danger {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .bg-warning {
+  color: #1e293b !important;
+}
+
+:root[data-theme="dark"] .bg-info {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .bg-light {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .bg-dark {
+  color: #ffffff !important;
+}
+
+/* ============================================
+   REGOLE AGGIUNTIVE PER VISIBILITÀ GLOBALE
+   ============================================ */
+
+/* Tutti i contenuti devono essere visibili */
+:root[data-theme="dark"] .content,
+:root[data-theme="dark"] .main-content,
+:root[data-theme="dark"] article,
+:root[data-theme="dark"] section {
+  color: var(--text-primary);
+}
+
+/* Card body e header sempre visibili */
+:root[data-theme="dark"] .card-body h1,
+:root[data-theme="dark"] .card-body h2,
+:root[data-theme="dark"] .card-body h3,
+:root[data-theme="dark"] .card-body h4,
+:root[data-theme="dark"] .card-body h5,
+:root[data-theme="dark"] .card-body h6 {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .card-body p,
+:root[data-theme="dark"] .card-body span,
+:root[data-theme="dark"] .card-body div {
+  color: var(--text-primary) !important;
+}
+
+/* Headers di pagina */
+:root[data-theme="dark"] .page-header h1,
+:root[data-theme="dark"] .page-header h2,
+:root[data-theme="dark"] .page-title {
+  color: var(--text-primary) !important;
+}
+
+/* Descriptions e subtitles */
+:root[data-theme="dark"] .description,
+:root[data-theme="dark"] .subtitle,
+:root[data-theme="dark"] .lead {
+  color: var(--text-secondary) !important;
+}
+
+/* Form elements text */
+:root[data-theme="dark"] .form-text,
+:root[data-theme="dark"] .form-hint,
+:root[data-theme="dark"] .help-text {
+  color: var(--text-secondary) !important;
+}
+
+/* Tutti gli elementi con class contenente 'text' */
+:root[data-theme="dark"] [class*="text-"] {
+  color: var(--text-primary);
+}
+
+/* Small text e caption */
+:root[data-theme="dark"] small,
+:root[data-theme="dark"] .small,
+:root[data-theme="dark"] caption {
+  color: var(--text-secondary) !important;
+}
+
+/* Time e date elements */
+:root[data-theme="dark"] time,
+:root[data-theme="dark"] .date,
+:root[data-theme="dark"] .timestamp {
+  color: var(--text-secondary) !important;
+}
+
+/* Meta information */
+:root[data-theme="dark"] .meta,
+:root[data-theme="dark"] .meta-info {
+  color: var(--text-secondary) !important;
+}
+
+/* Figcaption */
+:root[data-theme="dark"] figcaption {
+  color: var(--text-secondary) !important;
+}
+
+/* Address */
+:root[data-theme="dark"] address {
+  color: var(--text-primary) !important;
+}
+
+/* Quill editor - dark mode adjustments */
+:root[data-theme="dark"] .ql-snow .ql-editor,
+:root[data-theme="dark"] .ql-dark .ql-editor {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  caret-color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-toolbar,
+:root[data-theme="dark"] .ql-dark .ql-toolbar {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-editor a,
+:root[data-theme="dark"] .ql-dark .ql-editor a {
+  color: var(--primary-color) !important;
+}
+
+:root[data-theme="dark"] .ql-snow .ql-stroke,
+:root[data-theme="dark"] .ql-dark .ql-stroke,
+:root[data-theme="dark"] .ql-snow .ql-fill,
+:root[data-theme="dark"] .ql-dark .ql-fill {
+  stroke: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+/* Ensure toolbar buttons remain visible */
+:root[data-theme="dark"] .ql-snow .ql-picker-label,
+:root[data-theme="dark"] .ql-dark .ql-picker-label,
+:root[data-theme="dark"] .ql-snow .ql-toolbar button,
+:root[data-theme="dark"] .ql-dark .ql-toolbar button {
+  color: var(--text-primary) !important;
+}
+
+/* Slightly darker border for editor in dark mode */
+:root[data-theme="dark"] .ql-snow .ql-container,
+:root[data-theme="dark"] .ql-dark .ql-container {
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Helper class to force dark styling even if theme manager isn't available */
+.ql-dark .ql-editor {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+/* Navbar toggler/icon adjustments for dark mode
+   - Button gets a solid navbar-like background
+   - The three hamburger lines use a lighter azure (primary-color)
+   This makes the toggler visible and coherent with the navbar while
+   leaving the collapse area transparent to avoid double backgrounds. */
+:root[data-theme="dark"] .navbar-toggler {
+  background: var(--navbar-solid) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .navbar-toggler-icon::before,
+:root[data-theme="dark"] .navbar-toggler-icon::after,
+:root[data-theme="dark"] .navbar-toggler-icon span {
+  background: var(--primary-color) !important;
+}
+
+/* Ensure homepage "Eventi" section is dark in dark theme even when markup uses `bg-white` */
+:root[data-theme="dark"] #eventi-section,
+:root[data-theme="dark"] #eventi-section.bg-white {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   🚀 FINAL NUCLEAR OVERRIDE - MAXIMUM PRIORITY
+   This rule overrides EVERYTHING - cannot be beaten
+   ============================================ */
+
+/* Force ALL text to be white in dark mode - ABSOLUTE FINAL OVERRIDE */
+:root[data-theme="dark"] html body *,
+:root[data-theme="dark"] html body *::before,
+:root[data-theme="dark"] html body *::after {
+  color: #f8fafc !important;
+}
+
+/* But keep inputs, textareas, selects, and buttons readable */
+:root[data-theme="dark"] html body input,
+:root[data-theme="dark"] html body textarea,
+:root[data-theme="dark"] html body select,
+:root[data-theme="dark"] html body input::placeholder,
+:root[data-theme="dark"] html body textarea::placeholder {
+  color: #1e293b !important;
+}
+
+/* Force buttons to be white */
+:root[data-theme="dark"] html body .btn,
+:root[data-theme="dark"] html body button,
+:root[data-theme="dark"] html body input[type="button"],
+:root[data-theme="dark"] html body input[type="submit"],
+:root[data-theme="dark"] html body a.btn,
+:root[data-theme="dark"] html body .btn-outline-primary,
+:root[data-theme="dark"] html body .btn-outline-light,
+:root[data-theme="dark"] html body .btn-light {
+  color: #ffffff !important;
+}
+
+/* Force SVG and icons to be white */
+:root[data-theme="dark"] html body svg,
+:root[data-theme="dark"] html body svg *,
+:root[data-theme="dark"] html body .bi,
+:root[data-theme="dark"] html body .fa,
+:root[data-theme="dark"] html body i[class*="bi-"],
+:root[data-theme="dark"] html body i[class*="fa-"] {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}

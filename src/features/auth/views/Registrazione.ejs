@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione - A.S.D. Borgo Vercelli 2022</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
+    <link rel="stylesheet" href="/assets/styles/Login.css">
+</head>
+<body class="login-page">
+    <!-- Privacy Policy Overlay -->
+    <div id="privacyOverlay" class="privacy-overlay">
+        <div class="privacy-modal">
+            <div class="privacy-modal-icon mb-3">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h2>Privacy Policy</h2>
+            <p>Prima di registrarti, devi accettare la nostra Privacy Policy per continuare.</p>
+            <p class="mb-4">La tua privacy è importante per noi. Leggi i nostri termini e condizioni.</p>
+            <button id="acceptPrivacyBtn" class="btn btn-accept">
+                <i class="bi bi-check-lg me-2"></i>Accetto la Privacy Policy
+            </button>
+        </div>
+    </div>
+
+    <main class="container d-flex justify-content-center align-items-start py-4">
+        <div class="card p-4 shadow-lg login-card position-relative reveal reveal--fade-up">
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="closeRegister" aria-label="Chiudi"></button>
+            
+            <!-- Logo / Brand -->
+            <div class="text-center mb-3">
+                <div class="brand-icon mx-auto">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+            </div>
+            <h1 class="text-center title">Crea il tuo account</h1>
+            <p class="text-center text-muted mb-4 subtitle">Unisciti alla community in pochi secondi</p>
+
+            <!-- Social Registration Buttons -->
+            <div class="social-login-section mb-3">
+                <button type="button" class="btn btn-social btn-google w-100 mb-2" id="googleRegisterBtn">
+                    <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>Registrati con Google</span>
+                </button>
+                <button type="button" class="btn btn-social btn-facebook w-100 mb-2" style="display:none" id="facebookRegisterBtn">
+                    <i class="bi bi-facebook social-icon-fa"></i>
+                    <span>Registrati con Facebook</span>
+                </button>
+                <!-- Apple login: nascosto fino a configurazione completata -->
+                <button type="button" class="btn btn-social btn-apple w-100" id="appleRegisterBtn" style="display:none" hidden>
+                    <i class="bi bi-apple social-icon-fa"></i>
+                    <span>Registrati con Apple</span>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider-wrapper my-3">
+                <div class="divider-line"></div>
+                <span class="divider-text">oppure registrati con email</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="authForm">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="registerName" class="form-label">Nome</label>
+                        <div class="input-group input-group-icon">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="registerName" name="nome" placeholder="Mario" required autocomplete="given-name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="registerSurname" class="form-label">Cognome</label>
+                        <div class="input-group input-group-icon">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="registerSurname" name="cognome" placeholder="Rossi" required autocomplete="family-name">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="registerEmail" class="form-label">Indirizzo Email</label>
+                    <div class="input-group input-group-icon">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="registerEmail" name="email" placeholder="nome@esempio.com" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="registerPassword" class="form-label">Password</label>
+                    <div class="input-group input-group-icon">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="registerPassword" name="password" placeholder="Crea una password sicura" required autocomplete="new-password">
+                        <button class="btn btn-outline-secondary btn-toggle-pw" type="button" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordStrength" class="mt-2">
+                        <div class="progress" style="height: 4px; border-radius: 2px;">
+                            <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%; transition: width 0.3s ease, background-color 0.3s ease;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <small id="strengthText" class="text-muted fw-medium"></small>
+                        </div>
+                        <div class="password-requirements mt-2" id="passwordRequirements">
+                            <div class="req-item" id="reqLength"><i class="bi bi-circle"></i> <span>Almeno 8 caratteri</span></div>
+                            <div class="req-item" id="reqUpper"><i class="bi bi-circle"></i> <span>Una lettera maiuscola</span></div>
+                            <div class="req-item" id="reqNumber"><i class="bi bi-circle"></i> <span>Un numero</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Conferma Password</label>
+                    <div class="input-group input-group-icon">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Ripeti la password" required autocomplete="new-password">
+                        <button class="btn btn-outline-secondary btn-toggle-pw" type="button" id="toggleConfirmPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordMatchIndicator" class="mt-1 d-none">
+                        <small id="passwordMatchText"></small>
+                    </div>
+                </div>
+                <div id="passwordError" class="alert alert-danger" style="display: none;" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Le password non corrispondono. Riprova.
+                </div>
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" id="privacy_accept" name="privacy_accept" required>
+                    <label class="form-check-label small" for="privacy_accept">
+                        <span class="text-danger">*</span> Accetto la <a href="/privacy" target="_blank" class="text-decoration-underline">Privacy Policy</a> e il <a href="/regolamento" target="_blank" class="text-decoration-underline">Regolamento</a>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login w-100" id="registerSubmitBtn">
+                    <span class="btn-text">Crea Account</span>
+                    <span class="btn-loader d-none"><span class="spinner-border spinner-border-sm me-2" role="status"></span>Registrazione in corso...</span>
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="text-center mt-4 auth-footer">
+                <span class="text-muted">Hai già un account?</span>
+                <a href="/login" class="fw-semibold ms-1">Accedi</a>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
+    <script type="module" src="/assets/scripts/registrazione.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require("../app");
+const debug = require("debug")("sito-borgovercelli:server");
+const http = require("http");
+const db = require("../core/config/database");
+const { initRedis, closeRedis } = require("../core/config/redis");
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+const port = normalizePort(process.env.PORT || "3000");
+app.set("port", port);
+
+/**
+ * Create HTTP server.
+ */
+
+const server = http.createServer(app);
+
+// Log dettagliati su eventuali crash o exit del processo
+process.on("uncaughtException", (err) => {
+  console.error(
+    "[process] uncaughtException:",
+    err && err.stack ? err.stack : err
+  );
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[process] unhandledRejection at:", promise, "reason:", reason);
+});
+
+process.on("exit", (code) => {
+  console.log("[process] exit event with code:", code);
+});
+
+process.on("SIGINT", async () => {
+  console.log("[process] SIGINT received, shutting down");
+  await closeRedis();
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  console.log("[process] SIGTERM received, shutting down");
+  await closeRedis();
+  process.exit(0);
+});
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+// Create HTTP server but delay listening until DB and Redis are ready
+// Avvia il server solo quando la verifica del DB e Redis è andata a buon fine
+db.ready
+  .then(async () => {
+    // Inizializza Redis per sessioni e notifiche
+    const redisReady = await initRedis();
+
+    if (!redisReady) {
+      console.warn("⚠️  Redis non disponibile - funzionamento degradato");
+    }
+
+    server.listen(port);
+    server.on("error", onError);
+    server.on("listening", onListening);
+  })
+  .catch((err) => {
+    console.error(
+      "[server] Impossibile avviare il server: connessione al database fallita."
+    );
+    console.error("[server] Motivo:", err && err.message ? err.message : err);
+    // Esci con codice 1 in modo chiaro; la piattaforma vedrà l'exit code e i log
+    process.exit(1);
+  });
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
+  console.log("Server is running on http://localhost:" + port);
+
+  // Log stato sistema notifiche push
+  console.log("\n========================================");
+  console.log("🔔 SISTEMA NOTIFICHE PUSH");
+  console.log("========================================");
+  const hasVapid = !!(
+    process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
+  );
+  if (hasVapid) {
+    console.log("✅ Chiavi VAPID configurate");
+    console.log(`📧 Email: ${process.env.VAPID_EMAIL || "non configurata"}`);
+    console.log("🔗 Test page: http://localhost:" + port + "/push/test");
+  } else {
+    console.log("❌ Chiavi VAPID NON configurate!");
+    console.log("⚠️  Le notifiche push non funzioneranno.");
+    console.log(
+      "💡 Configura VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY nel file .env"
+    );
+  }
+  console.log("========================================\n");
+
+  // Avvia worker booking reminder (notifications worker già avviato in app.js)
+  console.log("========================================");
+  console.log("🚀 AVVIO BOOKING REMINDER WORKER");
+  console.log("========================================");
+
+  try {
+    const bookingReminderWorker = require("./workers/booking-reminder-worker");
+    bookingReminderWorker.start();
+    console.log("✅ Booking Reminder Worker avviato");
+  } catch (error) {
+    console.error("❌ Errore avvio Booking Reminder Worker:", error.message);
+  }
+
+  console.log("========================================\n");
+}

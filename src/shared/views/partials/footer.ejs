@@ -1,0 +1,304 @@
+<footer class="bg-primary text-white py-5" id="footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h5 class="mb-4 text-center overflow-hidden">Contattaci</h5>
+        <form id="emailForm" action="/send-email" method="POST" novalidate>
+          <div class="mb-3">
+            <label for="contact_name" class="form-label text-white">Nome e cognome</label>
+            <input aria-label="Nome e cognome" type="text" class="form-control form-control-lg" id="contact_name" name="name" placeholder="Es. Mario Rossi" required autocomplete="name">
+          </div>
+          <div class="mb-3">
+            <label for="contact_email" class="form-label text-white">Indirizzo email</label>
+            <input aria-label="Email" type="email" class="form-control form-control-lg" id="contact_email" name="email" placeholder="tuo@esempio.it" required autocomplete="email">
+          </div>
+          <div class="mb-3">
+            <label for="contact_phone" class="form-label text-white">Telefono</label>
+            <input aria-label="Telefono" type="tel" class="form-control form-control-lg" id="contact_phone" name="phone" placeholder="+39 123 456 7890" autocomplete="tel">
+          </div>
+          <div class="mb-3">
+            <label for="contact_subject" class="form-label text-white">Oggetto</label>
+            <input aria-label="Oggetto" type="text" class="form-control form-control-lg" id="contact_subject" name="subject" placeholder="Motivo del messaggio" required>
+          </div>
+          <div class="mb-3">
+            <label for="contact_message" class="form-label text-white">Messaggio</label>
+            <textarea aria-label="Messaggio" class="form-control" id="contact_message" name="message" placeholder="Scrivi qui il tuo messaggio" rows="4" required></textarea>
+          </div>
+          <div class="mb-4">
+            <div class="d-flex align-items-start">
+              <input class="form-check-input me-2 mt-1" type="checkbox" id="footer_privacy_accept" name="privacy_accept" required>
+              <label class="form-check-label text-white" for="footer_privacy_accept" style="cursor: pointer; line-height: 1.4;">
+                Dichiaro di aver letto e accetto la <a href="/privacy" target="_blank" rel="noopener" class="text-white fw-bold text-decoration-underline">Informativa sulla privacy</a> <span class="text-warning">*</span>
+              </label>
+            </div>
+            <div class="invalid-feedback text-white" id="privacy_error" style="display: none;">
+              Devi accettare l'informativa sulla privacy per inviare il messaggio.
+            </div>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-light px-4 py-2" aria-label="Invia messaggio">Invia messaggio</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-6 text-center m-auto">
+        <h5 class="mb-4 text-center overflow-hidden">A.S.D. Borgo Vercelli 2022</h5>
+        <div class="d-flex flex-column align-items-center mb-4">
+          <p class="mb-3"><i class="bi bi-geo-alt-fill me-2"></i> Via Repubblica, 13012 Borgo Vercelli VC</p>
+          <p class="mb-3"><i class="bi bi-telephone-fill me-2"></i> +39 352 0380073</p>
+          <p class="mb-3"><i class="bi bi-envelope-fill me-2"></i> info.asdborgovercelli2022@gmail.com</p>
+        </div>
+        <div class="text-center mb-4 social-icons">
+          <a href="https://www.facebook.com/ASDBORGOVERCELLI2022/" class="text-white mx-2" aria-label="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+          <!--<a href="#" class="text-white mx-2" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>-->
+          <!--<a href="#" class="text-white mx-2" aria-label="Twitter"><i class="bi bi-twitter-x fs-4"></i></a>-->
+          
+          <!-- GitHub profile link for Ilpupi00 -->
+          <a href="https://github.com/Ilpupi00" class="text-white mx-2" target="_blank" rel="noopener noreferrer" aria-label="GitHub - Ilpupi00">
+            <i class="bi bi-github fs-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col-12 text-center">
+        <hr class="my-4 bg-light opacity-25">
+        <div class="mb-3">
+          <a href="/privacy" class="text-white text-decoration-none me-3">Privacy Policy</a>
+          <span class="text-white-50">|</span>
+          <a href="/regolamento" class="text-white text-decoration-none ms-3">Regolamento</a>
+        </div>
+        <p class="mb-0">&copy; <%= new Date().getFullYear() %> A.S.D. Borgo Vercelli. Tutti i diritti riservati.</p>
+      </div>
+    </div>
+  </div>
+  </footer>
+  <script type="module" src="/assets/scripts/components/footerButtons.js" defer></script>
+  <!-- Web Push Notifications -->
+  <script src="/assets/scripts/push-notifications.js"></script>
+  <!-- Scroll reveal animations (vanilla) -->
+  <script src="/assets/scripts/scroll-reveal.js" defer></script>
+  <% if (isLogged && user) { %>
+  <script>
+    // Se è stata impostata la flag dopo il login, mostra un modal che chiede
+    // all'utente di abilitare le notifiche. La richiesta di permesso deve
+    // avvenire in risposta a un gesto utente per funzionare correttamente.
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        if (sessionStorage && sessionStorage.getItem('showPushPrompt') === '1') {
+          // Se il permesso è già concesso, verifica se esiste già una subscription attiva
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              const reg = await navigator.serviceWorker.ready;
+              const existingSub = await reg.pushManager.getSubscription();
+              if (existingSub) {
+                // Già abilitato e sottoscritto: non mostrare il modal
+                console.log('[Push] Notifiche già abilitate, skip prompt');
+                try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+                return;
+              }
+            } catch (swErr) {
+              console.warn('[Push] Errore verifica subscription:', swErr);
+            }
+          }
+          // Se il permesso è stato negato, non mostrare il modal
+          if ('Notification' in window && Notification.permission === 'denied') {
+            console.log('[Push] Permesso negato, skip prompt');
+            try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+            return;
+          }
+          // Costruisci il modal (ricalca il markup usato altrove)
+          const modalHtml = `
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title fw-bold" id="notificationModalLabel">
+                                <i class="bi bi-bell-fill text-primary me-2"></i>Abilita le Notifiche
+                            </h5>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-calendar-check display-1 text-primary"></i>
+                            </div>
+                            <h6 class="mb-3">Resta aggiornato sulle tue prenotazioni!</h6>
+                            <p class="text-muted mb-0">Riceverai notifiche quando:</p>
+                            <ul class="list-unstyled mt-3">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Una prenotazione viene confermata</li>
+                                <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i>Una prenotazione viene annullata</li>
+                                <li class="mb-2"><i class="bi bi-bell-fill text-info me-2"></i>Nuove comunicazioni importanti</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer border-0 d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary flex-fill" id="skipNotifications">Più tardi</button>
+                            <button type="button" class="btn btn-primary flex-fill" id="enableNotifications">Abilita</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          `;
+
+          document.body.insertAdjacentHTML('beforeend', modalHtml);
+          const modalEl = document.getElementById('notificationModal');
+          const bsModal = new bootstrap.Modal(modalEl);
+
+          const enableBtn = document.getElementById('enableNotifications');
+          const skipBtn = document.getElementById('skipNotifications');
+
+          enableBtn.addEventListener('click', async () => {
+            bsModal.hide();
+            try {
+              if (window.initPushNotifications) {
+                // Questa chiamata è attivata da un gesto utente (click), quindi
+                // la richiesta di permesso funzionerà correttamente.
+                await window.initPushNotifications();
+              }
+            } catch (err) {
+              console.error('Errore inizializzazione push dopo login:', err);
+            } finally {
+              try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+            }
+          }, { once: true });
+
+          skipBtn.addEventListener('click', () => {
+            bsModal.hide();
+            try { sessionStorage.removeItem('showPushPrompt'); } catch(e){}
+          }, { once: true });
+
+          modalEl.addEventListener('hidden.bs.modal', function () { this.remove(); });
+          bsModal.show();
+        }
+      } catch (e) {
+        console.warn('Errore controllo flag push:', e);
+      }
+    });
+  </script>
+  <% } %>
+  <script>
+    // Controlled dark-mode fixer: marks modified elements and removes changes on light
+    (function controlledDarkModeFix(){
+      const DATA_ATTR = 'data-tm-dark';
+
+      function mark(el) {
+        try { el.setAttribute(DATA_ATTR, '1'); } catch (e) {}
+      }
+
+      function unmark(el) {
+        try { el.removeAttribute(DATA_ATTR); } catch (e) {}
+      }
+
+      function applyTo(el) {
+        if (!el || !el.style) return;
+        // skip form controls and buttons
+        if (el.closest && el.closest('input, textarea, select, .btn, button, [type="button"], [type="submit"]')) return;
+        el.style.setProperty('color', '#f8fafc', 'important');
+        mark(el);
+      }
+
+      function applyToDescendants(el) {
+        if (!el) return;
+        const children = el.querySelectorAll('*');
+        children.forEach(child => {
+          if (child && child.style && !child.closest('input, textarea, select, .btn, button, [type="button"], [type="submit"]')) {
+            child.style.setProperty('color', '#f8fafc', 'important');
+            mark(child);
+          }
+        });
+      }
+
+      function applyFix() {
+        try {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (!isDark) return;
+
+          // Mark and apply only when dark
+          const allElements = document.querySelectorAll('*:not(script):not(style):not(link):not(meta):not(title):not(head)');
+          allElements.forEach(el => {
+            if (el && el.style && el.tagName !== 'HTML' && el.tagName !== 'BODY') {
+              applyTo(el);
+            }
+          });
+
+          // Buttons and links
+          const allButtons = document.querySelectorAll('.btn, button, input[type="button"], input[type="submit"], a.btn, .btn-outline-primary, .btn-outline-light, .btn-light');
+          allButtons.forEach(btn => {
+            if (btn && btn.style) {
+              btn.style.setProperty('color', '#ffffff', 'important');
+              mark(btn);
+              const descendants = btn.querySelectorAll('*');
+              descendants.forEach(desc => {
+                if (desc && desc.style) {
+                  desc.style.setProperty('color', '#ffffff', 'important');
+                  desc.style.setProperty('fill', '#ffffff', 'important');
+                  desc.style.setProperty('stroke', '#ffffff', 'important');
+                  mark(desc);
+                }
+              });
+            }
+          });
+
+          // SVGs
+          const allSVGs = document.querySelectorAll('svg, svg *, .bi, .fa, i[class*="bi-"], i[class*="fa-"]');
+          allSVGs.forEach(svg => {
+            if (svg && svg.style) {
+              svg.style.setProperty('fill', '#ffffff', 'important');
+              svg.style.setProperty('stroke', '#ffffff', 'important');
+              svg.style.setProperty('color', '#ffffff', 'important');
+              mark(svg);
+            }
+          });
+
+        } catch (err) {
+          console.error('controlled dark mode fix error:', err);
+        }
+      }
+
+      function cleanupApplied() {
+        try {
+          const applied = document.querySelectorAll('[' + DATA_ATTR + '="1"]');
+          applied.forEach(el => {
+            try {
+              // Remove only the properties we touched
+              el.style.removeProperty('color');
+              el.style.removeProperty('fill');
+              el.style.removeProperty('stroke');
+            } catch (e) {}
+            unmark(el);
+          });
+        } catch (err) {
+          console.error('cleanupApplied error:', err);
+        }
+      }
+
+      // Initial application if dark
+      applyFix();
+
+      // React to theme changes: apply when entering dark, cleanup when leaving
+      const observer = new MutationObserver(() => {
+        setTimeout(() => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            applyFix();
+          } else {
+            cleanupApplied();
+          }
+        }, 50);
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+      // React to DOM changes: only apply fixes when dark
+      const domObserver = new MutationObserver(() => {
+        setTimeout(() => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) applyFix();
+        }, 100);
+      });
+      domObserver.observe(document.body, { childList: true, subtree: true });
+
+      // Backup interval: only runs applyFix when dark to avoid leaving inline styles on light
+      setInterval(() => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) applyFix();
+      }, 2000);
+
+    })();
+  </script>

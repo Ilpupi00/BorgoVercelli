@@ -1,0 +1,456 @@
+/**
+ * Gestore_Utenti.css
+ * Stili specifici per la gestione utenti - Design uniforme e moderno
+ */
+
+/* ==================== UTILITY CLASSES ==================== */
+
+.truncate-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maxw-140 {
+  max-width: 140px !important;
+}
+.maxw-120 {
+  max-width: 120px !important;
+}
+.maxw-220 {
+  max-width: 220px !important;
+}
+
+/* ==================== TABLE CUSTOMIZATION ==================== */
+
+#utentiTable thead th {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  padding: 1.25rem 1rem;
+  white-space: nowrap;
+}
+
+#utentiTable tbody td {
+  padding: 1.25rem 1rem;
+  vertical-align: middle;
+  font-size: 0.9375rem;
+}
+
+/* Bottoni azioni nella tabella - ben visibili */
+#utentiTable .btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+#utentiTable .btn-group .btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  min-width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#utentiTable .btn-group .btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* Colori distintivi per azioni */
+#utentiTable .btn-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  color: white;
+}
+
+#utentiTable .btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  border: none;
+  color: white;
+}
+
+#utentiTable .btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  color: white;
+}
+
+#utentiTable .btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: white;
+}
+
+#utentiTable .btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  color: white;
+}
+
+/* Badge ben visibili */
+.badge {
+  padding: 0.5rem 0.875rem;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== MODAL VISUALIZZA UTENTE ==================== */
+
+#visualizzaModal .modal-body {
+  padding: 1.5rem;
+}
+
+#visualizzaModal .alert {
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  margin-bottom: 1.5rem;
+}
+
+#visualizzaModal .alert-danger {
+  border-left-color: #dc2626;
+}
+
+#visualizzaModal .alert-warning {
+  border-left-color: #f59e0b;
+}
+
+#visualizzaModal .alert-success {
+  border-left-color: #10b981;
+}
+
+#visualizzaModal .alert-heading {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#visualizzaModal h4 {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1e293b;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+#visualizzaModal .row.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+#visualizzaModal p {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+#visualizzaModal p strong {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+#visualizzaModal .ms-4 {
+  margin-left: 1.5rem !important;
+  padding-left: 0.5rem;
+  border-left: 2px solid #e2e8f0;
+}
+
+#visualizzaModal .text-muted {
+  font-style: italic;
+}
+
+#visualizzaModal .img-fluid {
+  border: 3px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#visualizzaModal .table-responsive {
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+#visualizzaModal .table {
+  margin-bottom: 0;
+}
+
+#visualizzaModal .table thead {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#visualizzaModal .table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: #475569;
+  padding: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+#visualizzaModal .table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+#visualizzaModal .table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Dark theme per modal visualizza */
+:root[data-theme="dark"] #visualizzaModal h4 {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-danger {
+  background: rgba(220, 38, 38, 0.15);
+  color: #fca5a5;
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+:root[data-theme="dark"] #visualizzaModal .alert-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+:root[data-theme="dark"] #visualizzaModal p {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .ms-4 {
+  border-left-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .img-fluid {
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table-responsive {
+  border-color: var(--border-color);
+  background: var(--card-bg);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table thead {
+  background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table th {
+  color: var(--text-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table td {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #visualizzaModal .table-hover tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+:root[data-theme="dark"] #visualizzaModal .modal-content {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #visualizzaModal .modal-header {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+/* ==================== DARK THEME SUPPORT ==================== */
+
+/* Tabella in dark mode */
+:root[data-theme="dark"] #utentiTable {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #utentiTable thead {
+  background: linear-gradient(
+    135deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-secondary) 100%
+  );
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] #utentiTable thead th {
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #utentiTable tbody tr {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] #utentiTable tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+:root[data-theme="dark"] #utentiTable tbody td {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Container tabella in dark mode */
+:root[data-theme="dark"] .table-responsive {
+  background: var(--card-bg);
+  border-radius: 12px;
+}
+
+/* Badge in dark mode mantengono i loro colori */
+:root[data-theme="dark"] .badge {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table tbody tr {
+  animation: fadeInRow 0.4s ease-out;
+  animation-fill-mode: backwards;
+}
+
+.table tbody tr:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.table tbody tr:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.table tbody tr:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.table tbody tr:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.table tbody tr:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.table tbody tr:nth-child(n + 6) {
+  animation-delay: 0s;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Assicurati che le card mobili siano sempre nascoste */
+.admin-mobile-cards {
+  display: none !important;
+}
+
+/* Mostra sempre solo la tabella */
+.table-responsive {
+  display: block !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* Ottimizzazione tabella per mobile */
+@media (max-width: 991px) {
+  /* Assicura che l'article contenga la tabella */
+  .content-card {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .table-responsive {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #utentiTable {
+    width: 100%;
+    min-width: 800px; /* Permette scroll orizzontale */
+  }
+}
+
+@media (max-width: 767px) {
+  .content-card {
+    padding: 1rem 0.5rem;
+  }
+
+  .table-responsive {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .table td,
+  .table th {
+    font-size: 0.875rem;
+    padding: 1rem 0.75rem;
+  }
+
+  .btn-group .btn {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+    min-width: 34px;
+  }
+
+  .truncate-col {
+    max-width: 100px;
+  }
+
+  #utentiTable {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-card {
+    padding: 1rem 0.25rem;
+  }
+
+  .table-responsive {
+    margin: 0 -0.25rem;
+    padding: 0 0.25rem;
+  }
+
+  #utentiTable .btn-group {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  #utentiTable .btn-group .btn {
+    min-width: 32px;
+  }
+
+  #utentiTable {
+    min-width: 1000px;
+  }
+}
