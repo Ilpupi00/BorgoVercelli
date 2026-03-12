@@ -155,6 +155,24 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                                   <div class="mt-3 d-flex flex-column flex-sm-row justify-content-between align-items-center text-muted">
+                            <div>
+                            <strong>Totale Prenotazioni:</strong> <span id="totalCount"><%= prenotazioni ? prenotazioni.length : 0 %></span>
+                            <span id="filteredCount">(<%= prenotazioni ? prenotazioni.length : 0 %> filtrate)</span>
+                            </div>
+                            <div class="d-flex align-items-center mt-2 mt-sm-0">
+                                <label class="me-2 mb-0">Mostra</label>
+                                <select id="pageSizeSelect" class="form-select form-select-sm me-3" style="width:auto;">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <nav aria-label="Paginazione utenti">
+                                    <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                                </nav>
+                            </div>
+                        </div>
                                 </section>  
                                 <section class="calendario-section calendario-center mt-4 reveal reveal--scale-up reveal--delay-4 py-4 container-fluid">
                                     <div class="section-header mb-4 text-center">

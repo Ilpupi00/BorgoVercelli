@@ -4,17 +4,123 @@
  */
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Ricerca prenotazioni
+  // --- Pagination & filtering state ---
+  const allRows = Array.from(document.querySelectorAll(".admin-table tbody tr"));
+  let filteredRows = [...allRows];
+  let currentPage = 1;
+  let activeStatusFilter = null;
+
   const searchInput = document.getElementById("searchInput");
+  const pageSizeSelect = document.getElementById("pageSizeSelect");
+  const paginationEl = document.getElementById("pagination");
+  const totalCountEl = document.getElementById("totalCount");
+  const filteredCountEl = document.getElementById("filteredCount");
+
+  function getPageSize() {
+    return parseInt(pageSizeSelect?.value || "10", 10);
+  }
+
+  function applyFilters() {
+    const searchTerm = (searchInput?.value || "").toLowerCase();
+
+    filteredRows = allRows.filter((row) => {
+      // Search filter
+      const text = row.textContent.toLowerCase();
+      if (searchTerm && !text.includes(searchTerm)) return false;
+
+      // Status filter
+      if (activeStatusFilter) {
+        const badge = row.querySelector(".badge");
+        if (!badge) return false;
+        const badgeText = badge.textContent.trim().toLowerCase();
+        if (!badgeText.includes(activeStatusFilter)) return false;
+      }
+
+      return true;
+    });
+
+    currentPage = 1;
+    renderPage();
+  }
+
+  function renderPage() {
+    const pageSize = getPageSize();
+    const totalFiltered = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+
+    // Hide all rows, then show only current page rows
+    allRows.forEach((row) => (row.style.display = "none"));
+    filteredRows.slice(start, end).forEach((row) => (row.style.display = ""));
+
+    // Update counts
+    if (totalCountEl) totalCountEl.textContent = allRows.length;
+    if (filteredCountEl) filteredCountEl.textContent = `(${totalFiltered} filtrate)`;
+
+    // Render pagination
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    if (!paginationEl) return;
+    paginationEl.innerHTML = "";
+
+    // Prev button
+    const prevLi = document.createElement("li");
+    prevLi.className = "page-item" + (currentPage === 1 ? " disabled" : "");
+    prevLi.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
+    prevLi.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (currentPage > 1) { currentPage--; renderPage(); }
+    });
+    paginationEl.appendChild(prevLi);
+
+    // Page numbers (show max 5 around current)
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const li = document.createElement("li");
+      li.className = "page-item" + (i === currentPage ? " active" : "");
+      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      li.addEventListener("click", function (e) {
+        e.preventDefault();
+        currentPage = i;
+        renderPage();
+      });
+      paginationEl.appendChild(li);
+    }
+
+    // Next button
+    const nextLi = document.createElement("li");
+    nextLi.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+    nextLi.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
+    nextLi.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (currentPage < totalPages) { currentPage++; renderPage(); }
+    });
+    paginationEl.appendChild(nextLi);
+  }
+
+  // --- Event listeners ---
+
+  // Ricerca prenotazioni
   if (searchInput) {
     searchInput.addEventListener("input", function () {
-      const searchTerm = this.value.toLowerCase();
-      const rows = document.querySelectorAll(".admin-table tbody tr");
+      applyFilters();
+    });
+  }
 
-      rows.forEach((row) => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? "" : "none";
-      });
+  // Page size change
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener("change", function () {
+      currentPage = 1;
+      renderPage();
     });
   }
 
@@ -25,44 +131,28 @@ document.addEventListener("DOMContentLoaded", function () {
   filterButtons.forEach((button) => {
     button.addEventListener("click", function () {
       const buttonText = this.textContent.trim().toLowerCase();
-      const rows = document.querySelectorAll(".admin-table tbody tr");
+      const isActive = this.classList.contains("active");
 
-      // Toggle attivo sul bottone
+      // Toggle: if already active, deactivate (show all)
       filterButtons.forEach((btn) => btn.classList.remove("active"));
-      this.classList.add("active");
 
-      rows.forEach((row) => {
-        const badge = row.querySelector(".badge");
-        if (!badge) return;
+      if (isActive) {
+        activeStatusFilter = null;
+      } else {
+        this.classList.add("active");
+        if (buttonText.includes("confermate")) activeStatusFilter = "confermata";
+        else if (buttonText.includes("attesa")) activeStatusFilter = "attesa";
+        else if (buttonText.includes("annullate")) activeStatusFilter = "annullata";
+        else if (buttonText.includes("scadute")) activeStatusFilter = "scaduta";
+        else activeStatusFilter = null;
+      }
 
-        const badgeText = badge.textContent.trim().toLowerCase();
-
-        if (
-          buttonText.includes("confermate") &&
-          badgeText.includes("confermata")
-        ) {
-          row.style.display = "";
-        } else if (
-          buttonText.includes("attesa") &&
-          badgeText.includes("attesa")
-        ) {
-          row.style.display = "";
-        } else if (
-          buttonText.includes("annullate") &&
-          badgeText.includes("annullata")
-        ) {
-          row.style.display = "";
-        } else if (
-          buttonText.includes("scadute") &&
-          badgeText.includes("scaduta")
-        ) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
-        }
-      });
+      applyFilters();
     });
   });
+
+  // Initial render
+  applyFilters();
 
   // Elimina prenotazioni scadute
   const deleteScaduteBtn = document.getElementById("deleteScaduteBtn");
