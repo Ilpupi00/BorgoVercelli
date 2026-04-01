@@ -67,10 +67,10 @@ passport.use(
           else return done(null, false, { message: "Invalid credentials" });
         })
         .catch((err) =>
-          done(null, false, { message: err.error || "Login fallito" })
+          done(null, false, { message: err.error || "Login fallito" }),
         );
-    }
-  )
+    },
+  ),
 );
 
 /**
@@ -121,7 +121,7 @@ app.use(
       delete req.body._method;
       return method;
     }
-  })
+  }),
 );
 
 // ==================== CONFIGURAZIONE MIDDLEWARE ====================
@@ -145,9 +145,9 @@ app.get(
   ],
   function (req, res) {
     return res.sendFile(
-      path.join(__dirname, "public", "assets", "images", "Campo.png")
+      path.join(__dirname, "public", "assets", "images", "Campo.png"),
     );
-  }
+  },
 );
 
 /**
@@ -159,7 +159,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // This makes URLs like /images/default-news.jpg resolve to src/public/assets/images/default-news.jpg
 app.use(
   "/images",
-  express.static(path.join(__dirname, "public", "assets", "images"))
+  express.static(path.join(__dirname, "public", "assets", "images")),
 );
 
 // ==================== CONFIGURAZIONE SESSIONI ====================
@@ -185,7 +185,7 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 giorni
       sameSite: "lax",
     },
-  })
+  }),
 );
 
 /**
@@ -214,6 +214,15 @@ app.use(jwtAuth);
  * DAO per prenotazioni (usato per controlli automatici)
  */
 const daoPrenotazione = require("./features/prenotazioni/services/dao-prenotazione");
+
+const PRENOTAZIONI_RETENTION_DAYS = Number.parseInt(
+  process.env.PRENOTAZIONI_RETENTION_DAYS || "14",
+  10,
+);
+const PRENOTAZIONI_CLEANUP_INTERVAL_MS = Number.parseInt(
+  process.env.PRENOTAZIONI_CLEANUP_INTERVAL_MS || `${24 * 60 * 60 * 1000}`,
+  10,
+);
 
 /**
  * Timestamp dell'ultimo controllo automatico
@@ -250,13 +259,30 @@ app.use(async function (req, res, next) {
       } catch (error) {
         console.error(
           "[AUTO-CHECK] Errore durante il controllo automatico:",
-          error
+          error,
         );
       }
     });
   }
   next();
 });
+
+const cleanupPrenotazioniScadute = async () => {
+  try {
+    await daoPrenotazione.checkAndUpdateScadute();
+    const result = await daoPrenotazione.deleteScaduteOlderThanDays(
+      PRENOTAZIONI_RETENTION_DAYS,
+    );
+    console.log(
+      `[AUTO-CLEANUP] Prenotazioni scadute eliminate: ${result.deleted || 0} (retention: ${PRENOTAZIONI_RETENTION_DAYS} giorni)`,
+    );
+  } catch (error) {
+    console.error("[AUTO-CLEANUP] Errore pulizia prenotazioni scadute:", error);
+  }
+};
+
+setImmediate(cleanupPrenotazioniScadute);
+setInterval(cleanupPrenotazioniScadute, PRENOTAZIONI_CLEANUP_INTERVAL_MS);
 
 // ==================== MIDDLEWARE VARIABILI GLOBALI ====================
 
@@ -298,21 +324,29 @@ app.use("/", routes); // Homepage e pagine generiche
 // Proxy immagini esterne (es. foto Google OAuth) per evitare blocchi browser/CSP
 app.get("/api/proxy-image", async (req, res) => {
   const url = req.query.url;
-  if (!url || typeof url !== 'string') return res.status(400).end();
+  if (!url || typeof url !== "string") return res.status(400).end();
   // Consenti solo URL https (sicurezza)
-  if (!url.startsWith('https://')) return res.status(403).end();
+  if (!url.startsWith("https://")) return res.status(403).end();
   try {
-    const https = require('https');
-    const request = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
-      if (imgRes.statusCode >= 400) return res.status(imgRes.statusCode).end();
-      const ct = imgRes.headers['content-type'] || 'image/jpeg';
-      res.setHeader('Content-Type', ct);
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      imgRes.pipe(res);
+    const https = require("https");
+    const request = https.get(
+      url,
+      { headers: { "User-Agent": "Mozilla/5.0" } },
+      (imgRes) => {
+        if (imgRes.statusCode >= 400)
+          return res.status(imgRes.statusCode).end();
+        const ct = imgRes.headers["content-type"] || "image/jpeg";
+        res.setHeader("Content-Type", ct);
+        res.setHeader("Cache-Control", "public, max-age=86400"); // cache 24h
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        imgRes.pipe(res);
+      },
+    );
+    request.on("error", () => res.status(500).end());
+    request.setTimeout(8000, () => {
+      request.destroy();
+      res.status(504).end();
     });
-    request.on('error', () => res.status(500).end());
-    request.setTimeout(8000, () => { request.destroy(); res.status(504).end(); });
   } catch (e) {
     res.status(500).end();
   }
@@ -435,7 +469,7 @@ setImmediate(async () => {
   } catch (error) {
     console.error("[APP] ❌ Errore avvio worker notifiche:", error.message);
     console.error(
-      "[APP] Le notifiche push non verranno processate automaticamente"
+      "[APP] Le notifiche push non verranno processate automaticamente",
     );
   }
 });
