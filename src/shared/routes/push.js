@@ -29,38 +29,6 @@ router.post("/push/subscribe", express.json(), async (req, res) => {
     const subscription = req.body;
     const userAgent = req.headers["user-agent"];
 
-    // DEBUG: log cookies, session and passport user to troubleshoot 401 issues
-    console.log(
-      "[PUSH] /push/subscribe invoked - headers.cookie=",
-      req.headers.cookie
-    );
-    try {
-      console.log(
-        "[PUSH] req.session (debug):",
-        !!req.session,
-        Object.keys(req.session || {})
-      );
-    } catch (e) {
-      console.log("[PUSH] req.session logging error", e);
-    }
-    try {
-      console.log(
-        "[PUSH] req.user (passport):",
-        !!req.user,
-        req.user
-          ? {
-              id: req.user.id,
-              tipo_utente: req.user.tipo_utente,
-              tipo_utente_nome: req.user.tipo_utente_nome,
-              tipo_utente_id: req.user.tipo_utente_id,
-              isAdmin: req.user.isAdmin,
-            }
-          : null
-      );
-    } catch (e) {
-      console.log("[PUSH] req.user logging error", e);
-    }
-
     // Verifica che l'utente sia autenticato tramite Passport
     if (
       !req.isAuthenticated ||
@@ -105,9 +73,13 @@ router.post("/push/subscribe", express.json(), async (req, res) => {
 
 /**
  * POST /push/subscribe-anon
- * Temporary debug: salva una subscription senza autenticazione (userId: 0)
+ * Disabled in production. Only for local development debugging.
  */
 router.post("/push/subscribe-anon", express.json(), async (req, res) => {
+  // Blocca completamente in produzione
+  if (process.env.NODE_ENV === "production" || process.env.RAILWAY_ENVIRONMENT) {
+    return res.status(404).json({ error: "Not found" });
+  }
   try {
     const subscription = req.body;
     if (!subscription || !subscription.endpoint) {
@@ -311,7 +283,7 @@ router.get("/push/my-subscriptions", async (req, res) => {
 
 /**
  * GET /push/debug
- * Temporary debug route: mostra stato autenticazione, user summary e cookie header
+ * Debug route: mostra stato autenticazione. Solo per utenti autenticati.
  */
 router.get("/push/debug", (req, res) => {
   try {
@@ -321,30 +293,19 @@ router.get("/push/debug", (req, res) => {
       req.user &&
       req.user.id
     );
-    const userSummary = req.user
-      ? {
-          id: req.user.id,
-          tipo_utente: req.user.tipo_utente,
-          tipo_utente_nome: req.user.tipo_utente_nome,
-          tipo_utente_id: req.user.tipo_utente_id,
-          isAdmin: req.user.isAdmin,
-        }
-      : null;
-    const cookieHeader = req.headers.cookie || null;
-
-    console.log(
-      "[PUSH] /push/debug -> isAuth:",
-      isAuth,
-      "user:",
-      userSummary ? userSummary.id : null,
-      "cookie present:",
-      !!cookieHeader
-    );
+    // Richiede autenticazione
+    if (!isAuth) {
+      return res.status(401).json({ error: "Utente non autenticato" });
+    }
+    const userSummary = {
+      id: req.user.id,
+      tipo_utente_id: req.user.tipo_utente_id,
+      isAdmin: req.user.isAdmin,
+    };
 
     return res.json({
       authenticated: isAuth,
       user: userSummary,
-      cookie: cookieHeader ? cookieHeader.substring(0, 200) : null,
     });
   } catch (error) {
     console.error("Errore /push/debug:", error);
@@ -416,10 +377,25 @@ router.post("/push/debug-send-myself", express.json(), async (req, res) => {
 
 /**
  * GET /push/admin-subs
- * Debug: restituisce tutte le subscription con isAdmin === true (dettagli minimi)
+ * Restituisce le subscription degli admin (solo per admin autenticati)
  */
 router.get("/push/admin-subs", async (req, res) => {
   try {
+    // Solo admin autenticati
+    if (
+      !req.isAuthenticated ||
+      !req.isAuthenticated() ||
+      !req.user ||
+      !(
+        req.user.isAdmin === true ||
+        req.user.tipo_utente === "admin" ||
+        (typeof req.user.tipo_utente_nome === "string" &&
+          req.user.tipo_utente_nome.toLowerCase() === "admin") ||
+        req.user.tipo_utente_id === 1
+      )
+    ) {
+      return res.status(403).json({ error: "Accesso negato" });
+    }
     const subscriptions = await pushService.loadSubscriptions();
     const adminSubs = subscriptions.filter((s) => s.isAdmin === true);
     const safe = adminSubs.map((s) => ({
@@ -436,11 +412,26 @@ router.get("/push/admin-subs", async (req, res) => {
 
 /**
  * POST /push/force-admin-notify
- * Debug: forza l'invio di una notifica agli admin
+ * Forza l'invio di una notifica agli admin (solo per admin autenticati)
  * Body: { title, body, url }
  */
 router.post("/push/force-admin-notify", express.json(), async (req, res) => {
   try {
+    // Solo admin autenticati
+    if (
+      !req.isAuthenticated ||
+      !req.isAuthenticated() ||
+      !req.user ||
+      !(
+        req.user.isAdmin === true ||
+        req.user.tipo_utente === "admin" ||
+        (typeof req.user.tipo_utente_nome === "string" &&
+          req.user.tipo_utente_nome.toLowerCase() === "admin") ||
+        req.user.tipo_utente_id === 1
+      )
+    ) {
+      return res.status(403).json({ error: "Accesso negato" });
+    }
     const {
       title = "Forza Notifica Admin",
       body = "Messaggio di debug",
