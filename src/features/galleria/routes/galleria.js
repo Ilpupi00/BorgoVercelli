@@ -5,7 +5,7 @@ const multer = require("multer");
 const { isLoggedIn, isAdmin } = require("../../../core/middlewares/auth");
 const { upload } = require("../../../core/config/multer");
 
-router.get("/GetImmagini", async (req, res) => {
+router.get("/GetImmagini", isLoggedIn, isAdmin, async (req, res) => {
   try {
     const immagini = await daoGalleria.getImmagini();
     res.json({ immagini: immagini });
@@ -17,6 +17,8 @@ router.get("/GetImmagini", async (req, res) => {
 
 router.post(
   "/UploadImmagine",
+  isLoggedIn,
+  isAdmin,
   (req, res, next) => {
     upload.single("image")(req, res, (err) => {
       if (err instanceof multer.MulterError) {

@@ -411,7 +411,7 @@ class Profilo {
       const data = new Date(notizia.data_pubblicazione).toLocaleDateString(
         "it-IT"
       );
-      const pubblicato = notizia.pubblicata === 1;
+      const pubblicato = notizia.pubblicata === 1 || notizia.pubblicata === true;
 
       html += `
                 <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">

@@ -423,7 +423,7 @@ router.use((err, req, res, next) => {
         error: "Solo immagini! (JPEG, PNG, GIF, BMP, WebP, HEIC)",
       });
   }
-  if (err.message.includes("Unexpected end of form")) {
+  if (err.message?.includes("Unexpected end of form")) {
     return res
       .status(400)
       .json({ success: false, error: "File danneggiato o incompleto." });

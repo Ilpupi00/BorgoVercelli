@@ -16,6 +16,8 @@ const morgan = require("morgan"); // Logger HTTP
 const path = require("path");
 const methodOverride = require("method-override"); // Supporto per metodi HTTP PUT/DELETE
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet"); // Security headers
+const rateLimit = require("express-rate-limit"); // Rate limiting
 
 // Autenticazione e utenti
 const userDao = require("./features/users/services/dao-user");
@@ -84,9 +86,15 @@ passport.serializeUser(function (user, done) {
  * Deserializza l'utente dalla sessione (recupera l'oggetto completo)
  */
 passport.deserializeUser(function (id, done) {
-  userDao.getUserById(id).then((user) => {
-    done(null, user);
-  });
+  userDao
+    .getUserById(id)
+    .then((user) => {
+      done(null, user);
+    })
+    .catch((err) => {
+      console.error("[PASSPORT] Errore deserializeUser:", err);
+      done(err, null);
+    });
 });
 
 // Inizializza strategie OAuth (Google, Facebook)
@@ -95,6 +103,43 @@ initOAuth();
 
 // ==================== CREAZIONE APP EXPRESS ====================
 const app = express();
+
+// ==================== SECURITY HEADERS (Helmet) ====================
+/**
+ * Helmet aggiunge header HTTP di sicurezza:
+ * - X-Frame-Options: SAMEORIGIN (anti-clickjacking)
+ * - X-Content-Type-Options: nosniff
+ * - Referrer-Policy: strict-origin-when-cross-origin
+ * - X-XSS-Protection (legacy browsers)
+ * - Strict-Transport-Security (HSTS) in produzione
+ */
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // CSP disabilitato perché la configurazione specifica dipende da quill, chart.js ecc.
+    crossOriginEmbedderPolicy: false, // Disabilitato per compatibilità con risorse esterne (immagini OAuth, ecc.)
+  })
+);
+
+// ==================== RATE LIMITING ====================
+/**
+ * Rate limiting su endpoint sensibili per prevenire brute-force e abusi
+ */
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minuti
+  max: 20, // max 20 tentativi per finestra
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Troppi tentativi. Riprova tra 15 minuti." },
+  skip: (req) => process.env.NODE_ENV !== "production" && !process.env.RAILWAY_ENVIRONMENT,
+});
+
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 ora
+  max: 10, // max 10 richieste per ora
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Troppi tentativi di reset password. Riprova tra un'ora." },
+});
 
 // Railway (e altri PaaS) terminano HTTPS al reverse proxy e inoltrano in HTTP.
 // Senza trust proxy, Express non vede la connessione come sicura e il cookie
@@ -321,9 +366,49 @@ app.use(async function (req, res, next) {
  */
 app.use("/", routes); // Homepage e pagine generiche
 
+// Applica rate limiting agli endpoint sensibili
+app.use("/session", loginLimiter);
+app.use("/forgot-password", forgotPasswordLimiter);
+app.use("/reset-password", forgotPasswordLimiter);
+
 // Proxy immagini esterne (es. foto Google OAuth) per evitare blocchi browser/CSP
+// Limitato a domini noti per prevenire SSRF
+const ALLOWED_IMAGE_DOMAINS = [
+  "lh3.googleusercontent.com",
+  "lh4.googleusercontent.com",
+  "lh5.googleusercontent.com",
+  "lh6.googleusercontent.com",
+  "graph.facebook.com",
+  "platform-lookaside.fbsbx.com",
+  "avatars.githubusercontent.com",
+  "pbs.twimg.com",
+];
+
 app.get("/api/proxy-image", async (req, res) => {
   const url = req.query.url;
+  if (!url || typeof url !== 'string') return res.status(400).end();
+  // Consenti solo URL https
+  if (!url.startsWith('https://')) return res.status(403).end();
+  // Verifica che il dominio sia nella lista consentita (anti-SSRF)
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch (e) {
+    return res.status(400).end();
+  }
+  if (!ALLOWED_IMAGE_DOMAINS.includes(parsedUrl.hostname)) {
+    return res.status(403).end();
+  }
+  try {
+    const https = require('https');
+    const request = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
+      if (imgRes.statusCode >= 400) return res.status(imgRes.statusCode).end();
+      const ct = imgRes.headers['content-type'] || 'image/jpeg';
+      // Verifica che la risposta sia effettivamente un'immagine
+      if (!ct.startsWith('image/')) return res.status(403).end();
+      res.setHeader('Content-Type', ct);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
+      imgRes.pipe(res);
   if (!url || typeof url !== "string") return res.status(400).end();
   // Consenti solo URL https (sicurezza)
   if (!url.startsWith("https://")) return res.status(403).end();
@@ -351,17 +436,17 @@ app.get("/api/proxy-image", async (req, res) => {
     res.status(500).end();
   }
 });
-// Debug endpoint: collect client-side computed styles for navbar (development only)
-app.post("/__debug-navbar", express.json(), (req, res) => {
-  try {
-    if (process.env.NODE_ENV === "development") {
+// Route debug navbar: solo in development locale
+if (process.env.NODE_ENV !== "production" && !process.env.RAILWAY_ENVIRONMENT) {
+  app.post("/__debug-navbar", express.json(), (req, res) => {
+    try {
       console.log("[NAVBAR_DEBUG]", JSON.stringify(req.body, null, 2));
+    } catch (e) {
+      console.error("[NAVBAR_DEBUG] Error logging debug info", e);
     }
-  } catch (e) {
-    console.error("[NAVBAR_DEBUG] Error logging debug info", e);
-  }
-  res.sendStatus(200);
-});
+    res.sendStatus(200);
+  });
+}
 
 app.use("/", routesSitemap); // Sitemap dinamica
 app.use("/", routesPush); // Web Push Notifications
