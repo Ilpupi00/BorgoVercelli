@@ -98,12 +98,10 @@ router.put(
       res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
       console.error("Errore nel toggle pubblicazione evento:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Errore nel cambio stato pubblicazione",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Errore nel cambio stato pubblicazione",
+      });
     }
   }
 );
@@ -127,12 +125,10 @@ router.put("/notizia/:id", isLoggedIn, canEditNotizia, async (req, res) => {
     res.json({ success: true, message: "Notizia aggiornata con successo" });
   } catch (error) {
     console.error("Errore nell'aggiornamento della notizia:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Errore nell'aggiornamento della notizia",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Errore nell'aggiornamento della notizia",
+    });
   }
 });
 
@@ -148,12 +144,10 @@ router.delete("/notizia/:id", isLoggedIn, canEditNotizia, async (req, res) => {
     res.json({ success: true, message: "Notizia eliminata con successo" });
   } catch (error) {
     console.error("Errore nell'eliminazione della notizia:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Errore nell'eliminazione della notizia",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Errore nell'eliminazione della notizia",
+    });
   }
 });
 
@@ -177,12 +171,10 @@ router.put(
       res.json({ success: true, message, pubblicato: isPubblicato });
     } catch (error) {
       console.error("Errore nel toggle pubblicazione notizia:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Errore nel cambio stato pubblicazione",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Errore nel cambio stato pubblicazione",
+      });
     }
   }
 );
@@ -212,7 +204,7 @@ router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
     const utenti = await userDao.getAllUsers();
     // Arricchisci utenti sospesi/bannati con dati sospensione
     for (const u of utenti) {
-      if (u.stato === 'sospeso' || u.stato === 'bannato') {
+      if (u.stato === "sospeso" || u.stato === "bannato") {
         try {
           const sosp = await daoSospensioni.getByUtenteId(u.id);
           if (sosp) {
@@ -220,7 +212,9 @@ router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
             u.data_inizio_sospensione = sosp.data_inizio;
             u.data_fine_sospensione = sosp.data_fine;
           }
-        } catch (e) { /* ignora */ }
+        } catch (e) {
+          /* ignora */
+        }
       }
     }
     // Recupera i tipi utente per popolare i select nella UI
@@ -314,21 +308,27 @@ router.get("/api/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
         utente.data_inizio_sospensione = sospensione.data_inizio;
         utente.data_fine_sospensione = sospensione.data_fine;
       }
-    } catch (e) { /* nessuna sospensione */ }
+    } catch (e) {
+      /* nessuna sospensione */
+    }
     try {
       const pref = await daoPreferenze.getByUtenteId(userId);
       if (pref) {
         utente.ruolo_preferito = pref.ruolo_preferito;
         utente.piede_preferito = pref.piede_preferito;
       }
-    } catch (e) { /* nessuna preferenza */ }
+    } catch (e) {
+      /* nessuna preferenza */
+    }
     try {
       const dati = await daoDatiPersonali.getByUtenteId(userId);
       if (dati) {
         utente.data_nascita = dati.data_nascita;
         utente.codice_fiscale = dati.codice_fiscale;
       }
-    } catch (e) { /* nessun dato personale */ }
+    } catch (e) {
+      /* nessun dato personale */
+    }
 
     res.json(utente);
   } catch (err) {
@@ -353,21 +353,27 @@ router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
         utente.data_inizio_sospensione = sospensione.data_inizio;
         utente.data_fine_sospensione = sospensione.data_fine;
       }
-    } catch (e) { /* nessuna sospensione */ }
+    } catch (e) {
+      /* nessuna sospensione */
+    }
     try {
       const pref = await daoPreferenze.getByUtenteId(userId);
       if (pref) {
         utente.ruolo_preferito = pref.ruolo_preferito;
         utente.piede_preferito = pref.piede_preferito;
       }
-    } catch (e) { /* nessuna preferenza */ }
+    } catch (e) {
+      /* nessuna preferenza */
+    }
     try {
       const dati = await daoDatiPersonali.getByUtenteId(userId);
       if (dati) {
         utente.data_nascita = dati.data_nascita;
         utente.codice_fiscale = dati.codice_fiscale;
       }
-    } catch (e) { /* nessun dato personale */ }
+    } catch (e) {
+      /* nessun dato personale */
+    }
 
     res.json(utente);
   } catch (err) {
@@ -377,39 +383,51 @@ router.get("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
 });
 
 // Route per creare un nuovo utente
-router.post("/admin/utenti", isLoggedIn, isAdmin, validateAdminCreateUser, async (req, res) => {
-  try {
-    const { nome, cognome, email, telefono, tipo_utente_id, password } =
-      req.body;
-    const user = {
-      nome,
-      cognome,
-      email,
-      telefono,
-      password,
-      tipo_utente_id: tipo_utente_id || 3,
-    };
-    await userDao.createUser(user);
-    res.json({ message: "Utente creato con successo" });
-  } catch (err) {
-    console.error("Errore nella creazione dell'utente:", err);
-    res.status(500).json({ error: "Errore interno del server" });
+router.post(
+  "/admin/utenti",
+  isLoggedIn,
+  isAdmin,
+  validateAdminCreateUser,
+  async (req, res) => {
+    try {
+      const { nome, cognome, email, telefono, tipo_utente_id, password } =
+        req.body;
+      const user = {
+        nome,
+        cognome,
+        email,
+        telefono,
+        password,
+        tipo_utente_id: tipo_utente_id || 3,
+      };
+      await userDao.createUser(user);
+      res.json({ message: "Utente creato con successo" });
+    } catch (err) {
+      console.error("Errore nella creazione dell'utente:", err);
+      res.status(500).json({ error: "Errore interno del server" });
+    }
   }
-});
+);
 
 // Route per modificare un utente
-router.put("/admin/utenti/:id", isLoggedIn, isAdmin, validateAdminUpdateUser, async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
-    const fields = { nome, cognome, email, telefono, tipo_utente_id };
-    await userDao.updateUser(userId, fields);
-    res.json({ message: "Utente aggiornato con successo" });
-  } catch (err) {
-    console.error("Errore nell'aggiornamento dell'utente:", err);
-    res.status(500).json({ error: "Errore interno del server" });
+router.put(
+  "/admin/utenti/:id",
+  isLoggedIn,
+  isAdmin,
+  validateAdminUpdateUser,
+  async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { nome, cognome, email, telefono, tipo_utente_id } = req.body;
+      const fields = { nome, cognome, email, telefono, tipo_utente_id };
+      await userDao.updateUser(userId, fields);
+      res.json({ message: "Utente aggiornato con successo" });
+    } catch (err) {
+      console.error("Errore nell'aggiornamento dell'utente:", err);
+      res.status(500).json({ error: "Errore interno del server" });
+    }
   }
-});
+);
 
 // Route per eliminare un utente
 router.delete("/admin/utenti/:id", isLoggedIn, isAdmin, async (req, res) => {
@@ -584,22 +602,37 @@ router.put(
 
           // Invia email di conferma all'utente
           try {
-            const utenteData = await userDao.getUserById(prenotazione.utente_id);
+            const utenteData = await userDao.getUserById(
+              prenotazione.utente_id
+            );
             if (utenteData && utenteData.email) {
-              const nomeCognome = `${utenteData.nome || ''} ${utenteData.cognome || ''}`.trim();
-              emailService.SendPrenotazioneConfermataEmail(
-                utenteData.email,
-                nomeCognome,
-                {
-                  dataOra: `${dataFormatted} ${oraInfo}`,
-                  attivita: prenotazione.tipo_attivita || campoNome,
-                  luogo: campoNome,
-                }
-              ).then(() => console.log(`[EMAIL] Email prenotazione confermata inviata a ${utenteData.email}`))
-               .catch(err => console.error("[EMAIL] Errore invio email conferma:", err));
+              const nomeCognome = `${utenteData.nome || ""} ${
+                utenteData.cognome || ""
+              }`.trim();
+              emailService
+                .SendPrenotazioneConfermataEmail(
+                  utenteData.email,
+                  nomeCognome,
+                  {
+                    dataOra: `${dataFormatted} ${oraInfo}`,
+                    attivita: prenotazione.tipo_attivita || campoNome,
+                    luogo: campoNome,
+                  }
+                )
+                .then(() =>
+                  console.log(
+                    `[EMAIL] Email prenotazione confermata inviata a ${utenteData.email}`
+                  )
+                )
+                .catch((err) =>
+                  console.error("[EMAIL] Errore invio email conferma:", err)
+                );
             }
           } catch (emailErr) {
-            console.error("[ADMIN] Errore preparazione email conferma:", emailErr);
+            console.error(
+              "[ADMIN] Errore preparazione email conferma:",
+              emailErr
+            );
           }
         } catch (pushErr) {
           console.error("[ADMIN] Errore invio notifica conferma:", pushErr);
@@ -609,14 +642,49 @@ router.put(
           message: "Prenotazione confermata con successo",
         });
       }
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Impossibile confermare la prenotazione",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Impossibile confermare la prenotazione",
+      });
     } catch (err) {
       console.error("Errore nella conferma della prenotazione:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
+    }
+  }
+);
+
+// Route per eliminare le prenotazioni scadute (admin) - DEVE STARE PRIMA di /:id
+router.delete(
+  "/admin/prenotazioni/elimina-scadute",
+  isLoggedIn,
+  canManageCampi,
+  async (req, res) => {
+    try {
+      const retentionDays = Number.parseInt(
+        process.env.PRENOTAZIONI_RETENTION_DAYS || "14",
+        10
+      );
+      // Assicura che le prenotazioni scadute siano marcate
+      try {
+        await prenotazioniDao.checkAndUpdateScadute();
+      } catch (e) {
+        console.error("checkAndUpdateScadute error", e);
+      }
+      const result = await prenotazioniDao.deleteScaduteOlderThanDays(
+        retentionDays
+      );
+      return res.json({
+        success: true,
+        deleted: result.deleted || result.changes || 0,
+        retentionDays,
+      });
+    } catch (err) {
+      console.error(
+        "Errore nell'eliminazione delle prenotazioni scadute:",
+        err
+      );
       res
         .status(500)
         .json({ success: false, error: "Errore interno del server" });
@@ -639,12 +707,10 @@ router.delete(
           message: "Prenotazione eliminata con successo",
         });
       }
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Impossibile eliminare la prenotazione",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Impossibile eliminare la prenotazione",
+      });
     } catch (err) {
       console.error("Errore nell'eliminazione della prenotazione:", err);
       res
@@ -709,12 +775,10 @@ router.put(
           message: "Prenotazione annullata con successo",
         });
       }
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Impossibile annullare la prenotazione",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Impossibile annullare la prenotazione",
+      });
     } catch (err) {
       console.error("Errore nell'annullamento della prenotazione:", err);
       res
@@ -744,44 +808,12 @@ router.put(
           message: "Prenotazione riattivata con successo",
         });
       }
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Impossibile riattivare la prenotazione",
-        });
-    } catch (err) {
-      console.error("Errore nella riattivazione della prenotazione:", err);
-      res
-        .status(500)
-        .json({ success: false, error: "Errore interno del server" });
-    }
-  }
-);
-
-// Route per eliminare le prenotazioni scadute (admin)
-router.delete(
-  "/admin/prenotazioni/elimina-scadute",
-  isLoggedIn,
-  canManageCampi,
-  async (req, res) => {
-    try {
-      // Assicura che le prenotazioni scadute siano marcate
-      try {
-        await prenotazioniDao.checkAndUpdateScadute();
-      } catch (e) {
-        console.error("checkAndUpdateScadute error", e);
-      }
-      const result = await prenotazioniDao.deleteScadute();
-      return res.json({
-        success: true,
-        deleted: result.deleted || result.changes || 0,
+      res.status(500).json({
+        success: false,
+        error: "Impossibile riattivare la prenotazione",
       });
     } catch (err) {
-      console.error(
-        "Errore nell'eliminazione delle prenotazioni scadute:",
-        err
-      );
+      console.error("Errore nella riattivazione della prenotazione:", err);
       res
         .status(500)
         .json({ success: false, error: "Errore interno del server" });
@@ -1139,9 +1171,12 @@ router.get("/admin/profilo", isLoggedIn, isAdmin, async (req, res) => {
       const datiP = await daoDatiPersonali.getByUtenteId(user.id);
       // Normalizza data_nascita a stringa "YYYY-MM-DD" (pg può restituire oggetto Date)
       const rawDateAdmin = (datiP && datiP.data_nascita) || null;
-      user.data_nascita = rawDateAdmin instanceof Date
-        ? rawDateAdmin.toISOString().split('T')[0]
-        : (rawDateAdmin ? String(rawDateAdmin).split('T')[0] : "");
+      user.data_nascita =
+        rawDateAdmin instanceof Date
+          ? rawDateAdmin.toISOString().split("T")[0]
+          : rawDateAdmin
+          ? String(rawDateAdmin).split("T")[0]
+          : "";
       user.codice_fiscale = (datiP && datiP.codice_fiscale) || "";
     } catch (e) {
       console.error("Errore recupero dati personali:", e);
@@ -1202,11 +1237,9 @@ router.get("/admin/profilo", isLoggedIn, isAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error("Errore nel caricamento del profilo admin:", err);
-    res
-      .status(500)
-      .render("error", {
-        error: { message: "Errore nel caricamento del profilo" },
-      });
+    res.status(500).render("error", {
+      error: { message: "Errore nel caricamento del profilo" },
+    });
   }
 });
 
@@ -1319,26 +1352,32 @@ router.get("/api/admin/campionati", isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-router.post("/api/admin/campionati", isLoggedIn, isAdmin, validateCampionato, async (req, res) => {
-  try {
-    const campionatoData = {
-      nome: req.body.nome,
-      stagione: req.body.stagione || new Date().getFullYear().toString(),
-      categoria: req.body.categoria,
-      fonte_esterna_id: req.body.fonte_esterna_id,
-      url_fonte: req.body.url_fonte,
-      attivo: req.body.is_active || false,
-    };
+router.post(
+  "/api/admin/campionati",
+  isLoggedIn,
+  isAdmin,
+  validateCampionato,
+  async (req, res) => {
+    try {
+      const campionatoData = {
+        nome: req.body.nome,
+        stagione: req.body.stagione || new Date().getFullYear().toString(),
+        categoria: req.body.categoria,
+        fonte_esterna_id: req.body.fonte_esterna_id,
+        url_fonte: req.body.url_fonte,
+        attivo: req.body.is_active || false,
+      };
 
-    const result = await campionatiDao.createCampionato(campionatoData);
-    res.status(201).json(result);
-  } catch (err) {
-    console.error("Errore nella creazione del campionato:", err);
-    res
-      .status(500)
-      .json({ error: err.error || "Errore nella creazione del campionato" });
+      const result = await campionatiDao.createCampionato(campionatoData);
+      res.status(201).json(result);
+    } catch (err) {
+      console.error("Errore nella creazione del campionato:", err);
+      res
+        .status(500)
+        .json({ error: err.error || "Errore nella creazione del campionato" });
+    }
   }
-});
+);
 
 router.put(
   "/api/admin/campionati/:id",
@@ -1360,11 +1399,9 @@ router.put(
       res.json(result);
     } catch (err) {
       console.error("Errore nell'aggiornamento del campionato:", err);
-      res
-        .status(500)
-        .json({
-          error: err.error || "Errore nell'aggiornamento del campionato",
-        });
+      res.status(500).json({
+        error: err.error || "Errore nell'aggiornamento del campionato",
+      });
     }
   }
 );
@@ -1380,11 +1417,9 @@ router.delete(
       res.json(result);
     } catch (err) {
       console.error("Errore nell'eliminazione del campionato:", err);
-      res
-        .status(500)
-        .json({
-          error: err.error || "Errore nell'eliminazione del campionato",
-        });
+      res.status(500).json({
+        error: err.error || "Errore nell'eliminazione del campionato",
+      });
     }
   }
 );
@@ -1401,11 +1436,9 @@ router.patch(
       res.json(result);
     } catch (err) {
       console.error("Errore nel toggle dello stato del campionato:", err);
-      res
-        .status(500)
-        .json({
-          error: err.error || "Errore nel toggle dello stato del campionato",
-        });
+      res.status(500).json({
+        error: err.error || "Errore nel toggle dello stato del campionato",
+      });
     }
   }
 );
@@ -1484,11 +1517,9 @@ router.put(
       res.json(result);
     } catch (err) {
       console.error("Errore nell'aggiornamento della squadra:", err);
-      res
-        .status(500)
-        .json({
-          error: err.error || "Errore nell'aggiornamento della squadra",
-        });
+      res.status(500).json({
+        error: err.error || "Errore nell'aggiornamento della squadra",
+      });
     }
   }
 );
@@ -1516,7 +1547,12 @@ router.post(
       const utente = await userDao.getUserById(userId);
 
       // Sospendi utente
-      await daoSospensioni.sospendiUtente(userId, req.user.id, motivo, dataFine);
+      await daoSospensioni.sospendiUtente(
+        userId,
+        req.user.id,
+        motivo,
+        dataFine
+      );
 
       // Invia email
       try {
@@ -1654,7 +1690,7 @@ router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
     const utenti = await userDao.getAllUsers();
     // Arricchisci utenti sospesi/bannati con dati sospensione
     for (const u of utenti) {
-      if (u.stato === 'sospeso' || u.stato === 'bannato') {
+      if (u.stato === "sospeso" || u.stato === "bannato") {
         try {
           const sosp = await daoSospensioni.getByUtenteId(u.id);
           if (sosp) {
@@ -1662,7 +1698,9 @@ router.get("/admin/utenti", isLoggedIn, isAdmin, async (req, res) => {
             u.data_inizio_sospensione = sosp.data_inizio;
             u.data_fine_sospensione = sosp.data_fine;
           }
-        } catch (e) { /* ignora */ }
+        } catch (e) {
+          /* ignora */
+        }
       }
     }
     let tipiUtente = [];

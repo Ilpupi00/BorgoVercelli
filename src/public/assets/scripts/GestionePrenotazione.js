@@ -5,7 +5,9 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   // --- Pagination & filtering state ---
-  const allRows = Array.from(document.querySelectorAll(".admin-table tbody tr"));
+  const allRows = Array.from(
+    document.querySelectorAll(".admin-table tbody tr")
+  );
   let filteredRows = [...allRows];
   let currentPage = 1;
   let activeStatusFilter = null;
@@ -59,7 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update counts
     if (totalCountEl) totalCountEl.textContent = allRows.length;
-    if (filteredCountEl) filteredCountEl.textContent = `(${totalFiltered} filtrate)`;
+    if (filteredCountEl)
+      filteredCountEl.textContent = `(${totalFiltered} filtrate)`;
 
     // Render pagination
     renderPagination(totalPages);
@@ -75,7 +78,10 @@ document.addEventListener("DOMContentLoaded", function () {
     prevLi.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
     prevLi.addEventListener("click", function (e) {
       e.preventDefault();
-      if (currentPage > 1) { currentPage--; renderPage(); }
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+      }
     });
     paginationEl.appendChild(prevLi);
 
@@ -98,11 +104,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Next button
     const nextLi = document.createElement("li");
-    nextLi.className = "page-item" + (currentPage === totalPages ? " disabled" : "");
+    nextLi.className =
+      "page-item" + (currentPage === totalPages ? " disabled" : "");
     nextLi.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
     nextLi.addEventListener("click", function (e) {
       e.preventDefault();
-      if (currentPage < totalPages) { currentPage++; renderPage(); }
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage();
+      }
     });
     paginationEl.appendChild(nextLi);
   }
@@ -140,9 +150,11 @@ document.addEventListener("DOMContentLoaded", function () {
         activeStatusFilter = null;
       } else {
         this.classList.add("active");
-        if (buttonText.includes("confermate")) activeStatusFilter = "confermata";
+        if (buttonText.includes("confermate"))
+          activeStatusFilter = "confermata";
         else if (buttonText.includes("attesa")) activeStatusFilter = "attesa";
-        else if (buttonText.includes("annullate")) activeStatusFilter = "annullata";
+        else if (buttonText.includes("annullate"))
+          activeStatusFilter = "annullata";
         else if (buttonText.includes("scadute")) activeStatusFilter = "scaduta";
         else activeStatusFilter = null;
       }
@@ -170,10 +182,13 @@ document.addEventListener("DOMContentLoaded", function () {
           const data = await response.json();
 
           if (response.ok) {
+            const retentionDays = data?.retentionDays || 14;
             // usa toast manager alias
             if (window.AdminGlobal && window.AdminGlobal.ToastManager) {
               window.AdminGlobal.ToastManager.show(
-                "Prenotazioni scadute eliminate con successo",
+                `Cleanup completato: eliminate ${
+                  data.deleted || 0
+                } prenotazioni scadute da almeno ${retentionDays} giorni`,
                 "success"
               );
             }
@@ -199,10 +214,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (window.AdminGlobal && window.AdminGlobal.modalManager) {
         window.AdminGlobal.modalManager.confirm({
-          title: "Conferma eliminazione",
+          title: "Conferma cleanup prenotazioni",
           message:
-            "Sei sicuro di voler eliminare tutte le prenotazioni scadute?",
-          confirmText: "Elimina",
+            "Procedere con il cleanup delle prenotazioni scadute da almeno 14 giorni?",
+          confirmText: "Esegui cleanup",
           cancelText: "Annulla",
           type: "danger",
           onConfirm: doDelete,
@@ -210,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         if (
           !confirm(
-            "Sei sicuro di voler eliminare tutte le prenotazioni scadute?"
+            "Procedere con il cleanup delle prenotazioni scadute da almeno 14 giorni?"
           )
         )
           return;

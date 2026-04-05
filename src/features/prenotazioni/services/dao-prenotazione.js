@@ -46,7 +46,7 @@ const makeCampo = (row) => {
     row.created_at,
     row.updated_at,
     row.descrizione,
-    row.docce
+    row.docce,
   );
 };
 
@@ -68,7 +68,7 @@ const makePrenotazione = (row) => {
     row.note,
     row.stato,
     row.created_at,
-    row.updated_at
+    row.updated_at,
   );
 };
 
@@ -87,7 +87,7 @@ const makeImmagini = (row) => {
     row.entita_id,
     row.ordine,
     row.created_at,
-    row.updated_at
+    row.updated_at,
   );
 };
 
@@ -123,10 +123,10 @@ exports.getCampiAttivi = async () => {
                   ? imgRows.map(makeImmagini)
                   : [];
                 resImg(campo);
-              }
+              },
             );
           });
-        })
+        }),
       );
       resolve(campi);
     });
@@ -159,13 +159,13 @@ exports.getDisponibilitaCampo = async (campoId, data) => {
     orariCampo = await campiDao.getOrariCampo(campoId, giornoSettimana);
     console.log(
       "[PRENOTAZIONE] debug orariCampo rows count:",
-      Array.isArray(orariCampo) ? orariCampo.length : 0
+      Array.isArray(orariCampo) ? orariCampo.length : 0,
     );
     console.log("[PRENOTAZIONE] debug orariCampo rows:", orariCampo || []);
   } catch (e) {
     console.error(
       "[PRENOTAZIONE] errore recupero orariCampo dal dao-campi:",
-      e
+      e,
     );
     orariCampo = [];
   }
@@ -186,7 +186,7 @@ exports.getDisponibilitaCampo = async (campoId, data) => {
         now.getMonth(),
         now.getDate(),
         parseInt(h),
-        parseInt(m)
+        parseInt(m),
       );
       return orarioDate.getTime() - now.getTime() >= 2 * 60 * 60 * 1000;
     });
@@ -308,9 +308,9 @@ exports.prenotaCampo = async ({
               id: result.rows[0].id,
               utente_id: utente_id,
             });
-          }
+          },
         );
-      }
+      },
     );
   });
 };
@@ -390,7 +390,7 @@ exports.getPrenotazioneById = async (id) => {
 exports.updateStatoPrenotazione = async (id, stato, annullata_da = null) => {
   return new Promise((resolve, reject) => {
     console.log(
-      `[DAO] updateStatoPrenotazione CHIAMATA: id=${id}, stato=${stato}, annullata_da=${annullata_da}`
+      `[DAO] updateStatoPrenotazione CHIAMATA: id=${id}, stato=${stato}, annullata_da=${annullata_da}`,
     );
 
     // Se lo stato è 'annullata', aggiorna anche annullata_da
@@ -406,12 +406,12 @@ exports.updateStatoPrenotazione = async (id, stato, annullata_da = null) => {
       params = [stato, id];
       console.log(
         `[DAO] Query cambio stato (reset annullata_da): ${sql}`,
-        params
+        params,
       );
     } else {
       // Stato annullata ma senza specificare chi (fallback - NON DOVREBBE SUCCEDERE)
       console.warn(
-        `[DAO] ATTENZIONE: annullamento senza annullata_da specificato! id=${id}`
+        `[DAO] ATTENZIONE: annullamento senza annullata_da specificato! id=${id}`,
       );
       sql = `UPDATE PRENOTAZIONI SET stato = ?, updated_at = NOW() WHERE id = ?`;
       params = [stato, id];
@@ -425,7 +425,7 @@ exports.updateStatoPrenotazione = async (id, stato, annullata_da = null) => {
       const changes =
         result && typeof result.rowCount === "number" ? result.rowCount : 0;
       console.log(
-        `[DAO] updateStatoPrenotazione SUCCESS: changes=${changes}, rowCount=${result?.rowCount}`
+        `[DAO] updateStatoPrenotazione SUCCESS: changes=${changes}, rowCount=${result?.rowCount}`,
       );
       resolve({ success: true, changes });
     });
@@ -455,7 +455,7 @@ exports.updatePrenotazione = async (
     codice_fiscale,
     tipo_documento,
     numero_documento,
-  }
+  },
 ) => {
   const dataNorm = normalizeDate(data_prenotazione);
   return new Promise((resolve, reject) => {
@@ -481,7 +481,7 @@ exports.updatePrenotazione = async (
         const changes =
           result && typeof result.rowCount === "number" ? result.rowCount : 0;
         resolve({ success: true, changes });
-      }
+      },
     );
   });
 };
@@ -503,7 +503,7 @@ exports.deletePrenotazione = async (id) => {
         const changes =
           result && typeof result.rowCount === "number" ? result.rowCount : 0;
         resolve({ success: true, changes });
-      }
+      },
     );
   });
 };
@@ -536,25 +536,25 @@ exports.checkAndUpdateScadute = async () => {
       (errBefore, rowBefore) => {
         const beforeCount = (rowBefore && rowBefore.cnt) || 0;
         console.error(
-          `[DAO:${process.pid}] checkAndUpdateScadute - will update approx ${beforeCount} rows`
+          `[DAO:${process.pid}] checkAndUpdateScadute - will update approx ${beforeCount} rows`,
         );
 
         db.run(updateSql, [], function (err, result) {
           if (err) {
             console.error(
               `[DAO:${process.pid}] checkAndUpdateScadute - ERROR:`,
-              err
+              err,
             );
             return reject(err);
           }
           const changes =
             result && typeof result.rowCount === "number" ? result.rowCount : 0;
           console.error(
-            `[DAO:${process.pid}] checkAndUpdateScadute - updated ${changes} rows`
+            `[DAO:${process.pid}] checkAndUpdateScadute - updated ${changes} rows`,
           );
           resolve({ success: true, updated: changes });
         });
-      }
+      },
     );
   });
 };
@@ -575,7 +575,7 @@ exports.deleteScadute = async () => {
       (errBefore, rowBefore) => {
         const before = (rowBefore && rowBefore.cnt) || 0;
         console.error(
-          `[DAO:${process.pid}] deleteScadute - count before delete: ${before}`
+          `[DAO:${process.pid}] deleteScadute - count before delete: ${before}`,
         );
 
         db.run(
@@ -584,7 +584,7 @@ exports.deleteScadute = async () => {
             if (err) {
               console.error(
                 `[DAO:${process.pid}] deleteScadute: delete error`,
-                err
+                err,
               );
               return reject(err);
             }
@@ -593,7 +593,7 @@ exports.deleteScadute = async () => {
                 ? result.rowCount
                 : 0;
             console.error(
-              `[DAO:${process.pid}] deleteScadute - deleted ${deleted} rows`
+              `[DAO:${process.pid}] deleteScadute - deleted ${deleted} rows`,
             );
 
             // Log count after delete
@@ -603,15 +603,76 @@ exports.deleteScadute = async () => {
               (errAfter, rowAfter) => {
                 const after = (rowAfter && rowAfter.cnt) || 0;
                 console.error(
-                  `[DAO:${process.pid}] deleteScadute - count after delete: ${after}`
+                  `[DAO:${process.pid}] deleteScadute - count after delete: ${after}`,
                 );
                 resolve({ success: true, deleted: deleted, changes: deleted });
-              }
+              },
             );
-          }
+          },
         );
-      }
+      },
     );
+  });
+};
+
+/**
+ * Elimina dal DB le prenotazioni con stato 'scaduta' solo se scadute da N giorni
+ * Usa `updated_at` (momento in cui sono state marcate scadute) e fallback su `created_at`
+ * @async
+ * @param {number} days - Giorni minimi di retention (default 14)
+ * @returns {Promise<Object>} { success: true, deleted, changes, days }
+ * @throws {Error} In caso di errore DB
+ */
+exports.deleteScaduteOlderThanDays = async (days = 14) => {
+  const retentionDays =
+    Number.isInteger(days) && days > 0 ? days : Number.parseInt(days, 10) || 14;
+
+  return new Promise((resolve, reject) => {
+    const countSql = `
+      SELECT COUNT(*) as cnt
+      FROM PRENOTAZIONI
+      WHERE lower(trim(coalesce(stato, ''))) = 'scaduta'
+        AND COALESCE(updated_at, created_at) <= NOW() - (?::int * INTERVAL '1 day')
+    `;
+
+    db.get(countSql, [retentionDays], (errBefore, rowBefore) => {
+      if (errBefore) return reject(errBefore);
+      const before = (rowBefore && rowBefore.cnt) || 0;
+      console.error(
+        `[DAO:${process.pid}] deleteScaduteOlderThanDays(${retentionDays}) - count before delete: ${before}`,
+      );
+
+      db.run(
+        `
+          DELETE FROM PRENOTAZIONI
+          WHERE lower(trim(coalesce(stato, ''))) = 'scaduta'
+            AND COALESCE(updated_at, created_at) <= NOW() - (?::int * INTERVAL '1 day')
+        `,
+        [retentionDays],
+        function (err, result) {
+          if (err) {
+            console.error(
+              `[DAO:${process.pid}] deleteScaduteOlderThanDays(${retentionDays}) - delete error`,
+              err,
+            );
+            return reject(err);
+          }
+
+          const deleted =
+            result && typeof result.rowCount === "number" ? result.rowCount : 0;
+          console.error(
+            `[DAO:${process.pid}] deleteScaduteOlderThanDays(${retentionDays}) - deleted ${deleted} rows`,
+          );
+
+          resolve({
+            success: true,
+            deleted,
+            changes: deleted,
+            days: retentionDays,
+          });
+        },
+      );
+    });
   });
 };
 
@@ -692,7 +753,7 @@ exports.autoAcceptPendingBookings = async () => {
         const changes =
           result && typeof result.rowCount === "number" ? result.rowCount : 0;
         console.log(
-          `[AUTO-ACCEPT] ${changes} prenotazioni accettate automaticamente per tacito consenso`
+          `[AUTO-ACCEPT] ${changes} prenotazioni accettate automaticamente per tacito consenso`,
         );
         resolve({ success: true, accepted: changes });
       });
@@ -726,7 +787,7 @@ exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
       (err, row) => {
         if (err) return reject(err);
         resolve(row);
-      }
+      },
     );
   });
 
@@ -747,7 +808,7 @@ exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
       (err, row) => {
         if (err) return reject(err);
         resolve(row);
-      }
+      },
     );
   });
 
@@ -761,7 +822,7 @@ exports.checkOrarioCustom = async (campo_id, data, ora_inizio, ora_fine) => {
   // Gli orari custom sono dinamici - l'admin li accetterà o rifiuterà
   // Non blocchiamo in base agli ORARI_CAMPI (che sono solo suggerimenti per gli orari predefiniti)
   console.log(
-    "[DAO] Orario custom validato: nessun duplicato o sovrapposizione trovata"
+    "[DAO] Orario custom validato: nessun duplicato o sovrapposizione trovata",
   );
 
   return { ok: true };

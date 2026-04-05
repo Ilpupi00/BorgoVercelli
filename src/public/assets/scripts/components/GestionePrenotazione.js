@@ -30,7 +30,6 @@ class GestionePrenotazione {
       });
     });
 
-    // Action buttons (delegated) - use dataset.id for prenotazione ID
     console.log(
       "[GestionePrenotazione] setupEventListeners: registering document click handler"
     );
@@ -498,8 +497,8 @@ class GestionePrenotazione {
       typeof window.ShowModal.modalDelete === "function"
     ) {
       const confirmed = await window.ShowModal.modalDelete(
-        "Eliminare tutte le prenotazioni scadute? Questa operazione è irreversibile.",
-        "Elimina prenotazioni scadute"
+        "Eseguire il cleanup delle prenotazioni scadute da almeno 14 giorni?",
+        "Cleanup prenotazioni scadute"
       );
       if (!confirmed) return;
 
@@ -558,7 +557,9 @@ class GestionePrenotazione {
           ) {
             window.ShowModal.showModalSuccess(
               "Eliminazione completata",
-              `Eliminate ${deletedCount} prenotazioni scadute`
+              `Cleanup completato: eliminate ${deletedCount} prenotazioni scadute da almeno ${
+                result.retentionDays || 14
+              } giorni`
             );
           } else {
             alert(`Eliminate ${deletedCount} prenotazioni scadute`);
