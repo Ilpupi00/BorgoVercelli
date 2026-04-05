@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -551,7 +551,7 @@
                                                     <small class="text-muted">
                                                         <i class="bi bi-calendar me-1"></i>
                                                         <%= notizia.data_pubblicazione ? new Date(notizia.data_pubblicazione).toLocaleDateString('it-IT') : 'Data non disponibile' %>
-                                                        <% if (notizia.pubblicata === 1) { %>
+                                                        <% if (notizia.pubblicata === 1 || notizia.pubblicata === true) { %>
                                                             <span class="badge bg-success ms-2">Pubblicato</span>
                                                         <% } else { %>
                                                             <span class="badge bg-warning ms-2">Bozza</span>

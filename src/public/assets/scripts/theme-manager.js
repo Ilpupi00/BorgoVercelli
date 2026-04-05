@@ -329,12 +329,14 @@ if (typeof ThemeManager !== "undefined") {
         userAgent: navigator.userAgent,
       };
 
-      // Fire-and-forget POST
+      // Fire-and-forget POST (disattivato per evitare 404)
+      /* 
       fetch("/__debug-navbar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       }).catch(() => {});
+      */
     } catch (e) {
       // ignore
     }
