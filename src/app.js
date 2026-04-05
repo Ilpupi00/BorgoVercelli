@@ -386,9 +386,10 @@ const ALLOWED_IMAGE_DOMAINS = [
 
 app.get("/api/proxy-image", async (req, res) => {
   const url = req.query.url;
-  if (!url || typeof url !== 'string') return res.status(400).end();
-  // Consenti solo URL https
-  if (!url.startsWith('https://')) return res.status(403).end();
+  if (!url || typeof url !== "string") return res.status(400).end();
+  // Consenti solo URL https (sicurezza)
+  if (!url.startsWith("https://")) return res.status(403).end();
+  
   // Verifica che il dominio sia nella lista consentita (anti-SSRF)
   let parsedUrl;
   try {
@@ -399,33 +400,23 @@ app.get("/api/proxy-image", async (req, res) => {
   if (!ALLOWED_IMAGE_DOMAINS.includes(parsedUrl.hostname)) {
     return res.status(403).end();
   }
-  try {
-    const https = require('https');
-    const request = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
-      if (imgRes.statusCode >= 400) return res.status(imgRes.statusCode).end();
-      const ct = imgRes.headers['content-type'] || 'image/jpeg';
-      // Verifica che la risposta sia effettivamente un'immagine
-      if (!ct.startsWith('image/')) return res.status(403).end();
-      res.setHeader('Content-Type', ct);
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
-      imgRes.pipe(res);
-  if (!url || typeof url !== "string") return res.status(400).end();
-  // Consenti solo URL https (sicurezza)
-  if (!url.startsWith("https://")) return res.status(403).end();
+
   try {
     const https = require("https");
     const request = https.get(
       url,
       { headers: { "User-Agent": "Mozilla/5.0" } },
       (imgRes) => {
-        if (imgRes.statusCode >= 400)
-          return res.status(imgRes.statusCode).end();
+        if (imgRes.statusCode >= 400) return res.status(imgRes.statusCode).end();
         const ct = imgRes.headers["content-type"] || "image/jpeg";
+        // Verifica che la risposta sia effettivamente un'immagine
+        if (!ct.startsWith("image/")) return res.status(403).end();
+        
         res.setHeader("Content-Type", ct);
         res.setHeader("Cache-Control", "public, max-age=86400"); // cache 24h
         res.setHeader("Access-Control-Allow-Origin", "*");
         imgRes.pipe(res);
-      },
+      }
     );
     request.on("error", () => res.status(500).end());
     request.setTimeout(8000, () => {
