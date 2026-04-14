@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Orari Campo <%= campo.nome %> - Admin</title>
+    <title>Pianificazione Orari Campo <%= campo.nome %> - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <%- include('../../shared/views/partials/theme-includes') %>
     <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
-<link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
     <link rel="stylesheet" href="/assets/styles/theme-admin.css">
+    <link rel="stylesheet" href="/assets/styles/Modifica_Campo.css">
     <link rel="stylesheet" href="/assets/styles/Gestione_Orari_Campi.css">
 </head>
 <body>
@@ -19,158 +19,190 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <%- include('partials/sidebar.ejs'); %>
+            <%- include('../../shared/views/partials/sidebar.ejs'); %>
 
             <!-- Contenuto principale -->
-            <main class="col-lg-9 col-xl-10 px-4 py-5">
-                <div class="admin-container">
+            <main class="col-lg-9 col-xl-10 px-4 py-5 content-wrapper position-relative">
+                <div class="admin-container fade-in">
+                    
                     <header class="admin-page-header reveal reveal--fade-up">
                         <div class="admin-page-header-content">
-                            <h1><i class="bi bi-clock-fill"></i> Orari Campo: <%= campo.nome %></h1>
-                            <p class="admin-page-subtitle">Gestione orari disponibili per prenotazioni</p>
+                            <h1 class="d-flex align-items-center">
+                                <i class="bi bi-clock-history text-primary me-2"></i> 
+                                Configura Orari: &nbsp;<span class="fw-bold"><%= campo.nome %></span>
+                                <span class="badge bg-warning text-dark rounded-pill unsaved-badge ms-3" id="unsavedChangesBadge" style="display: none;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Modifiche non salvate
+                                </span>
+                            </h1>
+                            <p class="admin-page-subtitle mb-0">Gestisci i giorni di apertura e le fasce orarie. Le modifiche visualizzate qui sotto saranno definitive solo quando le salverai in blocco.</p>
                         </div>
                         <div class="admin-page-header-actions">
-                            <a href="/admin/campi" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Campi</span>
-                            </a>
-                            <a href="/Logout" class="btn btn-outline-danger">
-                                <i class="bi bi-box-arrow-right me-2"></i><span class="d-none d-sm-inline">Esci</span>
+                            <a href="/admin/campi" class="btn btn-outline-secondary" id="btnIndietro">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Torna al Campo</span>
                             </a>
                         </div>
                     </header>
 
-                    <!-- Orari Default -->
-                    <section class="content-card reveal reveal--fade-up reveal--delay-1 mb-4">
-                        <div class="section-header">
-                            <h2 class="section-title mb-0"><i class="bi bi-calendar-week me-2"></i>Orari Default (tutti i giorni)</h2>
-                            <button class="btn btn-success btn-sm" data-action="add-default">
-                                <i class="bi bi-plus-circle me-1"></i>Aggiungi Orario Default
-                            </button>
+                        <!-- Header Calendar Style Teams Locale -->
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background-color: var(--teams-bg-header, transparent);" data-theme-aware="true">
+                            <div>
+                                <h4 class="mb-0 fw-bold" style="color: var(--teams-text)"><i class="bi bi-calendar-range text-primary me-2"></i>Calendario</h2>
+                                <small style="color: var(--teams-time-txt)">Clicca su uno slot orario per aggiungere rapidamente.</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="calendar-legend d-none d-md-flex align-items-center gap-3 me-3 small" style="color: var(--teams-text)">
+                                    <span><i class="bi bi-square-fill" style="color: #5b5fc7;"></i> Impostato</span>
+                                    <span><i class="bi bi-square-fill" style="color: #107c41;"></i> Nuovo</span>
+                                    <span><i class="bi bi-square-fill" style="color: #d83b01;"></i> Modificato</span>
+                                    <span><i class="bi bi-square-fill" style="color: #a0a0a0;"></i> Inattivo</span>
+                                </div>
+                                <button type="button" class="btn btn-primary fw-bold shadow-sm" id="addOrarioBtn">
+                                    <i class="bi bi-plus-lg me-1"></i>Nuova Fascia
+                                </button>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Ora Inizio</th>
-                                        <th>Ora Fine</th>
-                                        <th>Attivo</th>
-                                        <th>Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="orariDefaultTable">
-                                    <% orariDefault.forEach(orario => { %>
-                                        <tr data-id="<%= orario.id %>">
-                                            <td>
-                                                <label for="ora_inizio_default_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
-                                                <input type="time" class="form-control form-control-sm" id="ora_inizio_default_<%= orario.id %>" value="<%= orario.ora_inizio %>" data-orario-id="<%= orario.id %>" data-field="ora_inizio">
-                                            </td>
-                                            <td>
-                                                <label for="ora_fine_default_<%= orario.id %>" class="visually-hidden">Ora fine</label>
-                                                <input type="time" class="form-control form-control-sm" id="ora_fine_default_<%= orario.id %>" value="<%= orario.ora_fine %>" data-orario-id="<%= orario.id %>" data-field="ora_fine">
-                                            </td>
-                                            <td>
-                                                <label for="attivo_default_<%= orario.id %>" class="visually-hidden">Attivo</label>
-                                                <input type="checkbox" class="form-check-input" id="attivo_default_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> data-orario-id="<%= orario.id %>" data-field="attivo">
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger" data-action="delete" data-orario-id="<%= orario.id %>" title="Elimina">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <% }); %>
-                                </tbody>
-                            </table>
+
+                        <!-- Teams Calendar Wrapper -->
+                        <div class="teams-calendar-wrapper">
+                            
+                            <!-- Header Settimanal Lavorativa -->
+                            <div class="teams-header-row">
+                                <div class="teams-time-spacer"></div>
+                                <div class="teams-day-header active"><div class="teams-day-number">13</div><div class="teams-day-text">Lunedì</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">14</div><div class="teams-day-text">Martedì</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">15</div><div class="teams-day-text">Mercoledì</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">16</div><div class="teams-day-text">Giovedì</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">17</div><div class="teams-day-text">Venerdì</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">18</div><div class="teams-day-text">Sabato</div></div>
+                                <div class="teams-day-header"><div class="teams-day-number">19</div><div class="teams-day-text">Domenica</div></div>
+                            </div>
+                            
+                            <!-- Body Grid Interattivo -->
+                            <div class="teams-body-wrapper" id="calendarBoard">
+                                
+                                <!-- Background Lines -->
+                                <div class="teams-grid-lines" id="teamsGridLines">
+                                    <!-- Popolato da JS -->
+                                </div>
+                                
+                                <!-- asse orario sx -->
+                                <div class="teams-time-axis" id="teamsTimeAxis">
+                                    <!-- Popolato da JS -->
+                                </div>
+                                
+                                <!-- Interactive Columns Grid -->
+                                <div class="teams-columns-container" id="teamsColumnsContainer">
+                                    <div class="teams-day-column" data-day="1"></div>
+                                    <div class="teams-day-column" data-day="2"></div>
+                                    <div class="teams-day-column" data-day="3"></div>
+                                    <div class="teams-day-column" data-day="4"></div>
+                                    <div class="teams-day-column" data-day="5"></div>
+                                    <div class="teams-day-column" data-day="6"></div>
+                                    <div class="teams-day-column" data-day="0"></div>
+                                </div>
+                                
+                            </div>
                         </div>
                     </section>
 
-                    <!-- Orari per Giorno -->
-                    <% giorniSettimana.forEach(giorno => { %>
-                        <section class="content-card fade-in mb-4">
-                            <div class="section-header">
-                                <h2 class="section-title mb-0"><i class="bi bi-calendar-day me-2"></i>Orari <%= giorno.nome %></h2>
-                                <button class="btn btn-success btn-sm" data-action="add-day" data-giorno="<%= giorno.giorno %>">
-                                    <i class="bi bi-plus-circle me-1"></i>Aggiungi Orario per <%= giorno.nome %>
+                    <!-- Form Footer Global Save -->
+                    <div class="form-footer mt-5 p-4 rounded bg-light border shadow-sm reveal reveal--fade-up reveal--delay-2" data-theme-aware="true">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <small class="text-muted"><i class="bi bi-check-all me-1"></i> Tutte le aggiunte, modifiche ed eliminazioni verranno applicate in blocco</small>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-secondary px-4 fw-bold" id="btnAnnullaTop">Ripristina Valori</button>
+                                <button type="button" class="btn btn-primary px-5 fw-bold shadow" id="btnApplicaModifiche">
+                                    <i class="bi bi-cloud-arrow-up-fill me-2"></i>Salva Pianificazione
                                 </button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table admin-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Ora Inizio</th>
-                                            <th>Ora Fine</th>
-                                            <th>Attivo</th>
-                                            <th>Azioni</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="orari<%= giorno.giorno %>Table">
-                                        <% giorno.orari.forEach(orario => { %>
-                                            <tr data-id="<%= orario.id %>">
-                                                <td>
-                                                    <label for="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora inizio</label>
-                                                    <input type="time" class="form-control form-control-sm" id="ora_inizio_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_inizio %>" data-orario-id="<%= orario.id %>" data-field="ora_inizio">
-                                                </td>
-                                                <td>
-                                                    <label for="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Ora fine</label>
-                                                    <input type="time" class="form-control form-control-sm" id="ora_fine_<%= giorno.giorno %>_<%= orario.id %>" value="<%= orario.ora_fine %>" data-orario-id="<%= orario.id %>" data-field="ora_fine">
-                                                </td>
-                                                <td>
-                                                    <label for="attivo_<%= giorno.giorno %>_<%= orario.id %>" class="visually-hidden">Attivo</label>
-                                                    <input type="checkbox" class="form-check-input" id="attivo_<%= giorno.giorno %>_<%= orario.id %>" <%= orario.attivo ? 'checked' : '' %> data-orario-id="<%= orario.id %>" data-field="attivo">
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-danger" data-action="delete" data-orario-id="<%= orario.id %>" title="Elimina">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    <% }); %>
+                        </div>
+                    </div>
 
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Modal per aggiungere orario -->
-    <div class="modal fade" id="addOrarioModal" tabindex="-1">
+    <!-- Offcanvas Laterale per Aggiungi/Modifica Orario -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasOrario" aria-labelledby="offcanvasOrarioTitle" data-bs-backdrop="static">
+        <div class="offcanvas-header bg-primary text-white border-0">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasOrarioTitle"><i class="bi bi-clock-history me-2"></i>Dettaglio Fascia</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Chiudi"></button>
+        </div>
+        <div class="offcanvas-body p-4 d-flex flex-column">
+            <form id="formOrario">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary small text-uppercase">Giorno di applicazione</label>
+                    <select class="form-select form-select-lg" id="giornoSettimana">
+                        <option value="">Tutti i giorni (Default)</option>
+                        <option value="1">Lunedì</option>
+                        <option value="2">Martedì</option>
+                        <option value="3">Mercoledì</option>
+                        <option value="4">Giovedì</option>
+                        <option value="5">Venerdì</option>
+                        <option value="6">Sabato</option>
+                        <option value="0">Domenica</option>
+                    </select>
+                    <div class="form-text">Usa "Tutti i giorni" per applicare un orario standard di base.</div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-bold text-secondary small text-uppercase">Ora Apertura</label>
+                        <input type="time" class="form-control form-control-lg" id="oraInizio" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-bold text-secondary small text-uppercase">Ora Chiusura</label>
+                        <input type="time" class="form-control form-control-lg" id="oraFine" required>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded border d-flex align-items-center" data-theme-aware="true">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input switch-custom ms-0" type="checkbox" id="orarioAttivo" checked>
+                        <label class="form-check-label ms-3 pt-1 fw-bold text-dark" for="orarioAttivo">Fascia oraria attiva e prenotabile</label>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="mt-auto pt-4 border-top d-flex gap-2 justify-content-end" id="offcanvasFooterControls">
+                <button type="button" class="btn btn-outline-secondary px-4 fw-bold" data-bs-dismiss="offcanvas">Chiudi</button>
+                <button type="button" class="btn btn-success px-4 fw-bold flex-grow-1" id="btnConfermaOrario">
+                    <i class="bi bi-check-lg me-1"></i>Conferma
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Conferma Globale -->
+    <div class="modal fade" id="modalConfermaGlobale" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Aggiungi Orario</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="addOrarioForm">
-                        <input type="hidden" id="modalCampoId" value="<%= campo.id %>">
-                        <input type="hidden" id="modalGiornoSettimana">
-                        <div class="mb-3">
-                            <label for="ora_inizio" class="form-label">Ora Inizio</label>
-                            <input type="time" class="form-control" id="ora_inizio" name="ora_inizio" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ora_fine" class="form-label">Ora Fine</label>
-                            <input type="time" class="form-control" id="ora_fine" name="ora_fine" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-success" id="confirmAddBtn">Aggiungi</button>
+                <div class="modal-body text-center pb-5 pt-0">
+                    <i class="bi bi-shield-check text-success display-1 mb-3"></i>
+                    <h3 class="fw-bold mb-3">Sincronizzazione API</h3>
+                    <p class="text-muted mb-4 px-3">Tutte le fasce orarie verranno sincronizzate con il database in via definitiva. Le modifiche influenzeranno la disponibilità del campo per gli utenti al volo.</p>
+                    <input type="hidden" id="modalCampoId" value="<%= campo.id %>">
+                    
+                    <!-- Iniettiamo i dati base qui -->
+                    <script id="serverData" type="application/json">
+                        <%- JSON.stringify([...orariDefault, ...giorniSettimana.flatMap(g => g.orari)]) %>
+                    </script>
+
+                    <button type="button" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm" id="btnProcediSalvataggio">
+                        Conferma ed Esegui
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js">
-    <%- include('../../shared/views/partials/theme-includes') %></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/scripts/scroll-reveal.js"></script>
     <script src="/assets/scripts/components/AdminGlobal.js"></script>
-    <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/GestioneOrariCampi.js"></script>
 </body>
 </html>

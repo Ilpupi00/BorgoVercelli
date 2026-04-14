@@ -14,6 +14,7 @@ const {
   isAdminOrDirigente,
   isStaffOrAdmin,
   canManageCampi,
+  isAdmin,
 } = require("../../core/middlewares/auth");
 const emailService = require("../services/email-service");
 const daoCampionati = require("../../features/campionati/services/dao-campionati");
@@ -513,16 +514,24 @@ router.post("/contatti", async (req, res) => {
         message: err && err.message ? err.message : "Unknown error",
         code: err && err.code ? err.code : undefined,
       };
-      return res
-        .status(500)
-        .json({
-          error: "Errore durante l'invio del messaggio.",
-          details: safe,
-        });
+      return res.status(500).json({
+        error: "Errore durante l'invio del messaggio.",
+        details: safe,
+      });
     }
     return res
       .status(500)
       .json({ error: "Errore durante l'invio del messaggio." });
+  }
+});
+
+router.get("/modifica_campo/:id", canManageCampi, async (req, res) => {
+  try {
+    const campo = await daoCampi.getCampoById(req.params.id);
+    res.render("Contenuti/modifica_campo", { campo: campo });
+  } catch (error) {
+    console.error("Errore nel rendering della pagina modifica campo:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
