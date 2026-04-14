@@ -45,12 +45,18 @@
                         <div class="row align-items-center">
                             <div class="col-md-9">
                                 <h5 class="mb-2 fw-bold"><i class="bi bi-info-square me-2"></i>Stato Operativo</h5>
-                                <p class="mb-0 text-muted mt-2">
+                                <p class="mb-0 mt-2" style="color: inherit;">
                                     Stato visibilità: 
-                                    <span class="badge <%= campo.attivo ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25' %> px-3 rounded-pill ms-2" style="font-size: 0.9rem;">
-                                        <i class="bi <%= campo.attivo ? 'bi-check-circle-fill' : 'bi-x-circle-fill' %> me-1"></i><%= campo.attivo ? 'Pubblico / Attivo' : 'Nascosto / Inattivo' %>
+                                    <% if (campo.attivo) { %>
+                                    <span class="badge rounded-pill px-3 py-2 ms-2" style="background-color:#198754; color:#fff; font-size:0.88rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Pubblico / Attivo
                                     </span>
-                                    <span class="ms-3 border-start ps-3">Registrato il: <strong><%= campo.created_at ? campo.created_at.split(' ')[0] : 'N/D' %></strong></span>
+                                    <% } else { %>
+                                    <span class="badge rounded-pill px-3 py-2 ms-2" style="background-color:#dc3545; color:#fff; font-size:0.88rem;">
+                                        <i class="bi bi-x-circle-fill me-1"></i>Nascosto / Inattivo
+                                    </span>
+                                    <% } %>
+                                    <span class="ms-3 border-start ps-3" style="color:inherit;">Registrato il: <strong><%= campo.created_at ? campo.created_at.split(' ')[0] : 'N/D' %></strong></span>
                                 </p>
                             </div>
                             <div class="col-md-3 text-md-end mt-3 mt-md-0">
@@ -347,7 +353,7 @@
                     
                     AdminGlobal.showNotification('Aggiornamento Completato', 'Il campo è stato salvato con successo!', 'success');
                     setTimeout(() => {
-                        window.location.href = '/admin/campi';
+                        location.reload();
                     }, 1200);
                 } catch (error) {
                     console.error("Errore sync finale:", error);

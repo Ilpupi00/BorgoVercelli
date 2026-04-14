@@ -88,7 +88,7 @@
                                                                 <% } %>
                                                             </td>
                                                             <td><%= prenotazione.squadra_nome || '-' %></td>
-                                                            <td><%= prenotazione.data_prenotazione ? new Date(prenotazione.data_prenotazione).toLocaleDateString('it-IT') : '-' %></td>
+                                                            <td><%= formatDate(prenotazione.data_prenotazione) %></td>
                                                             <td><%= prenotazione.ora_inizio %> - <%= prenotazione.ora_fine %></td>
                                                             <td><%= prenotazione.tipo_attivita || '-' %></td>
                                                             <td>

@@ -1,35 +1,36 @@
 /**
  * Gestione_Orari_Campi.css
- * Stile Calendario fedele a Microsoft Teams
+ * Calendar board in stile Microsoft Teams — contrasto alto in Light & Dark Mode
  */
 
- /* Variabili Base Teams (Light & Dark) */
- :root {
-    --teams-bg-main: #f5f5f5;
-    --teams-bg-header: #ffffff;
-    --teams-border: #e0e0e0;
-    --teams-border-dash: #e0e0e0;
-    --teams-text: #242424;
-    --teams-time-txt: #616161;
-    --teams-active: #5b5fc7;
-    --teams-active-bg: rgba(91, 95, 199, 0.1);
+/* ===================== VARIABILI TEMA ===================== */
+:root {
+    --cal-bg:        #f0f2f5;
+    --cal-card:      #ffffff;
+    --cal-border:    #d1d5db;
+    --cal-border-dash: #e5e7eb;
+    --cal-text:      #111827;
+    --cal-time-txt:  #4b5563;
+    --cal-accent:    #4f46e5;
+    --cal-header-bg: #ffffff;
 }
 
 [data-theme='dark'] {
-    --teams-bg-main: #1f1f1f;
-    --teams-bg-header: #292929;
-    --teams-border: #3b3a39;
-    --teams-border-dash: #323232;
-    --teams-text: #ffffff;
-    --teams-time-txt: #c8c6c4;
-    --teams-active: #8b8ddb;
-    --teams-active-bg: rgba(139, 141, 219, 0.15);
+    --cal-bg:        #1a1a2e;
+    --cal-card:      #16213e;
+    --cal-border:    #2d3748;
+    --cal-border-dash:#374151;
+    --cal-text:      #f1f5f9;
+    --cal-time-txt:  #94a3b8;
+    --cal-accent:    #818cf8;
+    --cal-header-bg: #0f172a;
 }
 
+/* ===================== WRAPPER ===================== */
 .teams-calendar-wrapper {
-    background-color: var(--teams-bg-main);
-    border: 1px solid var(--teams-border);
-    border-radius: 8px;
+    background-color: var(--cal-bg);
+    border: 1px solid var(--cal-border);
+    border-radius: 10px;
     height: 750px;
     display: flex;
     flex-direction: column;
@@ -38,283 +39,349 @@
     -webkit-user-select: none;
 }
 
-/* Header Giorni */
+/* ===================== HEADER GIORNI ===================== */
 .teams-header-row {
     display: flex;
-    background-color: var(--teams-bg-main);
-    border-bottom: 1px solid var(--teams-border);
-    z-index: 10;
+    background-color: var(--cal-header-bg);
+    border-bottom: 2px solid var(--cal-border);
+    flex-shrink: 0;
 }
 
 .teams-time-spacer {
-    width: 50px;
+    width: 56px;
     flex-shrink: 0;
-    border-right: 1px solid var(--teams-border);
+    border-right: 1px solid var(--cal-border);
 }
 
 .teams-day-header {
     flex: 1;
-    padding: 8px 12px;
-    border-right: 1px solid var(--teams-border);
+    padding: 10px 8px;
+    border-right: 1px solid var(--cal-border);
     text-align: left;
+    cursor: default;
 }
 
-.teams-day-header:last-child {
-    border-right: none;
-}
+.teams-day-header:last-child { border-right: none; }
 
 .teams-day-number {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--teams-text);
-    line-height: 1.1;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cal-text);
+    line-height: 1;
 }
 
 .teams-day-text {
-    font-size: 0.75rem;
-    color: var(--teams-time-txt);
+    font-size: 0.7rem;
+    color: var(--cal-time-txt);
     text-transform: capitalize;
+    font-weight: 600;
 }
 
 .teams-day-header.active .teams-day-number,
-.teams-day-header.active .teams-day-text {
-    color: var(--teams-active);
-}
+.teams-day-header.active .teams-day-text { color: var(--cal-accent); }
 
 .teams-day-header.active {
-    border-top: 3px solid var(--teams-active);
+    border-top: 3px solid var(--cal-accent);
 }
 
-/* Griglia Body */
+/* ===================== BODY ===================== */
 .teams-body-wrapper {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    background-color: var(--teams-bg-main);
+    background-color: var(--cal-bg);
+    touch-action: none;
 }
 
-/* Sfondo Righe (Background Grid) */
+/* ===================== GRIGLIA SFONDO ===================== */
 .teams-grid-lines {
     position: absolute;
     top: 0;
-    left: 50px; /* Offset dell'asse ore */
+    left: 56px;
     right: 0;
-    height: 960px; /* 16h x 60px */
+    height: 960px;
     z-index: 1;
-    pointer-events: none; /* Lascia passare i click alle colonne vere */
+    pointer-events: none;
     display: flex;
     flex-direction: column;
 }
 
 .teams-grid-hour-line {
     height: 60px;
-    border-top: 1px solid var(--teams-border);
+    border-top: 1px solid var(--cal-border);
     box-sizing: border-box;
     position: relative;
+    flex-shrink: 0;
 }
 
-.teams-grid-hour-line::after { /* Tratteggio per le mezz'ore */
+.teams-grid-hour-line::after {
     content: '';
     position: absolute;
     top: 50%;
-    left: 0;
-    right: 0;
-    border-top: 1px dashed var(--teams-border-dash);
+    left: 0; right: 0;
+    border-top: 1px dashed var(--cal-border-dash);
 }
 
-/* Asse Ore Sinistro */
+/* ===================== ASSE ORE ===================== */
 .teams-time-axis {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 50px;
+    top: 0; left: 0;
+    width: 56px;
     height: 960px;
     z-index: 5;
-    background-color: var(--teams-bg-main);
-    border-right: 1px solid var(--teams-border);
+    background-color: var(--cal-bg);
+    border-right: 1px solid var(--cal-border);
+    pointer-events: none;
 }
 
 .teams-time-label {
     height: 60px;
-    font-size: 0.7rem;
-    color: var(--teams-time-txt);
     box-sizing: border-box;
     text-align: center;
     position: absolute;
     width: 100%;
 }
-/* Allineiamo il testo dell'ora esattamente sul bordo della linea come in Teams */
+
 .teams-time-label span {
     position: absolute;
-    top: -8px; /* Spostamento per allineare il testo alla riga alta */
-    left: 0;
-    width: 100%;
+    top: -9px;
+    left: 0; width: 100%;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--cal-time-txt);
 }
 
-/* Colonne Giorni (Interactive) */
+/* ===================== COLONNE INTERATTIVE ===================== */
 .teams-columns-container {
     position: absolute;
     top: 0;
-    left: 50px;
+    left: 56px;
     right: 0;
     height: 960px;
     display: flex;
-    z-index: 2; /* Sopra le righe, sotto ai popup futuri */
+    z-index: 2;
 }
 
 .teams-day-column {
     flex: 1;
     height: 100%;
-    border-right: 1px solid var(--teams-border);
+    border-right: 1px solid var(--cal-border);
     position: relative;
-    cursor: crosshair; /* Suggerisce interazione click-to-add */
-    touch-action: none; /* Previeni scroll su touch in drag */
-}
-.teams-day-column:last-child {
-    border-right: none;
-}
-.teams-day-column:hover {
-    background-color: rgba(255,255,255, 0.02); /* leggerissimo effetto hover per capire la colonna */
+    cursor: crosshair;
+    touch-action: none;
 }
 
-/* Slots (I blocchi orari) */
+.teams-day-column:last-child { border-right: none; }
+
+.teams-day-column:hover {
+    background-color: rgba(79, 70, 229, 0.03);
+}
+
+[data-theme='dark'] .teams-day-column:hover {
+    background-color: rgba(129, 140, 248, 0.04);
+}
+
+/* ===================== SLOT ORARI ===================== */
 .teams-slot {
     position: absolute;
     left: 2px;
-    right: 3px;
-    border-radius: 4px;
-    border-left: 3px solid transparent;
-    padding: 3px 4px;
-    font-size: 0.75rem;
-    line-height: 1.1;
+    right: 2px;
+    border-radius: 5px;
+    border-left: 4px solid transparent;
+    padding: 3px 5px;
+    font-size: 0.7rem;
+    line-height: 1.2;
     overflow: hidden;
-    cursor: pointer;
+    cursor: grab;
     z-index: 10;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: filter 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: opacity 0.15s, filter 0.15s, transform 0.1s;
     display: flex;
     flex-direction: column;
-}
-.teams-slot:hover {
-    filter: brightness(1.1);
-    z-index: 12;
+    justify-content: center;
 }
 
-.teams-slot-title {
+.teams-slot:hover {
+    filter: brightness(1.1);
+    z-index: 15;
+}
+
+.teams-slot:active {
+    cursor: grabbing;
+    filter: brightness(0.9);
+}
+
+/* Titolo slot — SEMPRE bianco per contrasto */
+.slot-title {
     font-weight: 700;
-    margin-bottom: 0px;
+    font-size: 0.72rem;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-.teams-slot-time {
+/* Orario slot — SEMPRE bianco leggermente ridotto */
+.slot-time {
+    font-size: 0.63rem;
     font-weight: 600;
-    font-size: 0.65rem;
-    opacity: 1; 
+    color: rgba(255,255,255,0.9) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-/* Varianti Colore Teams */
+/* ===================== VARIANTI COLORI SLOT ===================== */
+/* Standard (blu indaco) */
 .slot-standard {
-    background-color: rgba(91, 95, 199, 0.2); /* Teams Blue */
-    border-left-color: #5b5fc7;
-    color: #272a7c; /* Scurito per maggiore contrasto in light mode */
+    background-color: #4f46e5;
+    border-left-color: #3730a3;
 }
+
 [data-theme='dark'] .slot-standard {
-    background-color: rgba(139, 141, 219, 0.25);
-    color: #cdd0f8;
+    background-color: #4338ca;
+    border-left-color: #818cf8;
 }
 
+/* Nuovo (verde) */
 .slot-new {
-    background-color: rgba(16, 124, 65, 0.2); /* Excel/Teams Green */
-    border-left-color: #107c41;
-    color: #06401f; /* Scurito in light mode */
+    background-color: #059669;
+    border-left-color: #047857;
 }
+
 [data-theme='dark'] .slot-new {
-    background-color: rgba(16, 124, 65, 0.35);
-    color: #9fdfb8;
+    background-color: #065f46;
+    border-left-color: #34d399;
 }
 
+/* Modificato (arancio) */
 .slot-edited {
-    background-color: rgba(216, 59, 1, 0.15); /* Orange/Warning */
-    border-left-color: #d83b01;
-    color: #9f2a00;
+    background-color: #d97706;
+    border-left-color: #b45309;
 }
+
 [data-theme='dark'] .slot-edited {
-    background-color: rgba(216, 59, 1, 0.25);
-    color: #ffb899;
+    background-color: #92400e;
+    border-left-color: #fbbf24;
 }
 
+/* Inattivo (grigio) */
 .slot-inactive {
-    background-color: rgba(160, 160, 160, 0.15);
-    border-left-color: #a0a0a0;
-    color: #616161;
-}
-[data-theme='dark'] .slot-inactive {
-    background-color: rgba(200, 200, 200, 0.1);
-    color: #a0a0a0;
+    background-color: #6b7280;
+    border-left-color: #4b5563;
+    opacity: 0.75;
 }
 
+[data-theme='dark'] .slot-inactive {
+    background-color: #374151;
+    border-left-color: #6b7280;
+}
+
+/* Pattern diagonal per slot default (tutti i giorni) */
 .slot-is-default {
     background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 5px,
-        rgba(0,0,0,0.04) 5px,
-        rgba(0,0,0,0.04) 10px
-    );
-}
-[data-theme='dark'] .slot-is-default {
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 5px,
-        rgba(255,255,255,0.04) 5px,
-        rgba(255,255,255,0.04) 10px
+        -45deg,
+        rgba(255,255,255,0.07),
+        rgba(255,255,255,0.07) 3px,
+        transparent 3px,
+        transparent 9px
     );
 }
 
-/* Offcanvas Fix Trasparenza in Dark Mode (Bootstrap override) */
-.offcanvas {
-    background-color: var(--teams-bg-main) !important;
-    color: var(--teams-text);
-}
-.offcanvas-header {
-    border-bottom: 1px solid var(--teams-border);
-}
-.offcanvas .form-label {
-    color: var(--teams-text) !important;
-}
-.offcanvas .form-control,
-.offcanvas .form-select {
-    background-color: var(--teams-bg-header);
-    color: var(--teams-text);
-    border: 1px solid var(--teams-border);
-}
-.offcanvas .bg-light {
-    background-color: var(--teams-bg-header) !important;
-}
-
-/* Drag Ghost Element per creazione "Drag to Select" */
+/* ===================== GHOST DRAG ===================== */
 .teams-slot-ghost {
     position: absolute;
     left: 2px;
-    right: 3px;
-    border-radius: 4px;
-    border: 1px dashed #5b5fc7;
-    background-color: rgba(91, 95, 199, 0.3) !important;
-    color: #272a7c;
+    right: 2px;
+    border-radius: 5px;
+    border: 2px dashed rgba(255,255,255,0.9);
+    background-color: rgba(79, 70, 229, 0.55);
     pointer-events: none;
-    z-index: 20;
-    font-size: 0.75rem;
-    padding: 4px;
+    z-index: 50;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    min-height: 4px;
 }
+
 [data-theme='dark'] .teams-slot-ghost {
-    border-color: #8b8ddb;
-    background-color: rgba(139, 141, 219, 0.4) !important;
-    color: #cdd0f8;
+    background-color: rgba(129, 140, 248, 0.55);
+    border-color: rgba(255,255,255,0.7);
+}
+
+.ghost-time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    padding: 0 4px;
+}
+
+/* ===================== OFFCANVAS DARK MODE FIX ===================== */
+.offcanvas {
+    background-color: var(--cal-card) !important;
+    color: var(--cal-text) !important;
+}
+
+.offcanvas-body {
+    background-color: var(--cal-card);
+    color: var(--cal-text);
+}
+
+.offcanvas .form-label,
+.offcanvas label {
+    color: var(--cal-text) !important;
+    font-weight: 600;
+}
+
+.offcanvas .form-control,
+.offcanvas .form-select {
+    background-color: var(--cal-bg);
+    color: var(--cal-text);
+    border: 1px solid var(--cal-border);
+}
+
+.offcanvas .form-control:focus,
+.offcanvas .form-select:focus {
+    border-color: var(--cal-accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.offcanvas .form-text {
+    color: var(--cal-time-txt);
+}
+
+.offcanvas [data-theme-aware] {
+    background-color: var(--cal-bg) !important;
+    border-color: var(--cal-border) !important;
+}
+
+.offcanvas .form-check-label {
+    color: var(--cal-text) !important;
+}
+
+/* ===================== FORM FOOTER (Salva Pianificazione) ===================== */
+.form-footer[data-theme-aware] {
+    background-color: var(--cal-card) !important;
+    border-color: var(--cal-border) !important;
+    color: var(--cal-text);
+}
+
+.form-footer .text-muted {
+    color: var(--cal-time-txt) !important;
+}
+
+/* ===================== CALENDARIO HEADER PANEL ===================== */
+.calendar-legend {
+    color: var(--cal-text) !important;
+}
+
+/* ===================== SCROLLBAR ===================== */
+.teams-body-wrapper::-webkit-scrollbar { width: 6px; }
+.teams-body-wrapper::-webkit-scrollbar-track { background: var(--cal-bg); }
+.teams-body-wrapper::-webkit-scrollbar-thumb {
+    background: var(--cal-border);
+    border-radius: 3px;
 }

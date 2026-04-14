@@ -1,101 +1,61 @@
 /**
  * GestioneOrariCampi.js
- * Gestione in memoria degli orari disponibili per campo sportivo con salvataggio massivo (sync)
+ * Planning board orari campo sportivo — drag-to-select con Pointer Events
  */
 
 document.addEventListener("DOMContentLoaded", function () {
-    // FIX THEME FOR DINAMIC ELEMENTS
-    const themeAwareElements = document.querySelectorAll('[data-theme-aware="true"]');
-    const updateThemeAware = () => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        themeAwareElements.forEach(el => {
-            if (isDark) {
-                el.classList.remove('bg-light');
-                if(!el.classList.contains('table-responsive')) el.classList.add('bg-dark');
-                el.classList.add('border', 'border-secondary');
-            } else {
-                if(!el.classList.contains('table-responsive')) el.classList.add('bg-light');
-                el.classList.remove('bg-dark', 'border-secondary');
-            }
-        });
-    };
-    const observer = new MutationObserver(updateThemeAware);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    updateThemeAware();
 
-    // STATE MANAGEMENT
+    // =========== STATE ===========
     const campoId = document.getElementById("modalCampoId").value;
-    let orariState = [];       
-    let orariDaEliminare = []; 
+    let orariState = [];
+    let orariDaEliminare = [];
     let hasUnsavedChanges = false;
-    let editIndexOrario = -1;  
+    let editIndexOrario = -1;
 
     const offcanvasOrari = new bootstrap.Offcanvas(document.getElementById('offcanvasOrario'));
-    const modalConferma = new bootstrap.Modal(document.getElementById('modalConfermaGlobale'));
-    const badgeUnsaved = document.getElementById('unsavedChangesBadge');
+    const modalConferma  = new bootstrap.Modal(document.getElementById('modalConfermaGlobale'));
+    const badgeUnsaved   = document.getElementById('unsavedChangesBadge');
 
-    const orariGradi = {
-        0: 'Domenica', 1: 'Lunedì', 2: 'Martedì', 3: 'Mercoledì', 4: 'Giovedì', 5: 'Venerdì', 6: 'Sabato'
-    };
+    const markAsUnsaved   = () => { hasUnsavedChanges = true;  badgeUnsaved.style.display = 'inline-block'; };
+    const unmarkAsUnsaved = () => { hasUnsavedChanges = false; badgeUnsaved.style.display = 'none'; };
 
-    const markAsUnsaved = () => {
-        hasUnsavedChanges = true;
-        badgeUnsaved.style.display = 'inline-block';
-    };
-
-    const unmarkAsUnsaved = () => {
-        hasUnsavedChanges = false;
-        badgeUnsaved.style.display = 'none';
-    };
-
-    // Prevenzione chiusura sbadita
     window.addEventListener('beforeunload', (e) => {
-        if (hasUnsavedChanges) {
-            e.preventDefault();
-            e.returnValue = 'Hai modifiche non salvate, sicuro di voler abbandonare?';
-        }
+        if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
     });
-
     document.getElementById('btnIndietro').addEventListener('click', (e) => {
-        if (hasUnsavedChanges && !confirm("Hai modifiche non salvate sull'orario. Abbandonare la pagina?")) {
-            e.preventDefault();
-        }
+        if (hasUnsavedChanges && !confirm("Hai modifiche non salvate. Abbandonare?")) e.preventDefault();
     });
-
     document.getElementById('btnAnnullaTop').addEventListener('click', () => {
-        if (hasUnsavedChanges && !confirm("Ripristinare gli orari ai valori originali annullando tutte le modifiche?")) {
-            return;
-        }
+        if (hasUnsavedChanges && !confirm("Ripristinare gli orari originali? Tutte le modifiche andranno perse.")) return;
         location.reload();
     });
 
-    // RENDER: TEAMS CALENDAR BOARD
+    // =========== COSTANTI ===========
     const START_HOUR = 8;
-    const END_HOUR = 24;
-    const TOTAL_HOURS = END_HOUR - START_HOUR; // 16
-    const MINUTE_HEIGHT = 1; // 1 Pixel = 1 Minute. 1 Hour = 60px.
+    const END_HOUR   = 24;
+    const getH = (m) => Math.floor(m / 60).toString().padStart(2, '0');
+    const getM = (m) => (m % 60).toString().padStart(2, '0');
 
+    // =========== SETUP GRIGLIA (eseguito ONCE) ===========
     const setupTeamsGrid = () => {
-        const timeAxis = document.getElementById('teamsTimeAxis');
+        const timeAxis  = document.getElementById('teamsTimeAxis');
         const gridLines = document.getElementById('teamsGridLines');
-        const columnsContainer = document.getElementById('teamsColumnsContainer');
-        
-        if(!timeAxis || !gridLines || !columnsContainer) return;
-        
-        timeAxis.innerHTML = '';
+        if (!timeAxis || !gridLines) return;
+
+        timeAxis.innerHTML  = '';
         gridLines.innerHTML = '';
 
         for (let h = START_HOUR; h <= END_HOUR; h++) {
             const topPx = (h - START_HOUR) * 60;
-            
-            // Etichetta Ora Sinistra
+
+            // Label ora
             const label = document.createElement('div');
             label.className = 'teams-time-label';
             label.style.top = `${topPx}px`;
-            label.innerHTML = `<span>${h}</span>`;
+            label.innerHTML = `<span>${String(h).padStart(2,'0')}:00</span>`;
             timeAxis.appendChild(label);
 
-            // Riga di Griglia (salta l'ultima riga decorativa)
+            // Linea griglia
             if (h < END_HOUR) {
                 const line = document.createElement('div');
                 line.className = 'teams-grid-hour-line';
@@ -103,116 +63,201 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Gestione Drag to Select (Trascina e Crea) con EVENT DELEGATION
-        let isDragging = false;
-        let dragStartY = 0;
-        let ghostEl = null;
-        let activeCol = null;
+        // ===== DRAG-TO-SELECT =====
+        // IMPORTANTE: attacchiamo i listener sul teamsColumnsContainer  che NON viene mai
+        // distrutto/ricreato. renderTeamsBoard() svuota solo l'INTERNO delle colonne (.innerHTML='').
+        // Usiamo event delegation: un unico pointerdown sul container cattura tutti i click sulle colonne.
+        const container = document.getElementById('teamsColumnsContainer');
+        if (!container) return;
 
-        const getH = (m) => Math.floor(m / 60).toString().padStart(2, '0');
-        const getM = (m) => (m % 60).toString().padStart(2, '0');
+        let isDragging      = false;  // drag su area vuota (crea)
+        let isMovingSlot    = false;  // drag su slot esistente (sposta)
+        let dragStartY      = 0;
+        let slotDragOffsetY = 0;      // distanza click dall'inizio dello slot
+        let movingIndex     = -1;     // indice in orariState dello slot che sto spostando
+        let ghostEl         = null;
+        let activeCol       = null;
+        let capturedPointerId = null;
 
-        // Pulisci listeners precedenti (nel caso in cui setupTeamsGrid venga chiamato due volte, rimuovendo il container si sdoppiano)
-        // Ma poiche' la grid container non viene mai sostituita, possiamo clonarla per togliere vecchi listeners.
-        const newContainer = columnsContainer.cloneNode(true);
-        columnsContainer.parentNode.replaceChild(newContainer, columnsContainer);
-        
-        newContainer.addEventListener('pointerdown', (e) => {
-            // Ignora il click destro del mouse
-            if (e.button !== 0 && e.pointerType === 'mouse') return;
+        container.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-            const col = e.target.closest('.teams-day-column');
-            if(!col) return;
-            // Se clicco su un evento già esistente ignoro l'inizio del drag
-            if (e.target.closest('.teams-slot')) return;
+            const col  = e.target.closest('.teams-day-column');
+            if (!col) return;
 
-            // Preveniamo scroll (se touch) e selezioni di testo accidentali
-            if(e.cancelable) e.preventDefault();
+            const slot = e.target.closest('.teams-slot');
 
-            isDragging = true;
-            activeCol = col;
-            
-            const rect = col.getBoundingClientRect();
-            dragStartY = e.clientY - rect.top;
+            e.preventDefault();
+            capturedPointerId = e.pointerId;
+            try { container.setPointerCapture(e.pointerId); } catch(_) {}
 
-            ghostEl = document.createElement('div');
-            ghostEl.className = 'teams-slot-ghost';
-            ghostEl.style.top = `${dragStartY}px`;
-            ghostEl.style.height = '0px';
-            ghostEl.innerHTML = '<span class="teams-slot-time fw-bold text-white">Selezionando...</span>';
-            col.appendChild(ghostEl);
+            const colRect = col.getBoundingClientRect();
 
-            const onPointerMove = (ev) => {
-                if(!isDragging || !activeCol) return;
-                const r = activeCol.getBoundingClientRect();
-                let currentY = ev.clientY - r.top;
-                
-                // Limito il mouse nei confini della colonna
-                if(currentY < 0) currentY = 0;
-                if(currentY > r.height) currentY = r.height;
+            if (slot) {
+                // ===== MODALITÀ SPOSTA SLOT ESISTENTE =====
+                isMovingSlot = true;
+                activeCol    = col;
+                movingIndex  = parseInt(slot.getAttribute('data-index'));
 
-                const top = Math.min(dragStartY, currentY);
-                let height = Math.abs(currentY - dragStartY);
-                if(height < 15) height = 15;
+                const slotRect     = slot.getBoundingClientRect();
+                const slotTopInCol = slotRect.top - colRect.top;
+                slotDragOffsetY    = e.clientY - slotRect.top; // offset dal top dello slot
 
-                ghostEl.style.top = `${top}px`;
+                const orario     = orariState[movingIndex];
+                const startMins  = parseTimeStr(orario.ora_inizio);
+                const endMins    = parseTimeStr(orario.ora_fine);
+                const slotHeight = Math.max((endMins - startMins), 20);
+
+                // Crea ghost della stessa dimensione dello slot
+                ghostEl = document.createElement('div');
+                ghostEl.className  = 'teams-slot-ghost';
+                ghostEl.style.top    = `${slotTopInCol}px`;
+                ghostEl.style.height = `${slotHeight}px`;
+                ghostEl.innerHTML  = `<span class="ghost-time">${(orario.ora_inizio||'').slice(0,5)} – ${(orario.ora_fine||'').slice(0,5)}</span>`;
+                col.appendChild(ghostEl);
+
+                // Rendi lo slot originale semitrasparente
+                slot.style.opacity = '0.3';
+
+            } else {
+                // ===== MODALITÀ CREA NUOVO SLOT =====
+                isDragging = true;
+                activeCol  = col;
+                dragStartY = e.clientY - colRect.top;
+                if (dragStartY < 0) dragStartY = 0;
+
+                ghostEl = document.createElement('div');
+                ghostEl.className    = 'teams-slot-ghost';
+                ghostEl.style.top    = `${dragStartY}px`;
+                ghostEl.style.height = '4px';
+                ghostEl.innerHTML    = `<span class="ghost-time">Selezionando...</span>`;
+                col.appendChild(ghostEl);
+            }
+        });
+
+        container.addEventListener('pointermove', (e) => {
+            if (!ghostEl || !activeCol) return;
+            if (e.pointerId !== capturedPointerId) return;
+
+            const colRect = activeCol.getBoundingClientRect();
+
+            if (isMovingSlot && movingIndex > -1) {
+                // ===== MOVE: sposta il ghost mantenendo la stessa altezza =====
+                const orario     = orariState[movingIndex];
+                const startMins  = parseTimeStr(orario.ora_inizio);
+                const endMins    = parseTimeStr(orario.ora_fine);
+                const slotHeight = Math.max((endMins - startMins), 20);
+
+                let newTopY = (e.clientY - colRect.top) - slotDragOffsetY;
+                if (newTopY < 0) newTopY = 0;
+                if (newTopY + slotHeight > colRect.height) newTopY = colRect.height - slotHeight;
+
+                ghostEl.style.top    = `${newTopY}px`;
+                ghostEl.style.height = `${slotHeight}px`;
+
+                const newStartMins = (START_HOUR * 60) + newTopY;
+                const newEndMins   = newStartMins + slotHeight;
+                const rStart = Math.round(newStartMins / 15) * 15;
+                const rEnd   = rStart + (endMins - startMins);
+                ghostEl.innerHTML = `<span class="ghost-time">${getH(rStart)}:${getM(rStart)} – ${getH(rEnd)}:${getM(rEnd)}</span>`;
+
+            } else if (isDragging) {
+                // ===== CREATE: ridimensiona il ghost =====
+                let currentY = e.clientY - colRect.top;
+                if (currentY < 0) currentY = 0;
+                if (currentY > colRect.height) currentY = colRect.height;
+
+                const top    = Math.min(dragStartY, currentY);
+                const height = Math.max(Math.abs(currentY - dragStartY), 4);
+
+                ghostEl.style.top    = `${top}px`;
                 ghostEl.style.height = `${height}px`;
 
                 const startMins = (START_HOUR * 60) + top;
-                const endMins = startMins + height;
-                
-                const rStart = Math.floor(startMins / 15) * 15;
-                const rEnd = Math.floor(endMins / 15) * 15;
-                ghostEl.innerHTML = `<span class="teams-slot-time text-white fw-bold">${getH(rStart)}:${getM(rStart)} - ${getH(rEnd)}:${getM(rEnd)}</span>`;
-            };
+                const endMins   = startMins + height;
+                const rStart    = Math.floor(startMins / 15) * 15;
+                const rEnd      = Math.ceil(endMins   / 15) * 15;
+                ghostEl.innerHTML = `<span class="ghost-time">${getH(rStart)}:${getM(rStart)} – ${getH(rEnd)}:${getM(rEnd)}</span>`;
+            }
+        });
 
-            const onPointerUp = (ev) => {
-                if(!isDragging) return;
-                isDragging = false;
-                
-                document.removeEventListener('pointermove', onPointerMove);
-                document.removeEventListener('pointerup', onPointerUp);
-                document.removeEventListener('pointercancel', onPointerUp);
+        const resetDrag = () => {
+            isDragging = false; isMovingSlot = false;
+            movingIndex = -1;   capturedPointerId = null;
+            if (ghostEl) { ghostEl.remove(); ghostEl = null; }
+            // Ripristina opacità slot
+            document.querySelectorAll('.teams-slot').forEach(s => s.style.opacity = '');
+            activeCol = null;
+        };
 
-                if(!ghostEl || !activeCol) return;
+        const endDrag = (e) => {
+            if (!isDragging && !isMovingSlot) return;
+            if (e.pointerId !== capturedPointerId) return;
 
-                const r = activeCol.getBoundingClientRect();
-                let dropY = ev.clientY - r.top;
-                
-                if(dropY < 0) dropY = 0;
-                if(dropY > r.height) dropY = r.height;
+            try { container.releasePointerCapture(e.pointerId); } catch(_) {}
 
-                const top = Math.min(dragStartY, dropY);
-                let height = Math.abs(dropY - dragStartY);
-                // Se non ha trascinato (height bassa), auto-genera 1 ora di default
-                if(height < 15) height = 60; 
+            const colRect = activeCol.getBoundingClientRect();
+
+            if (isMovingSlot && movingIndex > -1) {
+                // ===== FINE MOVE: aggiorna l'orariState =====
+                const orario    = orariState[movingIndex];
+                const startMins = parseTimeStr(orario.ora_inizio);
+                const endMins   = parseTimeStr(orario.ora_fine);
+                const duration  = endMins - startMins;
+
+                let newTopY = (e.clientY - colRect.top) - slotDragOffsetY;
+                if (newTopY < 0) newTopY = 0;
+
+                const newStartMinsRaw = (START_HOUR * 60) + newTopY;
+                const roundedStart    = Math.round(newStartMinsRaw / 15) * 15;
+                const roundedEnd      = roundedStart + duration;
+
+                // Aggiorna lo stato in memoria
+                orariState[movingIndex] = {
+                    ...orario,
+                    ora_inizio: `${getH(roundedStart)}:${getM(roundedStart)}`,
+                    ora_fine:   `${getH(roundedEnd)}:${getM(roundedEnd)}`,
+                    _isEdited:  !orario._isNew
+                };
+
+                markAsUnsaved();
+                resetDrag();
+                renderTeamsBoard();
+
+            } else if (isDragging) {
+                // ===== FINE CREATE =====
+                let dropY  = e.clientY - colRect.top;
+                if (dropY < 0) dropY = 0;
+                if (dropY > colRect.height) dropY = colRect.height;
+
+                const top    = Math.min(dragStartY, dropY);
+                let   height = Math.abs(dropY - dragStartY);
+                if (height < 15) height = 60;
 
                 const startMinsTotal = (START_HOUR * 60) + top;
-                const endMinsTotal = startMinsTotal + height;
-                
-                const roundedStart = Math.floor(startMinsTotal / 15) * 15; 
-                const roundedEnd = Math.max(roundedStart + 15, Math.ceil(endMinsTotal / 15) * 15);
+                const endMinsTotal   = startMinsTotal + height;
+                const roundedStart   = Math.floor(startMinsTotal / 15) * 15;
+                const roundedEnd     = Math.max(roundedStart + 15, Math.ceil(endMinsTotal / 15) * 15);
 
                 const oraInizio = `${getH(roundedStart)}:${getM(roundedStart)}`;
-                const oraFine = `${getH(roundedEnd)}:${getM(roundedEnd)}`;
-                const dayVal = activeCol.getAttribute('data-day');
+                const oraFine   = `${getH(roundedEnd)}:${getM(roundedEnd)}`;
+                const dayVal    = activeCol.getAttribute('data-day');
 
-                activeCol.removeChild(ghostEl);
-                ghostEl = null;
-
-                const tCol = activeCol;
-                activeCol = null;
-
+                resetDrag();
                 apriCreazioneRapida(dayVal, oraInizio, oraFine);
-            };
+            } else {
+                resetDrag();
+            }
+        };
 
-            // Catturiamo i listener in modo assoluto sul documento!
-            document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp);
-            document.addEventListener('pointercancel', onPointerUp);
-        });
+        container.addEventListener('pointerup',     endDrag);
+        container.addEventListener('pointercancel', resetDrag);
+
+        // Fix per prevent-default su touchmove (blocca scroll)
+        container.addEventListener('touchmove', (e) => { if (isDragging) e.preventDefault(); }, { passive: false });
     };
 
+    // =========== RENDER BOARD ===========
     const parseTimeStr = (str) => {
         if (!str) return null;
         const pts = str.split(':');
@@ -220,188 +265,130 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const renderTeamsBoard = () => {
-        // Pulisci tutte le slot prima
         document.querySelectorAll('.teams-day-column').forEach(el => el.innerHTML = '');
-        
         if (orariState.length === 0) return;
 
         orariState.forEach((orario, index) => {
             const startMins = parseTimeStr(orario.ora_inizio);
-            const endMins = parseTimeStr(orario.ora_fine);
-            
+            const endMins   = parseTimeStr(orario.ora_fine);
             if (startMins === null || endMins === null) return;
-            
-            const calendarStart = START_HOUR * 60;
-            const calendarEnd = END_HOUR * 60;
-            
-            // Limit within view block
-            let visualStart = Math.max(startMins, calendarStart);
-            let visualEnd = Math.min(endMins, calendarEnd);
-            
-            if (visualEnd <= visualStart) return; // Fuori vista
 
-            const topPx = (visualStart - calendarStart) * MINUTE_HEIGHT;
-            const heightPx = (visualEnd - visualStart) * MINUTE_HEIGHT;
+            const calStart = START_HOUR * 60;
+            const calEnd   = END_HOUR   * 60;
+            const visStart = Math.max(startMins, calStart);
+            const visEnd   = Math.min(endMins,   calEnd);
+            if (visEnd <= visStart) return;
 
-            // Classes & Status
-            let baseColorClass = 'slot-standard';
-            if (!orario.attivo) {
-                baseColorClass = 'slot-inactive';
-            } else if (orario._isNew) {
-                baseColorClass = 'slot-new';
-            } else if (orario._isEdited) {
-                baseColorClass = 'slot-edited';
-            }
+            const topPx    = visStart - calStart;
+            const heightPx = Math.max(visEnd - visStart, 20);
 
-            const isDefault = (orario.giorno_settimana === null || orario.giorno_settimana === '');
-            if (isDefault) {
-                baseColorClass += ' slot-is-default';
-            }
+            let colorClass = 'slot-standard';
+            if (!orario.attivo)      colorClass = 'slot-inactive';
+            else if (orario._isNew)  colorClass = 'slot-new';
+            else if (orario._isEdited) colorClass = 'slot-edited';
 
-            // Create Node
-            const slotEl = document.createElement('div');
-            slotEl.className = `teams-slot ${baseColorClass}`;
-            slotEl.style.top = `${topPx}px`;
-            slotEl.style.height = `${heightPx}px`;
-            slotEl.setAttribute('data-index', index);
+            const isDefault  = (orario.giorno_settimana === null || orario.giorno_settimana === '');
+            const slotTitle  = isDefault ? 'Tutti i giorni' : (orario.attivo ? 'Prenotabile' : 'Non Disponibile');
+            const timeLabel  = `${(orario.ora_inizio||'').slice(0,5)} – ${(orario.ora_fine||'').slice(0,5)}`;
 
-            slotEl.innerHTML = `
-                <div class="teams-slot-title">${isDefault ? 'Standard' : (orario.attivo?'Prenotabile':'Non Prenotabile')}</div>
-                <div class="teams-slot-time">${orario.ora_inizio.slice(0,5)} - ${orario.ora_fine.slice(0,5)}</div>
-            `;
+            const makeSlot = (idx) => {
+                const el = document.createElement('div');
+                el.className = `teams-slot ${colorClass}`;
+                el.style.top    = `${topPx}px`;
+                el.style.height = `${heightPx}px`;
+                el.setAttribute('data-index', idx);
+                el.innerHTML = `<div class="slot-title">${slotTitle}</div><div class="slot-time">${timeLabel}</div>`;
+                el.addEventListener('click', (ev) => { ev.stopPropagation(); openOrarioModale(idx); });
+                return el;
+            };
 
-            slotEl.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita di triggerare il click sfondo per creare
-                openOrarioModale(index);
-            });
-
-            // Append to correct columns
             if (isDefault) {
                 for (let d = 0; d <= 6; d++) {
                     const col = document.querySelector(`.teams-day-column[data-day="${d}"]`);
-                    if (col) col.appendChild(slotEl.cloneNode(true));
+                    if (col) col.appendChild(makeSlot(index));
                 }
             } else {
                 const col = document.querySelector(`.teams-day-column[data-day="${orario.giorno_settimana}"]`);
-                if (col) col.appendChild(slotEl);
+                if (col) col.appendChild(makeSlot(index));
             }
-        });
-
-        // Riassocia gli eventi ai nodi duplicati dal cloneNode
-        document.querySelectorAll('.teams-slot').forEach(node => {
-            node.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openOrarioModale(node.getAttribute('data-index'));
-            });
         });
     };
 
+    // =========== OFFCANVAS ===========
     const apriCreazioneRapida = (day, inizio, fine) => {
         document.getElementById('formOrario').reset();
-        editIndexOrario = -1; // -1 = Add mode
+        editIndexOrario = -1;
         document.getElementById('orarioAttivo').checked = true;
-        
-        document.getElementById('giornoSettimana').value = day;
+        document.getElementById('giornoSettimana').value = (day !== null && day !== undefined) ? day : '';
         document.getElementById('oraInizio').value = inizio;
-        document.getElementById('oraFine').value = fine;
-        
+        document.getElementById('oraFine').value   = fine;
         const deleteBtn = document.getElementById('btnEliminaOrarioModale');
-        if(deleteBtn) deleteBtn.style.display = 'none';
-        
-        document.getElementById('offcanvasOrarioTitle').innerHTML = '<i class="bi bi-plus-circle-fill me-2"></i>Nuova Riunione Oraria';
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        document.getElementById('offcanvasOrarioTitle').innerHTML = '<i class="bi bi-plus-circle-fill me-2"></i>Nuova Fascia Oraria';
         offcanvasOrari.show();
     };
 
     const openOrarioModale = (idx) => {
-        const orario = orariState[idx];
-        editIndexOrario = idx;
-        
+        const orario = orariState[parseInt(idx)];
+        editIndexOrario = parseInt(idx);
         document.getElementById('giornoSettimana').value = (orario.giorno_settimana !== null && orario.giorno_settimana !== undefined) ? orario.giorno_settimana : '';
-        document.getElementById('oraInizio').value = orario.ora_inizio;
-        document.getElementById('oraFine').value = orario.ora_fine;
-        document.getElementById('orarioAttivo').checked = !!orario.attivo;
-        
-        // Nel context della modale, permettiamo eliminazione
-        document.getElementById('offcanvasOrarioTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Gestione Fascia Oraria';
-        
-        // Aggiungi pulsante Elimina nella modale se non esiste già
+        document.getElementById('oraInizio').value       = (orario.ora_inizio || '').slice(0, 5);
+        document.getElementById('oraFine').value         = (orario.ora_fine   || '').slice(0, 5);
+        document.getElementById('orarioAttivo').checked  = !!orario.attivo;
+        document.getElementById('offcanvasOrarioTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Modifica Fascia';
+
         let deleteBtn = document.getElementById('btnEliminaOrarioModale');
         if (!deleteBtn) {
             deleteBtn = document.createElement('button');
-            deleteBtn.id = 'btnEliminaOrarioModale';
+            deleteBtn.id        = 'btnEliminaOrarioModale';
             deleteBtn.className = 'btn btn-outline-danger px-3 fw-bold flex-grow-1';
             deleteBtn.innerHTML = '<i class="bi bi-trash-fill"></i> Rimuovi';
-            
-            const controls = document.getElementById('offcanvasFooterControls');
-            // Insert after Chiudi but before Conferma -> order reverse since flex grow changes
-            controls.insertBefore(deleteBtn, controls.childNodes[2]);
-            
+            document.getElementById('offcanvasFooterControls').insertBefore(deleteBtn, document.getElementById('offcanvasFooterControls').firstChild);
             deleteBtn.addEventListener('click', () => {
-                if(confirm("Rimuovere questa fascia? (Non sarà salvato fino a 'Salva Pianificazione')")) {
-                    deleteOrario(editIndexOrario);
-                }
+                if (confirm("Rimuovere questa fascia? Sarà definitivo solo al salvataggio.")) deleteOrario(editIndexOrario);
             });
         }
         deleteBtn.style.display = 'block';
-
         offcanvasOrari.show();
     };
 
     const deleteOrario = (idx) => {
         const orario = orariState[idx];
-        if (orario.id && !orario._isNew) {
-            orariDaEliminare.push(orario.id);
-        }
+        if (orario.id && !orario._isNew) orariDaEliminare.push(orario.id);
         orariState.splice(idx, 1);
         markAsUnsaved();
         offcanvasOrari.hide();
         renderTeamsBoard();
     };
 
-    // APERTURA MODALE ADD GENERALE
-    document.getElementById('addOrarioBtn').addEventListener('click', () => {
-        apriCreazioneRapida('', '', '');
-        document.getElementById('offcanvasOrarioTitle').innerHTML = '<i class="bi bi-plus-circle-fill me-2"></i>Nuova Riunione Oraria';
-    });
+    document.getElementById('addOrarioBtn').addEventListener('click', () => apriCreazioneRapida('', '', ''));
 
-    // SALVATAGGIO ORARIO -> IN MEMORIA
     document.getElementById('btnConfermaOrario').addEventListener('click', () => {
         const form = document.getElementById('formOrario');
-        if(!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+        if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const giornoRaw = document.getElementById('giornoSettimana').value;
-        const oInizio = document.getElementById('oraInizio').value;
-        const oFine = document.getElementById('oraFine').value;
-        const attivo = document.getElementById('orarioAttivo').checked;
+        const oInizio   = document.getElementById('oraInizio').value;
+        const oFine     = document.getElementById('oraFine').value;
+        const attivo    = document.getElementById('orarioAttivo').checked;
 
-        if (oInizio >= oFine) {
-            alert("L'ora di inizio deve essere precedente all'ora di chiusura.");
-            return;
-        }
+        if (oInizio >= oFine) { alert("L'ora di inizio deve essere precedente all'ora di chiusura."); return; }
 
-        const payloadLocal = {
+        const payload = {
             giorno_settimana: giornoRaw !== '' ? giornoRaw : null,
-            ora_inizio: oInizio,
-            ora_fine: oFine,
-            attivo: attivo
+            ora_inizio: oInizio, ora_fine: oFine, attivo
         };
 
         if (editIndexOrario > -1) {
-            // Update mode
             const item = orariState[editIndexOrario];
-            payloadLocal.id = item.id;
-            payloadLocal._isNew = item._isNew;
-            // Un item appena creato resta "Nuovo" visivamente anche se lo edito prima di salvare.
-            payloadLocal._isEdited = !item._isNew; 
-            orariState[editIndexOrario] = payloadLocal;
+            payload.id = item.id;
+            payload._isNew    = item._isNew;
+            payload._isEdited = !item._isNew;
+            orariState[editIndexOrario] = payload;
         } else {
-            // Add mode
-            payloadLocal._isNew = true;
-            payloadLocal.id = 'temp_' + Date.now();
-            orariState.push(payloadLocal);
+            payload._isNew = true;
+            payload.id     = 'temp_' + Date.now();
+            orariState.push(payload);
         }
 
         markAsUnsaved();
@@ -409,114 +396,68 @@ document.addEventListener("DOMContentLoaded", function () {
         renderTeamsBoard();
     });
 
-    // ===  INITIAL DATA PARSING FROM SCRIPT TAG  ===
+    // =========== CARICAMENTO DATI ===========
     const serverDataEl = document.getElementById('serverData');
     if (serverDataEl) {
         try {
-            const rawData = JSON.parse(serverDataEl.textContent);
-            orariState = rawData.map(o => ({...o, _isNew: false, _isEdited: false}));
-        } catch(e) {
-            console.error("Errore parser data server", e);
-        }
+            orariState = JSON.parse(serverDataEl.textContent).map(o => ({ ...o, _isNew: false, _isEdited: false }));
+        } catch(e) { console.error("Errore parse serverData", e); }
     }
-    
+
     setupTeamsGrid();
     renderTeamsBoard();
 
-
-    // === FASE FINALE -> INVIA AL SEREVR  ===
-    document.getElementById('btnApplicaModifiche').addEventListener('click', () => {
-        modalConferma.show();
-    });
+    // =========== SALVATAGGIO FINALE ===========
+    document.getElementById('btnApplicaModifiche').addEventListener('click', () => modalConferma.show());
 
     document.getElementById('btnProcediSalvataggio').addEventListener('click', async () => {
-        const btnProc = document.getElementById('btnProcediSalvataggio');
-        btnProc.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sincronizzazione in corso...';
-        btnProc.disabled = true;
-        
-        let errorsCount = 0;
+        const btn = document.getElementById('btnProcediSalvataggio');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sincronizzazione...';
+        btn.disabled = true;
 
+        let errors = 0;
         try {
-            // SEQUENTIAL EXECUTION FOR BATCH
-
-            // 1. Esegui Elimiazioni (DELETE)
-            for (const idToDelete of orariDaEliminare) {
-                const res = await fetch(`/admin/campi/orari/${idToDelete}`, { method: "DELETE" });
-                if (!res.ok) errorsCount++;
+            for (const id of orariDaEliminare) {
+                const r = await fetch(`/admin/campi/orari/${id}`, { method: 'DELETE' });
+                if (!r.ok) errors++;
             }
-
-            // 2. Esegui Create (POST) & Updates (PUT)
-            for (const orario of orariState) {
-                if (orario._isNew) {
-                    // MUST POST AS URLEncoded for add
-                    const bodyParams = new URLSearchParams();
-                    if(orario.giorno_settimana !== null) bodyParams.append("giorno_settimana", orario.giorno_settimana);
-                    bodyParams.append("ora_inizio", orario.ora_inizio);
-                    bodyParams.append("ora_fine", orario.ora_fine);
-                    
-                    // We must fire update to make it attivo (default is likely inserted via backend directly but "attivo" is not natively passed in POST on the existing backend)
-                    const resPost = await fetch(`/admin/campi/${campoId}/orari`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                            "X-Requested-With": "XMLHttpRequest",
-                            "Accept": "application/json"
-                        },
-                        body: bodyParams
+            for (const o of orariState) {
+                if (o._isNew) {
+                    const body = new URLSearchParams();
+                    if (o.giorno_settimana !== null) body.append('giorno_settimana', o.giorno_settimana);
+                    body.append('ora_inizio', o.ora_inizio);
+                    body.append('ora_fine',   o.ora_fine);
+                    const r = await fetch(`/admin/campi/${campoId}/orari`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                        body
                     });
-                    
-                    if (resPost.ok) {
-                        /* Backend might not set 'attivo' natively from the post API. 
-                           Since I don't see `attivo` in `req.body` handling in the POST backend router,
-                           Normally we'd do a secondary fetch to make it inattivo if false but let's assume default is fine since new timeslots should be created active */
-                    } else {
-                        errorsCount++;
-                    }
-
-                } else if (orario._isEdited) {
-                    // PUT AS JSON
-                    const resPut = await fetch(`/admin/campi/orari/${orario.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            ora_inizio: orario.ora_inizio,
-                            ora_fine: orario.ora_fine,
-                            attivo: orario.attivo
-                        })
+                    if (!r.ok) errors++;
+                } else if (o._isEdited) {
+                    const r = await fetch(`/admin/campi/orari/${o.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ora_inizio: o.ora_inizio, ora_fine: o.ora_fine, attivo: o.attivo })
                     });
-                    if(!resPut.ok) errorsCount++;
+                    if (!r.ok) errors++;
                 }
             }
+            if (errors > 0) throw new Error(`${errors} richieste fallite`);
 
-            if(errorsCount > 0) {
-                throw new Error(errorsCount + ' richieste fallite durante il sync server');
-            }
-
-            // Success
             unmarkAsUnsaved();
             modalConferma.hide();
-            
-            if(window.AdminGlobal && window.AdminGlobal.showNotification) {
-                window.AdminGlobal.showNotification('Sincronizzazione API', 'Tutte le fasce orarie sono state caricate con successo.', 'success');
-            } else {
-                alert("Sincronizzazione completata!");
+            if (window.AdminGlobal?.showNotification) {
+                AdminGlobal.showNotification('Salvato!', 'Tutte le fasce orarie salvate con successo.', 'success');
             }
-            
-            // Reload cleanly to fetch real fresh IDs
             setTimeout(() => location.reload(), 1500);
-
-        } catch (error) {
-            console.error("Errore sync finale orari:", error);
+        } catch(err) {
+            console.error(err);
             modalConferma.hide();
-            if(window.AdminGlobal) {
-                window.AdminGlobal.showNotification('Errore di Rete/Sync', 'Alcune operazioni potrebbero non essersi concluse correttamente.', 'danger');
-            } else {
-                alert("Errore limitato durante il salvataggio.");
+            if (window.AdminGlobal?.showNotification) {
+                AdminGlobal.showNotification('Errore', 'Alcune operazioni non completate.', 'danger');
             }
-            
-            btnProc.innerHTML = 'Conferma ed Esegui';
-            btnProc.disabled = false;
+            btn.innerHTML = 'Conferma ed Esegui';
+            btn.disabled  = false;
         }
     });
-
 });

@@ -40,15 +40,24 @@
     --mc-text-muted: #495057;
 }
 
-/* Forzatura globale testi scuri in light mode per evitare scritte invisibili */
-:root:not([data-theme="dark"]) .admin-page-title,
-:root:not([data-theme="dark"]) .admin-page-subtitle,
-:root:not([data-theme="dark"]) label,
-:root:not([data-theme="dark"]) .form-label,
-:root:not([data-theme="dark"]) p,
-:root:not([data-theme="dark"]) .card,
-:root:not([data-theme="dark"]) .mc-label {
-    color: var(--mc-text) !important;
+/* L'header admin ha sempre sfondo blu scuro — tutti i testi SEMPRE bianchi */
+.admin-page-header,
+.admin-page-header h1,
+.admin-page-header p,
+.admin-page-header .admin-page-subtitle,
+.admin-page-header span {
+    color: #ffffff !important;
+}
+
+/* Label degli switch/checkbox in light mode: sempre scure */
+:root:not([data-theme="dark"]) .form-check-label {
+    color: #111827 !important;
+}
+
+/* Testo info-panel in light mode */
+:root:not([data-theme="dark"]) .info-panel p,
+:root:not([data-theme="dark"]) .info-panel h5 {
+    color: #212529 !important;
 }
 
 .form-section-title::after {
