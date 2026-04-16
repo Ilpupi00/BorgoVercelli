@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Campo - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
+    <link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/theme-admin.css">
+    <link rel="stylesheet" href="/assets/styles/Modifica_Campo.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('partials/sidebar.ejs'); %>
+
+            <!-- Contenuto principale -->
+            <main class="col-lg-9 col-xl-10 px-4 py-5">
+                <div class="admin-container">
+                    <header class="admin-page-header reveal reveal--fade-up">
+                        <div class="admin-page-header-content">
+                            <h1 class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i> 
+                                Modifica Campo: &nbsp;<span class="fw-bold"><%= campo.nome %></span>
+                                <span class="badge bg-warning text-dark rounded-pill unsaved-badge" id="unsavedChangesBadge">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Modifiche non salvate
+                                </span>
+                            </h1>
+                            <p class="admin-page-subtitle mb-0">Configura i dettagli, i servizi e la disponibilità oraria. <b>Le modifiche verranno salvate solo al termine.</b></p>
+                        </div>
+                        <div class="admin-page-header-actions">
+                            <a href="/admin/campi" class="btn btn-outline-secondary" id="btnIndietro">
+                                <i class="bi bi-arrow-left me-2"></i><span class="d-none d-sm-inline">Indietro</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <!-- Pannello Riepilogativo del Campo -->
+                    <div class="info-panel reveal reveal--fade-up reveal--delay-1">
+                        <div class="row align-items-center">
+                            <div class="col-md-9">
+                                <h5 class="mb-2 fw-bold"><i class="bi bi-info-square me-2"></i>Stato Operativo</h5>
+                                <p class="mb-0 mt-2" style="color: inherit;">
+                                    Stato visibilità: 
+                                    <% if (campo.attivo) { %>
+                                    <span class="badge rounded-pill px-3 py-2 ms-2" style="background-color:#198754; color:#fff; font-size:0.88rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Pubblico / Attivo
+                                    </span>
+                                    <% } else { %>
+                                    <span class="badge rounded-pill px-3 py-2 ms-2" style="background-color:#dc3545; color:#fff; font-size:0.88rem;">
+                                        <i class="bi bi-x-circle-fill me-1"></i>Nascosto / Inattivo
+                                    </span>
+                                    <% } %>
+                                    <span class="ms-3 border-start ps-3" style="color:inherit;">Registrato il: <strong><%= campo.created_at ? campo.created_at.split(' ')[0] : 'N/D' %></strong></span>
+                                </p>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                <% if (campo.immagine_url) { %>
+                                    <img src="<%= campo.immagine_url %>" alt="Immagine Campo" class="img-thumbnail shadow-sm" style="height: 70px; object-fit: cover; border-radius: 8px;">
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section class="content-card form-card reveal reveal--fade-up reveal--delay-2">
+                        <form id="editCampoForm">
+                            <input type="hidden" id="campoId" value="<%= campo.id %>">
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-card-text me-2"></i>Dati Generali
+                                </h3>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control tracked-input" id="nome" name="nome" 
+                                                   value="<%= campo.nome %>" placeholder="Nome del campo" required>
+                                            <label for="nome"><i class="bi bi-fonts me-2"></i>Nome Struttura / Campo *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control tracked-input" id="indirizzo" name="indirizzo" 
+                                                   value="<%= campo.indirizzo %>" placeholder="Indirizzo completo">
+                                            <label for="indirizzo"><i class="bi bi-map me-2"></i>Indirizzo Fisico</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-floating">
+                                            <textarea class="form-control tracked-input" id="descrizione" name="descrizione" placeholder="Descrizione del campo..." style="height: 110px"><%= campo.descrizione %></textarea>
+                                            <label for="descrizione"><i class="bi bi-card-heading me-2"></i>Note Pubbliche / Regolamento del Campo</label>
+                                        </div>
+                                        <div class="form-text mt-1">Queste note saranno visibili agli utenti che prenotano o consultano il campo.</div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 p-3 bg-light rounded d-flex align-items-center" data-theme-aware="true">
+                                        <div class="form-check form-switch ms-1 mb-0 fs-5 d-flex align-items-center">
+                                            <input class="form-check-input switch-custom tracked-input flex-shrink-0" type="checkbox" id="attivo" name="attivo" 
+                                                   <%= campo.attivo ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-3 fw-bold" for="attivo">
+                                                 Visibile al Pubblico (Campo prenotabile e visibile sul sito)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-rulers me-2"></i>Specifiche Tecniche
+                                </h3>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select tracked-input" id="tipo_superficie" name="tipo_superficie">
+                                                <option value="">Specificare in seguito</option>
+                                                <option value="Erba Naturale" <%= campo.tipo_superficie === 'Erba Naturale' ? 'selected' : '' %>>Erba Naturale</option>
+                                                <option value="Erba Sintetica" <%= campo.tipo_superficie === 'Erba Sintetica' ? 'selected' : '' %>>Erba Sintetica</option>
+                                                <option value="Terra Battuta" <%= campo.tipo_superficie === 'Terra Battuta' ? 'selected' : '' %>>Terra Battuta</option>
+                                                <option value="Sintetico" <%= campo.tipo_superficie === 'Sintetico' ? 'selected' : '' %>>Sintetico (Altro)</option>
+                                                <option value="Cemento/Gomma" <%= campo.tipo_superficie === 'Cemento/Gomma' ? 'selected' : '' %>>Cemento/Gomma</option>
+                                            </select>
+                                            <label for="tipo_superficie"><i class="bi bi-layers me-2"></i>Tipo Superficie</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control tracked-input" id="dimensioni" name="dimensioni" 
+                                                   value="<%= campo.dimensioni %>" placeholder="Es: 105x68m">
+                                            <label for="dimensioni"><i class="bi bi-arrows-fullscreen me-2"></i>Dimensioni Tattiche (es. 100x60)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control tracked-input" id="capienza_pubblico" name="capienza_pubblico" 
+                                                   value="<%= campo.capienza_pubblico || 0 %>" min="0">
+                                            <label for="capienza_pubblico"><i class="bi bi-people me-2"></i>Posti in Tribuna</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-star me-2"></i>Dotazioni e Servizi
+                                </h3>
+                                <div class="row px-2">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="form-check form-switch bg-light p-3 rounded shadow-sm d-flex align-items-center h-100" data-theme-aware="true">
+                                            <input class="form-check-input switch-custom tracked-input ms-0 mt-0" type="checkbox" id="illuminazione" name="illuminazione" <%= campo.illuminazione ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-3 fw-bold" for="illuminazione">
+                                                <i class="bi bi-lightbulb-fill text-warning me-1"></i> Riflettori
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="form-check form-switch bg-light p-3 rounded shadow-sm d-flex align-items-center h-100" data-theme-aware="true">
+                                            <input class="form-check-input switch-custom tracked-input ms-0 mt-0" type="checkbox" id="coperto" name="coperto" <%= campo.coperto ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-3 fw-bold" for="coperto">
+                                                <i class="bi bi-house-door-fill text-secondary me-1"></i> Area Coperta
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="form-check form-switch bg-light p-3 rounded shadow-sm d-flex align-items-center h-100" data-theme-aware="true">
+                                            <input class="form-check-input switch-custom tracked-input ms-0 mt-0" type="checkbox" id="spogliatoi" name="spogliatoi" <%= campo.spogliatoi ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-3 fw-bold" for="spogliatoi">
+                                                <i class="bi bi-door-closed-fill text-info me-1"></i> Spogliatoi
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="form-check form-switch bg-light p-3 rounded shadow-sm d-flex align-items-center h-100" data-theme-aware="true">
+                                            <input class="form-check-input switch-custom tracked-input ms-0 mt-0" type="checkbox" id="docce" name="docce" <%= campo.docce ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-3 fw-bold" for="docce">
+                                                <i class="bi bi-droplet-fill text-primary me-1"></i> Docce Calde
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section position-relative">
+                                <h3 class="form-section-title">
+                                    <i class="bi bi-calendar-range me-2"></i>Planning Orari
+                                </h3>
+                                <div class="p-5 text-center mt-3" style="background: rgba(13, 110, 253, 0.03); border: 1px dashed var(--border-color); border-radius: 12px;">
+                                    <i class="bi bi-calendar-plus display-4 text-primary mb-3"></i>
+                                    <h5>Il planning orario è gestito separatamente</h5>
+                                    <p class="text-muted mx-auto mb-4" style="max-width: 500px;">Per garantirti la massima efficienza, abbiamo spostato la gestione delle pianificazioni degli orari in un pannello avanzato dedicato.</p>
+                                    <a href="/admin/campi/<%= campo.id %>/orari" class="btn btn-outline-primary fw-bold px-4 py-2" target="_blank">
+                                        <i class="bi bi-clock me-2"></i> Apri Gestore Orari
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="form-footer mt-5 p-4 rounded bg-light border shadow-sm" data-theme-aware="true">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <small class="text-muted"><i class="bi bi-check-all me-1"></i> Controlla i dati prima di procedere</small>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-secondary px-4 fw-bold" id="btnAnnullaTop">Annulla</button>
+                                        <button type="button" class="btn btn-primary px-5 fw-bold shadow" id="btnApplicaModifiche">
+                                            <i class="bi bi-cloud-arrow-up-fill me-2"></i>Salva Campo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modale Conferma Globale -->
+    <div class="modal fade" id="modalConfermaGlobale" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning border-0">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-question-circle-fill me-2"></i>Conferma Salvataggio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-cloud-upload text-warning" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Sei sicuro?</h4>
+                    <p class="text-muted">Stai per aggiornare permanentemente i dettagli del campo e il suo piano orario.</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Torna indietro</button>
+                    <button type="button" class="btn btn-primary px-5 fw-bold" id="btnProcediSalvataggio">
+                        Sì, salva modifiche
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/scripts/scroll-reveal.js"></script>
+    <script src="/assets/scripts/components/AdminGlobal.js"></script>
+    <script src="/assets/scripts/components/Admin.js"></script>
+    <script src="/assets/scripts/components/AdminSidebar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // FIX THEME FOR DINAMIC ELEMENTS
+            const themeAwareElements = document.querySelectorAll('[data-theme-aware="true"]');
+            const updateThemeAware = () => {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                themeAwareElements.forEach(el => {
+                    if (isDark) {
+                        el.classList.remove('bg-light');
+                        if(!el.classList.contains('table-responsive')) el.classList.add('bg-dark');
+                        el.classList.add('border', 'border-secondary');
+                    } else {
+                        if(!el.classList.contains('table-responsive')) el.classList.add('bg-light');
+                        el.classList.remove('bg-dark', 'border-secondary');
+                    }
+                });
+            };
+            const observer = new MutationObserver(updateThemeAware);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+            updateThemeAware();
+
+            // STATE MANAGEMENT
+            const campoId = document.getElementById('campoId').value;
+            let hasUnsavedChanges = false;
+            const modalConferma = new bootstrap.Modal(document.getElementById('modalConfermaGlobale'));
+            const badgeUnsaved = document.getElementById('unsavedChangesBadge');
+
+            const markAsUnsaved = () => {
+                hasUnsavedChanges = true;
+                badgeUnsaved.style.display = 'inline-block';
+            };
+
+            const unmarkAsUnsaved = () => {
+                hasUnsavedChanges = false;
+                badgeUnsaved.style.display = 'none';
+            };
+
+            // TRACK IN-PAGE CHANGES to mark unsaved
+            document.querySelectorAll('.tracked-input').forEach(el => {
+                el.addEventListener('change', markAsUnsaved);
+                if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'number')) {
+                    el.addEventListener('input', markAsUnsaved);
+                }
+            });
+
+            // Prevent navigation if unsaved
+            window.addEventListener('beforeunload', (e) => {
+                if (hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = 'Hai modifiche non salvate, sicuro di voler abbandonare?';
+                }
+            });
+            document.getElementById('btnIndietro').addEventListener('click', (e) => {
+                if (hasUnsavedChanges && !confirm("Hai modifiche non salvate. Abbandonare le modifiche?")) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('btnAnnullaTop').addEventListener('click', () => {
+                if (hasUnsavedChanges && !confirm("Hai modifiche non salvate. Tutti i progressi andranno persi. Procedere?")) {
+                    return;
+                }
+                window.location.href = '/admin/campi';
+            });
+
+            // FASE FINALE -> CONFERMA E SALVATAGGIO
+            const btnApplicaModifiche = document.getElementById('btnApplicaModifiche');
+            btnApplicaModifiche.addEventListener('click', () => {
+                modalConferma.show();
+            });
+
+            document.getElementById('btnProcediSalvataggio').addEventListener('click', async () => {
+                const btnProc = document.getElementById('btnProcediSalvataggio');
+                btnProc.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sincronizzazione...';
+                btnProc.disabled = true;
+
+                // 1. Raccolta dati Campo
+                const payloadCampo = {
+                    nome: document.getElementById('nome').value,
+                    indirizzo: document.getElementById('indirizzo').value,
+                    descrizione: document.getElementById('descrizione').value,
+                    attivo: document.getElementById('attivo').checked,
+                    tipo_superficie: document.getElementById('tipo_superficie').value,
+                    dimensioni: document.getElementById('dimensioni').value,
+                    capienza_pubblico: parseInt(document.getElementById('capienza_pubblico').value || '0', 10),
+                    illuminazione: document.getElementById('illuminazione').checked,
+                    coperto: document.getElementById('coperto').checked,
+                    spogliatoi: document.getElementById('spogliatoi').checked,
+                    docce: document.getElementById('docce').checked
+                };
+
+                try {
+                    // Send directly to the PUT endpoint for fields (assume from GestioneCampi)
+                    const res = await fetch(`/admin/campi/modifica/${campoId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadCampo)
+                    });
+                    if (!res.ok) throw new Error('Salvataggio Fallito');
+
+                    console.log("-> Dati sincronizzati col Server:", payloadCampo);
+
+                    // Success
+                    unmarkAsUnsaved();
+                    modalConferma.hide();
+                    
+                    AdminGlobal.showNotification('Aggiornamento Completato', 'Il campo è stato salvato con successo!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
+                } catch (error) {
+                    console.error("Errore sync finale:", error);
+                    modalConferma.hide();
+                    AdminGlobal.showNotification('Errore di Rete', 'Impossibile completare il salvataggio.', 'danger');
+                } finally {
+                    btnProc.innerHTML = 'Sì, salva modifiche';
+                    btnProc.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

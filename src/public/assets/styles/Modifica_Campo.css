@@ -1,0 +1,241 @@
+/* ==========================================================================
+   Modifica Campo - Premium UI Styles
+   ========================================================================== */
+
+/* Glassmorphism & Panel Base */
+.form-section {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.form-section:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.form-section-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--primary-color, #0d6efd);
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+/* Variabili Luce */
+:root {
+    --mc-bg: #f8f9fa;
+    --mc-card: #ffffff;
+    --mc-border: #dee2e6;
+    --mc-text: #212529;
+    --mc-text-muted: #495057;
+}
+
+/* L'header admin ha sempre sfondo blu scuro — tutti i testi SEMPRE bianchi */
+.admin-page-header,
+.admin-page-header h1,
+.admin-page-header p,
+.admin-page-header .admin-page-subtitle,
+.admin-page-header span {
+    color: #ffffff !important;
+}
+
+/* Label degli switch/checkbox in light mode: sempre scure */
+:root:not([data-theme="dark"]) .form-check-label {
+    color: #111827 !important;
+}
+
+/* Testo info-panel in light mode */
+:root:not([data-theme="dark"]) .info-panel p,
+:root:not([data-theme="dark"]) .info-panel h5 {
+    color: #212529 !important;
+}
+
+.form-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color, #0d6efd), transparent);
+    border-radius: 3px;
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] .form-section {
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .form-section:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='dark'] .form-section-title {
+    color: var(--primary-light, #66b3ff);
+}
+
+[data-theme='dark'] .form-section-title::after {
+    background: linear-gradient(90deg, var(--primary-light, #66b3ff), transparent);
+}
+
+/* Floating Inputs Glow */
+.form-floating > .form-control {
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: all 0.3s ease;
+    background-color: var(--input-bg, #ffffff);
+}
+
+.form-floating > .form-control:focus {
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    border-color: var(--primary-color, #0d6efd);
+}
+
+.form-floating > label {
+    color: var(--text-muted, #6c757d);
+    font-weight: 500;
+}
+
+[data-theme='dark'] .form-floating > .form-control {
+    background-color: var(--dark-input-bg, #2b2b2b);
+    border-color: var(--dark-border, #444);
+    color: #fff;
+}
+
+[data-theme='dark'] .form-floating > .form-control:focus {
+    box-shadow: 0 0 0 4px rgba(102, 179, 255, 0.15);
+    border-color: var(--primary-light, #66b3ff);
+}
+
+[data-theme='dark'] .form-floating > label {
+    color: #adb5bd;
+}
+
+/* iOS Style Custom Switch */
+.switch-custom {
+    width: 3.5rem !important;
+    height: 1.75rem !important;
+    cursor: pointer;
+    background-color: #e9ecef;
+    border: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e") !important;
+    transition: background-position .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.switch-custom:checked {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
+[data-theme='dark'] .switch-custom {
+    background-color: #495057;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.5%29'/%3e%3c/svg%3e") !important;
+}
+
+/* Enhanced Info Panel */
+.info-panel {
+    background: linear-gradient(145deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.01) 100%);
+    border-left: 5px solid var(--primary-color, #0d6efd);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .info-panel {
+    background: linear-gradient(145deg, rgba(102, 179, 255, 0.1) 0%, rgba(102, 179, 255, 0.02) 100%);
+    border-left-color: var(--primary-light, #66b3ff);
+}
+
+/* Pulsing Badge Unsaved */
+.unsaved-badge {
+    display: none;
+    font-size: 0.85rem;
+    padding: 0.4em 1em;
+    margin-left: 15px;
+    border-radius: 20px;
+    animation: premium-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background: linear-gradient(45deg, #ffc107, #ff9800);
+    color: #fff !important;
+    border: none;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+@keyframes premium-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+    50% { opacity: .8; transform: scale(1.02); box-shadow: 0 0 0 8px rgba(255, 152, 0, 0); }
+}
+
+/* Modern Table Enhancements */
+.admin-table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    background: rgba(0,0,0,0.02);
+}
+
+.admin-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table-row-new {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%) !important;
+    border-left: 4px solid #10b981;
+}
+
+.table-row-edited {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.02) 100%) !important;
+    border-left: 4px solid #f59e0b;
+}
+
+[data-theme='dark'] .admin-table th {
+    background: rgba(255,255,255,0.03);
+    color: #eee;
+}
+
+[data-theme='dark'] .table-row-new {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.02) 100%) !important;
+}
+
+[data-theme='dark'] .table-row-edited {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.02) 100%) !important;
+}
+
+/* Premium Buttons */
+.btn-primary.shadow {
+    background: linear-gradient(135deg, var(--primary-color, #0d6efd), #0a58ca);
+    border: none;
+    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-primary.shadow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4) !important;
+}
+
+[data-theme='dark'] .btn-primary.shadow {
+    background: linear-gradient(135deg, #0d6efd, #0043a8);
+}

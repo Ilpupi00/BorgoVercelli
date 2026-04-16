@@ -12,7 +12,21 @@
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
     <link rel="stylesheet" href="/assets/styles/Footer.css">
-    <link rel="stylesheet" href="/assets/styles/theme-admin.css">
+    <link rel="stylesheet" href="/assets/styles/theme-admin.css?v=2.0">
+    <!-- HARD OVERRIDE PER PAGINAZIONE SICURA -->
+    <style>
+        :root[data-theme="dark"] .pagination .page-item.active .page-link,
+        :root[data-theme="dark"] .pagination .active > .page-link,
+        :root[data-theme="dark"] .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #3b82f6 !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            text-indent: 0 !important;
+            font-weight: 800 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -40,21 +54,11 @@
                                     <i class="bi bi-person-circle me-2"></i>
                                     <span class="d-none d-sm-inline">Profilo</span>
                                 </a>
-                                <!-- Theme & color controls -->
+                                <!-- Theme toggle button (Unified single button like calendar) -->
                                 <div class="ms-2 d-flex align-items-center" id="admin-theme-controls">
-                                    <div class="btn-group me-2" role="group" aria-label="Theme buttons">
-                                        <button id="theme-light" class="btn btn-outline-primary">Light</button>
-                                        <button id="theme-dark" class="btn btn-outline-primary">Dark</button>
-                                        <button id="theme-auto" class="btn btn-outline-primary">Sistema</button>
-                                    </div>
-                                    <!--<div class="d-flex align-items-center">
-                                        <label class="me-2 small text-muted mb-0" for="color-light">Colore light</label>
-                                        <input type="color" id="color-light" title="Colore primario light" style="width:40px;height:32px;border:0;padding:0;border-radius:6px;">
-                                    </div>
-                                    <div class="d-flex align-items-center ms-2">
-                                        <label class="me-2 small text-muted mb-0" for="color-dark">Colore dark</label>
-                                        <input type="color" id="color-dark" title="Colore primario dark" style="width:40px;height:32px;border:0;padding:0;border-radius:6px;">
-                                    </div>-->
+                                    <button id="theme-toggle" class="btn btn-outline-primary d-flex align-items-center justify-content-center px-3 py-2" title="Cambia tema">
+                                        <i class="bi bi-circle-half"></i>
+                                    </button>
                                 </div>
                                 <a href="/Logout" class="btn btn-outline-danger d-flex align-items-center justify-content-center">
                                     <i class="bi bi-box-arrow-right me-2"></i>

@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// *** FUSO ORARIO: impostato PRIMA di qualsiasi require ***
+// Garantisce che TUTTE le date (Node.js, driver PostgreSQL, moment, Intl)
+// usino sempre Europe/Rome (CET in inverno, CEST in estate - ora legale auto)
+process.env.TZ = 'Europe/Rome';
+
 /**
  * Module dependencies.
  */

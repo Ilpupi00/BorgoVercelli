@@ -1,33 +1,387 @@
 /**
  * Gestione_Orari_Campi.css
- * Stili specifici per la gestione orari campi
+ * Calendar board in stile Microsoft Teams — contrasto alto in Light & Dark Mode
  */
 
-/* Input time più compatti */
-.admin-table input[type="time"] {
-  min-width: 120px;
+/* ===================== VARIABILI TEMA ===================== */
+:root {
+    --cal-bg:        #f0f2f5;
+    --cal-card:      #ffffff;
+    --cal-border:    #d1d5db;
+    --cal-border-dash: #e5e7eb;
+    --cal-text:      #111827;
+    --cal-time-txt:  #4b5563;
+    --cal-accent:    #4f46e5;
+    --cal-header-bg: #ffffff;
 }
 
-/* Checkbox centrato */
-.admin-table .form-check-input {
-  margin: 0 auto;
-  display: block;
+[data-theme='dark'] {
+    --cal-bg:        #1a1a2e;
+    --cal-card:      #16213e;
+    --cal-border:    #2d3748;
+    --cal-border-dash:#374151;
+    --cal-text:      #f1f5f9;
+    --cal-time-txt:  #94a3b8;
+    --cal-accent:    #818cf8;
+    --cal-header-bg: #0f172a;
 }
 
-/* Sezioni giorni settimana */
-.content-card + .content-card {
-  margin-top: 2rem;
-}
-
-/* Header sezione responsive */
-@media (max-width: 768px) {
-  .section-header {
+/* ===================== WRAPPER ===================== */
+.teams-calendar-wrapper {
+    background-color: var(--cal-bg);
+    border: 1px solid var(--cal-border);
+    border-radius: 10px;
+    height: 750px;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start !important;
-    gap: 1rem;
-  }
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-  .section-header .btn {
+/* ===================== HEADER GIORNI ===================== */
+.teams-header-row {
+    display: flex;
+    background-color: var(--cal-header-bg);
+    border-bottom: 2px solid var(--cal-border);
+    flex-shrink: 0;
+}
+
+.teams-time-spacer {
+    width: 56px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--cal-border);
+}
+
+.teams-day-header {
+    flex: 1;
+    padding: 10px 8px;
+    border-right: 1px solid var(--cal-border);
+    text-align: left;
+    cursor: default;
+}
+
+.teams-day-header:last-child { border-right: none; }
+
+.teams-day-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cal-text);
+    line-height: 1;
+}
+
+.teams-day-text {
+    font-size: 0.7rem;
+    color: var(--cal-time-txt);
+    text-transform: capitalize;
+    font-weight: 600;
+}
+
+.teams-day-header.active .teams-day-number,
+.teams-day-header.active .teams-day-text { color: var(--cal-accent); }
+
+.teams-day-header.active {
+    border-top: 3px solid var(--cal-accent);
+}
+
+/* ===================== BODY ===================== */
+.teams-body-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    background-color: var(--cal-bg);
+    touch-action: none;
+}
+
+/* ===================== GRIGLIA SFONDO ===================== */
+.teams-grid-lines {
+    position: absolute;
+    top: 0;
+    left: 56px;
+    right: 0;
+    height: 960px;
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.teams-grid-hour-line {
+    height: 60px;
+    border-top: 1px solid var(--cal-border);
+    box-sizing: border-box;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.teams-grid-hour-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    border-top: 1px dashed var(--cal-border-dash);
+}
+
+/* ===================== ASSE ORE ===================== */
+.teams-time-axis {
+    position: absolute;
+    top: 0; left: 0;
+    width: 56px;
+    height: 960px;
+    z-index: 5;
+    background-color: var(--cal-bg);
+    border-right: 1px solid var(--cal-border);
+    pointer-events: none;
+}
+
+.teams-time-label {
+    height: 60px;
+    box-sizing: border-box;
+    text-align: center;
+    position: absolute;
     width: 100%;
-  }
+}
+
+.teams-time-label span {
+    position: absolute;
+    top: -9px;
+    left: 0; width: 100%;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--cal-time-txt);
+}
+
+/* ===================== COLONNE INTERATTIVE ===================== */
+.teams-columns-container {
+    position: absolute;
+    top: 0;
+    left: 56px;
+    right: 0;
+    height: 960px;
+    display: flex;
+    z-index: 2;
+}
+
+.teams-day-column {
+    flex: 1;
+    height: 100%;
+    border-right: 1px solid var(--cal-border);
+    position: relative;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.teams-day-column:last-child { border-right: none; }
+
+.teams-day-column:hover {
+    background-color: rgba(79, 70, 229, 0.03);
+}
+
+[data-theme='dark'] .teams-day-column:hover {
+    background-color: rgba(129, 140, 248, 0.04);
+}
+
+/* ===================== SLOT ORARI ===================== */
+.teams-slot {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 5px;
+    border-left: 4px solid transparent;
+    padding: 3px 5px;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    overflow: hidden;
+    cursor: grab;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: opacity 0.15s, filter 0.15s, transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.teams-slot:hover {
+    filter: brightness(1.1);
+    z-index: 15;
+}
+
+.teams-slot:active {
+    cursor: grabbing;
+    filter: brightness(0.9);
+}
+
+/* Titolo slot — SEMPRE bianco per contrasto */
+.slot-title {
+    font-weight: 700;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* Orario slot — SEMPRE bianco leggermente ridotto */
+.slot-time {
+    font-size: 0.63rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* ===================== VARIANTI COLORI SLOT ===================== */
+/* Standard (blu indaco) */
+.slot-standard {
+    background-color: #4f46e5;
+    border-left-color: #3730a3;
+}
+
+[data-theme='dark'] .slot-standard {
+    background-color: #4338ca;
+    border-left-color: #818cf8;
+}
+
+/* Nuovo (verde) */
+.slot-new {
+    background-color: #059669;
+    border-left-color: #047857;
+}
+
+[data-theme='dark'] .slot-new {
+    background-color: #065f46;
+    border-left-color: #34d399;
+}
+
+/* Modificato (arancio) */
+.slot-edited {
+    background-color: #d97706;
+    border-left-color: #b45309;
+}
+
+[data-theme='dark'] .slot-edited {
+    background-color: #92400e;
+    border-left-color: #fbbf24;
+}
+
+/* Inattivo (grigio) */
+.slot-inactive {
+    background-color: #6b7280;
+    border-left-color: #4b5563;
+    opacity: 0.75;
+}
+
+[data-theme='dark'] .slot-inactive {
+    background-color: #374151;
+    border-left-color: #6b7280;
+}
+
+/* Pattern diagonal per slot default (tutti i giorni) */
+.slot-is-default {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,0.07),
+        rgba(255,255,255,0.07) 3px,
+        transparent 3px,
+        transparent 9px
+    );
+}
+
+/* ===================== GHOST DRAG ===================== */
+.teams-slot-ghost {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 5px;
+    border: 2px dashed rgba(255,255,255,0.9);
+    background-color: rgba(79, 70, 229, 0.55);
+    pointer-events: none;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 4px;
+}
+
+[data-theme='dark'] .teams-slot-ghost {
+    background-color: rgba(129, 140, 248, 0.55);
+    border-color: rgba(255,255,255,0.7);
+}
+
+.ghost-time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    padding: 0 4px;
+}
+
+/* ===================== OFFCANVAS DARK MODE FIX ===================== */
+.offcanvas {
+    background-color: var(--cal-card) !important;
+    color: var(--cal-text) !important;
+}
+
+.offcanvas-body {
+    background-color: var(--cal-card);
+    color: var(--cal-text);
+}
+
+.offcanvas .form-label,
+.offcanvas label {
+    color: var(--cal-text) !important;
+    font-weight: 600;
+}
+
+.offcanvas .form-control,
+.offcanvas .form-select {
+    background-color: var(--cal-bg);
+    color: var(--cal-text);
+    border: 1px solid var(--cal-border);
+}
+
+.offcanvas .form-control:focus,
+.offcanvas .form-select:focus {
+    border-color: var(--cal-accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.offcanvas .form-text {
+    color: var(--cal-time-txt);
+}
+
+.offcanvas [data-theme-aware] {
+    background-color: var(--cal-bg) !important;
+    border-color: var(--cal-border) !important;
+}
+
+.offcanvas .form-check-label {
+    color: var(--cal-text) !important;
+}
+
+/* ===================== FORM FOOTER (Salva Pianificazione) ===================== */
+.form-footer[data-theme-aware] {
+    background-color: var(--cal-card) !important;
+    border-color: var(--cal-border) !important;
+    color: var(--cal-text);
+}
+
+.form-footer .text-muted {
+    color: var(--cal-time-txt) !important;
+}
+
+/* ===================== CALENDARIO HEADER PANEL ===================== */
+.calendar-legend {
+    color: var(--cal-text) !important;
+}
+
+/* ===================== SCROLLBAR ===================== */
+.teams-body-wrapper::-webkit-scrollbar { width: 6px; }
+.teams-body-wrapper::-webkit-scrollbar-track { background: var(--cal-bg); }
+.teams-body-wrapper::-webkit-scrollbar-thumb {
+    background: var(--cal-border);
+    border-radius: 3px;
 }

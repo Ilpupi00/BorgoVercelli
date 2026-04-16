@@ -260,8 +260,8 @@
                                                                     <small class="text-muted"><%= (evento.descrizione || '').replace(/<[^>]*>/g, '').substring(0, 50) %>...</small>
                                                                 <% } %>
                                                             </td>
-                                                            <td><%= evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT') : 'N/A' %></td>
-                                                            <td><%= evento.data_fine ? new Date(evento.data_fine).toLocaleDateString('it-IT') : 'N/A' %></td>
+                                                            <td><%= formatDate(evento.data_inizio) %></td>
+                                                            <td><%= formatDate(evento.data_fine) %></td>
                                                             <td><%= evento.luogo || 'N/A' %></td>
                                                             <td>
                                                                 <span class="badge badge-info">

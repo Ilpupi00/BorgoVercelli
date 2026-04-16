@@ -504,6 +504,56 @@ app.set("views", [
   path.join(__dirname, "features/squadre/views"), // Squadre
 ]);
 
+// ==================== HELPER DATE (Europe/Rome, ora legale auto) ====================
+/**
+ * Funzioni accessibili in tutti i template EJS come: formatDate(val), formatDateTime(val)
+ * Usano sempre il fuso Europe/Rome (CET/CEST, ora legale gestita dall’OS e da Intl)
+ * Il runtime usa già TZ=Europe/Rome (impostato in www prima di qualsiasi require)
+ */
+const LOCALE_IT = 'it-IT';
+const ROME_TZ   = { timeZone: 'Europe/Rome' };
+
+// Formatta solo la data: es. 14/04/2026
+app.locals.formatDate = function(val) {
+  if (!val) return 'N/D';
+  try {
+    return new Date(val).toLocaleDateString(LOCALE_IT, ROME_TZ);
+  } catch { return String(val); }
+};
+
+// Formatta data e ora: es. 14/04/2026, 22:30
+app.locals.formatDateTime = function(val) {
+  if (!val) return 'N/D';
+  try {
+    return new Date(val).toLocaleString(LOCALE_IT, {
+      ...ROME_TZ,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch { return String(val); }
+};
+
+// Formatta solo l'ora: es. 22:30
+app.locals.formatTime = function(val) {
+  if (!val) return '';
+  try {
+    return new Date(val).toLocaleTimeString(LOCALE_IT, { ...ROME_TZ, hour: '2-digit', minute: '2-digit' });
+  } catch { return String(val); }
+};
+
+// Formatta data estesa: es. lunedì 14 aprile 2026
+app.locals.formatDateLong = function(val) {
+  if (!val) return 'N/D';
+  try {
+    return new Date(val).toLocaleDateString(LOCALE_IT, {
+      ...ROME_TZ,
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  } catch { return String(val); }
+};
+
+console.log(`[APP] 🗓️  Timezone: ${process.env.TZ || 'non impostato'} | Ora locale: ${new Date().toLocaleString(LOCALE_IT, ROME_TZ)}`);
+
 // ==================== GESTIONE ERRORI ====================
 
 /**
