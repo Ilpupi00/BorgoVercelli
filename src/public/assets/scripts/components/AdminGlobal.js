@@ -599,6 +599,11 @@ class DataTable {
   constructor(tableElement, options = {}) {
     this.table = tableElement;
     this.tbody = tableElement.querySelector("tbody");
+    if (!this.tbody) return;
+    
+    // Salva l'ordine originale delle righe per poterlo ripristinare
+    this.originalRows = Array.from(this.tbody.querySelectorAll("tr"));
+    
     this.options = {
       sortable: options.sortable !== false,
       searchable: options.searchable !== false,
@@ -608,7 +613,7 @@ class DataTable {
 
     this.currentPage = 1;
     this.sortColumn = null;
-    this.sortDirection = "asc";
+    this.sortDirection = "none"; // asc, desc, none
 
     if (this.options.sortable) {
       this.initSorting();
@@ -621,11 +626,21 @@ class DataTable {
   initSorting() {
     const headers = this.table.querySelectorAll("thead th");
     headers.forEach((header, index) => {
-      if (!header.classList.contains("no-sort")) {
+      // Ignora se la colonna ha col-actions o no-sort
+      if (!header.classList.contains("no-sort") && !header.classList.contains("col-actions") && header.innerText.trim() !== '') {
         header.style.cursor = "pointer";
+        header.title = "Clicca per ordinare";
         header.addEventListener("click", () => {
           this.sortByColumn(index);
         });
+        
+        // Aggiungi un'icona base trasparente per mantenere l'allineamento
+        if (!header.querySelector(".sort-icon")) {
+            header.innerHTML = `<span class="sort-header-content" style="display:flex;align-items:center;">
+                ${header.innerHTML}
+                <i class="bi bi-arrow-down-up sort-icon ms-1" style="opacity:0.3; font-size:0.8em;"></i>
+            </span>`;
+        }
       }
     });
   }
@@ -634,25 +649,54 @@ class DataTable {
    * Ordina per colonna
    */
   sortByColumn(columnIndex) {
-    const rows = Array.from(this.tbody.querySelectorAll("tr"));
-
+    // 3-state sort: asc -> desc -> none
     if (this.sortColumn === columnIndex) {
-      this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+      if (this.sortDirection === "asc") this.sortDirection = "desc";
+      else if (this.sortDirection === "desc") this.sortDirection = "none";
+      else this.sortDirection = "asc";
     } else {
       this.sortColumn = columnIndex;
       this.sortDirection = "asc";
     }
 
-    rows.sort((a, b) => {
-      const aValue = a.cells[columnIndex].textContent.trim();
-      const bValue = b.cells[columnIndex].textContent.trim();
-
-      const comparison = aValue.localeCompare(bValue, "it", { numeric: true });
-      return this.sortDirection === "asc" ? comparison : -comparison;
-    });
-
-    // Riordina righe
-    rows.forEach((row) => this.tbody.appendChild(row));
+    if (this.sortDirection === "none") {
+      // Ripristina ordine originale
+      this.originalRows.forEach((row) => this.tbody.appendChild(row));
+      this.sortColumn = null; 
+    } else {
+        const rows = Array.from(this.tbody.querySelectorAll("tr"));
+        rows.sort((a, b) => {
+          const cellA = a.cells[columnIndex];
+          const cellB = b.cells[columnIndex];
+          if (!cellA || !cellB) return 0;
+          
+          let aValue = cellA.textContent.trim();
+          let bValue = cellB.textContent.trim();
+          
+          // Estrai valore vero se c'è un input o select (eg. da modali/form)
+          const inputA = cellA.querySelector('input, select');
+          const inputB = cellB.querySelector('input, select');
+          if (inputA) aValue = inputA.value;
+          if (inputB) bValue = inputB.value;
+    
+          // Fallback parsing date/numeri per sorting più intelligente
+          let comparison = 0;
+          
+          // Try numeric
+          const numA = parseFloat(aValue.replace(/[^0-9,-]+/g,"").replace(",","."));
+          const numB = parseFloat(bValue.replace(/[^0-9,-]+/g,"").replace(",","."));
+          if (!isNaN(numA) && !isNaN(numB) && aValue.match(/^[0-9., €$-]+$/) && bValue.match(/^[0-9., €$-]+$/)) {
+              comparison = numA - numB;
+          } else {
+              comparison = aValue.localeCompare(bValue, "it", { numeric: true, sensitivity: 'base' });
+          }
+          
+          return this.sortDirection === "asc" ? comparison : -comparison;
+        });
+    
+        // Riordina righe
+        rows.forEach((row) => this.tbody.appendChild(row));
+    }
 
     // Aggiorna icone ordinamento
     this.updateSortIcons();
@@ -665,18 +709,33 @@ class DataTable {
     const headers = this.table.querySelectorAll("thead th");
     headers.forEach((header, index) => {
       const icon = header.querySelector(".sort-icon");
-      if (icon) icon.remove();
+      if (!icon) return;
+      
+      icon.className = "bi sort-icon ms-1";
+      icon.style.opacity = "0.3";
 
-      if (index === this.sortColumn) {
-        const iconClass =
-          this.sortDirection === "asc" ? "bi-arrow-up" : "bi-arrow-down";
-        header.insertAdjacentHTML(
-          "beforeend",
-          `<i class="bi ${iconClass} sort-icon ms-1"></i>`
-        );
+      if (index === this.sortColumn && this.sortDirection !== "none") {
+        icon.style.opacity = "1";
+        icon.className = this.sortDirection === "asc" ? "bi bi-arrow-up sort-icon ms-1 text-primary" : "bi bi-arrow-down sort-icon ms-1 text-primary";
+      } else {
+        icon.className = "bi bi-arrow-down-up sort-icon ms-1";
       }
     });
   }
+}
+
+// Auto-inizializzazione per tutte le tabelle classiche del pannello admin
+function autoInitDataTables() {
+    // Esci se siamo in tabelle che usano plugin esterni complex come dataTables jQuery
+    if (typeof jQuery !== 'undefined' && jQuery.fn.DataTable && document.querySelector('.dataTables_wrapper')) return;
+    
+    document.querySelectorAll("table.table, table.admin-table").forEach(table => {
+        // Se non ha già un'istanza e non è stata esplicitamente ignorata
+        if (!table.dataset.tableInit && !table.classList.contains('no-auto-sort') && !table.classList.contains('no-sort')) {
+            new DataTable(table);
+            table.dataset.tableInit = 'true';
+        }
+    });
 }
 
 // ==================== EXPORT FUNCTIONS ====================
@@ -757,6 +816,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     `;
   document.head.appendChild(style);
+
+  // Inizializza automaticamente i sort delle tabelle
+  autoInitDataTables();
 
   console.log("Admin Global JS initialized");
 });

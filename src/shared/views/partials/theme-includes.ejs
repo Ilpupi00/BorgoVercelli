@@ -1,5 +1,5 @@
 <!-- Theme System - Include this in every page head -->
-<link rel="stylesheet" href="/assets/styles/theme-dark.css">
+<link rel="stylesheet" href="/assets/styles/theme-dark.css?v=2.0">
 <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
 <!-- Web App Manifest -->
 <link rel="manifest" href="/manifest.json">
@@ -14,3 +14,27 @@
     })();
 </script>
 <script src="/assets/scripts/theme-manager.js" defer></script>
+
+<!-- HARD OVERRIDE PER PAGINAZIONE SICURA (Bypass Browser Cache Globale) -->
+<style>
+    :root[data-theme="dark"] .pagination .page-item.active .page-link,
+    :root[data-theme="dark"] .pagination .active > .page-link,
+    :root[data-theme="dark"] .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    :root[data-theme="dark"] .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background-color: #3b82f6 !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        text-indent: 0 !important;
+        font-weight: 800 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+    }
+    
+    /* Forza grigio per inattivi per contrasto visivo */
+    :root[data-theme="dark"] .pagination .page-item:not(.active) .page-link,
+    :root[data-theme="dark"] .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current) {
+        background-color: var(--card-bg, #1e293b) !important;
+        color: #94a3b8 !important;
+    }
+</style>

@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Prenotazioni</title>
+    <title>Calendario Prenotazioni — ASD Borgo Vercelli</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <%- include('../../shared/views/partials/theme-includes') %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/Navbar.css">
+    <link rel="stylesheet" href="/assets/styles/Footer.css">
     <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
     <link rel="stylesheet" href="/assets/styles/calendario.css">
 </head>
 <body>
+    <%- include('partials/navbar') %>
+
     <div class="calendario-wrapper">
+
         <!-- Header -->
         <header class="calendario-header reveal reveal--fade-up">
             <div class="header-content">
@@ -26,7 +31,7 @@
                 </div>
                 <div class="header-actions">
                     <button id="exportReportBtn" class="btn btn-export">
-                        <i class="bi bi-file-earmark-excel me-1"></i><span class="d-none d-md-inline">Report Excel</span>
+                        <i class="bi bi-file-earmark-excel me-1"></i><span class="d-none d-md-inline">Esporta</span>
                     </button>
                     <button id="todayBtn" class="btn btn-today">
                         <i class="bi bi-calendar-day me-1"></i><span class="d-none d-sm-inline">Oggi</span>
@@ -38,16 +43,30 @@
             </div>
         </header>
 
-        <!-- Filters & Navigation -->
+        <!-- Controls: Vista + Navigazione + Filtri -->
         <section class="calendario-controls reveal reveal--fade-up reveal--delay-1">
             <div class="controls-wrapper">
-                <!-- Month Navigation -->
-                <div class="month-navigation">
-                    <button id="prevMonth" class="btn-nav" title="Mese precedente">
+
+                <!-- View switcher -->
+                <div class="cal-view-switcher">
+                    <button class="cal-view-btn active" data-view="month">
+                        <i class="bi bi-calendar3 me-1"></i>Mese
+                    </button>
+                    <button class="cal-view-btn" data-view="week">
+                        <i class="bi bi-calendar-week me-1"></i>Settimana
+                    </button>
+                    <button class="cal-view-btn" data-view="day">
+                        <i class="bi bi-calendar-day me-1"></i>Giorno
+                    </button>
+                </div>
+
+                <!-- Period Navigation -->
+                <div class="cal-navigation">
+                    <button id="prevPeriod" class="btn-nav" title="Precedente">
                         <i class="bi bi-chevron-left"></i>
                     </button>
-                    <h2 id="currentMonth" class="month-title">Gennaio 2025</h2>
-                    <button id="nextMonth" class="btn-nav" title="Mese successivo">
+                    <h2 id="currentPeriod" class="month-title">Caricamento...</h2>
+                    <button id="nextPeriod" class="btn-nav" title="Successivo">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
@@ -82,45 +101,32 @@
             </div>
         </section>
 
-        <!-- Calendar Grid -->
+        <!-- Calendar View Container -->
         <section class="calendario-grid-section">
-            <div class="calendar-container">
-                <!-- Days of week header -->
-                <div class="calendar-header-days">
-                    <div class="day-header">Lun</div>
-                    <div class="day-header">Mar</div>
-                    <div class="day-header">Mer</div>
-                    <div class="day-header">Gio</div>
-                    <div class="day-header">Ven</div>
-                    <div class="day-header">Sab</div>
-                    <div class="day-header">Dom</div>
-                </div>
-                <!-- Days grid - populated by JS -->
-                <div id="calendarDays" class="calendar-days">
-                    <!-- Populated by JavaScript -->
-                </div>
+            <div id="calViewContainer">
+                <!-- Populated by JavaScript per-view -->
             </div>
 
             <!-- Legend -->
-            <div class="calendar-legend" role="list" aria-label="Legenda prenotazioni">
+            <div class="calendar-legend" id="calLegend">
                 <h3 class="legend-title">Legenda</h3>
                 <div class="legend-items">
-                    <div class="legend-item" data-status="confermata" data-color-name="Verde" role="listitem" aria-label="Prenotazione confermata">
-                        <span class="badge badge-confermata" aria-hidden="true"></span>
+                    <div class="legend-item" data-status="confermata">
+                        <span class="badge badge-confermata"></span>
                         <div class="legend-text">
                             <div class="legend-label">Confermata</div>
                             <div class="legend-desc">Prenotazione confermata — campo occupato</div>
                         </div>
                     </div>
-                    <div class="legend-item" data-status="in_attesa" data-color-name="Arancione" role="listitem" aria-label="Prenotazione in attesa">
-                        <span class="badge badge-in-attesa" aria-hidden="true"></span>
+                    <div class="legend-item" data-status="in_attesa">
+                        <span class="badge badge-in-attesa"></span>
                         <div class="legend-text">
                             <div class="legend-label">In Attesa</div>
                             <div class="legend-desc">Richiesta non ancora confermata dall'admin</div>
                         </div>
                     </div>
-                    <div class="legend-item" data-status="annullata" data-color-name="Rosso" role="listitem" aria-label="Prenotazione annullata">
-                        <span class="badge badge-annullata" aria-hidden="true"></span>
+                    <div class="legend-item" data-status="annullata">
+                        <span class="badge badge-annullata"></span>
                         <div class="legend-text">
                             <div class="legend-label">Annullata</div>
                             <div class="legend-desc">Prenotazione annullata — slot libero</div>
@@ -130,7 +136,7 @@
             </div>
         </section>
 
-        <!-- Day Detail Modal -->
+        <!-- Day/Booking Detail Modal -->
         <div id="dayModal" class="modal-overlay" style="display: none;">
             <div class="modal-container">
                 <div class="modal-header">
@@ -147,10 +153,10 @@
 
         <!-- Export Report Modal -->
         <div id="exportModal" class="modal-overlay" style="display: none;">
-            <div class="modal-container">
+            <div class="modal-container" style="max-width:540px;">
                 <div class="modal-header">
                     <h3 class="modal-title">
-                        <i class="bi bi-file-earmark-excel me-2"></i>Esporta Report Prenotazioni
+                        <i class="bi bi-file-earmark-excel me-2"></i>Esporta Report Excel
                     </h3>
                     <button id="closeExportModal" class="btn-close-modal" title="Chiudi">
                         <i class="bi bi-x-lg"></i>
@@ -158,44 +164,115 @@
                 </div>
                 <div class="modal-body">
                     <form id="exportForm" class="export-form">
-                        <div class="form-group mb-3">
-                            <label for="dataInizio" class="form-label">
-                                <i class="bi bi-calendar-event me-1"></i>Data Inizio
-                            </label>
-                            <input type="date" class="form-control" id="dataInizio" required>
+
+                        <!-- STEP 1: Tipo report -->
+                        <div class="export-step" id="exportStep1">
+                            <p class="export-step-title"><i class="bi bi-layout-three-columns me-2"></i>Che tipo di report vuoi?</p>
+                            <div class="export-type-grid">
+                                <button type="button" class="export-type-btn active" data-type="mensile">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Mensile</span>
+                                    <small>Tutto il mese</small>
+                                </button>
+                                <button type="button" class="export-type-btn" data-type="settimanale">
+                                    <i class="bi bi-calendar-week"></i>
+                                    <span>Settimanale</span>
+                                    <small>Una settimana</small>
+                                </button>
+                                <button type="button" class="export-type-btn" data-type="giornaliero">
+                                    <i class="bi bi-calendar-day"></i>
+                                    <span>Giornaliero</span>
+                                    <small>Un singolo giorno</small>
+                                </button>
+                                <button type="button" class="export-type-btn" data-type="custom">
+                                    <i class="bi bi-sliders"></i>
+                                    <span>Personalizzato</span>
+                                    <small>Scegli le date</small>
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="dataFine" class="form-label">
-                                <i class="bi bi-calendar-event-fill me-1"></i>Data Fine
-                            </label>
-                            <input type="date" class="form-control" id="dataFine" required>
+
+                        <!-- STEP 2: Date (cambiano in base al tipo) -->
+                        <div class="export-step mt-3" id="exportStep2">
+                            <p class="export-step-title"><i class="bi bi-calendar-range me-2"></i>Periodo di riferimento</p>
+
+                            <!-- Mensile: selezione mese -->
+                            <div id="periodMensile">
+                                <div class="period-nav mb-2">
+                                    <button type="button" id="prevMese" class="btn-nav-sm"><i class="bi bi-chevron-left"></i></button>
+                                    <span id="meseLabel" class="period-label">Aprile 2026</span>
+                                    <button type="button" id="nextMese" class="btn-nav-sm"><i class="bi bi-chevron-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Settimanale: selezione settimana -->
+                            <div id="periodSettimanale" style="display:none;">
+                                <div class="period-nav mb-2">
+                                    <button type="button" id="prevSett" class="btn-nav-sm"><i class="bi bi-chevron-left"></i></button>
+                                    <span id="settLabel" class="period-label">14 – 20 Apr 2026</span>
+                                    <button type="button" id="nextSett" class="btn-nav-sm"><i class="bi bi-chevron-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Giornaliero: selezione giorno -->
+                            <div id="periodGiornaliero" style="display:none;">
+                                <div class="period-nav mb-2">
+                                    <button type="button" id="prevGiorno" class="btn-nav-sm"><i class="bi bi-chevron-left"></i></button>
+                                    <span id="giornoLabel" class="period-label">Mercoledì 16 Aprile 2026</span>
+                                    <button type="button" id="nextGiorno" class="btn-nav-sm"><i class="bi bi-chevron-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Custom: date libere -->
+                            <div id="periodCustom" style="display:none;">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label for="dataInizio" class="form-label"><i class="bi bi-calendar-event me-1"></i>Dal</label>
+                                        <input type="date" class="form-control" id="dataInizio">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="dataFine" class="form-label"><i class="bi bi-calendar-event-fill me-1"></i>Al</label>
+                                        <input type="date" class="form-control" id="dataFine">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="campoExport" class="form-label">
-                                <i class="bi bi-geo-alt me-1"></i>Campo (opzionale)
-                            </label>
-                            <select id="campoExport" class="form-select">
-                                <option value="">Tutti i campi</option>
-                                <% if (campi && campi.length > 0) { %>
-                                    <% campi.forEach(campo => { %>
-                                        <option value="<%= campo.id %>"><%= campo.nome %></option>
-                                    <% }); %>
-                                <% } %>
-                            </select>
+
+                        <!-- STEP 3: Filtri opzionali -->
+                        <div class="export-step mt-3" id="exportStep3">
+                            <p class="export-step-title"><i class="bi bi-funnel me-2"></i>Filtri opzionali</p>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label for="campoExport" class="form-label"><i class="bi bi-geo-alt me-1"></i>Campo</label>
+                                    <select id="campoExport" class="form-select">
+                                        <option value="">Tutti i campi</option>
+                                        <% if (campi && campi.length > 0) { %>
+                                            <% campi.forEach(campo => { %>
+                                                <option value="<%= campo.id %>"><%= campo.nome %></option>
+                                            <% }); %>
+                                        <% } %>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="statoExport" class="form-label"><i class="bi bi-filter me-1"></i>Stato</label>
+                                    <select id="statoExport" class="form-select">
+                                        <option value="">Tutti gli stati</option>
+                                        <option value="confermata">Confermate</option>
+                                        <option value="in_attesa">In Attesa</option>
+                                        <option value="annullata">Annullate</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group mb-4">
-                            <label for="statoExport" class="form-label">
-                                <i class="bi bi-filter me-1"></i>Stato (opzionale)
-                            </label>
-                            <select id="statoExport" class="form-select">
-                                <option value="">Tutti gli stati</option>
-                                <option value="confermata">Solo Confermate</option>
-                                <option value="in_attesa">Solo In Attesa</option>
-                                <option value="annullata">Solo Annullate</option>
-                            </select>
+
+                        <!-- Riepilogo periodo selezionato -->
+                        <div class="export-summary mt-3" id="exportSummary">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="exportSummaryText">Periodo: tutto il mese corrente</span>
                         </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary btn-lg" id="exportSubmitBtn">
                                 <i class="bi bi-download me-2"></i>Scarica Report Excel
                             </button>
                         </div>
@@ -204,6 +281,8 @@
             </div>
         </div>
     </div>
+
+    <%- include('partials/footer') %>
 
     <!-- Pass data to JavaScript -->
     <script>

@@ -1885,3 +1885,63 @@ table .btn-danger {
 .toast-close:hover {
   color: var(--gray-700);
 }
+
+/* ==================== ICONE BIANCHE — ADMIN GLOBALE ==================== */
+
+/* 1) Header pagina: sfondo sempre blu → tutte le icone bianche */
+.admin-page-header [class*="bi-"] {
+  color: #ffffff !important;
+  filter: none !important;
+}
+
+/* 2) Sidebar: sfondo scuro → tutte le icone bianche */
+.admin-sidebar [class*="bi-"] {
+  color: #ffffff !important;
+}
+
+/* 3) Pulsanti con sfondo colorato: le icone ereditano il bianco del btn */
+.btn-primary   [class*="bi-"],
+.btn-secondary [class*="bi-"],
+.btn-success   [class*="bi-"],
+.btn-danger    [class*="bi-"],
+.btn-warning   [class*="bi-"],
+.btn-info      [class*="bi-"],
+.btn-dark      [class*="bi-"] {
+  color: inherit !important;
+}
+
+/* 4) Titoli sezioni admin → icone bianche */
+.admin-container .form-section-title [class*="bi-"],
+.admin-container .section-title      [class*="bi-"],
+.admin-page-header-content           [class*="bi-"] {
+  color: #ffffff !important;
+}
+
+/* 5) Icone grandi standalone (display-*) dentro le sezioni admin */
+.admin-container [class*="bi-"].display-1,
+.admin-container [class*="bi-"].display-2,
+.admin-container [class*="bi-"].display-3,
+.admin-container [class*="bi-"].display-4 {
+  color: #ffffff !important;
+  opacity: 0.85;
+}
+
+/* 6) Icone dentro badge di stato: ereditano il colore del badge */
+.badge [class*="bi-"] {
+  color: inherit !important;
+}
+
+/* 7) Icone nei pulsanti outline dell'header glassmorphism → bianche */
+.admin-page-header-actions [class*="bi-"] {
+  color: #ffffff !important;
+}
+
+/* 8) Icone nei pulsanti outline standard dentro il contenuto */
+.btn-outline-primary   [class*="bi-"],
+.btn-outline-secondary [class*="bi-"],
+.btn-outline-success   [class*="bi-"],
+.btn-outline-danger    [class*="bi-"],
+.btn-outline-warning   [class*="bi-"],
+.btn-outline-info      [class*="bi-"] {
+  color: inherit !important;
+}

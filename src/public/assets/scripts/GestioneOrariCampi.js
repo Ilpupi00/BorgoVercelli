@@ -64,9 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // ===== DRAG-TO-SELECT =====
-        // IMPORTANTE: attacchiamo i listener sul teamsColumnsContainer  che NON viene mai
-        // distrutto/ricreato. renderTeamsBoard() svuota solo l'INTERNO delle colonne (.innerHTML='').
-        // Usiamo event delegation: un unico pointerdown sul container cattura tutti i click sulle colonne.
         const container = document.getElementById('teamsColumnsContainer');
         if (!container) return;
 
