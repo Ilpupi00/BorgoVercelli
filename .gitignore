@@ -13,6 +13,7 @@ node_modules/
 database/database.db
 database.db
 *.db
+database/dump.sql
 
 # Push notifications config
 manifest.json
