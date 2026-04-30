@@ -1,4 +1,4 @@
-﻿process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/db';
+process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/db';
 const daoSquadre = require('../src/features/squadre/services/dao-squadre');
 const db = require('../src/core/config/database');
 
@@ -16,13 +16,19 @@ describe('DAO Squadre', () => {
 
   describe('getSquadre', () => {
     it('should return all squadre', async () => {
-      db.all.mockImplementation((sql, cb) => cb(null, [{ id: 1, nome: 'Vercelli' }]));
+      db.all.mockImplementation((sql, params, cb) => {
+        const callback = typeof params === 'function' ? params : cb;
+        callback(null, [{ id: 1, nome: 'Vercelli' }]);
+      });
       const result = await daoSquadre.getSquadre();
       expect(result).toHaveLength(1);
     });
 
     it('should handle errors', async () => {
-      db.all.mockImplementation((sql, cb) => cb(new Error('err')));
+      db.all.mockImplementation((sql, params, cb) => {
+        const callback = typeof params === 'function' ? params : cb;
+        callback(new Error('err'));
+      });
       await expect(daoSquadre.getSquadre()).rejects.toEqual({error: 'Error retrieving teams: err'});
     });
   });
@@ -69,7 +75,7 @@ describe('DAO Squadre', () => {
         cb.call({ changes: 1 }, null, { rowCount: 1 });
       });
       const result = await daoSquadre.updateSquadra(1, 'Nuovo Nome', 2005);
-      expect(result.success).toBe(true);
+      expect(result.message).toBe('Squadra aggiornata con successo');
     });
     
     it('should handle error', async () => {
@@ -84,7 +90,7 @@ describe('DAO Squadre', () => {
         cb.call({ changes: 1 }, null, { rowCount: 1 });
       });
       const result = await daoSquadre.deleteSquadra(1);
-      expect(result.success).toBe(true);
+      expect(result.message).toBe('Squadra cancellata con successo');
     });
     
     it('should handle error', async () => {
@@ -95,13 +101,19 @@ describe('DAO Squadre', () => {
 
   describe('getGiocatori', () => {
     it('should return giocatori', async () => {
-      db.all.mockImplementation((sql, cb) => cb(null, [{ id: 1, nome: 'Mario', cognome: 'Rossi' }]));
+      db.all.mockImplementation((sql, params, cb) => {
+        const callback = typeof params === 'function' ? params : cb;
+        callback(null, [{ id: 1, nome: 'Mario', cognome: 'Rossi' }]);
+      });
       const result = await daoSquadre.getGiocatori();
       expect(result).toHaveLength(1);
     });
 
     it('should handle errors', async () => {
-      db.all.mockImplementation((sql, cb) => cb(new Error('err')));
+      db.all.mockImplementation((sql, params, cb) => {
+        const callback = typeof params === 'function' ? params : cb;
+        callback(new Error('err'));
+      });
       await expect(daoSquadre.getGiocatori()).rejects.toEqual({ error: 'Error retrieving players: err' });
     });
   });

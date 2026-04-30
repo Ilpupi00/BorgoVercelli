@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.84% </span>
+                <span class="strong">57.69% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/26</span>
+                <span class='fraction'>15/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">10% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>1/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">33.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>1/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.84% </span>
+                <span class="strong">57.69% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/26</span>
+                <span class='fraction'>15/26</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -220,28 +220,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -317,7 +317,7 @@ class DirigenteSquadra {
    * @param {string} cognome - Cognome del dirigente (duplicato da utente)
    * @param {number} immagine_id - ID immagine profilo dirigente
    */
-<span class="fstat-no" title="function not covered" >  co</span>nstructor(
+  constructor(
     id,
     utente_id,
     squadra_id,
@@ -331,20 +331,20 @@ class DirigenteSquadra {
     cognome,
     immagine_id
   ) {
-<span class="cstat-no" title="statement not covered" >    this.id = id;</span>
-<span class="cstat-no" title="statement not covered" >    this.utente_id = utente_id;</span>
-<span class="cstat-no" title="statement not covered" >    this.squadra_id = squadra_id;</span>
-<span class="cstat-no" title="statement not covered" >    this.ruolo = ruolo;</span>
-<span class="cstat-no" title="statement not covered" >    this.data_nomina = data_nomina;</span>
-<span class="cstat-no" title="statement not covered" >    this.data_scadenza = data_scadenza;</span>
-<span class="cstat-no" title="statement not covered" >    this.attivo = attivo;</span>
-<span class="cstat-no" title="statement not covered" >    this.created_at = created_at;</span>
-<span class="cstat-no" title="statement not covered" >    this.updated_at = updated_at;</span>
-<span class="cstat-no" title="statement not covered" >    this.nome = nome;</span>
-<span class="cstat-no" title="statement not covered" >    this.cognome = cognome;</span>
-<span class="cstat-no" title="statement not covered" >    this.immagine_id = immagine_id;</span>
+    this.id = id;
+    this.utente_id = utente_id;
+    this.squadra_id = squadra_id;
+    this.ruolo = ruolo;
+    this.data_nomina = data_nomina;
+    this.data_scadenza = data_scadenza;
+    this.attivo = attivo;
+    this.created_at = created_at;
+    this.updated_at = updated_at;
+    this.nome = nome;
+    this.cognome = cognome;
+    this.immagine_id = immagine_id;
     // Popola anche `immagine` per compatibilità con le view (se immagine_id è una URL)
-<span class="cstat-no" title="statement not covered" >    if (immagine_id) {</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (immagine_id) {
 <span class="cstat-no" title="statement not covered" >      if (typeof immagine_id === "string" &amp;&amp; immagine_id.startsWith("/")) {</span>
 <span class="cstat-no" title="statement not covered" >        this.immagine = { url: immagine_id };</span>
       } else {
@@ -352,7 +352,7 @@ class DirigenteSquadra {
 <span class="cstat-no" title="statement not covered" >        this.immagine = null;</span>
       }
     } else {
-<span class="cstat-no" title="statement not covered" >      this.immagine = null;</span>
+      this.immagine = null;
     }
   }
 &nbsp;
@@ -403,7 +403,7 @@ module.exports = DirigenteSquadra;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-30T12:56:13.039Z
+                at 2026-04-30T13:04:54.973Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
