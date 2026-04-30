@@ -286,6 +286,26 @@ exports.updateNotizia = async function (id, notiziaData) {
 };
 
 /**
+ * Imposta l'ID dell'immagine principale di una notizia
+ * @async
+ * @param {number} id - ID della notizia
+ * @param {number} immagineId - ID dell'immagine
+ * @returns {Promise<Object>} { success: true, changes }
+ */
+exports.setImmagineNotizia = async function (id, immagineId) {
+  const sql = `UPDATE NOTIZIE SET immagine_principale_id = ?, updated_at = NOW() WHERE id = ?`;
+  return new Promise((resolve, reject) => {
+    sqlite.run(sql, [immagineId, id], function (err, result) {
+      if (err) {
+        return reject({ error: "Error setting news image: " + err.message });
+      }
+      const changes = result && typeof result.rowCount === "number" ? result.rowCount : 0;
+      resolve({ success: true, changes });
+    });
+  });
+};
+
+/**
  * Attiva/disattiva la pubblicazione di una notizia
  * @async
  * @param {number} id - ID della notizia

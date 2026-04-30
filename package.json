@@ -13,7 +13,9 @@
     "fix-image-paths": "node scripts/fix-image-paths.js",
     "fix-railway-paths": "node scripts/fix-railway-image-paths.js",
     "diagnose-images": "node scripts/diagnose-images.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "cross-env NODE_ENV=test jest --coverage --forceExit",
+    "test:watch": "cross-env NODE_ENV=test jest --watch"
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -58,7 +60,10 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "prettier": "^2.8.8"
+    "cross-env": "^10.1.0",
+    "jest": "^30.3.0",
+    "prettier": "^2.8.8",
+    "supertest": "^7.2.2"
   },
   "engines": {
     "node": ">=18.0.0"

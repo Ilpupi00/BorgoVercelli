@@ -63,7 +63,9 @@ pool.on("error", (err, client) => {
 // dall'app prima di mettersi in ascolto. Questo aiuta a fallire velocemente in caso
 // di problemi di rete/credenziali invece di lasciare il processo appeso e ricevere
 // un SIGTERM dalla piattaforma di hosting.
-const ready = pool
+const ready = process.env.NODE_ENV === "test" 
+  ? Promise.resolve(true)
+  : pool
   .query("SELECT NOW()")
   .then(() => {
     console.log("[database] ✅ Connessione al database stabilita con successo");

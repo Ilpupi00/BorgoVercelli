@@ -326,8 +326,10 @@ const cleanupPrenotazioniScadute = async () => {
   }
 };
 
-setImmediate(cleanupPrenotazioniScadute);
-setInterval(cleanupPrenotazioniScadute, PRENOTAZIONI_CLEANUP_INTERVAL_MS);
+if (process.env.NODE_ENV !== 'test') {
+  setImmediate(cleanupPrenotazioniScadute);
+  setInterval(cleanupPrenotazioniScadute, PRENOTAZIONI_CLEANUP_INTERVAL_MS);
+}
 
 // ==================== MIDDLEWARE VARIABILI GLOBALI ====================
 
@@ -587,18 +589,20 @@ app.use((req, res) => {
  * Il worker si avvia automaticamente dopo un breve delay per permettere
  * al server di completare l'inizializzazione
  */
-setImmediate(async () => {
-  try {
-    console.log("[APP] 🚀 Avvio worker notifiche push...");
-    await notificationsWorker.startWorker();
-    console.log("[APP] ✅ Worker notifiche push avviato con successo");
-  } catch (error) {
-    console.error("[APP] ❌ Errore avvio worker notifiche:", error.message);
-    console.error(
-      "[APP] Le notifiche push non verranno processate automaticamente",
-    );
-  }
-});
+if (process.env.NODE_ENV !== 'test') {
+  setImmediate(async () => {
+    try {
+      console.log("[APP] 🚀 Avvio worker notifiche push...");
+      await notificationsWorker.startWorker();
+      console.log("[APP] ✅ Worker notifiche push avviato con successo");
+    } catch (error) {
+      console.error("[APP] ❌ Errore avvio worker notifiche:", error.message);
+      console.error(
+        "[APP] Le notifiche push non verranno processate automaticamente",
+      );
+    }
+  });
+}
 
 /**
  * Gestione graceful shutdown del worker

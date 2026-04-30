@@ -44,7 +44,7 @@
                             </div>
                         <% } %>
 
-                        <form method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>" enctype="multipart/form-data">
+                        <form id="notiziaForm" data-notizia-id="<%= notizia ? notizia.id : '' %>" method="POST" action="<%= notizia ? `/notizie/${notizia.id}` : '/notizie/nuova' %>" enctype="multipart/form-data">
                             <% if (notizia) { %>
                             <input type="hidden" name="_method" value="PUT">
                             <% } %>
