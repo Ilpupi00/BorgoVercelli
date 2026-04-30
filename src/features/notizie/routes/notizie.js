@@ -161,7 +161,7 @@ router.post(
   "/notizie/nuova",
   isAdminOrDirigente,
   isLoggedIn,
-  upload.single("immagine_principale"),
+  upload.single("immagine"),
   ...validateNotizia(),
   handleValidationRender("notizia", (req) => ({ user: req.user, notizia: null })),
   async (req, res) => {
@@ -220,7 +220,7 @@ router.post(
 router.post(
   "/notizie/:id",
   canEditNotizia,
-  upload.single("immagine_principale"),
+  upload.single("immagine"),
   ...validateNotizia(true),
   handleValidationRender("notizia", (req) => ({ user: req.user, notizia: null })),
   async (req, res) => {
@@ -419,13 +419,29 @@ router.post(
       const imageUrl = "/uploads/" + req.file.filename;
 
       // Inserisci l'immagine nella tabella IMMAGINI
-      await daoAdmin.insertImmagine(
+      const risultato = await daoAdmin.insertImmagine(
         imageUrl,
         "notizia",
         "notizia",
         notiziaId,
         1
       );
+
+      // Se possibile, aggiorna la colonna immagine_principale_id nella tabella NOTIZIE
+      try {
+        if (risultato && risultato.id) {
+          await dao.setImmagineNotizia(notiziaId, risultato.id);
+          console.log(
+            "[UPLOAD NOTIZIA] ✅ immagine_principale_id impostata su NOTIZIE:",
+            risultato.id
+          );
+        }
+      } catch (setErr) {
+        console.warn(
+          "[UPLOAD NOTIZIA] ⚠️ Impossibile impostare immagine_principale_id su NOTIZIE:",
+          setErr
+        );
+      }
 
       res.json({
         success: true,

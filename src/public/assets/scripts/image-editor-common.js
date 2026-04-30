@@ -379,6 +379,29 @@ function bindEditorControls() {
               }
             }
 
+            // Se stiamo modificando il profilo, fai l'upload immediato
+            const profilePicForm = document.getElementById("profilePicForm");
+            if (profilePicForm && document.querySelector('.profile-action-btn-modern')) {
+              console.log("📤 Upload automatico immagine modificata per il profilo");
+              const formData = new FormData();
+              formData.append("profilePic", editedFile);
+              try {
+                const response = await fetch("/update-profile-pic", {
+                  method: "POST",
+                  body: formData,
+                  credentials: "same-origin",
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                  showSuccessToast("Foto profilo aggiornata con successo!");
+                  setTimeout(() => location.reload(), 1500);
+                  return; // Esci per non eseguire altro
+                }
+              } catch (err) {
+                console.error("Errore upload profilo:", err);
+              }
+            }
+
             // Close editor
             closeEditor();
 

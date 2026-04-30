@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">49.06% </span>
+                <span class="strong">47.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>79/161</span>
+                <span class='fraction'>80/169</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">52.66% </span>
+                <span class="strong">50.64% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>79/150</span>
+                <span class='fraction'>79/156</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.55% </span>
+                <span class="strong">52.08% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>25/45</span>
+                <span class='fraction'>25/48</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">49.35% </span>
+                <span class="strong">47.56% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>77/156</span>
+                <span class='fraction'>78/164</span>
             </div>
         
             
@@ -559,7 +559,27 @@
 <a name='L494'></a><a href='#L494'>494</a>
 <a name='L495'></a><a href='#L495'>495</a>
 <a name='L496'></a><a href='#L496'>496</a>
-<a name='L497'></a><a href='#L497'>497</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L497'></a><a href='#L497'>497</a>
+<a name='L498'></a><a href='#L498'>498</a>
+<a name='L499'></a><a href='#L499'>499</a>
+<a name='L500'></a><a href='#L500'>500</a>
+<a name='L501'></a><a href='#L501'>501</a>
+<a name='L502'></a><a href='#L502'>502</a>
+<a name='L503'></a><a href='#L503'>503</a>
+<a name='L504'></a><a href='#L504'>504</a>
+<a name='L505'></a><a href='#L505'>505</a>
+<a name='L506'></a><a href='#L506'>506</a>
+<a name='L507'></a><a href='#L507'>507</a>
+<a name='L508'></a><a href='#L508'>508</a>
+<a name='L509'></a><a href='#L509'>509</a>
+<a name='L510'></a><a href='#L510'>510</a>
+<a name='L511'></a><a href='#L511'>511</a>
+<a name='L512'></a><a href='#L512'>512</a>
+<a name='L513'></a><a href='#L513'>513</a>
+<a name='L514'></a><a href='#L514'>514</a>
+<a name='L515'></a><a href='#L515'>515</a>
+<a name='L516'></a><a href='#L516'>516</a>
+<a name='L517'></a><a href='#L517'>517</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -842,6 +862,26 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1343,6 +1383,26 @@ exports.updateNotizia = async function (id, notiziaData) {
 };
 &nbsp;
 /**
+ * Imposta l'ID dell'immagine principale di una notizia
+ * @async
+ * @param {number} id - ID della notizia
+ * @param {number} immagineId - ID dell'immagine
+ * @returns {Promise&lt;Object&gt;} { success: true, changes }
+ */
+exports.setImmagineNotizia = <span class="fstat-no" title="function not covered" >as</span>ync function (id, immagineId) {
+  const sql = <span class="cstat-no" title="statement not covered" >`UPDATE NOTIZIE SET immagine_principale_id = ?, updated_at = NOW() WHERE id = ?`;</span>
+<span class="cstat-no" title="statement not covered" >  return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    sqlite.run(sql, [immagineId, id], <span class="fstat-no" title="function not covered" >fu</span>nction (err, result) {</span>
+<span class="cstat-no" title="statement not covered" >      if (err) {</span>
+<span class="cstat-no" title="statement not covered" >        return reject({ error: "Error setting news image: " + err.message });</span>
+      }
+      const changes = <span class="cstat-no" title="statement not covered" >result &amp;&amp; typeof result.rowCount === "number" ? result.rowCount : 0;</span>
+<span class="cstat-no" title="statement not covered" >      resolve({ success: true, changes });</span>
+    });
+  });
+};
+&nbsp;
+/**
  * Attiva/disattiva la pubblicazione di una notizia
  * @async
  * @param {number} id - ID della notizia
@@ -1558,7 +1618,7 @@ exports.getNotiziePersonali = <span class="fstat-no" title="function not covered
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-26T09:36:26.172Z
+                at 2026-04-30T12:56:13.039Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
