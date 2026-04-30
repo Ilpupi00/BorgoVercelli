@@ -290,24 +290,27 @@ app.use(async function (req, res, next) {
     lastAutoCheck = now;
 
     // Esegui in background senza bloccare la richiesta corrente
-    setImmediate(async () => {
-      try {
-        // 1. Marca come scadute le prenotazioni passate
-        await daoPrenotazione.checkAndUpdateScadute();
+    if (process.env.NODE_ENV !== 'test') {
+      setImmediate(async () => {
+        try {
+          // 1. Marca come scadute le prenotazioni passate
+          await daoPrenotazione.checkAndUpdateScadute();
 
-        // 2. Accetta automaticamente prenotazioni in attesa da più di 3 giorni
-        await daoPrenotazione.autoAcceptPendingBookings();
+          // 2. Accetta automaticamente prenotazioni in attesa da più di 3 giorni
+          await daoPrenotazione.autoAcceptPendingBookings();
 
-        // 3. Verifica e riattiva sospensioni scadute
-        const daoSospensioni = require("./features/users/services/dao-sospensioni");
-        await daoSospensioni.verificaSospensioniScadute();
-      } catch (error) {
-        console.error(
-          "[AUTO-CHECK] Errore durante il controllo automatico:",
-          error,
-        );
-      }
-    });
+          // 3. Verifica e riattiva sospensioni scadute
+          const daoSospensioni = require("./features/users/services/dao-sospensioni");
+          await daoSospensioni.verificaSospensioniScadute();
+        } catch (error) {
+          console.error(
+            "[AUTO-CHECK] Errore durante il controllo automatico:",
+            error,
+          );
+        }
+      });
+    }
+
   }
   next();
 });

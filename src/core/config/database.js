@@ -45,7 +45,7 @@ const pool = new Pool({
   ssl: useSSL ? { rejectUnauthorized: false } : false,
   // Configurazioni aggiuntive per stabilità
   max: 20, // Numero massimo di connessioni nel pool
-  idleTimeoutMillis: 30000, // Chiudi connessioni inattive dopo 30 secondi
+  idleTimeoutMillis: process.env.NODE_ENV === "test" ? 100 : 30000, // Chiudi connessioni inattive dopo 100ms nei test
   connectionTimeoutMillis: 10000, // Timeout di connessione 10 secondi
 });
 

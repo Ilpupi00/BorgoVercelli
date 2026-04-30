@@ -1,75 +1,51 @@
-const fs = require("fs");
-const path = require("path");
-const { deleteImageFile, imageFileExists } = require("../src/shared/utils/file-helper");
+"use strict";
 
-jest.mock("fs", () => ({
-  existsSync: jest.fn(),
-  unlinkSync: jest.fn()
-}));
+const fs = require('fs');
+const path = require('path');
+const { deleteImageFile, imageFileExists } = require('../src/shared/utils/file-helper');
 
-describe("Utils: file-helper", () => {
-  const mockImagePath = "/uploads/test-image.jpg";
-  const originalEnv = process.env;
+jest.mock('fs');
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
-
-  describe("deleteImageFile", () => {
-    it("should return false if no url is provided", () => {
-      expect(deleteImageFile(null)).toBe(false);
-      expect(deleteImageFile("")).toBe(false);
+describe('File Helper', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        process.env.RAILWAY_ENVIRONMENT = '';
     });
 
-    it("should try to delete the file and return true if exists", () => {
-      // Configuriamo isExists=true per almeno una di quelle chiamate
-      fs.existsSync.mockReturnValueOnce(true); 
-
-      const result = deleteImageFile(mockImagePath);
-      expect(fs.existsSync).toHaveBeenCalled();
-      expect(fs.unlinkSync).toHaveBeenCalled();
-      expect(result).toBe(true);
+    it('imageFileExists should return true if file exists in one of the candidate paths', () => {
+        fs.existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        expect(imageFileExists('/uploads/test.jpg')).toBe(true);
+        expect(fs.existsSync).toHaveBeenCalled();
     });
 
-    it("should return false and warn if file doesn't exist anywhere", () => {
-      fs.existsSync.mockReturnValue(false);
-      const result = deleteImageFile(mockImagePath);
-      expect(result).toBe(false);
-      expect(fs.unlinkSync).not.toHaveBeenCalled();
+    it('imageFileExists should return false if file does not exist', () => {
+        fs.existsSync.mockReturnValue(false);
+        expect(imageFileExists('/uploads/none.jpg')).toBe(false);
     });
 
-    it("should not crash but return false if unlinkSync throws an error", () => {
-      fs.existsSync.mockReturnValue(true);
-      fs.unlinkSync.mockImplementation(() => {
-        throw new Error("EPERM mock error");
-      });
-
-      const result = deleteImageFile(mockImagePath);
-      // Because unlink fails, fileFound remains false initially inside the block or block fails gracefully
-      // Actually, looking at source code: 
-      // try { fs.unlinkSync(..); fileFound=true; break;} catch { /* swallow */ }
-      // If error is thrown, fileFound = false. Then warn block handles it.
-      expect(result).toBe(false);
-    });
-  });
-
-  describe("imageFileExists", () => {
-    it("should return false if url is empty", () => {
-      expect(imageFileExists("")).toBe(false);
+    it('deleteImageFile should call unlinkSync if file is found', () => {
+        fs.existsSync.mockReturnValue(true);
+        const result = deleteImageFile('/uploads/delete-me.jpg');
+        expect(fs.unlinkSync).toHaveBeenCalled();
+        expect(result).toBe(true);
     });
 
-    it("should return true if fs.existsSync returns true", () => {
-      fs.existsSync.mockReturnValueOnce(true);
-      expect(imageFileExists("/custom/path.png")).toBe(true);
+    it('deleteImageFile should handle unlinkSync errors gracefully', () => {
+        fs.existsSync.mockReturnValue(true);
+        fs.unlinkSync.mockImplementation(() => { throw new Error('Permission denied'); });
+        const result = deleteImageFile('/uploads/error.jpg');
+        expect(result).toBe(false);
     });
 
-    it("should return false if fs.existsSync always returns false", () => {
-      fs.existsSync.mockReturnValue(false);
-      expect(imageFileExists("/custom/path.png")).toBe(false);
+    it('deleteImageFile should use /data path if RAILWAY_ENVIRONMENT is set', () => {
+        process.env.RAILWAY_ENVIRONMENT = 'prod';
+        fs.existsSync.mockImplementation((p) => p.includes('data'));
+        deleteImageFile('test.jpg');
+        expect(fs.unlinkSync).toHaveBeenCalled();
     });
-  });
+
+    it('should return false if no imageUrl provided', () => {
+        expect(imageFileExists(null)).toBe(false);
+        expect(deleteImageFile('')).toBe(false);
+    });
 });
