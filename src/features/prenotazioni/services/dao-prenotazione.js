@@ -185,18 +185,24 @@ exports.getDisponibilitaCampo = async (campoId, data) => {
 
   if (dataNorm === todayStr) {
     // Data di oggi: filtra orari almeno 2 ore dopo l'ora attuale italiana
+    const timeParts = new Intl.DateTimeFormat("it-IT", {
+      timeZone: "Europe/Rome",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(now);
+    const currentHour = Number(
+      timeParts.find((part) => part.type === "hour")?.value || 0,
+    );
+    const currentMinute = Number(
+      timeParts.find((part) => part.type === "minute")?.value || 0,
+    );
+    const nowMinutes = currentHour * 60 + currentMinute;
+
     orariDisponibili = orariDisponibili.filter((o) => {
       const [h, m] = o.inizio.split(":");
-      // Costruisce un timestamp nel fuso corretto confrontando con now
-      const nowRome = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Rome' }));
-      const orarioDate = new Date(
-        nowRome.getFullYear(),
-        nowRome.getMonth(),
-        nowRome.getDate(),
-        parseInt(h),
-        parseInt(m),
-      );
-      return orarioDate.getTime() - nowRome.getTime() >= 2 * 60 * 60 * 1000;
+      const slotMinutes = Number(h) * 60 + Number(m);
+      return slotMinutes - nowMinutes >= 2 * 60;
     });
   }
   // Se la data richiesta è nel passato non mostriamo disponibilità

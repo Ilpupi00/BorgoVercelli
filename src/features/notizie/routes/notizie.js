@@ -9,6 +9,7 @@ const {
   isAdminOrDirigente,
   isAdmin,
   canEditNotizia,
+  isStaffOrAdmin,
 } = require("../../../core/middlewares/auth");
 const multer = require("multer");
 const { upload } = require("../../../core/config/multer");
@@ -495,7 +496,7 @@ router.delete(
  * POST /api/notizia/:id/pin
  * Toggle pin di una notizia per l'utente autenticato
  */
-router.post("/api/notizia/:id/pin", isLoggedIn, async (req, res) => {
+router.post("/api/notizia/:id/pin", isLoggedIn, isStaffOrAdmin, async (req, res) => {
   try {
     const id = parseIdParam(req.params.id);
     if (!id) return res.status(400).json({ error: "ID notizia non valido" });
@@ -517,7 +518,7 @@ router.post("/api/notizia/:id/pin", isLoggedIn, async (req, res) => {
  * GET /api/notizie/pinnate
  * Recupera le notizie pinnate dall'utente autenticato (con dati completi)
  */
-router.get("/api/notizie/pinnate", isLoggedIn, async (req, res) => {
+router.get("/api/notizie/pinnate", isLoggedIn, isStaffOrAdmin, async (req, res) => {
   try {
     const userId = req.user.id;
     const pinnedIds = await daoPin.getPinnedIds(userId);
@@ -537,7 +538,7 @@ router.get("/api/notizie/pinnate", isLoggedIn, async (req, res) => {
       })
     );
 
-    const validNotizie = notizie.filter((n) => n !== null);
+    const validNotizie = notizie.filter((n) => n !== null && n.pubblicata === true);
     res.json({ success: true, notizie: validNotizie });
   } catch (err) {
     console.error("[PIN] Errore getPinnate:", err);
@@ -549,19 +550,26 @@ router.get("/api/notizie/pinnate", isLoggedIn, async (req, res) => {
  * GET /api/notizia/:id/pin/status
  * Controlla se la notizia è pinnata dall'utente corrente
  */
-router.get("/api/notizia/:id/pin/status", isLoggedIn, async (req, res) => {
-  try {
-    const id = parseIdParam(req.params.id);
-    if (!id) return res.status(400).json({ error: "ID notizia non valido" });
+router.get(
+  "/api/notizia/:id/pin/status",
+  isLoggedIn,
+  isStaffOrAdmin,
+  async (req, res) => {
+    try {
+      const id = parseIdParam(req.params.id);
+      if (!id) return res.status(400).json({ error: "ID notizia non valido" });
 
-    const userId = req.user.id;
-    const pinned = await daoPin.isPinned(userId, id);
-    const globalCount = await daoPin.getNotiziaGlobalPins(id);
-    res.json({ success: true, pinned, globalCount });
-  } catch (err) {
-    console.error("[PIN] Errore pinStatus:", err);
-    res.status(500).json({ success: false, error: "Errore interno del server" });
+      const userId = req.user.id;
+      const pinned = await daoPin.isPinned(userId, id);
+      const globalCount = await daoPin.getNotiziaGlobalPins(id);
+      res.json({ success: true, pinned, globalCount });
+    } catch (err) {
+      console.error("[PIN] Errore pinStatus:", err);
+      res
+        .status(500)
+        .json({ success: false, error: "Errore interno del server" });
+    }
   }
-});
+);
 
 module.exports = router;

@@ -576,29 +576,6 @@
                                         <td>Attivi e futuri</td>
                                     </tr>
                                     <tr>
-                                        <td>Prenotazioni Campo</td>
-                                        <td>
-                                            <% if (statistiche && statistiche.prenotazioniAttive !== undefined) { %>
-                                                <strong><%= statistiche.prenotazioniAttive %></strong>
-                                            <% } else { %>
-                                                <span class="text-muted">N/D</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <% const vp2 = (typeof variazioni !== 'undefined' && variazioni && variazioni.prenotazioni) ? variazioni.prenotazioni : null; %>
-                                            <% if (vp2) { %>
-                                                <% if (vp2.pct !== null) { %>
-                                                    <span class="badge <%= vp2.direction === 'up' ? 'badge-success' : (vp2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vp2.pct>0?'+':'') + vp2.pct %>%</span>
-                                                <% } else { %>
-                                                    <span class="badge <%= vp2.direction === 'up' ? 'badge-success' : (vp2.direction === 'down' ? 'badge-warning' : 'badge-secondary') %>"><%= (vp2.delta>=0?'+':'') + vp2.delta %></span>
-                                                <% } %>
-                                            <% } else { %>
-                                                <span class="text-muted">N/D</span>
-                                            <% } %>
-                                        </td>
-                                        <td>Da oggi in poi</td>
-                                    </tr>
-                                    <tr>
                                         <td>Recensioni Totali</td>
                                         <td>
                                             <% if (statistiche && statistiche.recensioniTotali !== undefined) { %>

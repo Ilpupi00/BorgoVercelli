@@ -17,7 +17,6 @@ const db = require('./src/core/config/database');
     } catch (e) {
         console.error(e);
     } finally {
-        db.close();
-        process.exit(0);
+        await db.close();
     }
 })();

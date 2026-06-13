@@ -225,11 +225,11 @@
                                                 <% const adminLink = notizia && notizia.id ? ('/notizia/' + notizia.id) : null; %>
                                                 <!-- Pulsante PIN -->
                                                 <button 
-                                                    class="btn-icon-only btn-pin pin-notizia-btn"
+                                                    class="btn-icon-only btn-pin pin-notizia-btn <%= notizia.is_pinned ? 'pinned' : '' %>"
                                                     data-notizia-id="<%= notizia.id %>"
-                                                    title="Metti in evidenza (pin)"
-                                                    aria-label="Pin notizia"
-                                                    aria-pressed="false"
+                                                    title="<%= notizia.is_pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)' %>"
+                                                    aria-label="<%= notizia.is_pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)' %>"
+                                                    aria-pressed="<%= notizia.is_pinned ? 'true' : 'false' %>"
                                                 >
                                                     <i class="fas fa-thumbtack"></i>
                                                 </button>
@@ -337,27 +337,17 @@
     </style>
     <script>
     (function() {
-      // Carica lo stato dei pin al caricamento della pagina
-      async function loadPinStates() {
+      function syncPinButtons() {
         const pinBtns = document.querySelectorAll('.pin-notizia-btn');
         if (!pinBtns.length) return;
 
-        await Promise.all(Array.from(pinBtns).map(async (btn) => {
-          const nId = btn.dataset.notiziaId;
-          try {
-            const resp = await fetch(`/api/notizia/${nId}/pin/status`, {
-              credentials: 'same-origin'
-            });
-            if (resp.ok) {
-              const data = await resp.json();
-              if (data.pinned) {
-                btn.classList.add('pinned');
-                btn.setAttribute('aria-pressed', 'true');
-                btn.title = 'Rimuovi pin';
-              }
-            }
-          } catch(e) { /* ignora */ }
-        }));
+        pinBtns.forEach((btn) => {
+          const pinned = btn.classList.contains('pinned');
+          const label = pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)';
+          btn.setAttribute('aria-pressed', String(pinned));
+          btn.setAttribute('aria-label', label);
+          btn.title = label;
+        });
       }
 
       // Toggle pin al click
@@ -379,7 +369,9 @@
           if (data.success) {
             btn.classList.toggle('pinned', data.pinned);
             btn.setAttribute('aria-pressed', String(data.pinned));
-            btn.title = data.pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)';
+            const label = data.pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)';
+            btn.title = label;
+            btn.setAttribute('aria-label', label);
 
             // Toast feedback
             showPinToast(data.pinned ? '📌 Notizia pinnata!' : '🔓 Pin rimosso');
@@ -411,7 +403,7 @@
         toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2200);
       }
 
-      document.addEventListener('DOMContentLoaded', loadPinStates);
+      document.addEventListener('DOMContentLoaded', syncPinButtons);
     })();
     </script>
 

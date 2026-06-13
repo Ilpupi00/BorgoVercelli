@@ -1037,7 +1037,7 @@ exports.getStatistiche = async () => {
         );
       });
     } catch (error) {
-      console.error("Fallback tendenzeMensili:", error.message);
+      console.error("Fallback tendenze dashboard:", error.message);
     }
 
     // Combina i dati delle tendenze
