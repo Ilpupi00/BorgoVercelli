@@ -93,12 +93,15 @@ const makeImmagini = (row) => {
 
 const normalizeDate = (dateStr) => {
   // Accetta sia Date che stringa, restituisce YYYY-MM-DD o null
+  // IMPORTANTE: usa sempre il fuso Europe/Rome per evitare shift UTC
+  // (es: '2026-05-08' interpretato come mezzanotte UTC diventa 07/05 in Italia)
   if (!dateStr || dateStr === "") return null;
   if (typeof dateStr === "string" && dateStr.match(/^\d{4}-\d{2}-\d{2}$/))
     return dateStr;
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
+  // 'en-CA' garantisce sempre output YYYY-MM-DD, con timeZone Europe/Rome
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome' }).format(d);
 };
 
 exports.getCampiAttivi = async () => {
@@ -175,30 +178,30 @@ exports.getDisponibilitaCampo = async (campoId, data) => {
     fine: o.ora_fine,
   }));
 
-  // LOGICA: se la data è oggi, mostra solo orari almeno 2 ore dopo ora attuale
+  // LOGICA: confronto date usando sempre il fuso Europe/Rome
   const now = new Date();
-  if (dataNorm === now.toISOString().slice(0, 10)) {
+  // Calcola la data di "oggi" in ora italiana usando lo stesso formato di normalizeDate
+  const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome' }).format(now);
+
+  if (dataNorm === todayStr) {
+    // Data di oggi: filtra orari almeno 2 ore dopo l'ora attuale italiana
     orariDisponibili = orariDisponibili.filter((o) => {
       const [h, m] = o.inizio.split(":");
-      // Costruisci la data locale con la data richiesta
+      // Costruisce un timestamp nel fuso corretto confrontando con now
+      const nowRome = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Rome' }));
       const orarioDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
+        nowRome.getFullYear(),
+        nowRome.getMonth(),
+        nowRome.getDate(),
         parseInt(h),
         parseInt(m),
       );
-      return orarioDate.getTime() - now.getTime() >= 2 * 60 * 60 * 1000;
+      return orarioDate.getTime() - nowRome.getTime() >= 2 * 60 * 60 * 1000;
     });
   }
-  // Se la data richiesta non è oggi, confrontiamo solo la data (string) per evitare
-  // problemi dovuti al fuso orario / orari locali. Se la data richiesta è nel passato
-  // non mostriamo disponibilità.
-  const todayStr = now.toISOString().slice(0, 10);
-  if (dataNorm !== todayStr) {
-    if (dataNorm < todayStr) {
-      orariDisponibili = [];
-    }
+  // Se la data richiesta è nel passato non mostriamo disponibilità
+  if (dataNorm < todayStr) {
+    orariDisponibili = [];
   }
 
   return new Promise((resolve, reject) => {
@@ -325,6 +328,8 @@ exports.prenotaCampo = async ({
  */
 exports.getAllPrenotazioni = async () => {
   return new Promise((resolve, reject) => {
+    // Ordina per data e ora ASC: le prenotazioni più prossime vengono prima.
+    // Usa il cast esplicito a timestamp per un ordinamento corretto in PostgreSQL.
     const sql = `
             SELECT p.*, 
                    c.nome as campo_nome,
@@ -334,7 +339,7 @@ exports.getAllPrenotazioni = async () => {
             LEFT JOIN CAMPI c ON p.campo_id = c.id
             LEFT JOIN UTENTI u ON p.utente_id = u.id
             LEFT JOIN SQUADRE s ON p.squadra_id = s.id
-            ORDER BY p.data_prenotazione DESC, p.ora_inizio DESC
+            ORDER BY p.data_prenotazione ASC, p.ora_inizio ASC
         `;
     db.all(sql, [], (err, prenotazioni) => {
       if (err) {
@@ -516,22 +521,22 @@ exports.deletePrenotazione = async (id) => {
  * @throws {Error} In caso di errore DB
  */
 exports.checkAndUpdateScadute = async () => {
-  // Use SQLite datetime comparison to avoid timezone/format issues and be
-  // tolerant to small variations in the stored `stato` (trim + lowercase).
-  // Build a datetime string from data_prenotazione and ora_fine (add seconds
-  // if missing) and compare with the current DB datetime.
+  // Confronta sempre usando il fuso orario Europe/Rome per evitare shift UTC.
+  // data_prenotazione e ora_fine sono salvati come ora italiana, quindi
+  // NOW() deve essere convertito in ora italiana per il confronto.
   return new Promise((resolve, reject) => {
-    // In Postgres build a timestamp by adding the date and the time and compare to NOW()
+    // Usa AT TIME ZONE 'Europe/Rome' per allineare NOW() all'ora italiana
     const updateSql = `
             UPDATE PRENOTAZIONI
             SET stato = 'scaduta', updated_at = NOW()
             WHERE lower(trim(coalesce(stato, ''))) = 'confermata'
-              AND (data_prenotazione::timestamp + (COALESCE(ora_fine, '00:00')::time)) <= NOW()
+              AND (data_prenotazione + (COALESCE(ora_fine, '00:00')::time))
+                  <= (NOW() AT TIME ZONE 'Europe/Rome')::timestamp
         `;
 
     // Log current state before update
     db.get(
-      `SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE lower(trim(coalesce(stato, ''))) = 'confermata' AND (data_prenotazione::timestamp + (COALESCE(ora_fine, '00:00')::time)) <= NOW()`,
+      `SELECT COUNT(*) as cnt FROM PRENOTAZIONI WHERE lower(trim(coalesce(stato, ''))) = 'confermata' AND (data_prenotazione + (COALESCE(ora_fine, '00:00')::time)) <= (NOW() AT TIME ZONE 'Europe/Rome')::timestamp`,
       [],
       (errBefore, rowBefore) => {
         const beforeCount = (rowBefore && rowBefore.cnt) || 0;

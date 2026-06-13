@@ -223,6 +223,16 @@
                                             
                                             <div class="notizia-actions">
                                                 <% const adminLink = notizia && notizia.id ? ('/notizia/' + notizia.id) : null; %>
+                                                <!-- Pulsante PIN -->
+                                                <button 
+                                                    class="btn-icon-only btn-pin pin-notizia-btn"
+                                                    data-notizia-id="<%= notizia.id %>"
+                                                    title="Metti in evidenza (pin)"
+                                                    aria-label="Pin notizia"
+                                                    aria-pressed="false"
+                                                >
+                                                    <i class="fas fa-thumbtack"></i>
+                                                </button>
                                                 <% if (adminLink) { %>
                                                     <a 
                                                         href="<%= adminLink %>" 
@@ -288,6 +298,122 @@
     <script src="/assets/scripts/components/Admin.js"></script>
     <script src="/assets/scripts/components/GestioneNotizie.js"></script>
     <script type="module" src="/assets/scripts/utils/showModal.js"></script>
+
+    <!-- Script PIN notizie -->
+    <style>
+      .btn-pin {
+        color: #6c757d;
+        background: transparent;
+        border: 1.5px solid #dee2e6;
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+      }
+      .btn-pin:hover {
+        color: #f59e0b;
+        border-color: #f59e0b;
+        background: rgba(245,158,11,0.08);
+        transform: rotate(-20deg) scale(1.15);
+      }
+      .btn-pin.pinned {
+        color: #fff;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-color: #d97706;
+        transform: rotate(-20deg);
+        box-shadow: 0 2px 8px rgba(245,158,11,0.35);
+      }
+      .btn-pin.pinned:hover {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-color: #dc2626;
+        box-shadow: 0 2px 8px rgba(239,68,68,0.35);
+        transform: rotate(0deg) scale(1.1);
+      }
+    </style>
+    <script>
+    (function() {
+      // Carica lo stato dei pin al caricamento della pagina
+      async function loadPinStates() {
+        const pinBtns = document.querySelectorAll('.pin-notizia-btn');
+        if (!pinBtns.length) return;
+
+        await Promise.all(Array.from(pinBtns).map(async (btn) => {
+          const nId = btn.dataset.notiziaId;
+          try {
+            const resp = await fetch(`/api/notizia/${nId}/pin/status`, {
+              credentials: 'same-origin'
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data.pinned) {
+                btn.classList.add('pinned');
+                btn.setAttribute('aria-pressed', 'true');
+                btn.title = 'Rimuovi pin';
+              }
+            }
+          } catch(e) { /* ignora */ }
+        }));
+      }
+
+      // Toggle pin al click
+      document.addEventListener('click', async function(e) {
+        const btn = e.target.closest('.pin-notizia-btn');
+        if (!btn) return;
+        e.preventDefault();
+
+        const nId = btn.dataset.notiziaId;
+        btn.disabled = true;
+
+        try {
+          const resp = await fetch(`/api/notizia/${nId}/pin`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await resp.json();
+          if (data.success) {
+            btn.classList.toggle('pinned', data.pinned);
+            btn.setAttribute('aria-pressed', String(data.pinned));
+            btn.title = data.pinned ? 'Rimuovi pin' : 'Metti in evidenza (pin)';
+
+            // Toast feedback
+            showPinToast(data.pinned ? '📌 Notizia pinnata!' : '🔓 Pin rimosso');
+          }
+        } catch(err) {
+          console.error('[PIN] Errore:', err);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      function showPinToast(msg) {
+        let toast = document.getElementById('pinToast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'pinToast';
+          toast.style.cssText = [
+            'position:fixed', 'bottom:24px', 'right:24px', 'z-index:9999',
+            'background:linear-gradient(135deg,#1e293b,#0f172a)',
+            'color:#f1f5f9', 'padding:12px 20px', 'border-radius:12px',
+            'font-weight:600', 'font-size:0.9rem', 'box-shadow:0 8px 24px rgba(0,0,0,0.3)',
+            'transition:opacity 0.3s ease', 'pointer-events:none'
+          ].join(';');
+          document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2200);
+      }
+
+      document.addEventListener('DOMContentLoaded', loadPinStates);
+    })();
+    </script>
 
 </body>
 </html>

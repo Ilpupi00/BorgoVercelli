@@ -480,9 +480,8 @@ router.get("/admin/statistiche", isLoggedIn, isAdmin, async (req, res) => {
     const eventiCurrent = toSafeNumber(eventiCurrentRaw);
     const eventiPrev = toSafeNumber(eventiPrevRaw);
 
-    // Prenotazioni e nuovi utenti - usa tendenzeMensili se presente
+    // Variazioni utenti - usa tendenzeMensili se presente
     let utentiVar = null;
-    let prenotazioniVar = null;
     if (
       statistiche &&
       Array.isArray(statistiche.tendenzeMensili) &&
@@ -500,7 +499,6 @@ router.get("/admin/statistiche", isLoggedIn, isAdmin, async (req, res) => {
         return { delta, pct, direction };
       };
       utentiVar = calc(last.nuovi_utenti || 0, prev.nuovi_utenti || 0);
-      prenotazioniVar = calc(last.prenotazioni || 0, prev.prenotazioni || 0);
     }
 
     const calcSimpleVar = (cur, prev) => {
@@ -519,7 +517,6 @@ router.get("/admin/statistiche", isLoggedIn, isAdmin, async (req, res) => {
       utenti: utentiVar,
       notizie: notizieVar,
       eventi: eventiVar,
-      prenotazioni: prenotazioniVar,
     };
 
     res.render("Contenuti/Statistiche.ejs", {

@@ -239,7 +239,7 @@ class StatisticheManager {
     const tendenze = this.stats.tendenzeMensili || [];
     const labels = tendenze.map((item) => item.mese || "");
     const utentiData = tendenze.map((item) => item.nuovi_utenti || 0);
-    const prenotazioniData = tendenze.map((item) => item.prenotazioni || 0);
+    const notizieEventiData = tendenze.map((item) => item.notizie_eventi || 0);
 
     this.charts.trends = new Chart(ctx, {
       type: "line",
@@ -260,8 +260,8 @@ class StatisticheManager {
             pointBorderWidth: 2,
           },
           {
-            label: "Prenotazioni",
-            data: prenotazioniData,
+            label: "Notizie ed Eventi",
+            data: notizieEventiData,
             borderColor: this.colors.success.replace("0.8", "1"),
             backgroundColor: this.colors.success.replace("0.8", "0.1"),
             fill: true,
@@ -443,23 +443,10 @@ function initTrendsChart() {
           pointBorderWidth: 2,
         },
         {
-          label: "Prenotazioni",
+          label: "Notizie ed Eventi",
           data: [30, 45, 60, 80, 95, 120, 140, 160, 180, 205, 230, 260],
           borderColor: "rgba(25, 135, 84, 1)",
           backgroundColor: "rgba(25, 135, 84, 0.1)",
-          fill: true,
-          tension: 0.4,
-          borderWidth: 3,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          pointBackgroundColor: "#fff",
-          pointBorderWidth: 2,
-        },
-        {
-          label: "Eventi",
-          data: [10, 15, 20, 25, 32, 40, 48, 55, 60, 68, 75, 85],
-          borderColor: "rgba(255, 193, 7, 1)",
-          backgroundColor: "rgba(255, 193, 7, 0.1)",
           fill: true,
           tension: 0.4,
           borderWidth: 3,
