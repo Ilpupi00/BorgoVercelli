@@ -30,6 +30,11 @@ let checkInterval = null;
  * Controlla i reminder inviati in Redis
  */
 async function getBookingsNeedingReminder() {
+  // IMPORTANTE: data_prenotazione e ora_inizio sono salvati come ora italiana (Europe/Rome).
+  // NOW() in PostgreSQL è UTC, quindi dobbiamo usare NOW() AT TIME ZONE 'Europe/Rome'
+  // per ottenere l'ora attuale italiana e confrontarla correttamente.
+  // Usiamo anche DATE(NOW() AT TIME ZONE 'Europe/Rome') invece di CURRENT_DATE
+  // per avere la data italiana corretta (CURRENT_DATE segue il timezone del server DB).
   const query = `
         SELECT 
             p.id,
@@ -46,10 +51,11 @@ async function getBookingsNeedingReminder() {
         JOIN CAMPI c ON p.campo_id = c.id
         JOIN UTENTI u ON p.utente_id = u.id
         WHERE p.stato = 'confermata'
-        AND p.data_prenotazione = CURRENT_DATE
+        AND p.data_prenotazione = DATE(NOW() AT TIME ZONE 'Europe/Rome')
         AND (
             EXTRACT(EPOCH FROM (
-                (p.data_prenotazione + p.ora_inizio::time) - NOW()
+                (p.data_prenotazione + p.ora_inizio::time)
+                - (NOW() AT TIME ZONE 'Europe/Rome')::timestamp
             )) / 3600 
         ) BETWEEN ${CONFIG.REMINDER_HOURS_BEFORE - 0.25} AND ${
     CONFIG.REMINDER_HOURS_BEFORE + 0.25
@@ -115,8 +121,9 @@ async function sendBookingReminder(booking) {
     utente_cognome,
   } = booking;
 
-  // Formatta la data e l'ora
+  // Formatta la data e l'ora usando il fuso Europe/Rome per evitare shift UTC
   const dataFormatted = new Date(data).toLocaleDateString("it-IT", {
+    timeZone: "Europe/Rome",
     weekday: "long",
     day: "numeric",
     month: "long",

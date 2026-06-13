@@ -780,20 +780,8 @@ exports.getStatistiche = async () => {
         `
     );
 
-    // Prenotazioni attive (future)
-    statistiche.prenotazioniAttive = await safeQuery(
-      "prenotazioniAttive",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE data_prenotazione >= CURRENT_DATE
-        `
-    );
-
-    // Prenotazioni totali
-    statistiche.prenotazioniTotali = await safeQuery(
-      "prenotazioniTotali",
-      "SELECT COUNT(*) as count FROM PRENOTAZIONI"
-    );
+    // Prenotazioni attive (future) - RIMOSSO
+    // Prenotazioni totali - RIMOSSO
 
     // Recensioni totali
     statistiche.recensioniTotali = await safeQuery(
@@ -835,53 +823,11 @@ exports.getStatistiche = async () => {
       "SELECT COUNT(*) as count FROM NOTIZIE"
     );
 
-    // Prenotazioni completate (passate)
-    statistiche.prenotazioniCompletate = await safeQuery(
-      "prenotazioniCompletate",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE data_prenotazione < CURRENT_DATE
-        `
-    );
-
-    // Media prenotazioni giornaliere (ultimi 30 giorni)
-    statistiche.mediaPrenotazioniGiornaliere = await safeQuery(
-      "mediaPrenotazioniGiornaliere",
-      `
-            SELECT CAST(COUNT(*) as FLOAT) / 30 as media 
-            FROM PRENOTAZIONI 
-            WHERE created_at >= (NOW() - INTERVAL '30 days')
-        `,
-      "0.0"
-    );
-
-    // Prenotazioni con note
-    statistiche.prenotazioniConNote = await safeQuery(
-      "prenotazioniConNote",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE note IS NOT NULL AND note != ''
-        `
-    );
-
-    // Prenotazioni annullate
-    statistiche.prenotazioniAnnullate = await safeQuery(
-      "prenotazioniAnnullate",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE stato = 'annullata'
-        `
-    );
-
-    // Tasso di annullamento (percentuale)
-    if (statistiche.prenotazioniTotali > 0) {
-      statistiche.tassoAnnullamento = (
-        (statistiche.prenotazioniAnnullate / statistiche.prenotazioniTotali) *
-        100
-      ).toFixed(1);
-    } else {
-      statistiche.tassoAnnullamento = "0.0";
-    }
+    // Prenotazioni completate - RIMOSSO
+    // Media prenotazioni giornaliere - RIMOSSO
+    // Prenotazioni con note - RIMOSSO
+    // Prenotazioni annullate - RIMOSSO
+    // Tasso annullamento - RIMOSSO
 
     // Utenti bannati
     statistiche.utentiBannati = await safeQuery(
@@ -901,33 +847,7 @@ exports.getStatistiche = async () => {
         `
     );
 
-    // Campo più popolare (con più prenotazioni)
-    try {
-      const campoPopolare = await new Promise((resolve, reject) => {
-        sqlite.query(
-          `
-                    SELECT c.nome, COUNT(p.id) as count
-                    FROM PRENOTAZIONI p
-                    JOIN CAMPI c ON p.campo_id = c.id
-                    GROUP BY p.campo_id, c.nome
-                    ORDER BY count DESC
-                    LIMIT 1
-                `,
-          (err, result) => {
-            if (err) {
-              console.error("Errore campoPopolare:", err);
-              reject(err);
-            } else {
-              resolve(result.rows && result.rows[0] ? result.rows[0] : null);
-            }
-          }
-        );
-      });
-      statistiche.campoPopolare = campoPopolare;
-    } catch (error) {
-      console.error("Fallback campoPopolare:", error.message);
-      statistiche.campoPopolare = null;
-    }
+    // Campo più popolare - RIMOSSO
 
     // Nuovi utenti ultimi 30 giorni
     statistiche.nuoviUtenti30gg = await safeQuery(
@@ -938,38 +858,9 @@ exports.getStatistiche = async () => {
         `
     );
 
-    // Prenotazioni confermate (include anche le scadute che erano confermate)
-    // Prenotazioni effettivamente confermate (attive o concluse)
-    statistiche.prenotazioniConfermate = await safeQuery(
-      "prenotazioniConfermate",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE stato IN ('confermata', 'scaduta')
-        `
-    );
-
-    // Prenotazioni concluse che erano state confermate
-    // Include: confermate attive, scadute (erano confermate), annullate dall'admin (erano confermate)
-    statistiche.prenotazioniConcluse = await safeQuery(
-      "prenotazioniConcluse",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE stato IN ('confermata', 'scaduta') 
-               OR (stato = 'annullata' AND annullata_da = 'admin')
-        `
-    );
-
-    // Tasso di conferma: (confermate+scadute) / (confermate+scadute+annullate_da_admin)
-    // Rappresenta la percentuale di prenotazioni confermate che sono state completate vs annullate dall'admin
-    if (statistiche.prenotazioniConcluse > 0) {
-      statistiche.tassoConferma = (
-        (statistiche.prenotazioniConfermate /
-          statistiche.prenotazioniConcluse) *
-        100
-      ).toFixed(1);
-    } else {
-      statistiche.tassoConferma = "0.0";
-    }
+    // Prenotazioni confermate - RIMOSSO
+    // Prenotazioni concluse - RIMOSSO
+    // Tasso conferma - RIMOSSO
 
     // Eventi totali (inclusi passati)
     statistiche.eventiTotaliStorico = await safeQuery(
@@ -997,14 +888,7 @@ exports.getStatistiche = async () => {
         `
     );
 
-    // Prenotazioni oggi
-    statistiche.prenotazioniOggi = await safeQuery(
-      "prenotazioniOggi",
-      `
-            SELECT COUNT(*) as count FROM PRENOTAZIONI 
-            WHERE data_prenotazione = CURRENT_DATE
-        `
-    );
+    // Prenotazioni oggi - RIMOSSO
 
     // Squadre totali
     statistiche.squadreTotali = await safeQuery(
@@ -1098,7 +982,7 @@ exports.getStatistiche = async () => {
 
     // Tendenze mensili (ultimi 6 mesi)
     let tendenzeMensili = [];
-    let prenotazioniMensili = [];
+    let tendenzeNotizieEventi = [];
 
     try {
       tendenzeMensili = await new Promise((resolve, reject) => {
@@ -1122,27 +1006,30 @@ exports.getStatistiche = async () => {
           }
         );
       });
-    } catch (error) {
-      console.error("Fallback tendenzeMensili:", error.message);
-    }
 
-    // Prenotazioni mensili
-    try {
-      prenotazioniMensili = await new Promise((resolve, reject) => {
+      tendenzeNotizieEventi = await new Promise((resolve, reject) => {
         sqlite.query(
           `
                     SELECT 
-                        TO_CHAR(data_prenotazione, 'YYYY-MM') as mese,
-                        COUNT(*) as prenotazioni
-                    FROM PRENOTAZIONI 
-                    WHERE data_prenotazione >= (CURRENT_DATE - INTERVAL '6 months')
-                    GROUP BY TO_CHAR(data_prenotazione, 'YYYY-MM')
-                    ORDER BY mese ASC
+                        periodo as mese,
+                        SUM(count) as total
+                    FROM (
+                        SELECT TO_CHAR(data_pubblicazione, 'YYYY-MM') as periodo, COUNT(*) as count 
+                        FROM NOTIZIE 
+                        WHERE data_pubblicazione >= (NOW() - INTERVAL '6 months') AND pubblicata = true
+                        GROUP BY TO_CHAR(data_pubblicazione, 'YYYY-MM')
+                        UNION ALL
+                        SELECT TO_CHAR(data_inizio, 'YYYY-MM') as periodo, COUNT(*) as count 
+                        FROM EVENTI 
+                        WHERE data_inizio >= (NOW() - INTERVAL '6 months') AND pubblicato = true
+                        GROUP BY TO_CHAR(data_inizio, 'YYYY-MM')
+                    ) AS combined
+                    GROUP BY periodo
                 `,
           (err, result) => {
             if (err) {
-              console.error("Errore prenotazioniMensili:", err);
-              reject(err);
+              console.error("Errore tendenzeNotizieEventi:", err);
+              resolve([]);
             } else {
               resolve(result.rows || []);
             }
@@ -1150,7 +1037,7 @@ exports.getStatistiche = async () => {
         );
       });
     } catch (error) {
-      console.error("Fallback prenotazioniMensili:", error.message);
+      console.error("Fallback tendenze dashboard:", error.message);
     }
 
     // Combina i dati delle tendenze
@@ -1178,7 +1065,7 @@ exports.getStatistiche = async () => {
         date.getMonth() + 1
       ).padStart(2, "0")}`;
       const meseNome = `${mesiNomi[date.getMonth()]} ${date.getFullYear()}`;
-      mesi[meseKey] = { mese: meseNome, nuovi_utenti: 0, prenotazioni: 0 };
+      mesi[meseKey] = { mese: meseNome, nuovi_utenti: 0, notizie_eventi: 0 };
     }
 
     // Popola con dati reali
@@ -1188,9 +1075,9 @@ exports.getStatistiche = async () => {
       }
     });
 
-    prenotazioniMensili.forEach((item) => {
+    tendenzeNotizieEventi.forEach((item) => {
       if (mesi[item.mese]) {
-        mesi[item.mese].prenotazioni = item.prenotazioni;
+        mesi[item.mese].notizie_eventi = Number(item.total);
       }
     });
 
@@ -1208,30 +1095,18 @@ exports.getStatistiche = async () => {
       utentiTotali: 0,
       notiziePubblicate: 0,
       eventiAttivi: 0,
-      prenotazioniAttive: 0,
-      prenotazioniTotali: 0,
       recensioniTotali: 0,
       mediaRecensioni: 0,
       fotoGalleria: 0,
       utentiAttivi30gg: 0,
       eventiTotali: 0,
       notizieTotali: 0,
-      prenotazioniCompletate: 0,
-      mediaPrenotazioniGiornaliere: 0,
-      prenotazioniConNote: 0,
-      prenotazioniAnnullate: 0,
-      tassoAnnullamento: "0.0",
       utentiBannati: 0,
       utentiSospesi: 0,
-      campoPopolare: null,
       nuoviUtenti30gg: 0,
-      prenotazioniConfermate: 0,
-      prenotazioniConcluse: 0,
-      tassoConferma: "0.0",
       eventiTotaliStorico: 0,
       notizie7gg: 0,
       eventiProssimi7gg: 0,
-      prenotazioniOggi: 0,
       squadreTotali: 0,
       campiTotali: 0,
       campiAttivi: 0,

@@ -40,7 +40,7 @@ const makeNotizie = (row) => {
     }`;
   }
 
-  return new Notizie(
+  const notiziaObj = new Notizie(
     notiziaId,
     row.N_titolo || row.n_titolo || row.titolo,
     row.N_sottotitolo || row.n_sottotitolo || row.sottotitolo,
@@ -59,6 +59,10 @@ const makeNotizie = (row) => {
     row.N_created_at || row.n_created_at || row.created_at || null,
     row.N_updated_at || row.n_updated_at || row.updated_at || null
   );
+  
+  // Aggiungi la proprietà is_pinned all'oggetto restituito
+  notiziaObj.is_pinned = row.N_is_pinned || row.n_is_pinned || row.is_pinned || false;
+  return notiziaObj;
 };
 /**
  * Recupera tutte le notizie (anche bozza) con autore e immagine
@@ -67,11 +71,11 @@ const makeNotizie = (row) => {
  */
 exports.getNotizie = async function () {
   const sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
-        ORDER BY N.data_pubblicazione DESC
+        ORDER BY N.is_pinned DESC, N.data_pubblicazione DESC
     `;
   return new Promise((resolve, reject) => {
     sqlite.all(sql, (err, notizie) => {
@@ -99,12 +103,12 @@ exports.getNotizie = async function () {
  */
 exports.getNotiziePaginated = async function (offset = 0, limit = 6) {
   const sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         WHERE N.pubblicata = true
-        ORDER BY N.data_pubblicazione DESC
+        ORDER BY N.is_pinned DESC, N.data_pubblicazione DESC
         LIMIT ? OFFSET ?
     `;
   return new Promise((resolve, reject) => {
@@ -132,7 +136,7 @@ exports.getNotiziePaginated = async function (offset = 0, limit = 6) {
  */
 exports.getNotiziaById = async function (id) {
   const sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
@@ -340,12 +344,12 @@ exports.togglePubblicazioneNotizia = async function (id) {
  */
 exports.searchNotizie = async function (searchTerm) {
   const sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         WHERE N.pubblicata = true AND (N.titolo LIKE ? OR N.sottotitolo LIKE ?)
-        ORDER BY N.data_pubblicazione DESC
+        ORDER BY N.is_pinned DESC, N.data_pubblicazione DESC
         LIMIT 5
     `;
   return new Promise((resolve, reject) => {
@@ -398,7 +402,7 @@ exports.getNotizieFiltered = async function (
   limit = 12
 ) {
   let sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
@@ -432,7 +436,7 @@ exports.getNotizieFiltered = async function (
     params.push(filters.dateTo);
   }
 
-  sql += ` ORDER BY N.data_pubblicazione DESC LIMIT ? OFFSET ?`;
+  sql += ` ORDER BY N.is_pinned DESC, N.data_pubblicazione DESC LIMIT ? OFFSET ?`;
   params.push(limit, offset);
 
   return new Promise((resolve, reject) => {
@@ -489,12 +493,12 @@ exports.getNotizieAuthors = async function () {
  */
 exports.getNotiziePersonali = async function (userId) {
   const sql = `
-        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
+        SELECT N.id as N_id, N.titolo as N_titolo, N.sottotitolo as N_sottotitolo, N.immagine_principale_id as N_immagine, N.contenuto as N_contenuto, N.autore_id as N_autore_id, N.pubblicata as N_pubblicata, N.data_pubblicazione as N_data_pubblicazione, N.visualizzazioni as N_visualizzazioni, N.created_at as N_created_at, N.updated_at as N_updated_at, N.is_pinned as N_is_pinned, U.nome as autore_nome, U.cognome as autore_cognome, I.url as immagine_url
         FROM NOTIZIE N
         LEFT JOIN UTENTI U ON N.autore_id = U.id
         LEFT JOIN IMMAGINI I ON I.entita_riferimento = 'notizia' AND I.entita_id = N.id AND I.ordine = 1
         WHERE N.autore_id = ?
-        ORDER BY N.created_at DESC
+        ORDER BY N.is_pinned DESC, N.created_at DESC
     `;
   return new Promise((resolve, reject) => {
     sqlite.all(sql, [userId], (err, notizie) => {
