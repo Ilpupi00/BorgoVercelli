@@ -108,10 +108,10 @@
                         let dateLabel = '';
                         if (isDefault && pop.mese_inizio && pop.giorno_inizio) {
                             const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-                            dateLabel = `${pop.giorno_inizio} ${mesi[pop.mese_inizio-1]} → ${pop.giorno_fine} ${mesi[pop.mese_fine-1]} (ogni anno)`;
+                            dateLabel = pop.giorno_inizio + ' ' + mesi[pop.mese_inizio-1] + ' - ' + pop.giorno_fine + ' ' + mesi[pop.mese_fine-1] + ' (ogni anno)';
                         } else if (!isDefault && pop.data_inizio) {
-                            const fmt = (d) => d ? new Date(d).toLocaleDateString('it-IT') : '?';
-                            dateLabel = `${fmt(pop.data_inizio)} → ${fmt(pop.data_fine)}`;
+                            const fmt = function(d) { return d ? new Date(d).toLocaleDateString('it-IT') : '?'; };
+                            dateLabel = fmt(pop.data_inizio) + ' - ' + fmt(pop.data_fine);
                         }
                     %>
                     <div class="pop-card <%= pop.attivo ? '' : 'inactive' %>" id="pop-card-<%= pop.id %>">
@@ -151,13 +151,16 @@
                             <div class="pop-actions">
                                 <button class="btn-pop-action edit"
                                     title="Modifica"
-                                    onclick='apriModalModifica(<%= JSON.stringify(pop) %>)'
+                                    data-action="edit"
+                                    data-id="<%= pop.id %>"
                                     aria-label="Modifica POP <%= pop.id %>">
                                     <i class="fas fa-pen"></i>
                                 </button>
                                 <button class="btn-pop-action delete"
                                     title="Elimina"
-                                    onclick="eliminaPop(<%= pop.id %>, '<%= pop.titolo.replace(/'/g, \"\\\\'\") %>')"
+                                    data-action="delete"
+                                    data-id="<%= pop.id %>"
+                                    data-titolo="<%= pop.titolo.replace(/"/g, '&quot;') %>"
                                     aria-label="Elimina POP <%= pop.id %>">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -166,6 +169,9 @@
                     </div>
                     <% }); %>
                 </div>
+
+                <!-- Dati POPS per JS (embed sicuro) -->
+                <script id="popsDataEmbed" type="application/json"><%- JSON.stringify(pops) %></script>
 
             </div>
         </main>
@@ -420,7 +426,30 @@
     ["popTitolo","popMessaggio","popIcona","popColorePrimario","popColoreSecondario"]
         .forEach(id => document.getElementById(id)?.addEventListener("input", updatePreview));
 
-    // ── Azzera il form ────────────────────────────────────────
+    // ── Legge i dati POPS dall'embed JSON sicuro ─────────────
+    const POPS_DATA = JSON.parse(
+        document.getElementById('popsDataEmbed').textContent
+    );
+
+    function findPopById(id) {
+        return POPS_DATA.find(function(p) { return String(p.id) === String(id); }) || null;
+    }
+
+    // ── Pulsanti Modifica (via event delegation) ──────────────
+    document.querySelectorAll('[data-action="edit"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var pop = findPopById(this.dataset.id);
+            if (pop) apriModalModifica(pop);
+        });
+    });
+
+    // ── Pulsanti Elimina (via event delegation) ───────────────
+    document.querySelectorAll('[data-action="delete"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            eliminaPop(this.dataset.id, this.dataset.titolo);
+        });
+    });
+
     function resetForm() {
         document.getElementById("popId").value            = "";
         document.getElementById("popTitolo").value        = "";
