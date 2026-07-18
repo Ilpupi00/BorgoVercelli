@@ -114,16 +114,23 @@
                             dateLabel = fmt(pop.data_inizio) + ' - ' + fmt(pop.data_fine);
                         }
                     %>
-                    <div class="pop-card <%= pop.attivo ? '' : 'inactive' %>" id="pop-card-<%= pop.id %>">
+                    <div class="pop-card <%= pop.attivo ? '' : 'inactive' %> <%= pop.is_system ? 'pop-card-system' : '' %>" id="pop-card-<%= pop.id %>">
 
                         <!-- Colored header -->
                         <div class="pop-card-header" style="background: linear-gradient(135deg, <%= pop.colore_primario %>22, <%= pop.colore_secondario %>11);">
                             <span class="pop-card-icon"><%= pop.icona %></span>
-                            <div>
+                            <div style="flex:1;">
                                 <div class="pop-card-title"><%= pop.titolo %></div>
-                                <span class="pop-tipo-badge <%= pop.tipo %>">
-                                    <%= isDefault ? '🔄 Ricorrente' : '📅 Una-tantum' %>
-                                </span>
+                                <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;">
+                                    <span class="pop-tipo-badge <%= pop.tipo %>">
+                                        <%= isDefault ? '🔄 Ricorrente' : '📅 Una-tantum' %>
+                                    </span>
+                                    <% if (pop.is_system) { %>
+                                    <span class="pop-tipo-badge" style="background:rgba(245,158,11,.15);color:#92400e;">
+                                        🔒 Sistema
+                                    </span>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
 
@@ -136,7 +143,7 @@
                             <div class="pop-colors mt-2">
                                 <div class="pop-color-swatch" style="background: <%= pop.colore_primario %>" title="Colore primario: <%= pop.colore_primario %>"></div>
                                 <div class="pop-color-swatch" style="background: <%= pop.colore_secondario %>" title="Colore secondario: <%= pop.colore_secondario %>"></div>
-                                <small class="ms-1 text-muted"><%= pop.autore_nome ? 'da ' + pop.autore_nome : '' %></small>
+                                <small class="ms-1 text-muted"><%= pop.is_system ? 'Festa italiana (sistema)' : (pop.autore_nome ? 'da ' + pop.autore_nome : '') %></small>
                             </div>
                         </div>
 
@@ -149,6 +156,7 @@
                                 <span><%= pop.attivo ? 'Attivo' : 'Inattivo' %></span>
                             </label>
                             <div class="pop-actions">
+                                <% if (!pop.is_system) { %>
                                 <button class="btn-pop-action edit"
                                     title="Modifica"
                                     data-action="edit"
@@ -164,6 +172,12 @@
                                     aria-label="Elimina POP <%= pop.id %>">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                                <% } else { %>
+                                <span title="Questa festa e' gestita dal sistema e non puo' essere modificata"
+                                    style="font-size:.8rem;color:#92400e;display:flex;align-items:center;gap:.3rem;padding:.2rem .5rem;background:rgba(245,158,11,.1);border-radius:8px;">
+                                    <i class="fas fa-lock"></i> Sola lettura
+                                </span>
+                                <% } %>
                             </div>
                         </div>
                     </div>

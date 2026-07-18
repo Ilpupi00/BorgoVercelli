@@ -165,6 +165,15 @@
   filter: grayscale(40%);
 }
 
+/* POPS di sistema — non modificabili */
+.pop-card.pop-card-system {
+  border-left: 4px solid #F59E0B;
+}
+
+.pop-card.pop-card-system:hover {
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+}
+
 /* Fascia colorata in cima con icona */
 .pop-card-header {
   padding: 1.25rem 1.5rem 1rem;

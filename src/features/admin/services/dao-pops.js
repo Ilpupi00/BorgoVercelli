@@ -28,6 +28,7 @@ function makePopObj(row) {
     data_inizio: row.data_inizio,
     data_fine: row.data_fine,
     attivo: row.attivo,
+    is_system: row.is_system || false,
     autore_id: row.autore_id,
     autore_nome: row.autore_nome
       ? `${row.autore_nome} ${row.autore_cognome || ""}`.trim()
@@ -45,7 +46,7 @@ exports.getAllPops = async function () {
     SELECT P.*, U.nome AS autore_nome, U.cognome AS autore_cognome
     FROM POPS P
     LEFT JOIN UTENTI U ON P.autore_id = U.id
-    ORDER BY P.created_at DESC
+    ORDER BY P.is_system DESC, P.created_at DESC
   `;
   return new Promise((resolve, reject) => {
     db.all(sql, (err, rows) => {
@@ -161,6 +162,17 @@ exports.createPop = async function (data) {
 // updatePop
 // ─────────────────────────────────────────────────────────────
 exports.updatePop = async function (id, data) {
+  // Protezione: i POPS di sistema non sono modificabili
+  const checkSql = "SELECT is_system FROM POPS WHERE id = ?";
+  const existing = await new Promise((resolve, reject) => {
+    db.get(checkSql, [id], (err, row) => {
+      if (err) return reject({ error: "Errore verifica POP: " + err.message });
+      resolve(row);
+    });
+  });
+  if (!existing) return Promise.reject({ error: "POP non trovato" });
+  if (existing.is_system) return Promise.reject({ error: "I POPS di sistema non sono modificabili" });
+
   const sql = `
     UPDATE POPS SET
       titolo = ?, messaggio = ?, icona = ?,
@@ -202,6 +214,17 @@ exports.updatePop = async function (id, data) {
 // deletePop
 // ─────────────────────────────────────────────────────────────
 exports.deletePop = async function (id) {
+  // Protezione: i POPS di sistema non sono eliminabili
+  const checkSql = "SELECT is_system FROM POPS WHERE id = ?";
+  const existing = await new Promise((resolve, reject) => {
+    db.get(checkSql, [id], (err, row) => {
+      if (err) return reject({ error: "Errore verifica POP: " + err.message });
+      resolve(row);
+    });
+  });
+  if (!existing) return Promise.reject({ error: "POP non trovato" });
+  if (existing.is_system) return Promise.reject({ error: "I POPS di sistema non possono essere eliminati" });
+
   const sql = "DELETE FROM POPS WHERE id = ?";
   return new Promise((resolve, reject) => {
     db.run(sql, [id], function (err, result) {
@@ -215,6 +238,7 @@ exports.deletePop = async function (id) {
 // togglePop — attiva / disattiva
 // ─────────────────────────────────────────────────────────────
 exports.togglePop = async function (id) {
+  // Nota: il toggle e' consentito anche sui POPS di sistema (solo attivo/inattivo)
   const sql = `
     UPDATE POPS
     SET attivo = NOT attivo, updated_at = NOW()
