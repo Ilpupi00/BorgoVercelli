@@ -35,6 +35,7 @@ const prenotazioniDao = require("../../prenotazioni/services/dao-prenotazione");
 const dirigenteDao = require("../../squadre/services/dao-dirigenti-squadre");
 const campionatiDao = require("../../campionati/services/dao-campionati");
 const adminDao = require("../services/dao-admin");
+const popsDao = require("../services/dao-pops");
 const notifications = require("../../../shared/services/notifications");
 const emailService = require("../../../shared/services/email-service");
 
@@ -1746,5 +1747,127 @@ router.get(
     }
   }
 );
+
+// ═══════════════════════════════════════════════════════
+// POPS — Popup periodici gestiti dall'admin
+// ═══════════════════════════════════════════════════════
+
+/**
+ * Pagina admin: lista di tutti i POPS
+ */
+router.get("/admin/pops", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const pops = await popsDao.getAllPops();
+    res.render("Contenuti/Gestione_Pops.ejs", { user: req.user, pops });
+  } catch (err) {
+    console.error("Errore nel caricamento dei POPS:", err);
+    res.status(500).send("Errore interno del server");
+  }
+});
+
+/**
+ * API pubblica: restituisce i POPS attivi oggi (usata dalla homepage)
+ */
+router.get("/api/pops/attivi", async (req, res) => {
+  try {
+    const pops = await popsDao.getPopsAttivi();
+    res.json({ pops });
+  } catch (err) {
+    console.error("Errore nel recupero POPS attivi:", err);
+    res.status(500).json({ error: "Errore nel recupero POPS" });
+  }
+});
+
+/**
+ * Crea un nuovo POP
+ */
+router.post("/pop", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const data = {
+      titolo:            req.body.titolo,
+      messaggio:         req.body.messaggio,
+      icona:             req.body.icona             || "📢",
+      colore_primario:   req.body.colore_primario   || "#3b82f6",
+      colore_secondario: req.body.colore_secondario || "#1e40af",
+      tipo:              req.body.tipo              || "custom",
+      giorno_inizio:     req.body.giorno_inizio     ? parseInt(req.body.giorno_inizio)  : null,
+      mese_inizio:       req.body.mese_inizio       ? parseInt(req.body.mese_inizio)    : null,
+      giorno_fine:       req.body.giorno_fine       ? parseInt(req.body.giorno_fine)    : null,
+      mese_fine:         req.body.mese_fine         ? parseInt(req.body.mese_fine)      : null,
+      data_inizio:       req.body.data_inizio       || null,
+      data_fine:         req.body.data_fine         || null,
+      attivo:            req.body.attivo !== "false" && req.body.attivo !== false,
+      autore_id:         req.user.id,
+    };
+
+    if (!data.titolo || !data.messaggio) {
+      return res.status(400).json({ success: false, error: "Titolo e messaggio sono obbligatori" });
+    }
+
+    const result = await popsDao.createPop(data);
+    res.json({ success: true, message: "POP creato con successo", id: result.id });
+  } catch (err) {
+    console.error("Errore creazione POP:", err);
+    res.status(500).json({ success: false, error: err.error || "Errore interno" });
+  }
+});
+
+/**
+ * Aggiorna un POP esistente
+ */
+router.put("/pop/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const data = {
+      titolo:            req.body.titolo,
+      messaggio:         req.body.messaggio,
+      icona:             req.body.icona             || "📢",
+      colore_primario:   req.body.colore_primario   || "#3b82f6",
+      colore_secondario: req.body.colore_secondario || "#1e40af",
+      tipo:              req.body.tipo              || "custom",
+      giorno_inizio:     req.body.giorno_inizio     ? parseInt(req.body.giorno_inizio)  : null,
+      mese_inizio:       req.body.mese_inizio       ? parseInt(req.body.mese_inizio)    : null,
+      giorno_fine:       req.body.giorno_fine       ? parseInt(req.body.giorno_fine)    : null,
+      mese_fine:         req.body.mese_fine         ? parseInt(req.body.mese_fine)      : null,
+      data_inizio:       req.body.data_inizio       || null,
+      data_fine:         req.body.data_fine         || null,
+      attivo:            req.body.attivo !== "false" && req.body.attivo !== false,
+    };
+
+    await popsDao.updatePop(id, data);
+    res.json({ success: true, message: "POP aggiornato con successo" });
+  } catch (err) {
+    console.error("Errore aggiornamento POP:", err);
+    res.status(500).json({ success: false, error: err.error || "Errore interno" });
+  }
+});
+
+/**
+ * Attiva / disattiva un POP
+ */
+router.put("/pop/:id/toggle", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const result = await popsDao.togglePop(id);
+    res.json({ success: true, attivo: result.attivo });
+  } catch (err) {
+    console.error("Errore toggle POP:", err);
+    res.status(500).json({ success: false, error: err.error || "Errore interno" });
+  }
+});
+
+/**
+ * Elimina un POP
+ */
+router.delete("/pop/:id", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await popsDao.deletePop(id);
+    res.json({ success: true, message: "POP eliminato" });
+  } catch (err) {
+    console.error("Errore eliminazione POP:", err);
+    res.status(500).json({ success: false, error: err.error || "Errore interno" });
+  }
+});
 
 module.exports = router;

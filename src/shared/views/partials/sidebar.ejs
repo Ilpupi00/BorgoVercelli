@@ -53,6 +53,13 @@
                         </a>
                     </li>
                     <% } %>
+                    <% if (user.tipo_utente_id === 1) { %>
+                    <li class="nav-item">
+                        <a class="nav-link submenu text-white <%= (currentPath && currentPath.startsWith('/admin/pops')) ? 'active' : '' %>" href="/admin/pops">
+                            📢 Gestisci POPS
+                        </a>
+                    </li>
+                    <% } %>
                 </div>
                 <% } else if (user.tipo_utente_id === 4) { %>
                 <!-- Dirigente vede solo Squadre -->

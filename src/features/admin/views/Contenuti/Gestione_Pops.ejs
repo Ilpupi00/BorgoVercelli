@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione POPS - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
+    <link rel="stylesheet" href="/assets/styles/Admin.css">
+    <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
+    <link rel="stylesheet" href="/assets/styles/theme-admin.css">
+    <link rel="stylesheet" href="/assets/styles/Gestione_Pops.css">
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar.ejs'); %>
+
+        <!-- Contenuto principale -->
+        <main class="col-lg-9 col-xl-10 px-4 py-5">
+            <div class="admin-container">
+
+                <!-- Header classico admin -->
+                <header class="admin-page-header slide-up">
+                    <div class="admin-page-header-content">
+                        <h1>
+                            <i class="fas fa-bell-slash"></i>
+                            Gestione POPS
+                        </h1>
+                        <p>Gestisci i popup periodici visualizzati sulla homepage</p>
+                    </div>
+                    <div class="admin-page-header-actions">
+                        <a href="/admin" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Pannello</span>
+                        </a>
+                        <a href="/Logout" class="btn btn-outline-danger">
+                            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Esci</span>
+                        </a>
+                    </div>
+                </header>
+
+                <!-- Hero -->
+                <div class="pops-page-hero fade-in">
+                    <h1>📢 Popup Periodici</h1>
+                    <p>I POPS appaiono sulla homepage nel periodo impostato. I POPS <strong>Default</strong> si ripetono ogni anno, i <strong>Custom</strong> sono una-tantum.</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="pops-stats">
+                    <div class="pops-stat-card">
+                        <span class="pops-stat-icon">📢</span>
+                        <div>
+                            <div class="pops-stat-value" id="statTotale"><%= pops.length %></div>
+                            <div class="pops-stat-label">Totale POPS</div>
+                        </div>
+                    </div>
+                    <div class="pops-stat-card">
+                        <span class="pops-stat-icon">✅</span>
+                        <div>
+                            <div class="pops-stat-value" id="statAttivi"><%= pops.filter(p => p.attivo).length %></div>
+                            <div class="pops-stat-label">Attivi</div>
+                        </div>
+                    </div>
+                    <div class="pops-stat-card">
+                        <span class="pops-stat-icon">🔄</span>
+                        <div>
+                            <div class="pops-stat-value"><%= pops.filter(p => p.tipo === 'default').length %></div>
+                            <div class="pops-stat-label">Ricorrenti</div>
+                        </div>
+                    </div>
+                    <div class="pops-stat-card">
+                        <span class="pops-stat-icon">📅</span>
+                        <div>
+                            <div class="pops-stat-value"><%= pops.filter(p => p.tipo === 'custom').length %></div>
+                            <div class="pops-stat-label">Una-tantum</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="pops-toolbar">
+                    <h2><i class="bi bi-collection me-2 text-primary"></i>Tutti i POPS</h2>
+                    <button class="btn-crea-pop" id="btnNuovoPop" data-bs-toggle="modal" data-bs-target="#modalPop">
+                        <i class="fas fa-plus"></i> Crea Nuovo POP
+                    </button>
+                </div>
+
+                <!-- Grid dei POPS -->
+                <div class="pops-grid" id="popsGrid">
+                    <% if (pops.length === 0) { %>
+                    <div class="pops-empty">
+                        <span class="empty-icon">📢</span>
+                        <h4>Nessun POP creato</h4>
+                        <p class="mb-3">Crea il tuo primo popup periodico per coinvolgere gli utenti della homepage.</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPop">
+                            <i class="fas fa-plus me-2"></i>Crea il primo POP
+                        </button>
+                    </div>
+                    <% } %>
+
+                    <% pops.forEach(pop => {
+                        const isDefault = pop.tipo === 'default';
+                        let dateLabel = '';
+                        if (isDefault && pop.mese_inizio && pop.giorno_inizio) {
+                            const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+                            dateLabel = `${pop.giorno_inizio} ${mesi[pop.mese_inizio-1]} → ${pop.giorno_fine} ${mesi[pop.mese_fine-1]} (ogni anno)`;
+                        } else if (!isDefault && pop.data_inizio) {
+                            const fmt = (d) => d ? new Date(d).toLocaleDateString('it-IT') : '?';
+                            dateLabel = `${fmt(pop.data_inizio)} → ${fmt(pop.data_fine)}`;
+                        }
+                    %>
+                    <div class="pop-card <%= pop.attivo ? '' : 'inactive' %>" id="pop-card-<%= pop.id %>">
+
+                        <!-- Colored header -->
+                        <div class="pop-card-header" style="background: linear-gradient(135deg, <%= pop.colore_primario %>22, <%= pop.colore_secondario %>11);">
+                            <span class="pop-card-icon"><%= pop.icona %></span>
+                            <div>
+                                <div class="pop-card-title"><%= pop.titolo %></div>
+                                <span class="pop-tipo-badge <%= pop.tipo %>">
+                                    <%= isDefault ? '🔄 Ricorrente' : '📅 Una-tantum' %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="pop-card-body">
+                            <p class="pop-card-message"><%= pop.messaggio %></p>
+                            <div class="pop-date-range">
+                                <i class="bi bi-calendar-range"></i>
+                                <span><%= dateLabel || 'Date non configurate' %></span>
+                            </div>
+                            <div class="pop-colors mt-2">
+                                <div class="pop-color-swatch" style="background: <%= pop.colore_primario %>" title="Colore primario: <%= pop.colore_primario %>"></div>
+                                <div class="pop-color-swatch" style="background: <%= pop.colore_secondario %>" title="Colore secondario: <%= pop.colore_secondario %>"></div>
+                                <small class="ms-1 text-muted"><%= pop.autore_nome ? 'da ' + pop.autore_nome : '' %></small>
+                            </div>
+                        </div>
+
+                        <div class="pop-card-footer">
+                            <label class="pop-toggle" title="Attiva/Disattiva">
+                                <input type="checkbox" class="toggle-pop-check"
+                                    data-id="<%= pop.id %>"
+                                    <%= pop.attivo ? 'checked' : '' %>
+                                    aria-label="Toggle POP <%= pop.id %>">
+                                <span><%= pop.attivo ? 'Attivo' : 'Inattivo' %></span>
+                            </label>
+                            <div class="pop-actions">
+                                <button class="btn-pop-action edit"
+                                    title="Modifica"
+                                    onclick='apriModalModifica(<%= JSON.stringify(pop) %>)'
+                                    aria-label="Modifica POP <%= pop.id %>">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="btn-pop-action delete"
+                                    title="Elimina"
+                                    onclick="eliminaPop(<%= pop.id %>, '<%= pop.titolo.replace(/'/g, \"\\\\'\") %>')"
+                                    aria-label="Elimina POP <%= pop.id %>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL Crea / Modifica POP
+══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPop" tabindex="-1" aria-labelledby="modalPopLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPopLabel">
+                    <i class="fas fa-bell me-2"></i>
+                    <span id="modalPopTitoloTesto">Crea Nuovo POP</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formPop" novalidate>
+                    <input type="hidden" id="popId" value="">
+
+                    <div class="row g-3">
+
+                        <!-- Tipo selector -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold mb-1">Tipo di POP</label>
+                            <div class="tipo-selector">
+                                <button type="button" class="tipo-btn active" id="btnTipoCustom" onclick="setTipo('custom')">
+                                    📅 Una-tantum
+                                </button>
+                                <button type="button" class="tipo-btn" id="btnTipoDefault" onclick="setTipo('default')">
+                                    🔄 Ricorrente (ogni anno)
+                                </button>
+                            </div>
+                            <input type="hidden" id="popTipo" value="custom">
+                        </div>
+
+                        <!-- Titolo -->
+                        <div class="col-12">
+                            <label for="popTitolo" class="form-label fw-semibold">Titolo <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="popTitolo"
+                                placeholder="Es: Torneo Estivo 2026, Auguri di Natale..."
+                                maxlength="255" required>
+                        </div>
+
+                        <!-- Messaggio -->
+                        <div class="col-12">
+                            <label for="popMessaggio" class="form-label fw-semibold">Messaggio <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="popMessaggio" rows="3"
+                                placeholder="Testo del popup visualizzato agli utenti..."
+                                maxlength="1000" required></textarea>
+                        </div>
+
+                        <!-- Icona + Colori -->
+                        <div class="col-12 col-md-4">
+                            <label for="popIcona" class="form-label fw-semibold">Icona (emoji)</label>
+                            <input type="text" class="form-control" id="popIcona" value="📢"
+                                placeholder="📢" maxlength="10">
+                            <div class="form-text">Copia e incolla un'emoji</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label for="popColorePrimario" class="form-label fw-semibold">Colore primario</label>
+                            <input type="color" class="form-control form-control-color w-100" id="popColorePrimario" value="#3b82f6">
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label for="popColoreSecondario" class="form-label fw-semibold">Colore secondario</label>
+                            <input type="color" class="form-control form-control-color w-100" id="popColoreSecondario" value="#1e40af">
+                        </div>
+
+                        <!-- Anteprima -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Anteprima</label>
+                            <div class="pop-preview-box" id="popPreviewBox">
+                                <div class="pop-preview-header" id="popPreviewHeader"
+                                    style="background: linear-gradient(135deg, #3b82f6, #1e40af);">
+                                    <span class="prev-icon" id="prevIcon">📢</span>
+                                    <span class="prev-title" id="prevTitle">Titolo del POP</span>
+                                </div>
+                                <div class="pop-preview-body" id="prevMessage">Il messaggio apparirà qui...</div>
+                            </div>
+                        </div>
+
+                        <!-- ── DATE CUSTOM ── -->
+                        <div id="sezDateCustom" class="col-12">
+                            <label class="form-label fw-semibold">Periodo di visualizzazione</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label for="popDataInizio" class="form-label small">Data inizio</label>
+                                    <input type="date" class="form-control" id="popDataInizio">
+                                </div>
+                                <div class="col-6">
+                                    <label for="popDataFine" class="form-label small">Data fine</label>
+                                    <input type="date" class="form-control" id="popDataFine">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── DATE DEFAULT (ricorrente) ── -->
+                        <div id="sezDateDefault" class="col-12 d-none">
+                            <label class="form-label fw-semibold">Finestra annuale (si ripete ogni anno)</label>
+                            <div class="row g-2">
+                                <div class="col-3">
+                                    <label for="popGiornoInizio" class="form-label small">Giorno inizio</label>
+                                    <input type="number" class="form-control" id="popGiornoInizio" min="1" max="31" placeholder="1">
+                                </div>
+                                <div class="col-3">
+                                    <label for="popMeseInizio" class="form-label small">Mese inizio</label>
+                                    <select class="form-select" id="popMeseInizio">
+                                        <option value="">Mese</option>
+                                        <option value="1">Gennaio</option>
+                                        <option value="2">Febbraio</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Aprile</option>
+                                        <option value="5">Maggio</option>
+                                        <option value="6">Giugno</option>
+                                        <option value="7">Luglio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Settembre</option>
+                                        <option value="10">Ottobre</option>
+                                        <option value="11">Novembre</option>
+                                        <option value="12">Dicembre</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <label for="popGiornoFine" class="form-label small">Giorno fine</label>
+                                    <input type="number" class="form-control" id="popGiornoFine" min="1" max="31" placeholder="31">
+                                </div>
+                                <div class="col-3">
+                                    <label for="popMeseFine" class="form-label small">Mese fine</label>
+                                    <select class="form-select" id="popMeseFine">
+                                        <option value="">Mese</option>
+                                        <option value="1">Gennaio</option>
+                                        <option value="2">Febbraio</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Aprile</option>
+                                        <option value="5">Maggio</option>
+                                        <option value="6">Giugno</option>
+                                        <option value="7">Luglio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Settembre</option>
+                                        <option value="10">Ottobre</option>
+                                        <option value="11">Novembre</option>
+                                        <option value="12">Dicembre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-text mt-1">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Il popup apparirà ogni anno tra il giorno/mese di inizio e quello di fine.
+                            </div>
+                        </div>
+
+                        <!-- Attivo -->
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="popAttivo" checked>
+                                <label class="form-check-label fw-semibold" for="popAttivo">
+                                    Attivo (visibile agli utenti se nel periodo)
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" id="btnSalvaPop" onclick="salvaPop()">
+                    <i class="fas fa-save me-2"></i>Salva POP
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL Conferma Eliminazione
+══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalConfermaElimina" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:16px; overflow:hidden;">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title"><i class="fas fa-trash me-2"></i>Elimina POP</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-1">Stai per eliminare:</p>
+                <strong id="eliminaTitolo" class="d-block mb-3">—</strong>
+                <p class="text-muted small mb-0">Questa azione non può essere annullata.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button class="btn btn-danger" id="btnConfermaElimina">
+                    <i class="fas fa-trash me-2"></i>Elimina
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast feedback -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+    <div id="toastFeedback" class="toast align-items-center border-0" role="alert" aria-live="assertive">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMsg">Operazione completata</div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Chiudi"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+<%- include('../../shared/views/partials/theme-script') %>
+
+<script>
+(function () {
+    "use strict";
+
+    // ── Toast helper ──────────────────────────────────────────
+    function showToast(msg, isError = false) {
+        const el = document.getElementById("toastFeedback");
+        el.className = `toast align-items-center border-0 text-bg-${isError ? "danger" : "success"}`;
+        document.getElementById("toastMsg").textContent = msg;
+        bootstrap.Toast.getOrCreateInstance(el, { delay: 3000 }).show();
+    }
+
+    // ── Tipo selector ─────────────────────────────────────────
+    window.setTipo = function (tipo) {
+        document.getElementById("popTipo").value = tipo;
+        document.getElementById("btnTipoCustom").classList.toggle("active",  tipo === "custom");
+        document.getElementById("btnTipoDefault").classList.toggle("active", tipo === "default");
+        document.getElementById("sezDateCustom").classList.toggle("d-none",  tipo !== "custom");
+        document.getElementById("sezDateDefault").classList.toggle("d-none", tipo !== "default");
+    };
+
+    // ── Live preview ──────────────────────────────────────────
+    function updatePreview() {
+        const titolo   = document.getElementById("popTitolo").value   || "Titolo del POP";
+        const msg      = document.getElementById("popMessaggio").value || "Il messaggio apparirà qui...";
+        const icona    = document.getElementById("popIcona").value     || "📢";
+        const cp       = document.getElementById("popColorePrimario").value;
+        const cs       = document.getElementById("popColoreSecondario").value;
+
+        document.getElementById("prevIcon").textContent    = icona;
+        document.getElementById("prevTitle").textContent   = titolo;
+        document.getElementById("prevMessage").textContent = msg;
+        document.getElementById("popPreviewHeader").style.background =
+            `linear-gradient(135deg, ${cp}, ${cs})`;
+    }
+
+    ["popTitolo","popMessaggio","popIcona","popColorePrimario","popColoreSecondario"]
+        .forEach(id => document.getElementById(id)?.addEventListener("input", updatePreview));
+
+    // ── Azzera il form ────────────────────────────────────────
+    function resetForm() {
+        document.getElementById("popId").value            = "";
+        document.getElementById("popTitolo").value        = "";
+        document.getElementById("popMessaggio").value     = "";
+        document.getElementById("popIcona").value         = "📢";
+        document.getElementById("popColorePrimario").value   = "#3b82f6";
+        document.getElementById("popColoreSecondario").value = "#1e40af";
+        document.getElementById("popAttivo").checked      = true;
+        document.getElementById("popDataInizio").value    = "";
+        document.getElementById("popDataFine").value      = "";
+        document.getElementById("popGiornoInizio").value  = "";
+        document.getElementById("popMeseInizio").value    = "";
+        document.getElementById("popGiornoFine").value    = "";
+        document.getElementById("popMeseFine").value      = "";
+        document.getElementById("modalPopTitoloTesto").textContent = "Crea Nuovo POP";
+        setTipo("custom");
+        updatePreview();
+    }
+
+    // Reset al riapri il modal per "Crea"
+    document.getElementById("btnNuovoPop").addEventListener("click", resetForm);
+
+    // ── Apri modal in modalità modifica ──────────────────────
+    window.apriModalModifica = function (pop) {
+        resetForm();
+        document.getElementById("modalPopTitoloTesto").textContent = "Modifica POP";
+        document.getElementById("popId").value                = pop.id;
+        document.getElementById("popTitolo").value            = pop.titolo;
+        document.getElementById("popMessaggio").value         = pop.messaggio;
+        document.getElementById("popIcona").value             = pop.icona || "📢";
+        document.getElementById("popColorePrimario").value    = pop.colore_primario   || "#3b82f6";
+        document.getElementById("popColoreSecondario").value  = pop.colore_secondario || "#1e40af";
+        document.getElementById("popAttivo").checked          = pop.attivo;
+
+        setTipo(pop.tipo || "custom");
+
+        if (pop.tipo === "default") {
+            document.getElementById("popGiornoInizio").value = pop.giorno_inizio || "";
+            document.getElementById("popMeseInizio").value   = pop.mese_inizio   || "";
+            document.getElementById("popGiornoFine").value   = pop.giorno_fine   || "";
+            document.getElementById("popMeseFine").value     = pop.mese_fine     || "";
+        } else {
+            document.getElementById("popDataInizio").value = pop.data_inizio
+                ? pop.data_inizio.split("T")[0] : "";
+            document.getElementById("popDataFine").value = pop.data_fine
+                ? pop.data_fine.split("T")[0] : "";
+        }
+        updatePreview();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("modalPop")).show();
+    };
+
+    // ── Salva (crea o aggiorna) ───────────────────────────────
+    window.salvaPop = async function () {
+        const id      = document.getElementById("popId").value;
+        const tipo    = document.getElementById("popTipo").value;
+        const titolo  = document.getElementById("popTitolo").value.trim();
+        const msg     = document.getElementById("popMessaggio").value.trim();
+
+        if (!titolo || !msg) {
+            showToast("Titolo e messaggio sono obbligatori.", true);
+            return;
+        }
+
+        const payload = {
+            titolo,
+            messaggio: msg,
+            icona:             document.getElementById("popIcona").value             || "📢",
+            colore_primario:   document.getElementById("popColorePrimario").value,
+            colore_secondario: document.getElementById("popColoreSecondario").value,
+            tipo,
+            attivo: document.getElementById("popAttivo").checked ? "true" : "false",
+        };
+
+        if (tipo === "custom") {
+            payload.data_inizio = document.getElementById("popDataInizio").value || null;
+            payload.data_fine   = document.getElementById("popDataFine").value   || null;
+        } else {
+            payload.giorno_inizio = document.getElementById("popGiornoInizio").value || null;
+            payload.mese_inizio   = document.getElementById("popMeseInizio").value   || null;
+            payload.giorno_fine   = document.getElementById("popGiornoFine").value   || null;
+            payload.mese_fine     = document.getElementById("popMeseFine").value     || null;
+        }
+
+        const url    = id ? `/pop/${id}` : "/pop";
+        const method = id ? "PUT" : "POST";
+
+        try {
+            const res  = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || "Errore sconosciuto");
+
+            showToast(id ? "POP aggiornato con successo!" : "POP creato con successo!");
+            bootstrap.Modal.getInstance(document.getElementById("modalPop"))?.hide();
+            setTimeout(() => location.reload(), 900);
+        } catch (e) {
+            showToast("Errore: " + e.message, true);
+        }
+    };
+
+    // ── Toggle attivo/inattivo ────────────────────────────────
+    document.querySelectorAll(".toggle-pop-check").forEach(chk => {
+        chk.addEventListener("change", async function () {
+            const id    = this.dataset.id;
+            const label = this.nextElementSibling;
+            try {
+                const res  = await fetch(`/pop/${id}/toggle`, { method: "PUT" });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                const card = document.getElementById(`pop-card-${id}`);
+                if (data.attivo) {
+                    card.classList.remove("inactive");
+                    label.textContent = "Attivo";
+                } else {
+                    card.classList.add("inactive");
+                    label.textContent = "Inattivo";
+                }
+                // Aggiorna stat attivi
+                const attiviCount = document.querySelectorAll(".toggle-pop-check:checked").length;
+                document.getElementById("statAttivi").textContent = attiviCount;
+                showToast(data.attivo ? "POP attivato" : "POP disattivato");
+            } catch (e) {
+                showToast("Errore nel cambio stato: " + e.message, true);
+                this.checked = !this.checked; // ripristina
+            }
+        });
+    });
+
+    // ── Elimina ───────────────────────────────────────────────
+    let _eliminaId = null;
+
+    window.eliminaPop = function (id, titolo) {
+        _eliminaId = id;
+        document.getElementById("eliminaTitolo").textContent = titolo;
+        bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("modalConfermaElimina")
+        ).show();
+    };
+
+    document.getElementById("btnConfermaElimina").addEventListener("click", async () => {
+        if (!_eliminaId) return;
+        try {
+            const res  = await fetch(`/pop/${_eliminaId}`, { method: "DELETE" });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error);
+
+            bootstrap.Modal.getInstance(
+                document.getElementById("modalConfermaElimina")
+            )?.hide();
+            showToast("POP eliminato con successo!");
+            setTimeout(() => location.reload(), 900);
+        } catch (e) {
+            showToast("Errore nell'eliminazione: " + e.message, true);
+        }
+        _eliminaId = null;
+    });
+
+    // Preview iniziale
+    updatePreview();
+})();
+</script>
+
+</body>
+</html>
