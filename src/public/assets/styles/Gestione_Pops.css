@@ -1,0 +1,506 @@
+/**
+ * Gestione_Pops.css
+ * Stili per la pagina di gestione POPS (popup periodici)
+ * In linea con il design system admin del sito
+ */
+
+/* ─────────────────────────────────────────────────
+   Layout & Hero Header
+───────────────────────────────────────────────── */
+.pops-page-hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+}
+
+.pops-page-hero::before {
+  content: "📢";
+  position: absolute;
+  font-size: 8rem;
+  right: -1rem;
+  top: -1rem;
+  opacity: 0.08;
+  transform: rotate(-15deg);
+}
+
+.pops-page-hero h1 {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.pops-page-hero p {
+  color: rgba(255,255,255,0.8);
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+}
+
+/* ─────────────────────────────────────────────────
+   Stats bar
+───────────────────────────────────────────────── */
+.pops-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.pops-stat-card {
+  flex: 1;
+  min-width: 150px;
+  background: var(--admin-card-bg, #fff);
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--admin-border, #e5e7eb);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pops-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.pops-stat-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.pops-stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--admin-text-primary, #111827);
+}
+
+.pops-stat-label {
+  font-size: 0.78rem;
+  color: var(--admin-text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────
+   Action toolbar
+───────────────────────────────────────────────── */
+.pops-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.pops-toolbar h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+
+.btn-crea-pop {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.25s;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  cursor: pointer;
+}
+
+.btn-crea-pop:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.45);
+  color: #fff;
+}
+
+/* ─────────────────────────────────────────────────
+   POPS Grid
+───────────────────────────────────────────────── */
+.pops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────────────
+   Pop Card
+───────────────────────────────────────────────── */
+.pop-card {
+  background: var(--admin-card-bg, #fff);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  border: 1px solid var(--admin-border, #e5e7eb);
+  transition: transform 0.25s, box-shadow 0.25s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pop-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.13);
+}
+
+.pop-card.inactive {
+  opacity: 0.6;
+  filter: grayscale(40%);
+}
+
+/* POPS di sistema — non modificabili */
+.pop-card.pop-card-system {
+  border-left: 4px solid #F59E0B;
+}
+
+.pop-card.pop-card-system:hover {
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+}
+
+/* Fascia colorata in cima con icona */
+.pop-card-header {
+  padding: 1.25rem 1.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--admin-border, #e5e7eb);
+  background: var(--pop-card-header-bg);
+}
+
+.pop-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pop-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--admin-text-primary, #111827);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Tipo badge */
+.pop-tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.3rem;
+}
+
+.pop-tipo-badge.default {
+  background: rgba(234, 179, 8, 0.12);
+  color: #b45309;
+}
+
+.pop-tipo-badge.custom {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+[data-theme="dark"] .pop-tipo-badge.default { background: rgba(234,179,8,0.2); color: #fbbf24; }
+[data-theme="dark"] .pop-tipo-badge.custom  { background: rgba(59,130,246,0.2); color: #93c5fd; }
+
+/* Body */
+.pop-card-body {
+  padding: 1rem 1.5rem;
+  flex: 1;
+}
+
+.pop-card-message {
+  font-size: 0.88rem;
+  color: var(--admin-text-muted, #6b7280);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pop-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--admin-text-muted, #6b7280);
+  font-weight: 500;
+}
+
+.pop-date-range i {
+  color: #3b82f6;
+}
+
+/* Color swatches */
+.pop-colors {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  align-items: center;
+}
+
+.pop-color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+/* Footer with actions */
+.pop-card-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Toggle switch */
+.pop-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pop-toggle input[type="checkbox"] {
+  width: 2.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.pop-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-pop-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border, #e5e7eb);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  color: var(--admin-text-muted, #6b7280);
+}
+
+.btn-pop-action:hover {
+  background: var(--admin-hover, #f3f4f6);
+}
+
+.btn-pop-action.edit:hover   { color: #3b82f6; border-color: #3b82f6; }
+.btn-pop-action.delete:hover { color: #ef4444; border-color: #ef4444; }
+
+/* ─────────────────────────────────────────────────
+   Empty state
+───────────────────────────────────────────────── */
+.pops-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--admin-card-bg, #fff);
+  border-radius: 18px;
+  border: 2px dashed var(--admin-border, #e5e7eb);
+  color: var(--admin-text-muted, #6b7280);
+}
+
+.pops-empty .empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+  opacity: 0.5;
+}
+
+/* ─────────────────────────────────────────────────
+   Modal Crea/Modifica Pop
+───────────────────────────────────────────────── */
+#modalPop .modal-content {
+  border-radius: 20px;
+  border: none;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+#modalPop .modal-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  border: none;
+  padding: 1.5rem 2rem;
+}
+
+#modalPop .modal-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+#modalPop .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+#modalPop .modal-body {
+  padding: 1.75rem 2rem;
+  background: var(--admin-card-bg, #fff);
+}
+
+#modalPop .modal-footer {
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+  padding: 1rem 2rem;
+  background: var(--admin-card-bg, #fff);
+}
+
+/* Tipo switch */
+.tipo-selector {
+  display: flex;
+  background: var(--admin-hover, #f3f4f6);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+
+.tipo-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--admin-text-muted, #6b7280);
+}
+
+.tipo-btn.active {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.35);
+}
+
+/* Preview colori */
+.pop-preview-box {
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.pop-preview-header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pop-preview-header .prev-icon { font-size: 1.6rem; }
+.pop-preview-header .prev-title { color: #fff; font-weight: 700; font-size: 1rem; }
+
+.pop-preview-body {
+  background: var(--admin-card-bg, #fff);
+  padding: 1rem 1.25rem;
+  font-size: 0.88rem;
+  color: var(--admin-text-muted, #6b7280);
+}
+
+/* ─────────────────────────────────────────────────
+   Dark mode overrides
+───────────────────────────────────────────────── */
+[data-theme="dark"] .pop-card,
+[data-theme="dark"] .pops-stat-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .pop-card-header {
+  border-color: #374151;
+}
+
+[data-theme="dark"] .pop-card-footer {
+  border-color: #374151;
+}
+
+[data-theme="dark"] .btn-pop-action {
+  border-color: #374151;
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .btn-pop-action:hover {
+  background: #374151;
+}
+
+[data-theme="dark"] .pops-empty {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] #modalPop .modal-body,
+[data-theme="dark"] #modalPop .modal-footer {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .tipo-selector {
+  background: #374151;
+}
+
+[data-theme="dark"] .pop-preview-body {
+  background: #111827;
+  color: #9ca3af;
+}
+
+/* ─────────────────────────────────────────────────
+   Responsive
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pops-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pops-page-hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .pops-stat-card {
+    min-width: 120px;
+  }
+}
