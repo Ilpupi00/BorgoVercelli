@@ -23,13 +23,12 @@ if (!vapidPublicKey || !vapidPrivateKey) {
     "[WEBPUSH] VAPID Public Key:",
     vapidPublicKey.substring(0, 20) + "..."
   );
+  webpush.setVapidDetails(
+    `mailto:${vapidEmail}`,
+    vapidPublicKey,
+    vapidPrivateKey
+  );
 }
-
-webpush.setVapidDetails(
-  `mailto:${vapidEmail}`,
-  vapidPublicKey,
-  vapidPrivateKey
-);
 
 /**
  * Carica le subscription dal database
