@@ -19,6 +19,81 @@ describe("DAO: Users (dao-user.js)", () => {
         jest.clearAllMocks();
     });
 
+    describe("searchUsers", () => {
+        it("should return users matching query (onlyDirigenti=false)", async () => {
+            db.all.mockImplementation((sql, params, cb) => cb(null, [{ id: 1, nome: "Mario", cognome: "Rossi" }]));
+            const res = await daoUser.searchUsers("mar", false);
+            expect(res).toHaveLength(1);
+        });
+
+        it("should return users matching query (onlyDirigenti=true)", async () => {
+            db.all.mockImplementation((sql, params, cb) => cb(null, [{ id: 1, nome: "Mario", cognome: "Rossi" }]));
+            const res = await daoUser.searchUsers("mar", true);
+            expect(res).toHaveLength(1);
+        });
+
+        it("should handle error (onlyDirigenti=false)", async () => {
+            db.all.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.searchUsers("mar", false)).rejects.toEqual({ error: "Error searching users: err" });
+        });
+
+        it("should handle error (onlyDirigenti=true)", async () => {
+            db.all.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.searchUsers("mar", true)).rejects.toEqual({ error: "Error searching users: err" });
+        });
+    });
+
+    describe("deleteUser errors", () => {
+        const deleteSteps = [
+            "RECENSIONI", "PRENOTAZIONI", "PARTECIPAZIONI_EVENTI", "GIOCATORI",
+            "DIRIGENTI_SQUADRE", "NOTIZIE", "EVENTI", "SQUADRE", "IMMAGINI",
+            "UTENTI_SOSPENSIONI", "UTENTI_RESET_TOKEN", "UTENTI_PREFERENZE",
+            "UTENTI_DATI_PERSONALI", "UTENTI WHERE id"
+        ];
+        
+        deleteSteps.forEach(step => {
+            it(`should reject when deleting ${step} fails`, async () => {
+                db.run.mockImplementation((sql, params, cb) => {
+                    const callback = typeof params === 'function' ? params : cb;
+                    if (sql.includes(step)) {
+                        callback(new Error(`err ${step}`));
+                    } else {
+                        callback(null);
+                    }
+                });
+                await expect(daoUser.deleteUser(1)).rejects.toEqual({ error: `Error deleting user: err ${step}` });
+            });
+        });
+    });
+    
+    describe("getStatistiche", () => {
+        it("should calculate correct stats on success", async () => {
+             db.query.mockImplementation((sql, cb) => {
+                 cb(null, { rows: [{ count: 10 }] });
+             });
+             const stats = await daoUser.getStatistiche();
+             expect(Number(stats.utentiTotali)).toBe(10);
+        });
+
+        it("should handle error in specific query and fallback to 0", async () => {
+             db.query.mockImplementation((sql, cb) => {
+                 if(sql.includes("nuovi_utenti")) {
+                     cb(new Error("query err"));
+                 } else {
+                     cb(null, { rows: [{ count: 5 }] });
+                 }
+             });
+             const stats = await daoUser.getStatistiche();
+             expect(Number(stats.utentiTotali)).toBe(5);
+        });
+
+        it("should handle fatal error", async () => {
+             db.query.mockImplementation(() => { throw new Error("fatal"); });
+             const stats = await daoUser.getStatistiche();
+             expect(stats.utentiTotali).toBe(0);
+        });
+    });
+
     describe("createUser", () => {
         it("should successfully insert a user and hash password", async () => {
             db.run.mockImplementation((sql, params, cb) => cb(null)); // Success
@@ -72,63 +147,203 @@ describe("DAO: Users (dao-user.js)", () => {
         });
     });
 
-    describe("updateUser & changePassword & updateProfilePicture", () => {
-        it("updateUser applies dynamic SQL updates", async () => {
+    describe("getImmagineProfiloByUserId", () => {
+        it("returns URL from IMMAGINI if exists", async () => {
+            db.query.mockResolvedValueOnce({ rows: [{ url: "http://example.com/img.jpg" }] });
+            const url = await daoUser.getImmagineProfiloByUserId(1);
+            expect(url).toBe("/api/proxy-image?url=http%3A%2F%2Fexample.com%2Fimg.jpg");
+        });
+
+        it("returns fallback foto_oauth if IMMAGINI is empty", async () => {
+            db.query.mockResolvedValueOnce({ rows: [] }); // IMMAGINI
+            db.query.mockResolvedValueOnce({ rows: [{ foto_oauth: "http://example.com/oauth.jpg" }] }); // UTENTI
+            const url = await daoUser.getImmagineProfiloByUserId(1);
+            expect(url).toBe("/api/proxy-image?url=http%3A%2F%2Fexample.com%2Foauth.jpg");
+        });
+
+        it("returns local url without proxying", async () => {
+            db.query.mockResolvedValueOnce({ rows: [{ url: "/local.jpg" }] });
+            const url = await daoUser.getImmagineProfiloByUserId(1);
+            expect(url).toBe("/local.jpg");
+        });
+
+        it("returns null if neither exists", async () => {
+            db.query.mockResolvedValueOnce({ rows: [] });
+            db.query.mockResolvedValueOnce({ rows: [] });
+            const url = await daoUser.getImmagineProfiloByUserId(1);
+            expect(url).toBeNull();
+        });
+
+        it("returns null on db error", async () => {
+            db.query.mockRejectedValueOnce(new Error("DB Error"));
+            const url = await daoUser.getImmagineProfiloByUserId(1);
+            expect(url).toBeNull();
+        });
+    });
+
+    describe("updateUser", () => {
+        it("updateUser applies dynamic SQL updates for all fields", async () => {
              db.run.mockImplementation((sql, params, cb) => cb(null));
-             const res = await daoUser.updateUser(1, { nome: "Lu" });
+             const res = await daoUser.updateUser(1, { nome: "Lu", cognome: "B", email: "a@a", telefono: "1", tipo_utente_id: 1 });
              expect(res).toBe(true);
-             expect(db.run).toHaveBeenCalledWith(expect.stringContaining("nome = ?"), ["Lu", 1], expect.any(Function));
+             expect(db.run).toHaveBeenCalledWith(expect.stringContaining("nome = ?"), ["Lu", "B", "a@a", "1", 1, 1], expect.any(Function));
         });
 
-        it("changePassword validates current pwd and updates hash", async () => {
-            db.get.mockImplementation((sql, params, cb) => cb(null, { password_hash: "oldHash" }));
-            bcrypt.compare.mockResolvedValue(true);
-            db.run.mockImplementation((sql, params, cb) => cb(null)); // Success Update
-
-            const res = await daoUser.changePassword(1, "old", "new");
-            expect(res.message).toBe("Password aggiornata con successo");
+        it("returns false if no fields", async () => {
+             const res = await daoUser.updateUser(1, {});
+             expect(res).toBe(false);
         });
 
-        it("updateProfilePicture cascades deletes and inserts new image", async () => {
-            // Mock delete SELECT
+        it("rejects on db error", async () => {
+             db.run.mockImplementation((sql, params, cb) => cb(new Error("DB Err")));
+             await expect(daoUser.updateUser(1, { nome: "Lu" })).rejects.toEqual({ error: "Errore aggiornamento: DB Err" });
+        });
+    });
+
+    describe("updateProfilePicture", () => {
+        it("returns false if missing params", async () => {
+             expect(await daoUser.updateProfilePicture(null, null)).toBe(false);
+        });
+
+        it("rejects if delete fails", async () => {
             db.get.mockImplementation((sql, params, cb) => cb(null, { url: "/old.jpg" }));
-            // Mock delete RUN
+            db.run.mockImplementationOnce((sql, params, cb) => cb(new Error("Del error")));
+            await expect(daoUser.updateProfilePicture(1, "/new.jpg")).rejects.toEqual({ error: expect.stringContaining("Errore eliminazione") });
+        });
+
+        it("rejects if insert fails", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, { url: "/old.jpg" }));
             db.run.mockImplementationOnce((sql, params, cb) => cb(null, { rowCount: 1 }));
-            // Mock insert RUN
-            db.run.mockImplementationOnce((sql, params, cb) => cb(null, { rows: [{ id: 10 }] }));
-
-            const res = await daoUser.updateProfilePicture(1, "/new.jpg");
-            expect(res).toBe(true);
-            expect(db.run).toHaveBeenCalledTimes(2); // One delete, one insert
+            db.run.mockImplementationOnce((sql, params, cb) => cb(new Error("Ins error")));
+            await expect(daoUser.updateProfilePicture(1, "/new.jpg")).rejects.toEqual({ error: expect.stringContaining("Errore inserimento") });
         });
     });
 
-    describe("deleteUser & cascades", () => {
-        it("should execute 11 deletion queries sequentially via Promise abstractions", async () => {
-            // Force pure success on all db.run calls
-            db.run.mockImplementation((sql, params, cb) => {
-                if (typeof cb === "function") cb(null); 
-            });
-
-            const res = await daoUser.deleteUser(99);
-            expect(res.message).toContain("deleted successfully");
-            // 5 deletes + 2 updates (nulling) + 1 nulling squadre + 5 deletes (immagini, sospensioni, tp, tc) = total 13 calls approx
-            expect(db.run.mock.calls.length).toBeGreaterThan(10);
+    describe("getGiocatoreByUserId", () => {
+        it("resolves giocatore", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(null, { id: 1 }));
+             const res = await daoUser.getGiocatoreByUserId(1);
+             expect(res.id).toBe(1);
+        });
+        it("resolves null if not found", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(null, null));
+             const res = await daoUser.getGiocatoreByUserId(1);
+             expect(res).toBeNull();
+        });
+        it("rejects on db error", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+             await expect(daoUser.getGiocatoreByUserId(1)).rejects.toEqual({ error: expect.stringContaining("err") });
         });
     });
 
-    describe("getAllUsers & getStatistiche", () => {
-        it("getAllUsers maps db.all array", async () => {
-             db.all.mockImplementation((sql, params, cb) => cb(null, [{ id: 1 }, { id: 2 }]));
-             const rows = await daoUser.getAllUsers();
-             expect(rows).toHaveLength(2);
+    describe("getTipiUtente", () => {
+        it("resolves array", async () => {
+             db.all.mockImplementation((sql, params, cb) => cb(null, [{ id: 1 }]));
+             const res = await daoUser.getTipiUtente();
+             expect(res).toHaveLength(1);
+        });
+        it("rejects on db error", async () => {
+             db.all.mockImplementation((sql, params, cb) => cb(new Error("err")));
+             await expect(daoUser.getTipiUtente()).rejects.toEqual({ error: expect.stringContaining("err") });
+        });
+    });
+
+    describe("getUserStats & getUserRecentActivity", () => {
+        it("resolves stats", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(null, { prenotazioni_totali: 5 }));
+             const res = await daoUser.getUserStats(1);
+             expect(res.prenotazioni_totali).toBe(5);
+        });
+        it("rejects stats on error", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+             await expect(daoUser.getUserStats(1)).rejects.toEqual({ error: expect.stringContaining("err") });
+        });
+        it("resolves default stats if null", async () => {
+             db.get.mockImplementation((sql, params, cb) => cb(null, null));
+             const res = await daoUser.getUserStats(1);
+             expect(res.prenotazioni_totali).toBe(0);
         });
 
-        it("getStatistiche queries diverse aggregations efficiently via safeQuery", async () => {
-             db.query.mockImplementation((sql, cb) => cb(null, { rows: [{ count: 50 }] }));
-             const stats = await daoUser.getStatistiche();
-             expect(stats.utentiTotali).toBe(50);
-             expect(stats.eventiAttivi).toBe(50);
+        it("resolves recent activity", async () => {
+             db.all.mockImplementation((sql, params, cb) => cb(null, [{ id: 1 }]));
+             const res = await daoUser.getUserRecentActivity(1);
+             expect(res.prenotazioni).toHaveLength(1);
+             expect(res.recensioni).toHaveLength(1);
+        });
+        it("rejects recent activity on error", async () => {
+             db.all.mockImplementation((sql, params, cb) => cb(new Error("err")));
+             await expect(daoUser.getUserRecentActivity(1)).rejects.toThrow();
+        });
+    });
+
+    describe("Error branches", () => {
+        it("createUser db error", async () => {
+            db.run.mockImplementation((sql, params, cb) => cb(new Error("Other db error")));
+            await expect(daoUser.createUser({ email: "A", password: "1" })).rejects.toEqual({ error: "Error creating user: Other db error" });
+        });
+        it("createUser bcrypt error", async () => {
+            bcrypt.hash.mockRejectedValueOnce(new Error("hash error"));
+            await expect(daoUser.createUser({ email: "A", password: "1" })).rejects.toEqual({ error: "Error hashing password: hash error" });
+        });
+        it("getUserById db error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.getUserById(1)).rejects.toEqual({ error: "Error retrieving user: err" });
+        });
+        it("getUserById not found", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, null));
+            await expect(daoUser.getUserById(1)).rejects.toEqual({ error: "User not found" });
+        });
+        it("getUser db error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.getUser("a@a", "1")).rejects.toEqual({ error: "Error retrieving user: err" });
+        });
+        it("getUser not found", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, null));
+            await expect(daoUser.getUser("a@a", "1")).rejects.toEqual({ error: "User not found" });
+        });
+        it("getUser bcrypt error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, { password_hash: "hash" }));
+            bcrypt.compare.mockRejectedValueOnce(new Error("cmp err"));
+            await expect(daoUser.getUser("a@a", "1")).rejects.toEqual({ error: "Error comparing passwords: cmp err" });
+        });
+        it("getUserByEmail db error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.getUserByEmail("a@a")).rejects.toEqual({ error: "Error retrieving user: err" });
+        });
+        it("changePassword db get error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.changePassword(1, "old", "new")).rejects.toEqual({ error: "Error retrieving user: err" });
+        });
+        it("changePassword user not found", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, null));
+            await expect(daoUser.changePassword(1, "old", "new")).rejects.toEqual({ error: "User not found" });
+        });
+        it("changePassword wrong current password", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, { password_hash: "hash" }));
+            bcrypt.compare.mockResolvedValueOnce(false);
+            await expect(daoUser.changePassword(1, "old", "new")).rejects.toEqual({ error: "Password attuale non corretta" });
+        });
+        it("changePassword db update error", async () => {
+            db.get.mockImplementation((sql, params, cb) => cb(null, { password_hash: "hash" }));
+            bcrypt.compare.mockResolvedValueOnce(true);
+            db.run.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.changePassword(1, "old", "new")).rejects.toEqual({ error: "Error updating password: err" });
+        });
+        it("getAllUsers db error", async () => {
+            db.all.mockImplementation((sql, params, cb) => cb(new Error("err")));
+            await expect(daoUser.getAllUsers()).rejects.toEqual({ error: "Error retrieving users: err" });
+        });
+    });
+
+    describe("deleteUser & getStatistiche errors", () => {
+        it("deleteUser handles errors from run", async () => {
+            db.run.mockImplementation((sql, params, cb) => cb(new Error("del err")));
+            await expect(daoUser.deleteUser(1)).rejects.toEqual({ error: "Error deleting user: del err" });
+        });
+        it("getStatistiche fallback", async () => {
+            db.query.mockImplementation((sql, cb) => cb(new Error("err")));
+            const stats = await daoUser.getStatistiche();
+            expect(stats.utentiTotali).toBe(0);
         });
     });
 });

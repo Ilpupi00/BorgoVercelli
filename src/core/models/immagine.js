@@ -67,9 +67,9 @@ class Immagine {
     if (!json) {
       return null;
     }
-    // BUG: dovrebbe essere Immagine(), non Immagini()
-    const immagini = Object.assign(new Immagini(), json);
-    return immagini;
+    // Fixed bug
+    const immagine = Object.assign(new Immagine(), json);
+    return immagine;
   }
 
   /**

@@ -177,7 +177,9 @@ class Notizia {
       return null;
     }
     const json = Object.assign({}, notizia);
-    json.data = notizia.data.format("YYYY-MM-DD HH:mm:ss");
+    if (notizia.data && notizia.data.format) {
+      json.data = notizia.data.format("YYYY-MM-DD HH:mm:ss");
+    }
     return json;
   }
 }

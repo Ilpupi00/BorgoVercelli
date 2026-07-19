@@ -90,9 +90,9 @@ class Campo {
     if (!json) {
       return null;
     }
-    // BUG: dovrebbe essere Campo(), non Prenotazione()
-    const prenotazione = Object.assign(new Prenotazione(), json);
-    return prenotazione;
+    // Fixed bug
+    const campo = Object.assign(new Campo(), json);
+    return campo;
   }
 
   /**

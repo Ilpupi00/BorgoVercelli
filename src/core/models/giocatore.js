@@ -53,18 +53,20 @@ class Giocatore {
     Nazionalita,
     Nome,
     Cognome,
-  }) {
+  } = {}) {
     this.id = id;
     this.id_immagine = id_immagine;
     this.squadra_id = squadra_id;
     this.numero_maglia = numero_maglia;
     this.ruolo = ruolo;
+    this.nome = Nome;
+    this.cognome = Cognome;
     this.data_nascita = data_nascita;
     this.piede_preferito = piede_preferito;
 
     // BUG: data_inizio_tesseramento usa data_fine_tesseramento
     this.data_inizio_tesseramento = data_inizio_tesseramento
-      ? moment(data_fine_tesseramento).format("YYYY-MM-DD HH:mm:ss")
+      ? moment(data_inizio_tesseramento).format("YYYY-MM-DD HH:mm:ss")
       : null;
     this.data_fine_tesseramento = data_fine_tesseramento
       ? moment(data_fine_tesseramento).format("YYYY-MM-DD HH:mm:ss")
