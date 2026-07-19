@@ -119,4 +119,64 @@ describe("Service: Email Service (SMTP/APIs)", () => {
              expect(emailCall.html).toContain("Multiple spam");
         });
     });
+    describe("sendBanEmail", () => {
+        it("should format email correctly", async () => {
+             await emailService.sendBanEmail("test@test.com", "UserName", "MotivoTest");
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("test@test.com");
+             expect(emailCall.subject).toBe("Account Bannato - Borgo Vercelli");
+        });
+    });
+
+    describe("sendRevocaEmail", () => {
+        it("should format email correctly", async () => {
+             await emailService.sendRevocaEmail("test@test.com", "UserName");
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("test@test.com");
+        });
+    });
+
+    describe("sendPrenotazioneRicevutaEmail", () => {
+        it("should format email correctly", async () => {
+             await emailService.sendPrenotazioneRicevutaEmail("test@test.com", "UserName", {});
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("test@test.com");
+        });
+    });
+
+    describe("SendPrenotazioneConfermataEmail", () => {
+        it("should format email correctly", async () => {
+             await emailService.SendPrenotazioneConfermataEmail("test@test.com", "UserName", {});
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("test@test.com");
+        });
+    });
+
+    describe("sendPrenotazioneAdminEmail", () => {
+        it("should format email correctly", async () => {
+             await emailService.sendPrenotazioneAdminEmail("admin@test.com", "UserName", {});
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("admin@test.com");
+        });
+    });
+
+    describe("sendReminderEmail", () => {
+        it("should format email correctly for admin", async () => {
+             await emailService.sendReminderEmail("admin@test.com", "UserName", {}, { isAdmin: true });
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("admin@test.com");
+             expect(emailCall.subject).toContain("[Admin]");
+        });
+        it("should format email correctly for user", async () => {
+             await emailService.sendReminderEmail("user@test.com", "UserName", {});
+             const emailCall = mockSendMail.mock.calls[0][0];
+             expect(emailCall.to).toBe("user@test.com");
+        });
+    });
+
+    describe("sendTestViaResend", () => {
+        it("should reject if not configured", async () => {
+             await expect(emailService.sendTestViaResend("test@test.com")).rejects.toThrow();
+        });
+    });
 });

@@ -158,6 +158,30 @@ describe("Service: WebPush", () => {
       const result = await webpushService.sendNotificationToAll({ }, mockDbSubs);
       expect(result.sent).toBe(2);
     });
+
+    it("sendNotificationToAdmins errors like 410, 403, 401, 500", async () => {
+      const mockDbSubs = [
+        { userId: 1, endpoint: "/ep1", keys: {}, isAdmin: true },
+        { userId: 2, endpoint: "/ep2", keys: {}, isAdmin: true },
+        { userId: 3, endpoint: "/ep3", keys: {}, isAdmin: true },
+        { userId: 4, endpoint: "/ep4", keys: {}, isAdmin: true }
+      ];
+      
+      const err410 = new Error("Gone"); err410.statusCode = 410;
+      const err403 = new Error("Forbidden"); err403.statusCode = 403;
+      const err401 = new Error("Auth"); err401.statusCode = 401;
+      const err500 = new Error("Server"); err500.statusCode = 500;
+      
+      webpush.sendNotification
+        .mockRejectedValueOnce(err410)
+        .mockRejectedValueOnce(err403)
+        .mockRejectedValueOnce(err401)
+        .mockRejectedValueOnce(err500);
+
+      const result = await webpushService.sendNotificationToAdmins({ }, mockDbSubs);
+      expect(result.removed).toBe(1);
+      expect(result.failed).toBe(3);
+    });
   });
 
   describe("DB Helpers (remove, increment, cleanup)", () => {
@@ -180,6 +204,17 @@ describe("Service: WebPush", () => {
         db.query.mockResolvedValue({ rows: [] });
         const nil = await webpushService.getSubscriptionByEndpoint("/err");
         expect(nil).toBe(null);
+    });
+
+    it("catches errors in db helpers", async () => {
+        db.query.mockRejectedValue(new Error("db down"));
+        await expect(webpushService.removeSubscription("ep")).rejects.toThrow();
+        await expect(webpushService.cleanupFailedSubscriptions(5)).rejects.toThrow();
+        
+        // Pass invalid subscriptionsParam to force synchronous throw (e.g. no .filter method)
+        await expect(webpushService.sendNotificationToAdmins({}, {})).rejects.toThrow();
+        // Pass invalid subscriptionsParam to force synchronous throw (e.g. no .map method)
+        await expect(webpushService.sendNotificationToAll({}, {})).rejects.toThrow();
     });
   });
 });
