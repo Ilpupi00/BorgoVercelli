@@ -2351,7 +2351,17 @@ code {
 /* Card: sfondo solido + testo chiaro */
 :root[data-theme="dark"] .card,
 :root[data-theme="dark"] .action-card,
-:root[data-theme="dark"] .modern-card {
+:root[data-theme="dark"] .modern-card,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .prenotazione-card,
+:root[data-theme="dark"] .review-card,
+:root[data-theme="dark"] .gallery-item,
+:root[data-theme="dark"] .news-card,
+:root[data-theme="dark"] .privacy-section,
+:root[data-theme="dark"] .kpi-card,
+:root[data-theme="dark"] .glass-effect,
+:root[data-theme="dark"] .team-card,
+:root[data-theme="dark"] .bg-white {
   background-color: #1e2535 !important;
   border-color: #2e3650 !important;
   color: #f1f5f9 !important;
@@ -2507,7 +2517,9 @@ code {
 
 /* Surface / sfondo generico classi helper */
 :root[data-theme="dark"] .surface-neutral,
-:root[data-theme="dark"] .surface-warm {
+:root[data-theme="dark"] .surface-warm,
+:root[data-theme="dark"] .bg-light,
+:root[data-theme="dark"] .bg-white {
   background-color: #1c2233 !important;
   color: #f1f5f9 !important;
 }
@@ -2555,6 +2567,18 @@ code {
   color: #818cf8 !important;
 }
 
+/* Offcanvas */
+:root[data-theme="dark"] .offcanvas,
+:root[data-theme="dark"] .offcanvas-body,
+:root[data-theme="dark"] .offcanvas-header {
+  background-color: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .offcanvas-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
 /* Tabelle */
 :root[data-theme="dark"] .table {
   color: #f1f5f9 !important;
@@ -2581,14 +2605,21 @@ code {
 :root[data-theme="dark"] .form-select,
 :root[data-theme="dark"] input:not([type="submit"]):not([type="button"]):not([type="color"]),
 :root[data-theme="dark"] textarea,
-:root[data-theme="dark"] select {
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] .modal .form-control,
+:root[data-theme="dark"] .modal .form-select {
   background-color: #1c2233 !important;
   border-color: #2e3650 !important;
   color: #f1f5f9 !important;
 }
 
+:root[data-theme="dark"] .form-control::placeholder {
+  color: #94a3b8 !important;
+}
+
 :root[data-theme="dark"] .form-label,
-:root[data-theme="dark"] label {
+:root[data-theme="dark"] label,
+:root[data-theme="dark"] .modal .form-label {
   color: #cbd5e1 !important;
 }
 
