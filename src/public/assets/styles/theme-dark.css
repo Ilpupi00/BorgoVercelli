@@ -2628,20 +2628,276 @@ code {
   color: #94a3b8 !important;
 }
 
-/* Paginazione */
-:root[data-theme="dark"] .pagination .page-link {
-  background-color: #1e2535 !important;
-  border-color: #2e3650 !important;
-  color: #818cf8 !important;
-}
-
-:root[data-theme="dark"] .pagination .page-item.active .page-link {
-  background-color: #6366f1 !important;
-  border-color: #6366f1 !important;
-  color: #ffffff !important;
-}
-
 :root[data-theme="dark"] .pagination .page-link:hover {
   background-color: #252d42 !important;
   color: #a5b4fc !important;
+}
+
+/* ================================================================
+   ☢️  NUCLEAR DARK OVERRIDES — v3 (Fine documento, massima priorità)
+   Questi override sconfiggono ogni background bianco/chiaro hardcoded
+   presente nei singoli CSS delle pagine (Navbar.css, MiePrenotazioni,
+   modifica_squadra, Galleria, privacy, recensioni, ecc.)
+   ================================================================ */
+
+/* ── NAVBAR: search wrapper (background: rgba(255,255,255,0.95) hardcoded) ── */
+:root[data-theme="dark"] .modern-search-wrapper {
+  background: rgba(28, 34, 51, 0.95) !important;
+  border-color: #2e3650 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3) !important;
+}
+:root[data-theme="dark"] .modern-search-wrapper:focus-within {
+  background: #1c2233 !important;
+  border-color: rgba(129,140,248,0.4) !important;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.3), 0 4px 8px rgba(0,0,0,0.4) !important;
+}
+:root[data-theme="dark"] .modern-search-input {
+  color: #f1f5f9 !important;
+  background: transparent !important;
+}
+:root[data-theme="dark"] .modern-search-input::placeholder {
+  color: #64748b !important;
+}
+:root[data-theme="dark"] .search-icon {
+  color: #818cf8 !important;
+}
+
+/* ── NAVBAR: toggler e dropdown mobile ── */
+:root[data-theme="dark"] .navbar-toggler {
+  background-color: rgba(129,140,248,0.2) !important;
+  border-color: #2e3650 !important;
+}
+:root[data-theme="dark"] .navbar-toggler-icon {
+  filter: brightness(200%) !important;
+}
+:root[data-theme="dark"] .navbar-collapse,
+:root[data-theme="dark"] .navbar-nav {
+  background-color: transparent !important;
+}
+:root[data-theme="dark"] .navbar-nav .nav-link:active,
+:root[data-theme="dark"] .navbar-nav .nav-link.active {
+  background: rgba(129,140,248,0.15) !important;
+  color: #fff !important;
+}
+
+/* ── CARD: elimina ogni sfondo bianco nelle card di qualsiasi pagina ── */
+:root[data-theme="dark"] [class*="card"],
+:root[data-theme="dark"] [class*="-card"] {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] [class*="card"] [class*="card-body"],
+:root[data-theme="dark"] [class*="card"] .card-body {
+  background-color: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] [class*="card"] .card-header,
+:root[data-theme="dark"] [class*="card"] .card-footer {
+  background-color: #161b27 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── MiePrenotazioni: stat-card, prenotazione-card ── */
+:root[data-theme="dark"] .stat-card {
+  background: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .stat-card h3,
+:root[data-theme="dark"] .stat-card p {
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .prenotazione-card {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .prenotazione-card .card-header {
+  background: #161b27 !important;
+}
+:root[data-theme="dark"] .prenotazione-card .status-badge {
+  border-color: #6366f1 !important;
+  color: #818cf8 !important;
+}
+:root[data-theme="dark"] .prenotazione-card .status-badge.cancellata {
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+
+/* ── Galleria: gallery-item, lightbox ── */
+:root[data-theme="dark"] .gallery-item {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+}
+:root[data-theme="dark"] .gallery-item .gallery-caption {
+  color: #cbd5e1 !important;
+}
+
+/* ── Privacy e Regolamento ── */
+:root[data-theme="dark"] .privacy-section,
+:root[data-theme="dark"] .regolamento-section,
+:root[data-theme="dark"] .last-update {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .privacy-section h2,
+:root[data-theme="dark"] .privacy-section h3,
+:root[data-theme="dark"] .privacy-section p {
+  color: #f1f5f9 !important;
+}
+
+/* ── Recensioni ── */
+:root[data-theme="dark"] .review-card {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Gestione Campionato / Campionato ── */
+:root[data-theme="dark"] .campionato-card,
+:root[data-theme="dark"] .campionato-header,
+:root[data-theme="dark"] .classifica-container,
+:root[data-theme="dark"] .match-card {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Squadra / modifica_squadra ── */
+:root[data-theme="dark"] .squadra-card,
+:root[data-theme="dark"] .player-card,
+:root[data-theme="dark"] .staff-card,
+:root[data-theme="dark"] .glass-effect {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .modal-body,
+:root[data-theme="dark"] .modal-footer {
+  background: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .modal .form-control,
+:root[data-theme="dark"] .modal .form-select,
+:root[data-theme="dark"] .modal input,
+:root[data-theme="dark"] .modal textarea,
+:root[data-theme="dark"] .modal select {
+  background: #1c2233 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .modal .form-label,
+:root[data-theme="dark"] .modal label {
+  color: #cbd5e1 !important;
+}
+
+/* ── Gestione Galleria ── */
+:root[data-theme="dark"] .gallery-upload-area,
+:root[data-theme="dark"] .image-editor,
+:root[data-theme="dark"] .editor-canvas {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Calendario ── */
+:root[data-theme="dark"] .calendar-container,
+:root[data-theme="dark"] .calendar-day,
+:root[data-theme="dark"] .fc-theme-standard td,
+:root[data-theme="dark"] .fc-theme-standard th,
+:root[data-theme="dark"] .fc-scrollgrid {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .fc-col-header-cell {
+  background: #161b27 !important;
+}
+:root[data-theme="dark"] .fc-daygrid-day {
+  background: #1e2535 !important;
+}
+:root[data-theme="dark"] .fc-day-today {
+  background: rgba(99,102,241,0.15) !important;
+}
+
+/* ── Profilo ── */
+:root[data-theme="dark"] .profile-container,
+:root[data-theme="dark"] .profile-card,
+:root[data-theme="dark"] .profile-header-card,
+:root[data-theme="dark"] .profile-section {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Ricerca (Search) ── */
+:root[data-theme="dark"] .search-results,
+:root[data-theme="dark"] .search-result-item,
+:root[data-theme="dark"] .search-container {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Contatti ── */
+:root[data-theme="dark"] .contatti-section,
+:root[data-theme="dark"] .contact-card {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Catch-all: qualsiasi elemento che abbia esplicitamente background white ── */
+/* (grazie al modo in cui funciona CSS, questi override vengono applicati per ultimi) */
+:root[data-theme="dark"] *:not(body):not(html):not(.navbar):not(.admin-page-header):not([class*="btn-"]) {
+  border-color: var(--border-color, #2e3650);
+}
+
+/* ── bg-primary sovrascrive Bootstrap ── */
+:root[data-theme="dark"] .bg-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%) !important;
+  color: #ffffff !important;
+}
+:root[data-theme="dark"] .bg-secondary {
+  background-color: #161b27 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .bg-dark {
+  background-color: #0f1117 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .bg-light {
+  background-color: #1c2233 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .bg-white {
+  background-color: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── Testi che usano .text-dark ── */
+:root[data-theme="dark"] .text-dark,
+:root[data-theme="dark"] .text-black {
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .text-muted {
+  color: #94a3b8 !important;
+}
+:root[data-theme="dark"] .text-secondary {
+  color: #cbd5e1 !important;
+}
+
+/* ── Bordo close btn ── */
+:root[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+/* ── Input group text ── */
+:root[data-theme="dark"] .input-group-text {
+  background-color: #1c2233 !important;
+  border-color: #2e3650 !important;
+  color: #cbd5e1 !important;
 }
