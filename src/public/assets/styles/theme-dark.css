@@ -88,132 +88,91 @@
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
-/* Dark Theme */
+/* Dark Theme — Premium Indigo Night */
 :root[data-theme="dark"] {
-  /* Primary Colors - Mantiene il blu del sito ma più chiaro */
-  --primary-color: #4a9eff;
-  --primary-variant: #3b82f6;
-  --primary-hover: #5dadff;
-  --primary-active: #70b8ff;
+  /* Primary Colors — viola/blu elettrico per dark mode */
+  --primary-color: #818cf8;
+  --primary-variant: #6366f1;
+  --primary-hover: #a5b4fc;
+  --primary-active: #c7d2fe;
 
-  /* Secondary Colors - Verde coerente */
-  --secondary-color: #3cc566;
-  --secondary-dark: #2fb357;
-  --accent-color: #ffc107;
+  /* Secondary Colors */
+  --secondary-color: #34d399;
+  --secondary-dark: #10b981;
+  --accent-color: #fbbf24;
 
-  /* Background Colors - Modern Web2.0 layered gradients for depth */
-  /* Main page background: deep navy / indigo duotone with subtle warmth */
-  --bg-primary: linear-gradient(180deg, #070714 0%, #0e1530 45%, #111522 100%);
-  /* Secondary layers for sections (soft, slightly warmer) */
-  --bg-secondary: linear-gradient(
-    180deg,
-    rgba(28, 36, 70, 0.9) 0%,
-    rgba(24, 30, 54, 0.9) 100%
-  );
-  --bg-tertiary: linear-gradient(
-    180deg,
-    rgba(20, 24, 44, 0.9) 0%,
-    rgba(18, 20, 36, 0.9) 100%
-  );
-  /* Elevated surfaces (cards, modals) use a subtle frosted gradient */
-  --bg-elevated: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  --bg-hover: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.015) 100%
-  );
-  --bg-active: linear-gradient(
-    180deg,
-    rgba(74, 158, 255, 0.04),
-    rgba(45, 64, 160, 0.02)
-  );
-  --bg-gradient-start: #0b1230;
-  --bg-gradient-end: #111522;
+  /* ── Sfondi SOLIDI (niente gradienti: incompatibili con Bootstrap) ── */
+  --bg-primary:   #0f1117;   /* nero-blu profondo */
+  --bg-secondary: #161b27;   /* layer intermedio */
+  --bg-tertiary:  #1c2233;   /* terzo livello */
+  --bg-elevated:  #1e2535;   /* card / modal */
+  --bg-hover:     #252d42;   /* hover items */
+  --bg-active:    #2a3350;   /* selected/active */
+  --bg-gradient-start: #0f1117;
+  --bg-gradient-end:   #161b27;
 
-  /* Text Colors - Testo molto più leggibile */
-  --text-primary: #f8fafc;
-  --text-secondary: #e2e8f0;
-  --text-tertiary: #cbd5e1;
+  /* ── Testo: leggibilissimo su sfondo scuro ── */
+  --text-primary:    #f1f5f9;  /* quasi bianco */
+  --text-secondary:  #cbd5e1;  /* grigio chiaro */
+  --text-tertiary:   #94a3b8;  /* grigio medio */
   --text-on-primary: #ffffff;
-  --text-muted: #94a3b8;
+  --text-muted:      #64748b;
 
-  /* Border Colors - Più visibili */
-  --border-color: #3a4261;
-  --border-hover: #4a5575;
-  --border-focus: #4a9eff;
+  /* ── Bordi ── */
+  --border-color: #2e3650;
+  --border-hover: #3d4a6a;
+  --border-focus: #818cf8;
 
-  /* Shadow Colors - More pronounced in dark mode */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
+  /* ── Ombre pronunciate ── */
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:      0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg:      0 10px 25px rgba(0,0,0,0.6);
+  --shadow-xl:      0 20px 40px rgba(0,0,0,0.7);
+  --shadow-2xl:     0 25px 50px rgba(0,0,0,0.8);
+  --shadow-colored: 0 8px 24px rgba(99,102,241,0.35);
 
-  /* Card Specific - glassy elevated panels with subtle gradient */
-  --card-bg: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  --card-border: rgba(255, 255, 255, 0.04);
-  --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
-  --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
+  /* ── Card: colore solido visibile ── */
+  --card-bg:          #1e2535;
+  --card-border:      #2e3650;
+  --card-shadow:      0 4px 16px rgba(0,0,0,0.5);
+  --card-hover-shadow:0 12px 32px rgba(0,0,0,0.65);
 
-  /* Input & Forms */
-  --input-bg: #1e293b;
-  --input-border: #334155;
-  --input-text: #f1f5f9;
-  --input-placeholder: #64748b;
-  --input-focus-border: #3b82f6;
-  --input-focus-ring: rgba(59, 130, 246, 0.25);
+  /* ── Input & Forms ── */
+  --input-bg:           #1c2233;
+  --input-border:       #2e3650;
+  --input-text:         #f1f5f9;
+  --input-placeholder:  #64748b;
+  --input-focus-border: #818cf8;
+  --input-focus-ring:   rgba(129,140,248,0.25);
 
-  /* Navbar - Blu scuro acceso #2D40A0 */
-  --navbar-bg: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%);
-  --navbar-text: #ffffff;
-  --navbar-hover: rgba(255, 255, 255, 0.1);
-  --navbar-active: rgba(255, 255, 255, 0.15);
+  /* ── Navbar: indigo scuro premium ── */
+  --navbar-bg:     linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  --navbar-text:   #ffffff;
+  --navbar-hover:  rgba(255,255,255,0.12);
+  --navbar-active: rgba(255,255,255,0.2);
+  --navbar-solid:  #1e1b4b;
 
-  /* Footer - Stesso blu scuro navbar */
-  --footer-bg: #2d40a0;
-  --footer-text: #ffffff;
-  --footer-heading: #ffffff;
+  /* ── Footer ── */
+  --footer-bg:      #0f1117;
+  --footer-text:    #94a3b8;
+  --footer-heading: #f1f5f9;
 
-  /* Solid navbar color fallback (useful for small elements like toggler) */
-  --navbar-solid: #2d40a0;
+  /* ── Status ── */
+  --success: #34d399;
+  --danger:  #f87171;
+  --warning: #fbbf24;
+  --info:    #60a5fa;
 
-  /* Status Colors - Adjusted for dark mode */
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
+  /* ── Hero ── */
+  --hero-gradient-start: #0f1117;
+  --hero-gradient-end:   #1e1b4b;
+  --hero-overlay:        rgba(0,0,0,0.5);
+  --hero-text:           #f1f5f9;
 
-  /* Hero Section - bold duotone accent with indigo highlights */
-  --hero-gradient-start: linear-gradient(
-    135deg,
-    rgba(13, 24, 77, 0.96) 0%,
-    rgba(24, 36, 80, 0.92) 50%
-  );
-  --hero-gradient-end: linear-gradient(
-    135deg,
-    rgba(30, 44, 86, 0.9) 50%,
-    rgba(17, 21, 42, 0.95) 100%
-  );
-  --hero-overlay: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.35),
-    rgba(0, 0, 0, 0.55)
-  );
-  --hero-text: #f3f6ff;
-
-  /* Glass Morphism */
-  --glass-bg: rgba(7, 9, 12, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  /* ── Glassmorphism ── */
+  --glass-bg:     rgba(30,37,53,0.85);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 
 /* Light-mode checkbox visibility fixes
@@ -305,9 +264,9 @@
 /* Body & Base - Only apply in dark mode */
 :root[data-theme="dark"] body,
 body[data-theme="dark"] {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary);
-  transition: 0.35s ease, color 0.3s ease;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.35s ease, color 0.3s ease;
 }
 
 /* Backgrounds - Only apply in dark mode */
@@ -371,10 +330,9 @@ body[data-theme="dark"] .navbar {
 }
 
 /* ==========================================
-   NAVBAR DARK MODE - FORZATURA TOTALE #2D40A0
+   NAVBAR DARK MODE - Indigo Night Premium
    ========================================== */
 
-/* Targeting TUTTI i selettori possibili per forzare il colore della navbar */
 :root[data-theme="dark"] .navbar,
 :root[data-theme="dark"] #navbar,
 :root[data-theme="dark"] nav.navbar,
@@ -383,23 +341,17 @@ body[data-theme="dark"] .navbar {
 :root[data-theme="dark"] nav.navbar.bg-primary,
 :root[data-theme="dark"] .navbar-expand-lg,
 :root[data-theme="dark"] .navbar.sticky-top {
-  /* Force navbar background only on the main <nav> element. Do not apply
-       the same background to .navbar-collapse to avoid a double-layered
-       background when the collapse/container sits under the navbar. */
-  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
-  background-color: #2d40a0 !important;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  background-color: #1e1b4b !important;
   color: #ffffff !important;
   border: none !important;
 }
 
-/* Forza anche sui media query mobile */
 @media (max-width: 576px) {
   :root[data-theme="dark"] nav#navbar,
   :root[data-theme="dark"] .navbar {
-    /* On mobile keep the navbar background, but do not apply it to
-           the collapse container itself; that should remain transparent. */
-    background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
-    background-color: #2d40a0 !important;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+    background-color: #1e1b4b !important;
     color: #ffffff !important;
   }
 }
@@ -437,14 +389,14 @@ body[data-theme="dark"] .navbar {
 
 /* Override Bootstrap .bg-primary in dark mode */
 :root[data-theme="dark"] .bg-primary {
-  background: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%) !important;
-  background-color: #2d40a0 !important;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  background-color: #1e1b4b !important;
 }
 
 /* Dropdown menu nella navbar */
 :root[data-theme="dark"] .navbar .dropdown-menu {
-  background: linear-gradient(180deg, #2d40a0 0%, #3a51c7 100%) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
 }
 
 :root[data-theme="dark"] .navbar .dropdown-item {
@@ -2372,4 +2324,293 @@ code {
 :root[data-theme="dark"] html body .dataTables_wrapper .dataTables_info,
 :root[data-theme="dark"] html body .dataTables_wrapper .dataTables_length label {
   color: var(--text-muted, #94a3b8) !important;
+}
+
+/* ============================================================
+   DARK MODE — Visibilità Testi Globale (Indigo Night v2)
+   Queste regole garantiscono che OGNI testo sia leggibile
+   su sfondo scuro, indipendentemente dalla classe Bootstrap.
+   ============================================================ */
+
+/* Tutti i titoli h1-h6 */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+  color: #f1f5f9 !important;
+}
+
+/* Paragrafi e span generici */
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] span:not(.badge):not(.bi) {
+  color: #cbd5e1;
+}
+
+/* Card: sfondo solido + testo chiaro */
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .action-card,
+:root[data-theme="dark"] .modern-card {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .card-body {
+  background-color: #1e2535 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .card-header,
+:root[data-theme="dark"] .card-footer {
+  background-color: #161b27 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .card-title {
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .card-text,
+:root[data-theme="dark"] .card .text-muted,
+:root[data-theme="dark"] .card .text-secondary {
+  color: #94a3b8 !important;
+}
+
+/* Forza sfondi sezioni principali */
+:root[data-theme="dark"] main,
+:root[data-theme="dark"] section,
+:root[data-theme="dark"] article,
+:root[data-theme="dark"] aside {
+  background-color: transparent;
+  color: #f1f5f9;
+}
+
+/* Container e row Bootstrap */
+:root[data-theme="dark"] .container,
+:root[data-theme="dark"] .container-fluid {
+  color: #f1f5f9;
+}
+
+/* Overrides text utility di Bootstrap */
+:root[data-theme="dark"] .text-dark {
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .text-muted {
+  color: #94a3b8 !important;
+}
+
+:root[data-theme="dark"] .text-secondary {
+  color: #cbd5e1 !important;
+}
+
+:root[data-theme="dark"] .text-primary {
+  color: #818cf8 !important;
+}
+
+/* Sfondo body/html radicale */
+:root[data-theme="dark"],
+:root[data-theme="dark"] html,
+:root[data-theme="dark"] body {
+  background-color: #0f1117 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Badge aggiustati */
+:root[data-theme="dark"] .badge.bg-light {
+  background-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .badge.text-dark {
+  color: #f1f5f9 !important;
+}
+
+/* List groups */
+:root[data-theme="dark"] .list-group-item {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Tabs / Nav pills */
+:root[data-theme="dark"] .nav-tabs .nav-link {
+  color: #94a3b8 !important;
+  border-color: transparent;
+}
+
+:root[data-theme="dark"] .nav-tabs .nav-link.active {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #818cf8 !important;
+}
+
+:root[data-theme="dark"] .nav-pills .nav-link {
+  color: #94a3b8 !important;
+}
+
+:root[data-theme="dark"] .nav-pills .nav-link.active {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+/* Modals */
+:root[data-theme="dark"] .modal-content {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .modal-header {
+  border-color: #2e3650 !important;
+  background-color: #161b27 !important;
+}
+
+:root[data-theme="dark"] .modal-body,
+:root[data-theme="dark"] .modal-footer {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Alerts */
+:root[data-theme="dark"] .alert {
+  border-color: #2e3650 !important;
+}
+
+:root[data-theme="dark"] .alert-info {
+  background-color: rgba(96,165,250,0.15) !important;
+  color: #93c5fd !important;
+  border-color: rgba(96,165,250,0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-success {
+  background-color: rgba(52,211,153,0.15) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(52,211,153,0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-danger {
+  background-color: rgba(248,113,113,0.15) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(248,113,113,0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-warning {
+  background-color: rgba(251,191,36,0.15) !important;
+  color: #fcd34d !important;
+  border-color: rgba(251,191,36,0.3) !important;
+}
+
+/* Surface / sfondo generico classi helper */
+:root[data-theme="dark"] .surface-neutral,
+:root[data-theme="dark"] .surface-warm {
+  background-color: #1c2233 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Admin sidebar */
+:root[data-theme="dark"] .admin-sidebar {
+  background: linear-gradient(180deg, #0f1117 0%, #161b27 100%) !important;
+}
+
+/* Admin page header */
+:root[data-theme="dark"] .admin-page-header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #161b27 100%) !important;
+  border-color: #2e3650 !important;
+}
+
+/* Btn-outline-secondary nel dark */
+:root[data-theme="dark"] .btn-outline-secondary {
+  color: #818cf8 !important;
+  border-color: #2e3650 !important;
+}
+
+:root[data-theme="dark"] .btn-outline-secondary:hover {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+/* Dropdown generico */
+:root[data-theme="dark"] .dropdown-menu {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+}
+
+:root[data-theme="dark"] .dropdown-item {
+  color: #cbd5e1 !important;
+}
+
+:root[data-theme="dark"] .dropdown-item:hover,
+:root[data-theme="dark"] .dropdown-item:focus {
+  background-color: #252d42 !important;
+  color: #818cf8 !important;
+}
+
+:root[data-theme="dark"] .dropdown-header {
+  color: #818cf8 !important;
+}
+
+/* Tabelle */
+:root[data-theme="dark"] .table {
+  color: #f1f5f9 !important;
+  border-color: #2e3650 !important;
+}
+
+:root[data-theme="dark"] .table td,
+:root[data-theme="dark"] .table th {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) td {
+  background-color: #161b27 !important;
+}
+
+:root[data-theme="dark"] .table tbody tr:hover td {
+  background-color: #252d42 !important;
+}
+
+/* Forms */
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] .form-select,
+:root[data-theme="dark"] input:not([type="submit"]):not([type="button"]):not([type="color"]),
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
+  background-color: #1c2233 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .form-label,
+:root[data-theme="dark"] label {
+  color: #cbd5e1 !important;
+}
+
+:root[data-theme="dark"] small,
+:root[data-theme="dark"] .small {
+  color: #94a3b8 !important;
+}
+
+/* Paginazione */
+:root[data-theme="dark"] .pagination .page-link {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #818cf8 !important;
+}
+
+:root[data-theme="dark"] .pagination .page-item.active .page-link {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .pagination .page-link:hover {
+  background-color: #252d42 !important;
+  color: #a5b4fc !important;
 }
