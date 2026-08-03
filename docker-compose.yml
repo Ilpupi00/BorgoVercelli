@@ -23,11 +23,10 @@ services:
     image: postgres:15-alpine
     container_name: borgo-vercelli-postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/dump.sql:/docker-entrypoint-initdb.d/01-dump.sql
-      - ./database/migrations:/docker-entrypoint-initdb.d/migrations
+      - ./database/migrations/create_postgres_db.sql:/docker-entrypoint-initdb.d/01-init.sql
     environment:
       - POSTGRES_USER=${DB_USER:-borgovercelli}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
@@ -48,6 +47,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - DATABASE_URL=postgresql://${DB_USER:-borgovercelli}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-borgovercelli}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${DB_USER:-borgovercelli}

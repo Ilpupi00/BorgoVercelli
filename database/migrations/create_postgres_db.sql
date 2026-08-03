@@ -17,6 +17,9 @@ DROP TABLE IF EXISTS PARTECIPAZIONI_EVENTI;
 DROP TABLE IF EXISTS RECENSIONI;
 DROP TABLE IF EXISTS DIRIGENTI_SQUADRE;
 DROP TABLE IF EXISTS ORARI_CAMPI;
+DROP TABLE IF EXISTS tema_preferenza_utente;
+DROP TABLE IF EXISTS tema_personalizzato;
+DROP TABLE IF EXISTS tema_config;
 
 CREATE TABLE TIPI_UTENTE (
     id SERIAL PRIMARY KEY,
@@ -59,6 +62,19 @@ CREATE TABLE SQUADRE (
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (allenatore_id) REFERENCES UTENTI(id)
+);
+
+CREATE TABLE IMMAGINI (
+    id SERIAL PRIMARY KEY,
+    titolo VARCHAR(255),
+    descrizione TEXT,
+    url VARCHAR(255) NOT NULL,
+    tipo VARCHAR(255),
+    entita_riferimento VARCHAR(255),
+    entita_id INTEGER,
+    ordine INTEGER,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE GIOCATORI (
@@ -121,18 +137,6 @@ CREATE TABLE PRENOTAZIONI (
     UNIQUE(campo_id, data_prenotazione, ora_inizio, ora_fine)
 );
 
-CREATE TABLE IMMAGINI (
-    id SERIAL PRIMARY KEY,
-    titolo VARCHAR(255),
-    descrizione TEXT,
-    url VARCHAR(255) NOT NULL,
-    tipo VARCHAR(255),
-    entita_riferimento VARCHAR(255),
-    entita_id INTEGER,
-    ordine INTEGER,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
 
 CREATE TABLE NOTIZIE (
     id SERIAL PRIMARY KEY,
@@ -272,3 +276,73 @@ CREATE TABLE ORARI_CAMPI (
 INSERT INTO TIPI_UTENTE (nome, descrizione) VALUES ('Utente', 'Tipo utente standard, con accesso limitato alle funzionalità di base del sistema.');
 
 -- Nota: Puoi aggiungere altri INSERT se necessario dal dump.
+
+-- ==============================================================================
+-- Sistema Temi Dinamici
+-- ==============================================================================
+
+-- 1. Tabella configurazione globale (singola riga)
+CREATE TABLE IF NOT EXISTS tema_config (
+    id SERIAL PRIMARY KEY,
+    tema_attivo VARCHAR(50) NOT NULL DEFAULT 'light',
+    custom_colori JSONB,
+    data_aggiornamento TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tema_config_single_row ON tema_config((1));
+
+INSERT INTO tema_config (id, tema_attivo, data_aggiornamento)
+VALUES (1, 'light', CURRENT_TIMESTAMP)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Tabella temi personalizzati (creati dall'admin)
+CREATE TABLE IF NOT EXISTS tema_personalizzato (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL UNIQUE,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    descrizione TEXT,
+    colori JSONB NOT NULL,
+    attivo BOOLEAN DEFAULT true,
+    creato_da INTEGER REFERENCES UTENTI(id) ON DELETE SET NULL,
+    data_creazione TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    data_aggiornamento TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tema_personalizzato_slug ON tema_personalizzato(slug);
+CREATE INDEX IF NOT EXISTS idx_tema_personalizzato_attivo ON tema_personalizzato(attivo);
+
+-- 3. Tabella preferenze utenti
+CREATE TABLE IF NOT EXISTS tema_preferenza_utente (
+    utente_id INTEGER PRIMARY KEY REFERENCES UTENTI(id) ON DELETE CASCADE,
+    tema_id VARCHAR(100) NOT NULL,
+    data_aggiornamento TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tema_preferenza_tema_id ON tema_preferenza_utente(tema_id);
+
+-- Trigger per aggiornamento automatico dei timestamp
+CREATE OR REPLACE FUNCTION update_data_aggiornamento_tema()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.data_aggiornamento = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_tema_config_update ON tema_config;
+CREATE TRIGGER trg_tema_config_update
+BEFORE UPDATE ON tema_config
+FOR EACH ROW
+EXECUTE FUNCTION update_data_aggiornamento_tema();
+
+DROP TRIGGER IF EXISTS trg_tema_personalizzato_update ON tema_personalizzato;
+CREATE TRIGGER trg_tema_personalizzato_update
+BEFORE UPDATE ON tema_personalizzato
+FOR EACH ROW
+EXECUTE FUNCTION update_data_aggiornamento_tema();
+
+DROP TRIGGER IF EXISTS trg_tema_preferenza_update ON tema_preferenza_utente;
+CREATE TRIGGER trg_tema_preferenza_update
+BEFORE UPDATE ON tema_preferenza_utente
+FOR EACH ROW
+EXECUTE FUNCTION update_data_aggiornamento_tema();

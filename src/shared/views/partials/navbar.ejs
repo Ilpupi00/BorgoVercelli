@@ -56,22 +56,27 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end theme-dropdown" aria-labelledby="theme-dropdown-btn" style="z-index: 1050;">
             <li>
-              <button class="dropdown-item d-flex align-items-center gap-2" id="theme-light">
+              <button class="dropdown-item d-flex align-items-center gap-2" data-tema="light">
                 <i class="bi bi-sun-fill"></i>
                 <span>Tema Chiaro</span>
               </button>
             </li>
             <li>
-              <button class="dropdown-item d-flex align-items-center gap-2" id="theme-dark">
+              <button class="dropdown-item d-flex align-items-center gap-2" data-tema="dark">
                 <i class="bi bi-moon-stars-fill"></i>
                 <span>Tema Scuro</span>
               </button>
             </li>
-            <li><hr class="dropdown-divider"></li>
             <li>
-              <button class="dropdown-item d-flex align-items-center gap-2" id="theme-auto">
-                <i class="bi bi-circle-half"></i>
-                <span>Preferenza Sistema</span>
+              <button class="dropdown-item d-flex align-items-center gap-2" data-tema="sport">
+                <i class="bi bi-trophy-fill" style="color: #003d82;"></i>
+                <span>Tema Sportivo</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" data-tema="nature">
+                <i class="bi bi-tree-fill" style="color: #27ae60;"></i>
+                <span>Tema Natura</span>
               </button>
             </li>
           </ul>

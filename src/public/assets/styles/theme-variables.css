@@ -1,31 +1,37 @@
-/* ===================================
-   Theme Variables Only - NO STYLE OVERRIDES
-   Used by Homepage.css and other page-specific CSS
-   =================================== */
+/* ==============================================================================
+   CSS Variabili Tema Dinamico - BorgoVercelli
+   Definisce le variabili, le utility e le transizioni per il supporto 
+   ai temi dinamici iniettati dal server e dal client.
+   ============================================================================== */
 
-/* Light Theme (Default) - Variables Only */
-:root[data-theme="light"],
-:root:not([data-theme]) {
+/* ===================================
+   Variabili CSS Base (Fallback/Light)
+   Queste variabili vengono sovrascritte
+   dal CSS dinamico generato nel backend.
+   =================================== */
+:root {
   /* Primary Colors */
   --primary-color: #0d6efd;
   --primary-variant: #2563eb;
   --primary-hover: #0a58ca;
   --primary-active: #084298;
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #0a58ca;
 
-  /* Secondary Colors */
+  /* Secondary / Status */
   --secondary-color: #22b14c;
-  --secondary-dark: #1a8e3a;
-  --accent-color: #ffc107;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
 
-  /* Background Colors */
+  /* Backgrounds */
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-tertiary: #e9ecef;
   --bg-elevated: #ffffff;
   --bg-hover: #f1f5f9;
-  --bg-active: #e2e8f0;
-  --bg-gradient-start: #f8fafc;
-  --bg-gradient-end: #e9ecef;
 
   /* Text Colors */
   --text-primary: #1e293b;
@@ -34,128 +40,195 @@
   --text-on-primary: #ffffff;
   --text-muted: #6c757d;
 
-  /* Border Colors */
+  /* Borders & Shadows */
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
   --border-focus: #0d6efd;
-
-  /* Shadow Colors */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-colored: 0 10px 30px rgba(13, 110, 253, 0.15);
 
-  /* Card Specific */
+  /* Card Components */
   --card-bg: #ffffff;
   --card-border: #e2e8f0;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --card-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 
-  /* Input & Forms */
+  /* Forms & Inputs */
   --input-bg: #ffffff;
   --input-border: #cbd5e1;
   --input-text: #1e293b;
   --input-placeholder: #94a3b8;
   --input-focus-border: #0d6efd;
-  --input-focus-ring: rgba(13, 110, 253, 0.15);
 
-  /* Navbar */
+  /* Layout Specific */
   --navbar-bg: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
   --navbar-text: #ffffff;
   --navbar-hover: rgba(255, 255, 255, 0.1);
-  --navbar-active: rgba(255, 255, 255, 0.2);
-
-  /* Footer */
+  
   --footer-bg: #1e293b;
   --footer-text: #cbd5e1;
-  --footer-heading: #ffffff;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 
-  /* Status Colors */
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
+  /* Typography & Misc */
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --transition-speed: 0.3s;
 }
 
-/* Dark Theme - Variables Only */
-:root[data-theme="dark"] {
-  /* Primary Colors */
-  --primary-color: #4a9eff;
-  --primary-variant: #3b82f6;
-  --primary-hover: #5dadff;
-  --primary-active: #70b8ff;
-
-  /* Secondary Colors */
-  --secondary-color: #3cc566;
-  --secondary-dark: #2fb357;
-  --accent-color: #ffc107;
-
-  /* Background Colors */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-elevated: #1e293b;
-  --bg-hover: #334155;
-  --bg-active: #475569;
-  --bg-gradient-start: #0b1230;
-  --bg-gradient-end: #111522;
-
-  /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #e2e8f0;
-  --text-tertiary: #cbd5e1;
-  --text-on-primary: #ffffff;
-  --text-muted: #94a3b8;
-
-  /* Border Colors */
-  --border-color: #3a4261;
-  --border-hover: #4a5575;
-  --border-focus: #4a9eff;
-
-  /* Shadow Colors */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-colored: 0 10px 30px rgba(59, 130, 246, 0.3);
-
-  /* Card Specific */
-  --card-bg: #1e293b;
-  --card-border: #334155;
-  --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
-  --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
-
-  /* Input & Forms */
-  --input-bg: #1e293b;
-  --input-border: #334155;
-  --input-text: #f1f5f9;
-  --input-placeholder: #64748b;
-  --input-focus-border: #3b82f6;
-  --input-focus-ring: rgba(59, 130, 246, 0.25);
-
-  /* Navbar */
-  --navbar-bg: linear-gradient(135deg, #2d40a0 0%, #3a51c7 100%);
-  --navbar-text: #ffffff;
-  --navbar-hover: rgba(255, 255, 255, 0.1);
-  --navbar-active: rgba(255, 255, 255, 0.15);
-
-  /* Footer */
-  --footer-bg: #2d40a0;
-  --footer-text: #ffffff;
-  --footer-heading: #f1f5f9;
-
-  /* Status Colors */
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
-}
-
-/* Optional: Smooth transitions when theme changes */
+/* ===================================
+   Transizioni Globali
+   =================================== */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease,
-    border-color 0.3s ease;
+  transition: background-color var(--transition-speed) ease,
+              border-color var(--transition-speed) ease,
+              color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease;
 }
+
+/* Escludi elementi specifici da transizioni lente (es. input text typing) */
+input:not([type="submit"]):not([type="button"]):not([type="color"]), 
+textarea {
+  transition: border-color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease;
+}
+
+/* ===================================
+   Applica le Variabili agli Elementi HTML
+   =================================== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* CARDS */
+.card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius-md);
+}
+
+.card-header, .card-footer {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* BUTTONS */
+.btn-primary {
+  background-color: var(--btn-primary-bg) !important;
+  border-color: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-text) !important;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--btn-primary-hover) !important;
+  border-color: var(--btn-primary-hover) !important;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background-color: transparent !important;
+}
+.btn-outline-primary:hover {
+  background-color: var(--primary-color) !important;
+  color: var(--text-on-primary) !important;
+}
+
+/* FORMS */
+.form-control, .form-select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--input-text) !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--input-focus-border) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), 0.25) !important;
+}
+.form-control::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+/* NAVBAR */
+.navbar, .bg-primary {
+  background: var(--navbar-bg) !important;
+}
+.navbar .nav-link, .navbar-brand {
+  color: var(--navbar-text) !important;
+}
+.navbar .nav-link:hover {
+  background-color: var(--navbar-hover);
+  border-radius: var(--border-radius-sm);
+}
+
+/* FOOTER */
+footer, .footer {
+  background-color: var(--footer-bg) !important;
+  color: var(--footer-text) !important;
+}
+
+/* MODALS */
+.modal-content {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+.modal-header, .modal-footer {
+  border-color: var(--border-color) !important;
+}
+
+/* TABLES */
+.table {
+  color: var(--text-primary) !important;
+}
+.table td, .table th {
+  border-color: var(--border-color) !important;
+  background-color: var(--card-bg) !important;
+}
+
+/* DROPDOWN */
+.dropdown-menu {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-md);
+}
+.dropdown-item {
+  color: var(--text-primary) !important;
+}
+.dropdown-item:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--primary-hover) !important;
+}
+
+/* ===================================
+   Classi Utility (Simili a Bootstrap)
+   =================================== */
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-secondary { background-color: var(--bg-secondary) !important; }
+.bg-surface { background-color: var(--bg-secondary) !important; }
+
+.border-primary { border-color: var(--primary-color) !important; }
+
+.gradient-primary { background: var(--gradient-primary) !important; color: white !important; }
+.gradient-success { background: var(--gradient-success) !important; color: white !important; }
+
+.shadow-custom-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-custom-md { box-shadow: var(--shadow-md) !important; }
+.shadow-custom-lg { box-shadow: var(--shadow-lg) !important; }
+
+/* Custom Badge */
+.badge-theme {
+  background-color: rgba(13, 110, 253, 0.1); /* fallback */
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+.badge-theme[data-theme-id="light"] { color: #0d6efd; border-color: #0d6efd; background: rgba(13, 110, 253, 0.1); }
+.badge-theme[data-theme-id="dark"] { color: #4a9eff; border-color: #4a9eff; background: rgba(74, 158, 255, 0.1); }
+.badge-theme[data-theme-id="sport"] { color: #003d82; border-color: #003d82; background: rgba(0, 61, 130, 0.1); }
+.badge-theme[data-theme-id="nature"] { color: #27ae60; border-color: #27ae60; background: rgba(39, 174, 96, 0.1); }

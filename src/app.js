@@ -53,6 +53,10 @@ const routesAdmin = require("./features/admin/routes/admin");
 const routesCampionati = require("./features/campionati/routes/campionati");
 const routesUsers = require("./features/users/routes/users");
 
+// Route temi
+const routesAdminTema = require("./features/admin/routes/admin-tema");
+const routesApiTemaUser = require("./features/users/routes/api-tema-user");
+
 // ==================== CONFIGURAZIONE PASSPORT ====================
 /**
  * Strategia locale di Passport per autenticazione email/password
@@ -243,6 +247,10 @@ app.use(passport.session());
 // Normalize req.user so routes can rely on consistent role fields
 const normalizeUser = require("./core/middlewares/normalizeUser");
 app.use(normalizeUser);
+
+// Middleware Sistema Temi
+const { loadTema } = require("./core/middlewares/middleware-tema");
+app.use(loadTema);
 
 // ==================== MIDDLEWARE AUTENTICAZIONE ====================
 
@@ -454,6 +462,8 @@ app.use("/", routesSquadre); // Gestione squadre
 app.use("/", routesGalleria); // Galleria immagini
 app.use("/prenotazione", routesPrenotazione); // Sistema prenotazioni
 app.use("/", routesAdmin); // Pannello amministrazione
+app.use("/admin", routesAdminTema); // Gestione temi admin
+app.use("/api", routesApiTemaUser); // API temi user
 app.use("/campionato", routesCampionati); // Gestione campionati
 app.use("/users", routesUsers); // Profili utenti
 

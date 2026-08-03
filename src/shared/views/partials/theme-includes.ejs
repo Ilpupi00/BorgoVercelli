@@ -1,19 +1,23 @@
 <!-- Theme System - Include this in every page head -->
-<link rel="stylesheet" href="/assets/styles/theme-dark.css?v=2.0">
+<!-- TEMA DINAMICO GENERATO DAL MIDDLEWARE -->
+<% if (typeof temaCSS !== 'undefined') { %>
+    <style id="dynamic-theme-style"><%- temaCSS %></style>
+<% } %>
+
+<!-- CSS base variabili -->
+<link rel="stylesheet" href="/assets/styles/theme-variables.css">
 <link rel="stylesheet" href="/assets/styles/scroll-animations.css">
+
 <!-- Web App Manifest -->
 <link rel="manifest" href="/manifest.json">
-<script defer>
-    // Prevent FOUC (Flash of Unstyled Content) by applying theme before page render
-    (function() {
-        const savedTheme = localStorage.getItem('site-theme-preference') || 'auto';
-        const effectiveTheme = savedTheme === 'auto' 
-            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-            : savedTheme;
-        document.documentElement.setAttribute('data-theme', effectiveTheme);
-    })();
+
+<script>
+    // Aggiungi flag per indicare al js se l'utente è loggato
+    document.addEventListener("DOMContentLoaded", function() {
+        document.body.dataset.logged = "<%= typeof isLogged !== 'undefined' ? isLogged : false %>";
+    });
 </script>
-<script src="/assets/scripts/theme-manager.js" defer></script>
+<script src="/assets/scripts/client-tema-switcher.js" defer></script>
 
 <!-- HARD OVERRIDE PER PAGINAZIONE SICURA (Bypass Browser Cache Globale) -->
 <style>
