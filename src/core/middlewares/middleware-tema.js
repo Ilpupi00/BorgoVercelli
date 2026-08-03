@@ -170,6 +170,29 @@ async function loadTema(req, res, next) {
     res.locals.temaCSS           = temaCSS;
     res.locals.temaIsPersonalizzato = isPersonalizzato;
 
+    // Fetch all themes to populate dropdowns globally
+    let tuttiTemi = [];
+    try {
+      const predefined = require("../config/themes.config").getAllThemes();
+      let custom = [];
+      if (dao) {
+        custom = await dao.getTemiPersonalizzati(true); // solo attivi
+      }
+      
+      tuttiTemi = [
+        ...predefined,
+        ...custom.map(c => ({
+          id: c.slug,
+          nome: c.nome,
+          icona: "bi-palette-fill",
+          isCustom: true
+        }))
+      ];
+    } catch (e) {
+      console.warn("[TEMA-MW] Errore fetch temi disponibili:", e.message);
+    }
+    res.locals.temiDisponibili = tuttiTemi;
+
   } catch (err) {
     // Fallback globale: non bloccare mai la richiesta per il tema
     console.error("[TEMA-MW] Errore imprevisto, fallback a light:", err.message);

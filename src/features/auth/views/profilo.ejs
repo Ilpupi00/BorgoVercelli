@@ -288,6 +288,27 @@
                       <span class="action-menu-left"><i class="bi bi-key"></i><span>Cambia Password</span></span>
                       <i class="bi bi-chevron-right"></i>
                     </a>
+                    
+                    <div class="mb-3 mt-3">
+                      <label class="form-label d-block text-muted small mb-2">Tema dell'Interfaccia</label>
+                      <div class="dropdown w-100">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between" id="theme-dropdown-btn-profile" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Cambia tema">
+                          <span><i class="bi bi-palette-fill me-2"></i>Scegli Tema</span>
+                        </button>
+                        <ul class="dropdown-menu w-100 shadow-sm theme-dropdown" aria-labelledby="theme-dropdown-btn-profile">
+                          <% if (typeof temiDisponibili !== 'undefined' && temiDisponibili.length > 0) { %>
+                            <% temiDisponibili.forEach(t => { %>
+                              <li>
+                                <button class="dropdown-item d-flex align-items-center gap-2" data-tema="<%= t.id %>">
+                                  <i class="bi <%= t.icona || 'bi-palette-fill' %>"></i>
+                                  <span><%= t.nome %></span>
+                                </button>
+                              </li>
+                            <% }); %>
+                          <% } %>
+                        </ul>
+                      </div>
+                    </div>
                         
                         <div class="row g-3">
                             <div class="col-12">

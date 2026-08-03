@@ -54,11 +54,24 @@
                                     <i class="bi bi-person-circle me-2"></i>
                                     <span class="d-none d-sm-inline">Profilo</span>
                                 </a>
-                                <!-- Theme toggle button (Unified single button like calendar) -->
-                                <div class="ms-2 d-flex align-items-center" id="admin-theme-controls">
-                                    <button id="theme-toggle" class="btn btn-outline-primary d-flex align-items-center justify-content-center px-3 py-2" title="Cambia tema">
-                                        <i class="bi bi-circle-half"></i>
+                                <!-- Theme dropdown -->
+                                <div class="ms-2 d-flex align-items-center dropdown" id="admin-theme-controls">
+                                    <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center justify-content-center px-3 py-2" id="admin-theme-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Cambia Tema">
+                                        <i class="bi bi-palette-fill"></i>
                                     </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm theme-dropdown" aria-labelledby="admin-theme-dropdown-btn" style="z-index: 1050;">
+                                      <li class="dropdown-header">Scegli Tema</li>
+                                      <% if (typeof temiDisponibili !== 'undefined' && temiDisponibili.length > 0) { %>
+                                        <% temiDisponibili.forEach(t => { %>
+                                          <li>
+                                            <button class="dropdown-item d-flex align-items-center gap-2" data-tema="<%= t.id %>">
+                                              <i class="bi <%= t.icona || 'bi-palette-fill' %>"></i>
+                                              <span><%= t.nome %></span>
+                                            </button>
+                                          </li>
+                                        <% }); %>
+                                      <% } %>
+                                    </ul>
                                 </div>
                                 <a href="/Logout" class="btn btn-outline-danger d-flex align-items-center justify-content-center">
                                     <i class="bi bi-box-arrow-right me-2"></i>
@@ -210,7 +223,7 @@
                                         <i class="bi bi-tools me-2"></i>Strumenti e Statistiche
                                     </h4>
                                 </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 mb-3">
+                                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
                                             <i class="bi bi-calendar-check display-4 text-dark mb-3"></i>
@@ -221,13 +234,23 @@
                                     </div>
                                 </div>
                                 <% if (user.tipo_utente_id === 1) { %>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 mb-3">
+                                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-3">
                                     <div class="card action-card h-100">
                                         <div class="card-body text-center">
                                             <i class="bi bi-bar-chart display-4 text-primary mb-3"></i>
                                             <h5 class="card-title">Statistiche</h5>
                                             <p class="card-text text-muted">Visualizza statistiche del sito</p>
                                             <a href="/admin/statistiche" class="btn btn-primary btn-modern w-100 btn-statistiche">Gestisci</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 mb-3">
+                                    <div class="card action-card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-palette-fill display-4 text-info mb-3"></i>
+                                            <h5 class="card-title">Gestione Temi</h5>
+                                            <p class="card-text text-muted">Personalizza l'aspetto del sito</p>
+                                            <a href="/admin/temi" class="btn btn-info btn-modern w-100 text-white">Gestisci</a>
                                         </div>
                                     </div>
                                 </div>
