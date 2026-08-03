@@ -1,49 +1,86 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" <%- htmlThemeAttr() %>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Temi - Pannello Admin</title>
-    
+
     <!-- Dipendenze Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    <!-- CSS del progetto (Assicurarsi che theme-variables.css sia caricato globalmente in layout) -->
+
+    <!-- CSS Admin -->
     <link rel="stylesheet" href="/assets/styles/Admin.css">
     <link rel="stylesheet" href="/assets/styles/Admin_Global.css">
-    
-    <!-- Tema Dinamico: inietto le variabili dal middleware -->
-    <% if (typeof temaCSS !== 'undefined') { %>
-        <style id="dynamic-theme-style"><%- temaCSS %></style>
-    <% } %>
+
+    <!-- Sistema Temi (variabili CSS + client switcher) -->
+    <%- include('../../shared/views/partials/theme-includes') %>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar (se usi un partial per la sidebar) -->
+            <!-- Sidebar -->
             <%- include('partials/sidebar.ejs') %>
 
             <main class="col-lg-9 col-xl-10 px-4 py-5">
+
                 <!-- Intestazione Pagina -->
-                <header class="d-flex justify-content-between align-items-center mb-4">
+                <header class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
                     <div>
                         <h1 class="h3 mb-0 text-primary">
                             <i class="bi bi-palette-fill me-2"></i>Gestione Temi
                         </h1>
-                        <p class="text-muted">Gestisci l'aspetto grafico dell'applicazione.</p>
+                        <p class="text-muted mb-0">Gestisci l'aspetto grafico dell'applicazione.</p>
                     </div>
-                    
-                    <!-- Card Tema Attivo -->
-                    <div class="card shadow-sm border-primary border-2">
-                        <div class="card-body p-3 d-flex align-items-center gap-3">
-                            <div class="fs-1 text-primary">
-                                <i class="bi <%= (typeof tema !== 'undefined' && tema.icona) ? tema.icona : 'bi-circle-half' %>"></i>
+
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <!-- Card Tema Attivo Globale -->
+                        <div class="card border-primary border-2 shadow-sm">
+                            <div class="card-body p-3 d-flex align-items-center gap-3">
+                                <div class="fs-2 text-primary">
+                                    <i class="bi <%= (typeof tema !== 'undefined' && tema && tema.icona) ? tema.icona : 'bi-circle-half' %>"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.05em;">Tema Globale Attivo</small>
+                                    <strong class="fs-6"><%= (typeof tema !== 'undefined' && tema && tema.nome) ? tema.nome : temaAttivo %></strong>
+                                </div>
                             </div>
-                            <div>
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Tema Globale Attivo</small>
-                                <strong class="fs-5"><%= (typeof tema !== 'undefined' && tema.nome) ? tema.nome : temaAttivo %></strong>
-                            </div>
+                        </div>
+
+                        <!-- Dropdown cambio tema (anche per admin) -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="adminThemeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-brush me-1"></i> Il mio tema
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="adminThemeDropdown">
+                                <li><h6 class="dropdown-header"><i class="bi bi-palette2 me-1"></i>Cambia il tuo tema</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <% temiPredefiniti.forEach(t => { %>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 <%= (typeof temaId !== 'undefined' && temaId === t.id) ? 'active' : '' %>"
+                                       href="#" data-tema="<%= t.id %>">
+                                        <i class="bi <%= t.icona %>"></i>
+                                        <span><%= t.nome %></span>
+                                        <% if (typeof temaId !== 'undefined' && temaId === t.id) { %>
+                                        <i class="bi bi-check-lg ms-auto text-success"></i>
+                                        <% } %>
+                                    </a>
+                                </li>
+                                <% }); %>
+                                <% if (typeof temiPersonalizzati !== 'undefined' && temiPersonalizzati.length > 0) { %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Personalizzati</h6></li>
+                                <% temiPersonalizzati.filter(t => t.attivo).forEach(t => { %>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 <%= (typeof temaId !== 'undefined' && temaId === t.slug) ? 'active' : '' %>"
+                                       href="#" data-tema="<%= t.slug %>">
+                                        <i class="bi bi-palette-fill"></i>
+                                        <span><%= t.nome %></span>
+                                    </a>
+                                </li>
+                                <% }); %>
+                                <% } %>
+                            </ul>
                         </div>
                     </div>
                 </header>
@@ -51,60 +88,89 @@
                 <!-- Navigation Tabs -->
                 <ul class="nav nav-tabs mb-4" id="temiTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="predefiniti-tab" data-bs-toggle="tab" data-bs-target="#predefiniti" type="button" role="tab">Temi Predefiniti</button>
+                        <button class="nav-link active" id="predefiniti-tab" data-bs-toggle="tab" data-bs-target="#predefiniti" type="button" role="tab">
+                            <i class="bi bi-grid-3x3-gap me-1"></i>Temi Predefiniti
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="personalizzati-tab" data-bs-toggle="tab" data-bs-target="#personalizzati" type="button" role="tab">Temi Personalizzati</button>
+                        <button class="nav-link" id="personalizzati-tab" data-bs-toggle="tab" data-bs-target="#personalizzati" type="button" role="tab">
+                            <i class="bi bi-paint-bucket me-1"></i>Temi Personalizzati
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="statistiche-tab" data-bs-toggle="tab" data-bs-target="#statistiche" type="button" role="tab">Statistiche</button>
+                        <button class="nav-link" id="statistiche-tab" data-bs-toggle="tab" data-bs-target="#statistiche" type="button" role="tab">
+                            <i class="bi bi-bar-chart me-1"></i>Statistiche
+                        </button>
                     </li>
                 </ul>
 
                 <!-- Contenuto Tabs -->
                 <div class="tab-content" id="temiTabsContent">
-                    
+
                     <!-- TAB: Temi Predefiniti -->
                     <div class="tab-pane fade show active" id="predefiniti" role="tabpanel">
                         <div class="row g-4">
                             <% temiPredefiniti.forEach(t => { %>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 shadow-sm transition-hover <%= temaAttivo === t.id ? 'border-primary border-2' : '' %>">
-                                        <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                                            <h5 class="card-title mb-0">
-                                                <i class="bi <%= t.icona %> me-2 text-primary"></i><%= t.nome %>
-                                            </h5>
-                                            <% if (temaAttivo === t.id) { %>
-                                                <span class="badge bg-primary">Attivo</span>
-                                            <% } %>
-                                        </div>
-                                        <div class="card-body">
-                                            <p class="text-muted small"><%= t.descrizione %></p>
-                                            
-                                            <!-- Preview Palette -->
-                                            <div class="d-flex gap-2 mb-3">
-                                                <div class="rounded-circle shadow-sm" style="width: 25px; height: 25px; background-color: <%= t.colori.primary %>;" title="Primary"></div>
-                                                <div class="rounded-circle shadow-sm" style="width: 25px; height: 25px; background-color: <%= t.colori.secondary %>;" title="Secondary"></div>
-                                                <div class="rounded-circle shadow-sm border" style="width: 25px; height: 25px; background-color: <%= t.colori.background %>;" title="Background"></div>
-                                                <div class="rounded-circle shadow-sm border" style="width: 25px; height: 25px; background-color: <%= t.colori.surface %>;" title="Surface"></div>
-                                            </div>
-                                        </div>
-                                        <div class="card-footer bg-transparent border-0 pb-4 pt-0 d-flex gap-2">
-                                            <button class="btn btn-sm btn-outline-secondary w-100" onclick="window.temaSwitcher && window.temaSwitcher.loadTema('<%= t.id %>')">
-                                                <i class="bi bi-eye"></i> Provalo
-                                            </button>
-                                            <% if (temaAttivo !== t.id) { %>
-                                                <button class="btn btn-sm btn-primary w-100" onclick="attivaTema('<%= t.id %>')">
-                                                    <i class="bi bi-check2-circle"></i> Imposta Globale
-                                                </button>
-                                            <% } else { %>
-                                                <button class="btn btn-sm btn-success w-100" disabled>
-                                                    <i class="bi bi-check-lg"></i> Attivo
-                                                </button>
-                                            <% } %>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 shadow-sm <%= temaAttivo === t.id ? 'border-primary border-2' : '' %>"
+                                     style="transition: box-shadow 0.2s, transform 0.2s;">
+                                    <!-- Preview visiva del tema nella card header -->
+                                    <div class="card-img-top rounded-top overflow-hidden" style="height:60px; background: <%= t.colori.navbar_bg %>;">
+                                        <div class="d-flex align-items-center px-3 h-100 gap-2">
+                                            <div class="rounded-circle" style="width:10px;height:10px;background:#ffffff55;"></div>
+                                            <div class="rounded" style="width:60px;height:8px;background:#ffffff44;"></div>
+                                            <div class="rounded ms-auto" style="width:30px;height:8px;background:#ffffff44;"></div>
                                         </div>
                                     </div>
+
+                                    <div class="card-header border-0 pt-3 pb-0 d-flex justify-content-between align-items-center"
+                                         style="background-color: <%= t.colori.card_background || t.colori.background %>;">
+                                        <h5 class="card-title mb-0" style="color: <%= t.colori.text_primary %>;">
+                                            <i class="bi <%= t.icona %> me-2" style="color: <%= t.colori.primary %>;"></i><%= t.nome %>
+                                        </h5>
+                                        <% if (temaAttivo === t.id) { %>
+                                        <span class="badge" style="background-color: <%= t.colori.primary %>; color: <%= t.colori.btn_primary_text || '#fff' %>;">Globale</span>
+                                        <% } %>
+                                    </div>
+
+                                    <div class="card-body" style="background-color: <%= t.colori.card_background || t.colori.background %>;">
+                                        <p class="small mb-3" style="color: <%= t.colori.text_secondary %>;">
+                                            <%= t.descrizione %>
+                                        </p>
+                                        <!-- Palette Preview -->
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <div class="rounded-circle shadow-sm" style="width:22px;height:22px;background:<%= t.colori.primary %>;" title="Primario"></div>
+                                            <div class="rounded-circle shadow-sm" style="width:22px;height:22px;background:<%= t.colori.secondary %>;" title="Secondario"></div>
+                                            <div class="rounded-circle shadow-sm border" style="width:22px;height:22px;background:<%= t.colori.background %>;" title="Background"></div>
+                                            <div class="rounded-circle shadow-sm border" style="width:22px;height:22px;background:<%= t.colori.surface %>;" title="Surface"></div>
+                                            <div class="rounded-circle shadow-sm" style="width:22px;height:22px;background:<%= t.colori.success %>;" title="Successo"></div>
+                                        </div>
+                                        <small style="color: <%= t.colori.text_secondary %>; font-size:0.7rem;">primary · secondary · bg · surface · success</small>
+                                    </div>
+
+                                    <div class="card-footer border-0 pb-3 pt-0 d-flex gap-2"
+                                         style="background-color: <%= t.colori.card_background || t.colori.background %>;">
+                                        <!-- Anteprima: applica solo al proprio browser -->
+                                        <button class="btn btn-sm w-50" 
+                                                style="border: 1px solid <%= t.colori.border %>; color: <%= t.colori.text_secondary %>; background: transparent;"
+                                                onclick="window.temaSwitcher && window.temaSwitcher.loadTema('<%= t.id %>')">
+                                            <i class="bi bi-eye"></i> Prova
+                                        </button>
+                                        <!-- Imposta globale -->
+                                        <% if (temaAttivo !== t.id) { %>
+                                        <button class="btn btn-sm w-50"
+                                                style="background-color: <%= t.colori.primary %>; color: <%= t.colori.btn_primary_text || '#fff' %>; border: none;"
+                                                onclick="attivaTema('<%= t.id %>')">
+                                            <i class="bi bi-globe"></i> Globale
+                                        </button>
+                                        <% } else { %>
+                                        <button class="btn btn-sm w-50 btn-success" disabled>
+                                            <i class="bi bi-check-lg"></i> Attivo
+                                        </button>
+                                        <% } %>
+                                    </div>
                                 </div>
+                            </div>
                             <% }); %>
                         </div>
                     </div>
@@ -114,186 +180,210 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">I tuoi temi personalizzati</h5>
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#creaTemaModal">
-                                <i class="bi bi-plus-lg"></i> Crea Nuovo Tema
+                                <i class="bi bi-plus-lg me-1"></i> Crea Nuovo Tema
                             </button>
                         </div>
 
                         <% if (temiPersonalizzati && temiPersonalizzati.length > 0) { %>
-                            <div class="table-responsive bg-white rounded shadow-sm">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Slug</th>
-                                            <th>Colori (Preview)</th>
-                                            <th>Creato da</th>
-                                            <th>Stato</th>
-                                            <th class="text-end">Azioni</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% temiPersonalizzati.forEach(t => { %>
-                                            <tr>
-                                                <td class="fw-bold"><%= t.nome %></td>
-                                                <td><span class="badge bg-secondary"><%= t.slug %></span></td>
-                                                <td>
-                                                    <div class="d-flex gap-1">
-                                                        <div class="rounded-circle border" style="width: 20px; height: 20px; background-color: <%= t.colori.primary %>;" title="Primary"></div>
-                                                        <div class="rounded-circle border" style="width: 20px; height: 20px; background-color: <%= t.colori.background %>;" title="Background"></div>
-                                                        <div class="rounded-circle border" style="width: 20px; height: 20px; background-color: <%= t.colori.text_primary %>;" title="Text"></div>
-                                                    </div>
-                                                </td>
-                                                <td><small class="text-muted"><%= t.creato_da_nome || 'Admin' %></small></td>
-                                                <td>
-                                                    <% if (temaAttivo === t.slug) { %>
-                                                        <span class="badge bg-success">Attivo (Globale)</span>
-                                                    <% } else if (t.attivo) { %>
-                                                        <span class="badge bg-info text-dark">Disponibile</span>
-                                                    <% } else { %>
-                                                        <span class="badge bg-danger">Disattivato</span>
-                                                    <% } %>
-                                                </td>
-                                                <td class="text-end">
-                                                    <button class="btn btn-sm btn-outline-secondary" onclick="window.temaSwitcher && window.temaSwitcher.loadTema('<%= t.slug %>')" title="Anteprima locale">
-                                                        <i class="bi bi-eye"></i>
-                                                    </button>
-                                                    <% if (temaAttivo !== t.slug) { %>
-                                                        <button class="btn btn-sm btn-outline-primary" onclick="attivaTema('<%= t.slug %>')" title="Imposta come Globale">
-                                                            <i class="bi bi-check2-circle"></i>
-                                                        </button>
-                                                    <% } %>
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminaTema('<%= t.id %>')" title="Elimina">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="table-responsive rounded shadow-sm" style="background-color: var(--card-bg);">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead style="background-color: var(--bg-secondary);">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Slug</th>
+                                        <th>Palette</th>
+                                        <th>Creato da</th>
+                                        <th>Stato</th>
+                                        <th class="text-end">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% temiPersonalizzati.forEach(t => { %>
+                                    <tr>
+                                        <td class="fw-bold"><%= t.nome %></td>
+                                        <td><span class="badge bg-secondary"><%= t.slug %></span></td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <div class="rounded-circle border" style="width:20px;height:20px;background:<%= t.colori.primary %>;" title="Primary"></div>
+                                                <div class="rounded-circle border" style="width:20px;height:20px;background:<%= t.colori.background %>;" title="Background"></div>
+                                                <div class="rounded-circle border" style="width:20px;height:20px;background:<%= t.colori.text_primary %>;" title="Text"></div>
+                                            </div>
+                                        </td>
+                                        <td><small class="text-muted"><%= t.creato_da_nome || 'Admin' %></small></td>
+                                        <td>
+                                            <% if (temaAttivo === t.slug) { %>
+                                            <span class="badge bg-success">Attivo (Globale)</span>
+                                            <% } else if (t.attivo) { %>
+                                            <span class="badge bg-info text-dark">Disponibile</span>
+                                            <% } else { %>
+                                            <span class="badge bg-secondary">Disattivato</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" onclick="window.temaSwitcher && window.temaSwitcher.loadTema('<%= t.slug %>')" title="Anteprima">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <% if (temaAttivo !== t.slug) { %>
+                                                <button class="btn btn-outline-primary" onclick="attivaTema('<%= t.slug %>')" title="Imposta Globale">
+                                                    <i class="bi bi-globe"></i>
+                                                </button>
+                                                <% } %>
+                                                <button class="btn btn-outline-danger" onclick="eliminaTema('<%= t.id %>')" title="Elimina">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
                         <% } else { %>
-                            <div class="alert alert-info d-flex align-items-center">
-                                <i class="bi bi-info-circle-fill me-2"></i>
-                                Non hai ancora creato nessun tema personalizzato. Clicca su "Crea Nuovo Tema" per iniziare.
-                            </div>
+                        <div class="alert alert-info d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                            <span>Nessun tema personalizzato. Clicca <strong>"Crea Nuovo Tema"</strong> per iniziare.</span>
+                        </div>
                         <% } %>
                     </div>
 
                     <!-- TAB: Statistiche -->
                     <div class="tab-pane fade" id="statistiche" role="tabpanel">
-                        <div class="row">
+                        <div class="row g-4">
                             <div class="col-md-6">
-                                <div class="card shadow-sm mb-4">
-                                    <div class="card-header bg-transparent border-0 pt-4">
-                                        <h5 class="card-title">Preferenze Utenti</h5>
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-header border-0 pt-4">
+                                        <h5 class="card-title mb-0"><i class="bi bi-people me-2"></i>Preferenze Utenti</h5>
                                     </div>
                                     <div class="card-body">
-                                        <p class="text-muted mb-4">Utenti totali con una preferenza salvata: <strong><%= statistiche.totaleUtentiConPreferenza %></strong></p>
-                                        
+                                        <p class="text-muted mb-4">
+                                            Utenti con preferenza salvata: <strong><%= statistiche.totaleUtentiConPreferenza %></strong>
+                                        </p>
                                         <% if (statistiche.distribuzionePreferenze.length > 0) { %>
                                             <% statistiche.distribuzionePreferenze.forEach(stat => { %>
-                                                <div class="mb-3">
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span><%= stat.tema_id %></span>
-                                                        <span class="text-muted"><%= stat.percentuale %>% (<%= stat.count %>)</span>
-                                                    </div>
-                                                    <div class="progress" style="height: 10px;">
-                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <%= stat.percentuale %>%;" aria-valuenow="<%= stat.percentuale %>" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="fw-medium"><%= stat.tema_id %></span>
+                                                    <span class="text-muted"><%= stat.percentuale %>% (<%= stat.count %>)</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar" role="progressbar"
+                                                         style="width: <%= stat.percentuale %>%; background-color: var(--primary-color);"
+                                                         aria-valuenow="<%= stat.percentuale %>" aria-valuemin="0" aria-valuemax="100">
                                                     </div>
                                                 </div>
+                                            </div>
                                             <% }); %>
                                         <% } else { %>
-                                            <p class="text-muted">Nessun utente ha ancora impostato una preferenza tema.</p>
+                                        <p class="text-muted">Nessun utente ha ancora impostato una preferenza tema.</p>
                                         <% } %>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="card shadow-sm bg-primary text-white mb-4">
+                                <div class="card shadow-sm h-100" style="background: var(--gradient-primary); color: #fff;">
                                     <div class="card-body">
-                                        <h5 class="card-title"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Come funziona?</h5>
-                                        <p class="card-text opacity-75">
-                                            Il sistema di temi funziona a priorità. Se un utente è loggato e sceglie un tema, questa preferenza "sovrascrive" il tema globale per quell'utente (e viene salvata nel DB). 
+                                        <h5 class="card-title"><i class="bi bi-lightning-charge-fill me-2"></i>Come funziona?</h5>
+                                        <p class="opacity-85 mb-2">
+                                            Il sistema applica il tema seguendo questa priorità:
                                         </p>
-                                        <p class="card-text opacity-75">
-                                            Se l'utente non è loggato ma cambia tema, la preferenza viene salvata in un Cookie locale di 30 giorni.
-                                        </p>
-                                        <p class="card-text opacity-75">
-                                            Infine, per tutti i nuovi utenti o coloro che scelgono "Preferenza Sistema/Auto", viene mostrato il <strong>Tema Globale</strong> che imposti da questa pagina.
-                                        </p>
+                                        <ol class="opacity-85 ps-3 mb-0">
+                                            <li class="mb-1"><strong>Preferenza utente loggato</strong> (salvata nel DB)</li>
+                                            <li class="mb-1"><strong>Cookie browser</strong> (utenti non loggati)</li>
+                                            <li class="mb-1"><strong>Tema globale</strong> impostato da te da questa pagina</li>
+                                            <li><strong>Fallback</strong>: Tema Chiaro (Light)</li>
+                                        </ol>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </main>
         </div>
     </div>
 
-    <!-- Modal Crea Tema -->
+    <!-- Modal Crea Tema Personalizzato -->
     <div class="modal fade" id="creaTemaModal" tabindex="-1" aria-labelledby="creaTemaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="creaTemaModalLabel">Crea Tema Personalizzato</h5>
+            <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-primary);">
+                <div class="modal-header" style="border-color: var(--border-color);">
+                    <h5 class="modal-title" id="creaTemaModalLabel">
+                        <i class="bi bi-palette me-2"></i>Crea Tema Personalizzato
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="formCreaTema">
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Nome Tema</label>
+                                <label class="form-label">Nome Tema <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="customNome" required placeholder="Es. Tema Estivo">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Slug (URL-safe, univoco)</label>
+                                <label class="form-label">Slug (URL-safe) <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="customSlug" required placeholder="Es. tema-estivo" pattern="[a-z0-9-]+">
                                 <div class="form-text">Solo lettere minuscole, numeri e trattini.</div>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Descrizione (opzionale)</label>
+                                <label class="form-label">Descrizione</label>
                                 <input type="text" class="form-control" id="customDesc" placeholder="Breve descrizione del tema">
                             </div>
                         </div>
 
-                        <h6 class="mb-3 border-bottom pb-2">Palette Colori Base</h6>
+                        <h6 class="mb-3 border-bottom pb-2">Palette Colori</h6>
                         <div class="row g-3">
-                            <div class="col-sm-4 col-md-3">
+                            <div class="col-sm-6 col-md-4">
                                 <label class="form-label">Colore Primario</label>
                                 <div class="input-group">
-                                    <input type="color" class="form-control form-control-color w-25 px-1" id="cPrimary" value="#0d6efd">
-                                    <input type="text" class="form-control w-75" id="tPrimary" value="#0d6efd">
+                                    <input type="color" class="form-control form-control-color" id="cPrimary" value="#0d6efd" style="width: 50px;">
+                                    <input type="text" class="form-control" id="tPrimary" value="#0d6efd" maxlength="7">
                                 </div>
                             </div>
-                            <div class="col-sm-4 col-md-3">
+                            <div class="col-sm-6 col-md-4">
                                 <label class="form-label">Background</label>
                                 <div class="input-group">
-                                    <input type="color" class="form-control form-control-color w-25 px-1" id="cBg" value="#ffffff">
-                                    <input type="text" class="form-control w-75" id="tBg" value="#ffffff">
+                                    <input type="color" class="form-control form-control-color" id="cBg" value="#ffffff" style="width:50px;">
+                                    <input type="text" class="form-control" id="tBg" value="#ffffff" maxlength="7">
                                 </div>
                             </div>
-                            <div class="col-sm-4 col-md-3">
+                            <div class="col-sm-6 col-md-4">
                                 <label class="form-label">Surface (Card)</label>
                                 <div class="input-group">
-                                    <input type="color" class="form-control form-control-color w-25 px-1" id="cSurface" value="#f8fafc">
-                                    <input type="text" class="form-control w-75" id="tSurface" value="#f8fafc">
+                                    <input type="color" class="form-control form-control-color" id="cSurface" value="#f8fafc" style="width:50px;">
+                                    <input type="text" class="form-control" id="tSurface" value="#f8fafc" maxlength="7">
                                 </div>
                             </div>
-                            <div class="col-sm-4 col-md-3">
+                            <div class="col-sm-6 col-md-4">
                                 <label class="form-label">Testo Primario</label>
                                 <div class="input-group">
-                                    <input type="color" class="form-control form-control-color w-25 px-1" id="cText" value="#1e293b">
-                                    <input type="text" class="form-control w-75" id="tText" value="#1e293b">
+                                    <input type="color" class="form-control form-control-color" id="cText" value="#1e293b" style="width:50px;">
+                                    <input type="text" class="form-control" id="tText" value="#1e293b" maxlength="7">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <label class="form-label">Navbar BG</label>
+                                <div class="input-group">
+                                    <input type="color" class="form-control form-control-color" id="cNavbar" value="#0d6efd" style="width:50px;">
+                                    <input type="text" class="form-control" id="tNavbar" value="#0d6efd" maxlength="7">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <label class="form-label">Footer BG</label>
+                                <div class="input-group">
+                                    <input type="color" class="form-control form-control-color" id="cFooter" value="#1e293b" style="width:50px;">
+                                    <input type="text" class="form-control" id="tFooter" value="#1e293b" maxlength="7">
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="border-color: var(--border-color);">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" onclick="salvaTemasPersonalizzato()">Crea Tema</button>
+                    <button type="button" class="btn btn-primary" onclick="salvaTemasPersonalizzato()">
+                        <i class="bi bi-check-lg me-1"></i>Crea Tema
+                    </button>
                 </div>
             </div>
         </div>
@@ -301,48 +391,54 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Consigliato per le modali belle -->
-    
-    <!-- Sync color pickers with text inputs in modal -->
+
     <script>
-        const colorFields = ['Primary', 'Bg', 'Surface', 'Text'];
-        colorFields.forEach(field => {
-            const picker = document.getElementById('c' + field);
-            const text = document.getElementById('t' + field);
-            if(picker && text) {
-                picker.addEventListener('input', e => text.value = e.target.value);
-                text.addEventListener('input', e => {
-                    if(/^#[0-9A-F]{6}$/i.test(e.target.value)) picker.value = e.target.value;
-                });
-            }
+        // Sync color pickers con text inputs
+        const colorPairs = [
+            ['cPrimary', 'tPrimary'],
+            ['cBg', 'tBg'],
+            ['cSurface', 'tSurface'],
+            ['cText', 'tText'],
+            ['cNavbar', 'tNavbar'],
+            ['cFooter', 'tFooter']
+        ];
+        colorPairs.forEach(([pickerId, textId]) => {
+            const picker = document.getElementById(pickerId);
+            const text   = document.getElementById(textId);
+            if (!picker || !text) return;
+            picker.addEventListener('input', e => text.value = e.target.value);
+            text.addEventListener('input', e => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) picker.value = e.target.value;
+            });
         });
 
-        // Auto-generate slug from name
+        // Auto-genera slug dal nome
         const nomeInput = document.getElementById('customNome');
         const slugInput = document.getElementById('customSlug');
-        if(nomeInput && slugInput) {
+        if (nomeInput && slugInput) {
             nomeInput.addEventListener('input', e => {
-                slugInput.value = e.target.value.toLowerCase().trim().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+                slugInput.value = e.target.value.toLowerCase().trim()
+                    .replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
             });
         }
     </script>
 
-    <!-- AJAX Functions -->
     <script>
+        // Imposta tema globale per tutti gli utenti
         async function attivaTema(temaId) {
             if (!confirm(`Vuoi impostare "${temaId}" come tema globale per tutti i visitatori?`)) return;
-            
             try {
                 const res = await fetch('/admin/temi/attiva', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ temaId })
                 });
-                
                 const data = await res.json();
                 if (data.success) {
-                    // Ricarica la pagina per applicare il tema e aggiornare la UI admin
-                    window.location.reload();
+                    // Applica immediatamente il tema anche per l'admin corrente
+                    if (window.temaSwitcher) window.temaSwitcher.loadTema(temaId);
+                    // Poi ricarica per aggiornare badge "Attivo"
+                    setTimeout(() => window.location.reload(), 600);
                 } else {
                     alert(data.message || 'Errore durante l\'attivazione');
                 }
@@ -352,13 +448,12 @@
             }
         }
 
+        // Elimina tema personalizzato
         async function eliminaTema(id) {
-            if (!confirm('Sei sicuro di voler eliminare questo tema personalizzato? Gli utenti che lo stavano usando verranno riportati al tema predefinito.')) return;
-            
+            if (!confirm('Sei sicuro di voler eliminare questo tema? Gli utenti che lo usano torneranno al tema predefinito.')) return;
             try {
                 const res = await fetch(`/admin/temi/${id}`, { method: 'DELETE' });
                 const data = await res.json();
-                
                 if (data.success) {
                     window.location.reload();
                 } else {
@@ -370,29 +465,51 @@
             }
         }
 
+        // Crea tema personalizzato
         async function salvaTemasPersonalizzato() {
             const form = document.getElementById('formCreaTema');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
-            // Costruisci l'oggetto colori
+            const primaryColor = document.getElementById('cPrimary').value;
+            const bgColor      = document.getElementById('cBg').value;
+            const surfaceColor = document.getElementById('cSurface').value;
+            const textColor    = document.getElementById('cText').value;
+            const navbarColor  = document.getElementById('cNavbar').value;
+            const footerColor  = document.getElementById('cFooter').value;
+
             const colori = {
-                primary: document.getElementById('cPrimary').value,
-                background: document.getElementById('cBg').value,
-                surface: document.getElementById('cSurface').value,
-                text_primary: document.getElementById('cText').value,
-                // Fallback smart per gli altri, o l'API userà il tema light
-                card_background: document.getElementById('cSurface').value,
-                btn_primary_bg: document.getElementById('cPrimary').value
+                primary:         primaryColor,
+                primary_hover:   primaryColor + 'cc',
+                secondary:       primaryColor,
+                success:         '#22c55e',
+                danger:          '#ef4444',
+                warning:         '#f59e0b',
+                info:            '#3b82f6',
+                background:      bgColor,
+                surface:         surfaceColor,
+                text_primary:    textColor,
+                text_secondary:  textColor + '99',
+                border:          '#e2e8f0',
+                card_background: bgColor,
+                card_border:     '#e2e8f0',
+                card_shadow:     '0 1px 3px rgba(0,0,0,0.1)',
+                btn_primary_bg:  primaryColor,
+                btn_primary_text: '#ffffff',
+                btn_primary_hover: primaryColor + 'cc',
+                input_bg:        bgColor,
+                input_border:    '#cbd5e1',
+                input_text:      textColor,
+                navbar_bg:       `linear-gradient(135deg, ${navbarColor} 0%, ${navbarColor}cc 100%)`,
+                navbar_text:     '#ffffff',
+                footer_bg:       footerColor,
+                footer_text:     '#cbd5e1',
             };
 
             const payload = {
-                nome: document.getElementById('customNome').value,
-                slug: document.getElementById('customSlug').value,
+                nome:        document.getElementById('customNome').value,
+                slug:        document.getElementById('customSlug').value,
                 descrizione: document.getElementById('customDesc').value,
-                colori: colori
+                colori
             };
 
             try {
@@ -401,7 +518,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
                 const data = await res.json();
                 if (data.success) {
                     window.location.reload();
