@@ -1,239 +1,188 @@
 /**
  * TemaSwitcher - Sistema Avanzato di Gestione Temi Lato Client
- * Gestisce il cambio di tema senza reload, persistenza tramite API
- * e sincronizzazione in background con il server.
+ *
+ * FLUSSO CORRETTO:
+ *   1. Il server injetta già le variabili CSS e data-theme sull'<html> via middleware.
+ *   2. Il client legge window.__BORGO_TEMA impostato inline nel <head> — zero FOUC.
+ *   3. Al cambio tema l'utente chiama loadTema() → applica variabili CSS + salva cookie + API.
+ *   4. Al cambio pagina il server ri-legge il cookie e ri-inietta il CSS corretto → consistente.
  */
 
 class TemaSwitcher {
     constructor() {
-        this.temaAttuale = null;
+        // Legge il tema iniettato dal server nel <head> (niente cookie parsing asincrono)
+        this.temaAttuale = window.__BORGO_TEMA || 'light';
+        this.isLoggedIn  = window.__BORGO_LOGGED === true || window.__BORGO_LOGGED === 'true';
         this.temiPredefiniti = {};
-        this.pollingInterval = 30000; // 30 secondi
-        this.isLoggedIn = document.body.dataset.logged === 'true' || false;
-        
-        // Elementi UI
-        this.dropdownMenu = document.querySelector('.theme-dropdown');
-        this.toggleBtn = document.getElementById('theme-dropdown-btn');
-        
+        this.pollingInterval = 30000; // 30 secondi (solo per cambio globale admin)
+
         this.init();
     }
 
-    /**
-     * Inizializza il sistema
-     */
     async init() {
         try {
-            // 1. Carica prima la lista dei temi predefiniti
+            // Carica la lista temi dal server per sapere le palette colori
             await this.caricaTemiPredefiniti();
-            
-            // 2. Scopre il tema attuale dal cookie o dal server
-            await this.sincronizzaTemaCorrente();
-            
-            // 3. Imposta gli Event Listeners
+
+            // Assicurati che data-theme sia già impostato (è già fatto inline, ma per sicurezza)
+            document.documentElement.setAttribute('data-theme', this.temaAttuale);
+
+            // Event listeners per il dropdown navbar
             this.setupEventListeners();
-            
-            // 4. Avvia il polling in background (solo se necessario)
-            this.observeServerChanges();
-            
-            // 5. Aggiorna la UI iniziale
+
+            // Aggiorna l'UI (badge attivo nel dropdown)
             this.updateUIElements();
-            
-            console.log(`[TemaSwitcher] Inizializzato con tema: ${this.temaAttuale}`);
+
+            // Polling in background solo per utenti non loggati (cambio tema globale admin)
+            if (!this.isLoggedIn) {
+                this.observeServerChanges();
+            }
+
+            console.log(`[TemaSwitcher] ✅ Inizializzato con tema: ${this.temaAttuale}`);
         } catch (err) {
-            console.error('[TemaSwitcher] Errore in inizializzazione:', err);
+            console.error('[TemaSwitcher] Errore inizializzazione:', err);
         }
     }
 
     /**
-     * Carica dal server la configurazione dei temi predefiniti
+     * Carica la palette dei temi predefiniti dal server (una sola volta)
      */
     async caricaTemiPredefiniti() {
         try {
             const res = await fetch('/api/temi/lista');
             if (res.ok) {
                 const data = await res.json();
-                if (data.success && data.temi) {
-                    // Mappa l'array in un oggetto { "light": { ... }, "dark": { ... } }
+                if (data.success && data.temi && data.temi.predefiniti) {
                     data.temi.predefiniti.forEach(t => {
                         this.temiPredefiniti[t.id] = t;
                     });
                 }
             }
         } catch (err) {
-            console.warn('[TemaSwitcher] Impossibile caricare temi predefiniti dal server:', err);
+            console.warn('[TemaSwitcher] Impossibile caricare temi dal server:', err.message);
         }
     }
 
     /**
-     * Sincronizza il tema attuale con quello impostato lato server
-     */
-    async sincronizzaTemaCorrente() {
-        // Legge dal cookie (il middleware dovrebbe averlo impostato)
-        const cookie = document.cookie.split('; ').find(row => row.startsWith('tema='));
-        let temaId = cookie ? cookie.split('=')[1] : null;
-
-        if (this.isLoggedIn) {
-            // Se loggato, verifica se c'è una preferenza dal server (API)
-            try {
-                const res = await fetch('/api/user/tema-preferenza');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.preferenza) {
-                        temaId = data.preferenza;
-                    }
-                }
-            } catch (err) {
-                // ignore
-            }
-        } else if (!temaId) {
-            // Se non loggato e no cookie, prendi il globale
-            try {
-                const res = await fetch('/api/temi/corrente');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success) {
-                        temaId = data.tema_attivo;
-                    }
-                }
-            } catch (err) {
-                // ignore
-            }
-        }
-
-        this.temaAttuale = temaId || 'light';
-        document.documentElement.setAttribute('data-theme', this.temaAttuale);
-    }
-
-    /**
-     * Carica e applica un tema dinamicamente
+     * Cambia tema dinamicamente senza reload della pagina.
+     * Al cambio pagina successivo, il server leggerà il cookie e userà lo stesso tema.
      */
     async loadTema(temaId) {
         if (!temaId || temaId === this.temaAttuale) return;
 
         try {
-            // È un tema predefinito?
+            let applicato = false;
+
+            // Prova prima temi predefiniti (in memoria, niente fetch)
             if (this.temiPredefiniti[temaId]) {
-                this.applicaTemaPredefinito(temaId);
+                this.applicaVariabiliCSS(this.temiPredefiniti[temaId].colori);
+                applicato = true;
             } else {
-                // Altrimenti, tenta di caricarlo dal server (tema personalizzato)
+                // Tema personalizzato: caricalo dal server
                 const res = await fetch(`/api/temi/personalizzato/${temaId}`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success && data.tema) {
-                        this.applicaTemaPersonalizzato(data.tema.colori, temaId);
-                    } else {
-                        throw new Error('Tema non trovato');
+                        const colori = typeof data.tema.colori === 'string'
+                            ? JSON.parse(data.tema.colori)
+                            : data.tema.colori;
+                        this.applicaVariabiliCSS(colori);
+                        applicato = true;
                     }
-                } else {
-                    throw new Error('Errore API tema personalizzato');
                 }
             }
 
-            // Aggiorna lo stato interno
+            if (!applicato) throw new Error(`Tema "${temaId}" non trovato`);
+
+            // Aggiorna stato interno
             this.temaAttuale = temaId;
             document.documentElement.setAttribute('data-theme', temaId);
-            document.cookie = `tema=${temaId}; path=/; max-age=2592000; SameSite=Lax`; // 30 giorni
-            
-            // Salva preferenza utente se loggato
+            window.__BORGO_TEMA = temaId;
+
+            // Persisti nel cookie (il server lo leggerà alla prossima pagina)
+            const maxAge = 30 * 24 * 60 * 60; // 30 giorni in secondi
+            document.cookie = `tema=${temaId}; path=/; max-age=${maxAge}; SameSite=Lax`;
+
+            // Salva su DB se l'utente è loggato (async, non blocca la UI)
             if (this.isLoggedIn) {
-                await this.salvaPreferenzaTema(temaId);
+                this.salvaPreferenzaTema(temaId).catch(() => {});
             }
 
             this.updateUIElements();
-            
+            this.mostraNotifica(`Tema cambiato: ${temaId}`, 'success');
+
         } catch (err) {
             console.error('[TemaSwitcher] Errore caricamento tema:', err);
             this.mostraNotifica('Errore durante il caricamento del tema', 'danger');
-            
-            // Fallback
-            this.applicaTemaPredefinito('light');
         }
     }
 
     /**
-     * Applica un tema predefinito (light, dark, sport, nature)
-     */
-    applicaTemaPredefinito(temaId) {
-        const tema = this.temiPredefiniti[temaId];
-        if (!tema) return;
-        
-        this.applicaVariabiliCSS(tema.colori);
-    }
-
-    /**
-     * Applica un tema personalizzato a partire dai suoi colori
-     */
-    applicaTemaPersonalizzato(colori, temaId = 'custom') {
-        // Applica le variabili e imposta un fallback light per i valori mancanti
-        const light = this.temiPredefiniti['light']?.colori || {};
-        const merged = { ...light, ...colori };
-        this.applicaVariabiliCSS(merged);
-    }
-
-    /**
-     * Applica le variabili CSS al :root
+     * Applica le variabili CSS al :root sovrascrivendo quelle iniettate dal server.
+     * Rimuove anche il <style id="dynamic-theme-style"> iniettato lato server
+     * per evitare duplicati (le variabili inline su :root hanno priorità comunque).
      */
     applicaVariabiliCSS(c) {
+        if (!c) return;
         const root = document.documentElement;
-        
-        // Mappatura colori -> Variabili CSS
+
         const vars = {
-            '--primary-color': c.primary,
-            '--primary-variant': c.primary_hover,
-            '--primary-hover': c.primary_hover,
-            '--primary-active': c.primary_hover,
-            '--btn-primary-bg': c.btn_primary_bg || c.primary,
-            '--btn-primary-text': c.btn_primary_text || '#ffffff',
-            '--btn-primary-hover': c.btn_primary_hover || c.primary_hover,
-            '--secondary-color': c.secondary,
-            '--success': c.success,
-            '--danger': c.danger,
-            '--warning': c.warning,
-            '--info': c.info,
-            '--bg-primary': c.background,
-            '--bg-secondary': c.surface,
-            '--bg-tertiary': c.surface,
-            '--bg-elevated': c.card_background || c.surface,
-            '--bg-hover': c.surface,
-            '--text-primary': c.text_primary,
-            '--text-secondary': c.text_secondary,
-            '--text-tertiary': c.text_secondary,
-            '--text-on-primary': c.btn_primary_text || '#ffffff',
-            '--text-muted': c.text_secondary,
-            '--border-color': c.border,
-            '--border-hover': c.border,
-            '--border-focus': c.primary,
-            '--card-bg': c.card_background || c.background,
-            '--card-border': c.card_border || c.border,
-            '--card-shadow': c.card_shadow || '0 1px 3px rgba(0,0,0,0.1)',
-            '--input-bg': c.input_bg || c.background,
-            '--input-border': c.input_border || c.border,
-            '--input-text': c.input_text || c.text_primary,
-            '--input-placeholder': c.text_secondary,
+            '--primary-color':      c.primary,
+            '--primary-variant':    c.primary_hover,
+            '--primary-hover':      c.primary_hover,
+            '--primary-active':     c.primary_hover,
+            '--btn-primary-bg':     c.btn_primary_bg    || c.primary,
+            '--btn-primary-text':   c.btn_primary_text  || '#ffffff',
+            '--btn-primary-hover':  c.btn_primary_hover || c.primary_hover,
+            '--secondary-color':    c.secondary,
+            '--success':            c.success,
+            '--danger':             c.danger,
+            '--warning':            c.warning,
+            '--info':               c.info,
+            '--bg-primary':         c.background,
+            '--bg-secondary':       c.surface,
+            '--bg-tertiary':        c.surface,
+            '--bg-elevated':        c.card_background   || c.surface,
+            '--bg-hover':           c.surface,
+            '--text-primary':       c.text_primary,
+            '--text-secondary':     c.text_secondary,
+            '--text-tertiary':      c.text_secondary,
+            '--text-on-primary':    c.btn_primary_text  || '#ffffff',
+            '--text-muted':         c.text_secondary,
+            '--border-color':       c.border,
+            '--border-hover':       c.border,
+            '--border-focus':       c.primary,
+            '--card-bg':            c.card_background   || c.background,
+            '--card-border':        c.card_border       || c.border,
+            '--card-shadow':        c.card_shadow       || '0 1px 3px rgba(0,0,0,0.1)',
+            '--shadow-sm':          '0 1px 2px rgba(0,0,0,0.08)',
+            '--shadow-md':          '0 4px 6px rgba(0,0,0,0.1)',
+            '--shadow-lg':          '0 10px 15px rgba(0,0,0,0.1)',
+            '--input-bg':           c.input_bg          || c.background,
+            '--input-border':       c.input_border      || c.border,
+            '--input-text':         c.input_text        || c.text_primary,
+            '--input-placeholder':  c.text_secondary,
             '--input-focus-border': c.primary,
-            '--navbar-bg': c.navbar_bg,
-            '--navbar-text': c.navbar_text || '#ffffff',
-            '--footer-bg': c.footer_bg,
-            '--footer-text': c.footer_text
+            '--navbar-bg':          c.navbar_bg,
+            '--navbar-text':        c.navbar_text       || '#ffffff',
+            '--navbar-hover':       'rgba(255,255,255,0.1)',
+            '--footer-bg':          c.footer_bg,
+            '--footer-text':        c.footer_text,
+            '--gradient-primary':   c.gradient_primary,
+            '--gradient-success':   c.gradient_success,
         };
 
-        // Rimuove vecchi inline styles iniettati (se presenti nel DOM)
-        const oldStyle = document.getElementById('dynamic-theme-style');
-        if (oldStyle) oldStyle.remove();
-
-        // Applica le nuove variabili direttamente al root
         for (const [key, value] of Object.entries(vars)) {
-            if (value) {
+            if (value !== undefined && value !== null && value !== '') {
                 root.style.setProperty(key, value);
             }
         }
     }
 
     /**
-     * Imposta i listener per il cambio tema (es. Navbar)
+     * Registra i click sui bottoni [data-tema] nel navbar dropdown
      */
     setupEventListeners() {
-        // Intercetta i bottoni del tema nella Navbar [data-tema="..."]
         document.querySelectorAll('[data-tema]').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -242,33 +191,41 @@ class TemaSwitcher {
             });
         });
 
-        // Event listener storici per 'theme-light' e 'theme-dark' (Navbar vecchia)
+        // Compatibilità bottoni vecchi (se presenti)
         const lightBtn = document.getElementById('theme-light');
-        const darkBtn = document.getElementById('theme-dark');
-        
+        const darkBtn  = document.getElementById('theme-dark');
         if (lightBtn) lightBtn.addEventListener('click', () => this.loadTema('light'));
-        if (darkBtn) darkBtn.addEventListener('click', () => this.loadTema('dark'));
+        if (darkBtn)  darkBtn.addEventListener('click',  () => this.loadTema('dark'));
     }
 
     /**
-     * Salva la preferenza tema tramite API
+     * Aggiorna lo stato visivo del dropdown (classe "active" sul tema corrente)
+     */
+    updateUIElements() {
+        document.querySelectorAll('[data-tema]').forEach(el => {
+            const isCurrent = el.getAttribute('data-tema') === this.temaAttuale;
+            el.classList.toggle('active', isCurrent);
+        });
+    }
+
+    /**
+     * Salva la preferenza tema sul database via API (solo per utenti loggati)
      */
     async salvaPreferenzaTema(temaId) {
-        if (!this.isLoggedIn) return;
-        
         try {
-            await fetch('/api/user/tema-preferenza', {
+            const res = await fetch('/api/user/tema-preferenza', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ temaId })
             });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
         } catch (err) {
-            console.error('[TemaSwitcher] Errore salvataggio preferenza:', err);
+            console.warn('[TemaSwitcher] Errore salvataggio preferenza:', err.message);
         }
     }
 
     /**
-     * (Solo Admin) Imposta il tema globale del sito
+     * (Solo Admin) Imposta il tema globale del sito per tutti gli utenti non loggati
      */
     async cambiaTemaSuServer(temaId) {
         try {
@@ -278,10 +235,8 @@ class TemaSwitcher {
                 body: JSON.stringify({ temaId })
             });
             const data = await res.json();
-            
             if (data.success) {
-                this.mostraNotifica(`Tema globale impostato su: ${temaId}`, 'success');
-                // Ricarica il tema localmente
+                this.mostraNotifica(`Tema globale impostato: ${temaId}`, 'success');
                 await this.loadTema(temaId);
             } else {
                 throw new Error(data.message || 'Errore');
@@ -293,47 +248,20 @@ class TemaSwitcher {
     }
 
     /**
-     * Aggiorna gli elementi UI per riflettere il tema attivo
-     */
-    updateUIElements() {
-        // Rimuove 'active' da tutti i bottoni tema
-        document.querySelectorAll('[data-tema]').forEach(el => {
-            el.classList.remove('active');
-            if (el.getAttribute('data-tema') === this.temaAttuale) {
-                el.classList.add('active');
-            }
-        });
-        
-        // Disabilita lo switch nativo di eventuali altri script ThemeManager vecchi
-        if (typeof window.aggiornaIconaTema === 'function') {
-            try {
-                window.aggiornaIconaTema(this.temaAttuale);
-            } catch (e) {}
-        }
-    }
-
-    /**
-     * Polling: sincronizzazione in background per eventuali cambi globali
+     * Polling in background per rilevare cambi di tema globale impostati dall'admin
+     * (attivo solo per utenti non loggati)
      */
     observeServerChanges() {
-        // Esegui polling solo se l'utente non ha una preferenza specifica salvata nel cookie
-        // (Altrimenti il server ignorerebbe il globale per questo utente)
         setInterval(async () => {
-            if (this.isLoggedIn) return; // Se è loggato il suo tema è prioritario
-            
             try {
                 const res = await fetch('/api/temi/corrente');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.tema_attivo && data.tema_attivo !== this.temaAttuale) {
-                        // Il tema globale è cambiato!
-                        console.log(`[TemaSwitcher] Sincronizzazione background: nuovo tema globale ${data.tema_attivo}`);
-                        this.loadTema(data.tema_attivo);
-                    }
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.success && data.tema_attivo && data.tema_attivo !== this.temaAttuale) {
+                    console.log(`[TemaSwitcher] 🔄 Nuovo tema globale rilevato: ${data.tema_attivo}`);
+                    await this.loadTema(data.tema_attivo);
                 }
-            } catch (err) {
-                // Polling error silently ignored
-            }
+            } catch { /* silenzioso */ }
         }, this.pollingInterval);
     }
 
@@ -341,58 +269,20 @@ class TemaSwitcher {
      * Mostra una toast notification Bootstrap
      */
     mostraNotifica(messaggio, tipo = 'info') {
-        const alertHtml = `
-            <div class="alert alert-${tipo} alert-dismissible fade show position-fixed bottom-0 end-0 m-3 shadow-lg" style="z-index: 1055; min-width: 250px;" role="alert">
-                ${messaggio}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', alertHtml);
-        const alertEl = document.body.lastElementChild;
+        const el = document.createElement('div');
+        el.className = `alert alert-${tipo} alert-dismissible fade show position-fixed bottom-0 end-0 m-3 shadow-lg`;
+        el.style.cssText = 'z-index:1055;min-width:220px;';
+        el.setAttribute('role', 'alert');
+        el.innerHTML = `${messaggio}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.body.appendChild(el);
         setTimeout(() => {
-            alertEl.classList.remove('show');
-            setTimeout(() => alertEl.remove(), 150);
-        }, 3000);
-    }
-
-    /**
-     * Estrae le variabili CSS attuali e le formatta in JSON (utile per Export admin)
-     */
-    getVariabiliCSS() {
-        const root = document.documentElement;
-        const styles = getComputedStyle(root);
-        const colorVars = [
-            'primary-color', 'primary-variant', 'secondary-color', 
-            'success', 'danger', 'warning', 'info',
-            'bg-primary', 'bg-secondary', 'text-primary', 'text-secondary',
-            'border-color', 'card-bg', 'card-border', 'navbar-bg'
-        ];
-        
-        let json = {};
-        colorVars.forEach(v => {
-            const val = styles.getPropertyValue(`--${v}`).trim();
-            if (val) json[v] = val;
-        });
-        
-        return json;
-    }
-
-    /**
-     * Triggera il download del tema corrente come JSON
-     */
-    exportaTema() {
-        const data = this.getVariabiliCSS();
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tema-${this.temaAttuale}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 150);
+        }, 2500);
     }
 }
 
-// Inizializza al caricamento del DOM
+// Inizializza appena il DOM è pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.temaSwitcher = new TemaSwitcher();
 });

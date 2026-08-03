@@ -252,6 +252,25 @@ app.use(normalizeUser);
 const { loadTema } = require("./core/middlewares/middleware-tema");
 app.use(loadTema);
 
+// Helper EJS globale: genera l'attributo data-theme="..." per il tag <html>
+// Uso: <html lang="it" <%- htmlThemeAttr() %>>
+app.locals.htmlThemeAttr = function() {
+  // Questa funzione viene chiamata a runtime dai template;
+  // res.locals.temaId è già popolato dal middleware loadTema
+  // In contesto app.locals non abbiamo res, quindi usiamo una funzione
+  // che verrà sovrascritto dalla versione res.locals nei template
+  return '';
+};
+
+// Middleware che sovrascrive l'helper con la versione che conosce il tema corrente
+app.use(function(req, res, next) {
+  res.locals.htmlThemeAttr = function() {
+    const id = res.locals.temaId || 'light';
+    return `data-theme="${id}"`;
+  };
+  next();
+});
+
 // ==================== MIDDLEWARE AUTENTICAZIONE ====================
 
 /**
