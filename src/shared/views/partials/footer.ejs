@@ -176,6 +176,7 @@
   <script>
     // Controlled dark-mode fixer: marks modified elements and removes changes on light
     (function controlledDarkModeFix(){
+      return; // Disabled by AI to prevent inline style overrides breaking dark mode
       const DATA_ATTR = 'data-tm-dark';
 
       function mark(el) {

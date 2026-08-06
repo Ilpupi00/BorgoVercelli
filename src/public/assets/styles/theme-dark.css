@@ -101,6 +101,20 @@
   --secondary-dark: #10b981;
   --accent-color: #fbbf24;
 
+<<<<<<< HEAD
+  /* Background Colors - Modern Web2.0 layered gradients for depth */
+  /* Main page background: deep navy / indigo duotone with subtle warmth */
+  --bg-primary: #070714;
+  /* Secondary layers for sections (soft, slightly warmer) */
+  --bg-secondary: #0e1530;
+  --bg-tertiary: #111522;
+  /* Elevated surfaces (cards, modals) use a subtle frosted gradient */
+  --bg-elevated: #1a233a;
+  --bg-hover: #1e293b;
+  --bg-active: #2f3e59;
+  --bg-gradient-start: #0b1230;
+  --bg-gradient-end: #111522;
+=======
   /* ── Sfondi SOLIDI (niente gradienti: incompatibili con Bootstrap) ── */
   --bg-primary:   #0f1117;   /* nero-blu profondo */
   --bg-secondary: #161b27;   /* layer intermedio */
@@ -110,6 +124,7 @@
   --bg-active:    #2a3350;   /* selected/active */
   --bg-gradient-start: #0f1117;
   --bg-gradient-end:   #161b27;
+>>>>>>> b4c8c9d59b5374bfe6f3d6b97fc8f3e4483aa14d
 
   /* ── Testo: leggibilissimo su sfondo scuro ── */
   --text-primary:    #f1f5f9;  /* quasi bianco */
@@ -131,11 +146,19 @@
   --shadow-2xl:     0 25px 50px rgba(0,0,0,0.8);
   --shadow-colored: 0 8px 24px rgba(99,102,241,0.35);
 
+<<<<<<< HEAD
+  /* Card Specific - glassy elevated panels with subtle gradient */
+  --card-bg: #0e1530;
+  --card-border: rgba(255, 255, 255, 0.04);
+  --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
+  --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
+=======
   /* ── Card: colore solido visibile ── */
   --card-bg:          #1e2535;
   --card-border:      #2e3650;
   --card-shadow:      0 4px 16px rgba(0,0,0,0.5);
   --card-hover-shadow:0 12px 32px rgba(0,0,0,0.65);
+>>>>>>> b4c8c9d59b5374bfe6f3d6b97fc8f3e4483aa14d
 
   /* ── Input & Forms ── */
   --input-bg:           #1c2233;
@@ -173,6 +196,50 @@
   --glass-bg:     rgba(30,37,53,0.85);
   --glass-border: rgba(255,255,255,0.08);
   --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* 
+ * Utility overrides per Modalità Scura (Dark Mode) 
+ * Risolve testi scuri invisibili su sfondi scuri e resetta i background light
+ */
+:root[data-theme="dark"] .bg-light,
+:root[data-theme="dark"] .bg-white {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .text-dark,
+:root[data-theme="dark"] .text-body {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .text-muted {
+  color: var(--text-muted) !important;
+}
+
+:root[data-theme="dark"] .card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .dropdown-menu {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item {
+  color: var(--text-primary) !important;
+}
+:root[data-theme="dark"] .dropdown-item:hover,
+:root[data-theme="dark"] .dropdown-item:focus {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix for buttons and icons that might be invisible */
+:root[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 /* Light-mode checkbox visibility fixes
