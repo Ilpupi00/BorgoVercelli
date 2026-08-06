@@ -142,7 +142,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: var(--primary);
   color: white;
   display: flex;
   align-items: center;
@@ -177,16 +177,17 @@
 }
 
 .btn-view {
-  color: #2563eb;
+  color: var(--primary);
 }
 
 .btn-view:hover {
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(var(--primary-rgb, 37, 99, 235), 0.1);
+  color: var(--primary-dark);
   transform: scale(1.1);
 }
 
 .btn-edit {
-  color: #f59e0b;
+  color: var(--warning);
 }
 
 .btn-edit:hover {
@@ -195,7 +196,7 @@
 }
 
 .btn-delete {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .btn-delete:hover {

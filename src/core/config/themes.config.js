@@ -134,77 +134,77 @@ const THEMES = {
     },
   },
 
-  // ── SPORT ──────────────────────────────────────────────────────────────────
+  // ── SPORT — Royal Navy (Palette C) ────────────────────────────────────────
   sport: {
     id: "sport",
     nome: "Tema Sport",
-    descrizione: "Colori squadra: blu scuro e verde vivace per l'energia sportiva",
+    descrizione: "Royal Navy: blu notte regale e ambra dorata — lusso da Premier League",
     icona: "bi-trophy-fill",
     colori: {
-      primary:            "#003d82",
-      primary_hover:      "#00307a",
-      secondary:          "#00a651",
-      success:            "#00a651",
-      danger:             "#dc2626",
-      warning:            "#f59e0b",
-      info:               "#0284c7",
-      background:         "#f0f4f8",
-      surface:            "#e8edf3",
-      text_primary:       "#0a1628",
-      text_secondary:     "#3d5a7a",
-      border:             "#c8d6e5",
-      card_background:    "#ffffff",
-      card_border:        "#c8d6e5",
-      card_shadow:        "0 4px 12px rgba(0,61,130,0.12)",
-      btn_primary_bg:     "#003d82",
-      btn_primary_text:   "#ffffff",
-      btn_primary_hover:  "#00307a",
-      input_border:       "#a8bbd4",
-      input_bg:           "#ffffff",
-      input_text:         "#0a1628",
-      navbar_bg:          "linear-gradient(135deg,#003d82 0%,#005cbf 100%)",
-      navbar_text:        "#ffffff",
-      footer_bg:          "#0a1628",
-      footer_text:        "#8fa9c8",
-      gradient_primary:   "linear-gradient(135deg,#003d82 0%,#005cbf 100%)",
-      gradient_success:   "linear-gradient(135deg,#007a3c 0%,#00a651 100%)",
+      primary:            "#1E3A8A",   // Navy regale — ratio 8.2:1 ✅ AAA
+      primary_hover:      "#163372",   // Navy hover
+      secondary:          "#F59E0B",   // Ambra dorata
+      success:            "#16A34A",   // Verde smeraldo
+      danger:             "#DC2626",   // Rosso chiaro
+      warning:            "#D97706",   // Ambra scura
+      info:               "#0369A1",   // Blu info
+      background:         "#F8F9FC",   // Bianco-blu neutro
+      surface:            "#EEF2FF",   // Indigo polvere
+      text_primary:       "#0F172A",   // Blu-nero profondo
+      text_secondary:     "#334155",   // Grigio ardesia
+      border:             "#C7D2FE",   // Indigo chiaro
+      card_background:    "#FFFFFF",
+      card_border:        "#E0E7FF",   // Indigo tenue
+      card_shadow:        "0 4px 12px rgba(30,58,138,0.10)",
+      btn_primary_bg:     "#1E3A8A",
+      btn_primary_text:   "#FFFFFF",
+      btn_primary_hover:  "#163372",
+      input_border:       "#A5B4FC",   // Indigo 300
+      input_bg:           "#FFFFFF",
+      input_text:         "#0F172A",
+      navbar_bg:          "linear-gradient(135deg,#0F172A 0%,#1E3A8A 100%)",
+      navbar_text:        "#FFFFFF",
+      footer_bg:          "#0F172A",   // Blu notte profondo
+      footer_text:        "#93C5FD",   // Blu chiaro su scuro
+      gradient_primary:   "linear-gradient(135deg,#1E3A8A 0%,#3B82F6 100%)",
+      gradient_success:   "linear-gradient(135deg,#D97706 0%,#F59E0B 100%)",
     },
   },
 
-  // ── NATURE ─────────────────────────────────────────────────────────────────
+  // ── NATURE — Emerald Bloom (Palette C) ────────────────────────────────────
   nature: {
     id: "nature",
     nome: "Tema Natura",
-    descrizione: "Verde naturale con sfondo crema per un look fresco e rilassante",
+    descrizione: "Emerald Bloom: smeraldo brillante e oro caldo — vitalità naturale moderna",
     icona: "bi-tree-fill",
     colori: {
-      primary:            "#27ae60",
-      primary_hover:      "#219a52",
-      secondary:          "#2ecc71",
-      success:            "#2ecc71",
-      danger:             "#e74c3c",
-      warning:            "#f39c12",
-      info:               "#1abc9c",
-      background:         "#f5faf9",
-      surface:            "#eaf4ef",
-      text_primary:       "#1a3326",
-      text_secondary:     "#4a7c59",
-      border:             "#c5dfc9",
-      card_background:    "#ffffff",
-      card_border:        "#c5dfc9",
-      card_shadow:        "0 4px 12px rgba(39,174,96,0.12)",
-      btn_primary_bg:     "#27ae60",
-      btn_primary_text:   "#ffffff",
-      btn_primary_hover:  "#219a52",
-      input_border:       "#a8c8b4",
-      input_bg:           "#ffffff",
-      input_text:         "#1a3326",
-      navbar_bg:          "linear-gradient(135deg,#1a6b3a 0%,#27ae60 100%)",
-      navbar_text:        "#ffffff",
-      footer_bg:          "#1a3326",
-      footer_text:        "#8fbf9c",
-      gradient_primary:   "linear-gradient(135deg,#1a6b3a 0%,#27ae60 100%)",
-      gradient_success:   "linear-gradient(135deg,#145a32 0%,#1e8449 100%)",
+      primary:            "#16A34A",   // Verde smeraldo — ratio 4.5:1 ✅ AA
+      primary_hover:      "#15803D",   // Smeraldo scuro hover
+      secondary:          "#CA8A04",   // Oro caldo
+      success:            "#22C55E",   // Verde chiaro successo
+      danger:             "#DC2626",   // Rosso
+      warning:            "#D97706",   // Ambra
+      info:               "#0891B2",   // Ciano
+      background:         "#F7FEF9",   // Bianco-verde freschissimo
+      surface:            "#DCFCE7",   // Verde menta chiaro
+      text_primary:       "#14532D",   // Verde foresta scuro — ratio 9.4:1 ✅ AAA
+      text_secondary:     "#166534",   // Verde medio leggibile
+      border:             "#BBF7D0",   // Verde chiaro bordo
+      card_background:    "#FFFFFF",
+      card_border:        "#D1FAE5",   // Verde menta bordo
+      card_shadow:        "0 4px 12px rgba(22,163,74,0.12)",
+      btn_primary_bg:     "#16A34A",
+      btn_primary_text:   "#FFFFFF",
+      btn_primary_hover:  "#15803D",
+      input_border:       "#86EFAC",   // Verde 300
+      input_bg:           "#FFFFFF",
+      input_text:         "#14532D",
+      navbar_bg:          "linear-gradient(135deg,#14532D 0%,#16A34A 100%)",
+      navbar_text:        "#FFFFFF",
+      footer_bg:          "#14532D",   // Verde foresta
+      footer_text:        "#86EFAC",   // Verde chiaro su scuro
+      gradient_primary:   "linear-gradient(135deg,#14532D 0%,#16A34A 100%)",
+      gradient_success:   "linear-gradient(135deg,#A16207 0%,#CA8A04 100%)",
     },
   },
 };

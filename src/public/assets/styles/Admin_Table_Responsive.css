@@ -166,32 +166,32 @@
 
   /* Colori bottoni */
   .mobile-btn-info {
-    background: #3b82f6;
+    background: var(--info, #3b82f6);
     color: white;
   }
 
   .mobile-btn-primary {
-    background: #2563eb;
+    background: var(--primary, #2563eb);
     color: white;
   }
 
   .mobile-btn-warning {
-    background: #f59e0b;
+    background: var(--warning, #f59e0b);
     color: white;
   }
 
   .mobile-btn-success {
-    background: #10b981;
+    background: var(--success, #10b981);
     color: white;
   }
 
   .mobile-btn-danger {
-    background: #ef4444;
+    background: var(--danger, #ef4444);
     color: white;
   }
 
   .mobile-btn-secondary {
-    background: #6b7280;
+    background: var(--secondary, #6b7280);
     color: white;
   }
 
@@ -207,49 +207,49 @@
   }
 
   .mobile-badge-admin {
-    background: #ef4444;
+    background: var(--danger, #ef4444);
     color: white;
   }
   .mobile-badge-presidente {
-    background: #2563eb;
+    background: var(--primary, #2563eb);
     color: white;
   }
   .mobile-badge-vice {
-    background: #10b981;
+    background: var(--success, #10b981);
     color: white;
   }
   .mobile-badge-dirigente {
-    background: #f59e0b;
+    background: var(--warning, #f59e0b);
     color: white;
   }
   .mobile-badge-segretario {
-    background: #6b7280;
+    background: var(--secondary, #6b7280);
     color: white;
   }
   .mobile-badge-utente {
-    background: #3b82f6;
+    background: var(--info, #3b82f6);
     color: white;
   }
 
   .mobile-badge-attivo {
-    background: #10b981;
+    background: var(--success, #10b981);
     color: white;
   }
   .mobile-badge-sospeso {
-    background: #f59e0b;
+    background: var(--warning, #f59e0b);
     color: white;
   }
   .mobile-badge-bannato {
-    background: #ef4444;
+    background: var(--danger, #ef4444);
     color: white;
   }
 
   .mobile-badge-pubblicato {
-    background: #10b981;
+    background: var(--success, #10b981);
     color: white;
   }
   .mobile-badge-bozza {
-    background: #f59e0b;
+    background: var(--warning, #f59e0b);
     color: white;
   }
 
@@ -323,7 +323,7 @@
   }
 
   .admin-table thead {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    background: var(--primary);
     color: white;
   }
 

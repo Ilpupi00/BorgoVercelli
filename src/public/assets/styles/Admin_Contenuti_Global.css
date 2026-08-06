@@ -1,18 +1,18 @@
 /* Admin Contenuti - Global Modern Styles */
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1e40af;
-  --primary-light: #3b82f6;
-  --secondary: #10b981;
-  --secondary-dark: #059669;
-  --danger: #ef4444;
+  --primary: var(--primary-color, #2563eb);
+  --primary-dark: var(--primary-active, #1e40af);
+  --primary-light: var(--primary-hover, #3b82f6);
+  --secondary: var(--secondary-color, #10b981);
+  --secondary-dark: var(--secondary-dark, #059669);
+  --danger: var(--danger, #ef4444);
   --danger-dark: #dc2626;
-  --warning: #f59e0b;
+  --warning: var(--warning, #f59e0b);
   --warning-dark: #d97706;
-  --success: #10b981;
+  --success: var(--success, #10b981);
   --success-dark: #059669;
-  --info: #3b82f6;
+  --info: var(--info, #3b82f6);
   --info-dark: #2563eb;
   --dark: #1f2937;
   --light: #f9fafb;

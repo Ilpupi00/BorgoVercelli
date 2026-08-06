@@ -10,11 +10,18 @@
 <script>
   (function() {
     var temaServer = '<%= typeof temaId !== "undefined" ? temaId : "light" %>';
+    var VALID_THEMES = ['light', 'dark', 'sport', 'nature'];
+    var THEME_BG = {
+      'light':  '#ffffff',
+      'dark':   '#0f1117',
+      'sport':  '#F8F9FC',
+      'nature': '#F7FEF9'
+    };
     var temaCorrente = temaServer;
 
     try {
       var savedTheme = localStorage.getItem('site-theme-preference');
-      if (savedTheme === 'light' || savedTheme === 'dark') {
+      if (savedTheme && VALID_THEMES.indexOf(savedTheme) !== -1) {
         temaCorrente = savedTheme;
       } else if (savedTheme === 'auto' && window.matchMedia) {
         temaCorrente = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -23,16 +30,18 @@
       // localStorage may be unavailable; keep server theme
     }
 
+    var bg = THEME_BG[temaCorrente] || '#ffffff';
     document.documentElement.setAttribute('data-theme', temaCorrente);
     document.documentElement.style.colorScheme = temaCorrente === 'dark' ? 'dark' : 'light';
-    document.documentElement.style.backgroundColor = temaCorrente === 'dark' ? '#0f1117' : '#ffffff';
-    document.body && (document.body.style.backgroundColor = temaCorrente === 'dark' ? '#0f1117' : '#ffffff');
+    document.documentElement.style.backgroundColor = bg;
+    document.body && (document.body.style.backgroundColor = bg);
     document.cookie = 'tema=' + temaCorrente + '; path=/; max-age=2592000; SameSite=Lax';
     window.__BORGO_TEMA_BOOTSTRAP = temaCorrente;
   })();
 </script>
 
 <style id="theme-critical-style">
+  /* Blocca FOUC: questo CSS viene eseguito PRIMA di qualsiasi file esterno */
   html {
     background-color: #ffffff;
   }
@@ -49,16 +58,31 @@
     color-scheme: light;
   }
 
+  /* SPORT — Royal Navy: sfondo bianco-blu neutro */
+  html[data-theme="sport"],
+  body[data-theme="sport"] {
+    background-color: #F8F9FC;
+    color-scheme: light;
+  }
+
+  /* NATURE — Emerald Bloom: sfondo bianco-verde freschissimo */
+  html[data-theme="nature"],
+  body[data-theme="nature"] {
+    background-color: #F7FEF9;
+    color-scheme: light;
+  }
+
   body {
     background-color: inherit;
   }
 </style>
 
-<!-- 1. CSS variabili base (fallback se il middleware non ha ancora girato) -->
-<link rel="stylesheet" href="/assets/styles/theme-variables.css?v=2.0">
 
-<!-- 2. Dark theme overrides globali -->
-<link rel="stylesheet" href="/assets/styles/theme-dark.css?v=2.0">
+<!-- 1. CSS variabili base (fallback se il middleware non ha ancora girato) -->
+<link rel="stylesheet" href="/assets/styles/theme-variables.css?v=3.0">
+
+<!-- 2. Dark theme overrides globali (ora include anche sport e nature) -->
+<link rel="stylesheet" href="/assets/styles/theme-dark.css?v=3.0">
 
 <!-- 3. CSS variabili dinamico iniettato dal middleware (server-side, previene FOUC) -->
 <% if (typeof temaCSS !== 'undefined' && temaCSS) { %>

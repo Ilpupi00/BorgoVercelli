@@ -5,25 +5,25 @@
 
 /* ==================== VARIABILI CSS ==================== */
 :root {
-  /* Colori Primari */
-  --primary: #2563eb;
-  --primary-dark: #1e40af;
-  --primary-light: #3b82f6;
-  --primary-lighter: #60a5fa;
+  /* Colori Primari (collegati alle variabili di tema dinamico con fallback) */
+  --primary: var(--primary-color, #2563eb);
+  --primary-dark: var(--primary-active, #1e40af);
+  --primary-light: var(--primary-hover, #3b82f6);
+  --primary-lighter: var(--primary-hover, #60a5fa);
 
   /* Colori Secondari */
-  --secondary: #10b981;
-  --secondary-dark: #059669;
-  --secondary-light: #34d399;
+  --secondary: var(--secondary-color, #10b981);
+  --secondary-dark: var(--secondary-dark, #059669);
+  --secondary-light: var(--secondary-light, #34d399);
 
   /* Colori di Stato */
-  --success: #10b981;
+  --success: var(--success, #10b981);
   --success-dark: #059669;
-  --warning: #f59e0b;
+  --warning: var(--warning, #f59e0b);
   --warning-dark: #d97706;
-  --danger: #ef4444;
+  --danger: var(--danger, #ef4444);
   --danger-dark: #dc2626;
-  --info: #3b82f6;
+  --info: var(--info, #3b82f6);
   --info-dark: #2563eb;
 
   /* Colori Neutri */

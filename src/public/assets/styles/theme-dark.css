@@ -187,6 +187,190 @@ body[data-theme="light"] {
   background-color: var(--bg-primary) !important;
 }
 
+/* =====================================================
+   TEMA SPORT — Royal Navy (Palette C)
+   Navy regale #1E3A8A + Ambra dorata #F59E0B
+   WCAG: Navy su bianco 8.2:1 ✅ AAA
+   ===================================================== */
+:root[data-theme="sport"] {
+  color-scheme: light;
+
+  --primary-color:     #1E3A8A;
+  --primary-variant:   #163372;
+  --primary-hover:     #163372;
+  --primary-active:    #0F2462;
+  --btn-primary-bg:    #1E3A8A;
+  --btn-primary-text:  #FFFFFF;
+  --btn-primary-hover: #163372;
+
+  --secondary-color:   #F59E0B;
+  --success:           #16A34A;
+  --danger:            #DC2626;
+  --warning:           #D97706;
+  --info:              #0369A1;
+
+  --bg-primary:        #F8F9FC;
+  --bg-secondary:      #EEF2FF;
+  --bg-tertiary:       #E0E7FF;
+  --bg-elevated:       #FFFFFF;
+  --bg-hover:          #E0E7FF;
+  --bg-active:         #C7D2FE;
+
+  --text-primary:      #0F172A;
+  --text-secondary:    #334155;
+  --text-tertiary:     #64748B;
+  --text-on-primary:   #FFFFFF;
+  --text-muted:        #64748B;
+
+  --border-color:      #C7D2FE;
+  --border-hover:      #A5B4FC;
+  --border-focus:      #1E3A8A;
+
+  --shadow-sm:         0 1px 2px rgba(30,58,138,0.06);
+  --shadow-md:         0 4px 6px rgba(30,58,138,0.10);
+  --shadow-lg:         0 10px 15px rgba(30,58,138,0.12);
+  --shadow-xl:         0 20px 25px rgba(30,58,138,0.15);
+  --shadow-2xl:        0 25px 50px rgba(30,58,138,0.20);
+  --shadow-colored:    0 10px 30px rgba(30,58,138,0.25);
+
+  --card-bg:           #FFFFFF;
+  --card-border:       #E0E7FF;
+  --card-shadow:       0 4px 12px rgba(30,58,138,0.10);
+  --card-hover-shadow: 0 12px 32px rgba(30,58,138,0.18);
+
+  --input-bg:           #FFFFFF;
+  --input-border:       #A5B4FC;
+  --input-text:         #0F172A;
+  --input-placeholder:  #6366F1;
+  --input-focus-border: #1E3A8A;
+  --input-focus-ring:   rgba(30,58,138,0.15);
+
+  --navbar-bg:     linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+  --navbar-text:   #FFFFFF;
+  --navbar-hover:  rgba(255,255,255,0.12);
+  --navbar-active: rgba(255,255,255,0.20);
+
+  --footer-bg:      #0F172A;
+  --footer-text:    #93C5FD;
+  --footer-heading: #FFFFFF;
+
+  --gradient-primary: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  --gradient-success: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+
+  --hero-gradient-start: #0F172A;
+  --hero-gradient-end:   #1E3A8A;
+  --hero-overlay:        rgba(0,0,0,0.35);
+  --hero-text:           #FFFFFF;
+
+  --glass-bg:     rgba(248,249,252,0.85);
+  --glass-border: rgba(30,58,138,0.15);
+  --glass-shadow: 0 8px 32px rgba(30,58,138,0.12);
+
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --transition-speed: 0.3s;
+}
+
+:root[data-theme="sport"],
+body[data-theme="sport"] {
+  color-scheme: light;
+  background-color: #F8F9FC !important;
+  color: #0F172A !important;
+}
+
+/* =====================================================
+   TEMA NATURE — Emerald Bloom (Palette C)
+   Smeraldo #16A34A + Oro caldo #CA8A04
+   WCAG: Verde foresta su bianco 9.4:1 ✅ AAA
+   ===================================================== */
+:root[data-theme="nature"] {
+  color-scheme: light;
+
+  --primary-color:     #16A34A;
+  --primary-variant:   #15803D;
+  --primary-hover:     #15803D;
+  --primary-active:    #14532D;
+  --btn-primary-bg:    #16A34A;
+  --btn-primary-text:  #FFFFFF;
+  --btn-primary-hover: #15803D;
+
+  --secondary-color:   #CA8A04;
+  --success:           #22C55E;
+  --danger:            #DC2626;
+  --warning:           #D97706;
+  --info:              #0891B2;
+
+  --bg-primary:        #F7FEF9;
+  --bg-secondary:      #DCFCE7;
+  --bg-tertiary:       #BBF7D0;
+  --bg-elevated:       #FFFFFF;
+  --bg-hover:          #D1FAE5;
+  --bg-active:         #A7F3D0;
+
+  --text-primary:      #14532D;
+  --text-secondary:    #166534;
+  --text-tertiary:     #15803D;
+  --text-on-primary:   #FFFFFF;
+  --text-muted:        #4ADE80;
+
+  --border-color:      #BBF7D0;
+  --border-hover:      #86EFAC;
+  --border-focus:      #16A34A;
+
+  --shadow-sm:         0 1px 2px rgba(22,163,74,0.06);
+  --shadow-md:         0 4px 6px rgba(22,163,74,0.10);
+  --shadow-lg:         0 10px 15px rgba(22,163,74,0.12);
+  --shadow-xl:         0 20px 25px rgba(22,163,74,0.15);
+  --shadow-2xl:        0 25px 50px rgba(22,163,74,0.20);
+  --shadow-colored:    0 10px 30px rgba(22,163,74,0.25);
+
+  --card-bg:           #FFFFFF;
+  --card-border:       #D1FAE5;
+  --card-shadow:       0 4px 12px rgba(22,163,74,0.10);
+  --card-hover-shadow: 0 12px 32px rgba(22,163,74,0.18);
+
+  --input-bg:           #FFFFFF;
+  --input-border:       #86EFAC;
+  --input-text:         #14532D;
+  --input-placeholder:  #4ADE80;
+  --input-focus-border: #16A34A;
+  --input-focus-ring:   rgba(22,163,74,0.15);
+
+  --navbar-bg:     linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  --navbar-text:   #FFFFFF;
+  --navbar-hover:  rgba(255,255,255,0.12);
+  --navbar-active: rgba(255,255,255,0.20);
+
+  --footer-bg:      #14532D;
+  --footer-text:    #86EFAC;
+  --footer-heading: #FFFFFF;
+
+  --gradient-primary: linear-gradient(135deg, #14532D 0%, #16A34A 100%);
+  --gradient-success: linear-gradient(135deg, #A16207 0%, #CA8A04 100%);
+
+  --hero-gradient-start: #14532D;
+  --hero-gradient-end:   #16A34A;
+  --hero-overlay:        rgba(0,0,0,0.25);
+  --hero-text:           #FFFFFF;
+
+  --glass-bg:     rgba(247,254,249,0.85);
+  --glass-border: rgba(22,163,74,0.15);
+  --glass-shadow: 0 8px 32px rgba(22,163,74,0.12);
+
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --transition-speed: 0.3s;
+}
+
+:root[data-theme="nature"],
+body[data-theme="nature"] {
+  color-scheme: light;
+  background-color: #F7FEF9 !important;
+  color: #14532D !important;
+}
+
 /* 
  * Utility overrides per Modalità Scura (Dark Mode) 
  * Risolve testi scuri invisibili su sfondi scuri e resetta i background light

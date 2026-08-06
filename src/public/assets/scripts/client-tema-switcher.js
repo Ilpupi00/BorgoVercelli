@@ -55,8 +55,11 @@ class TemaSwitcher {
      * Legge la preferenza del browser e la applica se differisce dal tema server.
      */
     async bootstrapPreferredTheme() {
+        const VALID_THEMES = ['light', 'dark', 'sport', 'nature'];
         const preferredTheme = this.getPreferredTheme();
-        if (preferredTheme === 'light' || preferredTheme === 'dark') {
+
+        // Temi predefiniti semplici: applicabili subito senza fetch
+        if (VALID_THEMES.includes(preferredTheme)) {
             this.temaAttuale = preferredTheme;
             document.documentElement.setAttribute('data-theme', preferredTheme);
             document.documentElement.style.colorScheme = preferredTheme === 'dark' ? 'dark' : 'light';
@@ -83,9 +86,10 @@ class TemaSwitcher {
      * Calcola il tema preferito dal browser, compatibile con la vecchia chiave localStorage.
      */
     getPreferredTheme() {
+        const VALID_THEMES = ['light', 'dark', 'sport', 'nature'];
         try {
             const saved = localStorage.getItem('site-theme-preference');
-            if (saved === 'light' || saved === 'dark') {
+            if (saved && VALID_THEMES.includes(saved)) {
                 return saved;
             }
             if (saved === 'auto') {
@@ -145,6 +149,13 @@ class TemaSwitcher {
     async loadTema(temaId) {
         if (!temaId || temaId === this.temaAttuale) return;
 
+        const THEME_BG = {
+            'light':  '#ffffff',
+            'dark':   '#0f1117',
+            'sport':  '#F8F9FC',
+            'nature': '#F7FEF9'
+        };
+
         try {
             let applicato = false;
 
@@ -173,6 +184,12 @@ class TemaSwitcher {
             this.temaAttuale = temaId;
             document.documentElement.setAttribute('data-theme', temaId);
             document.documentElement.style.colorScheme = temaId === 'dark' ? 'dark' : 'light';
+            // Aggiorna il background immediatamente per evitare flash
+            const bg = THEME_BG[temaId];
+            if (bg) {
+                document.documentElement.style.backgroundColor = bg;
+                document.body && (document.body.style.backgroundColor = bg);
+            }
             window.__BORGO_TEMA = temaId;
             this.syncThemeStorage(temaId);
 
