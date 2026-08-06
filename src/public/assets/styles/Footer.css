@@ -358,6 +358,50 @@ footer#footer .opacity-25 {
   display: none !important;
 }
 
+/* ========================================
+   DARK MODE OVERRIDES - FOOTER INPUTS
+   ======================================== */
+
+html[data-theme="dark"] footer#footer .form-control,
+html[data-theme="dark"] footer#footer input.form-control,
+html[data-theme="dark"] footer#footer textarea.form-control,
+html[data-theme="dark"] footer#footer input[type="text"],
+html[data-theme="dark"] footer#footer input[type="email"],
+html[data-theme="dark"] footer#footer input[type="tel"],
+html[data-theme="dark"] footer#footer textarea {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] footer#footer .form-control::placeholder,
+html[data-theme="dark"] footer#footer input::placeholder,
+html[data-theme="dark"] footer#footer textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+html[data-theme="dark"] footer#footer .form-control:focus,
+html[data-theme="dark"] footer#footer input:focus,
+html[data-theme="dark"] footer#footer textarea:focus {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Override autofill browser (Chrome) che ignora il background */
+html[data-theme="dark"] footer#footer input:-webkit-autofill,
+html[data-theme="dark"] footer#footer input:-webkit-autofill:hover,
+html[data-theme="dark"] footer#footer input:-webkit-autofill:focus,
+html[data-theme="dark"] footer#footer textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+}
+
 /* Stili specifici per la checkbox della privacy policy */
 footer#footer .form-check-input {
   background-color: rgba(255, 255, 255, 0.95) !important;

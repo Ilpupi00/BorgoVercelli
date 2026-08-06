@@ -894,3 +894,32 @@ body {
     page-break-inside: avoid;
   }
 }
+
+/* ========================================
+   DARK MODE OVERRIDES
+   ======================================== */
+
+/* Profile header dark mode: indigo profondo invece di --primary-color (troppo chiaro) */
+:root[data-theme="dark"] .profile-modern-header,
+html[data-theme="dark"] .profile-modern-header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Card moderne dark mode */
+:root[data-theme="dark"] .modern-card {
+  background: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .modern-card-header {
+  background: #151d2e !important;
+  border-bottom-color: #2e3650 !important;
+}
+
+/* Badge 'Membro dal' in dark mode per essere leggibile */
+html[data-theme="dark"] .profile-modern-header .badge.bg-light.text-dark {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}

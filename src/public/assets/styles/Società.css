@@ -53,6 +53,12 @@
   align-items: center;
 }
 
+.hero-section h1,
+.hero-section .display-4,
+.text-white h1 {
+  color: #ffffff !important;
+}
+
 .bg-gradient-primary {
   background: linear-gradient(
     135deg,

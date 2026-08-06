@@ -10,8 +10,9 @@
 
 class TemaSwitcher {
     constructor() {
-        // Legge il tema iniettato dal server nel <head> (niente cookie parsing asincrono)
-        this.temaAttuale = window.__BORGO_TEMA || 'light';
+        // Tema iniziale risolto dal bootstrap inline, con fallback al server
+        this.temaServer = window.__BORGO_TEMA || 'light';
+        this.temaAttuale = this.temaServer;
         this.isLoggedIn  = window.__BORGO_LOGGED === true || window.__BORGO_LOGGED === 'true';
         this.temiPredefiniti = {};
         this.pollingInterval = 30000; // 30 secondi (solo per cambio globale admin)
@@ -21,11 +22,17 @@ class TemaSwitcher {
 
     async init() {
         try {
-            // Carica la lista temi dal server per sapere le palette colori
+            await this.bootstrapPreferredTheme();
+
+            // Carica la lista temi dal server senza bloccare il primo paint.
             await this.caricaTemiPredefiniti();
+
+            // Se era un tema custom, riprova ora che la lista è disponibile.
+            await this.bootstrapPreferredTheme();
 
             // Assicurati che data-theme sia già impostato (è già fatto inline, ma per sicurezza)
             document.documentElement.setAttribute('data-theme', this.temaAttuale);
+            document.documentElement.style.colorScheme = this.temaAttuale === 'dark' ? 'dark' : 'light';
 
             // Event listeners per il dropdown navbar
             this.setupEventListeners();
@@ -41,6 +48,74 @@ class TemaSwitcher {
             console.log(`[TemaSwitcher] ✅ Inizializzato con tema: ${this.temaAttuale}`);
         } catch (err) {
             console.error('[TemaSwitcher] Errore inizializzazione:', err);
+        }
+    }
+
+    /**
+     * Legge la preferenza del browser e la applica se differisce dal tema server.
+     */
+    async bootstrapPreferredTheme() {
+        const preferredTheme = this.getPreferredTheme();
+        if (preferredTheme === 'light' || preferredTheme === 'dark') {
+            this.temaAttuale = preferredTheme;
+            document.documentElement.setAttribute('data-theme', preferredTheme);
+            document.documentElement.style.colorScheme = preferredTheme === 'dark' ? 'dark' : 'light';
+            window.__BORGO_TEMA = preferredTheme;
+            this.syncThemeStorage(preferredTheme);
+            return;
+        }
+
+        if (preferredTheme && preferredTheme !== this.temaAttuale && this.temiPredefiniti[preferredTheme]) {
+            await this.loadTema(preferredTheme);
+            return;
+        }
+
+        if (preferredTheme) {
+            this.temaAttuale = preferredTheme;
+            document.documentElement.setAttribute('data-theme', preferredTheme);
+            document.documentElement.style.colorScheme = preferredTheme === 'dark' ? 'dark' : 'light';
+            window.__BORGO_TEMA = preferredTheme;
+            this.syncThemeStorage(preferredTheme);
+        }
+    }
+
+    /**
+     * Calcola il tema preferito dal browser, compatibile con la vecchia chiave localStorage.
+     */
+    getPreferredTheme() {
+        try {
+            const saved = localStorage.getItem('site-theme-preference');
+            if (saved === 'light' || saved === 'dark') {
+                return saved;
+            }
+            if (saved === 'auto') {
+                return this.getSystemTheme();
+            }
+        } catch (err) {
+            // ignore storage errors and use server theme
+        }
+
+        return this.temaServer;
+    }
+
+    /**
+     * Restituisce il tema di sistema effettivo.
+     */
+    getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+
+    /**
+     * Sincronizza localStorage con il tema attivo.
+     */
+    syncThemeStorage(temaId) {
+        try {
+            localStorage.setItem('site-theme-preference', temaId);
+        } catch (err) {
+            // ignore storage errors
         }
     }
 
@@ -97,7 +172,9 @@ class TemaSwitcher {
             // Aggiorna stato interno
             this.temaAttuale = temaId;
             document.documentElement.setAttribute('data-theme', temaId);
+            document.documentElement.style.colorScheme = temaId === 'dark' ? 'dark' : 'light';
             window.__BORGO_TEMA = temaId;
+            this.syncThemeStorage(temaId);
 
             // Persisti nel cookie (il server lo leggerà alla prossima pagina)
             const maxAge = 30 * 24 * 60 * 60; // 30 giorni in secondi

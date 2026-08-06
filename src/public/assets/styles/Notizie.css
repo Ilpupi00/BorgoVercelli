@@ -23,6 +23,14 @@
   overflow: hidden;
 }
 
+.hero-section h1,
+.hero-section .display-4,
+.text-white h1,
+.hero-section-notizia h1,
+.hero-section-notizia .display-4 {
+  color: #ffffff !important;
+}
+
 .hero-section::before {
   content: "";
   position: absolute;

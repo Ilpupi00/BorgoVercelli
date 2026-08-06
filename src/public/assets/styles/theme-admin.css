@@ -31,6 +31,20 @@
   );
 }
 
+/* Ensure header outline buttons are visible in dark mode */
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-primary,
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-danger,
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-primary:hover,
+:root[data-theme="dark"] .admin-page-header .btn.btn-outline-danger:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
 /* Button Excel export - visible in both themes */
 .admin-page-header .btn.btn-success {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
@@ -95,6 +109,8 @@
 }
 
 :root[data-theme="dark"] .admin-container,
+:root[data-theme="dark"] .admin-content,
+:root[data-theme="dark"] .admin-page-header,
 :root[data-theme="dark"] .content-card,
 :root[data-theme="dark"] .content-card .card,
 :root[data-theme="dark"] .filters-section,
@@ -431,6 +447,13 @@
 
 :root[data-theme="dark"] .toast-body {
   background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"],
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] html {
+  background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
 }
 

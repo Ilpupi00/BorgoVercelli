@@ -132,6 +132,9 @@ body {
   border-left: 3px solid var(--primary-color);
   position: relative;
   transition: all 0.3s ease;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .sidebar-nav .section-header:hover {

@@ -23,9 +23,16 @@ if (typeof ThemeManager !== "undefined") {
      * Initialize theme manager
      */
     init() {
-      // Load saved theme or default to auto
+      // Prefer the theme already bootstrapped in the <head> on first paint.
+      const bootstrappedTheme =
+        window.__BORGO_TEMA_BOOTSTRAP ||
+        document.documentElement.getAttribute("data-theme");
       const savedTheme = this.getSavedTheme();
-      this.applyTheme(savedTheme);
+      const initialTheme =
+        bootstrappedTheme && (savedTheme === this.themes.AUTO || !savedTheme)
+          ? bootstrappedTheme
+          : savedTheme;
+      this.applyTheme(initialTheme);
 
       // Setup media query listener for system preference changes
       this.setupSystemThemeListener();
@@ -96,6 +103,7 @@ if (typeof ThemeManager !== "undefined") {
       // Update body class for backwards compatibility
       document.body.classList.remove("theme-light", "theme-dark");
       document.body.classList.add(`theme-${effectiveTheme}`);
+      document.documentElement.style.colorScheme = effectiveTheme;
       // Also set data-theme on body so CSS selectors that target body[data-theme="dark"] work
       try {
         document.body.setAttribute("data-theme", effectiveTheme);

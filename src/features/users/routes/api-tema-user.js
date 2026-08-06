@@ -39,7 +39,12 @@ router.get("/temi/corrente", async (req, res) => {
 router.get("/temi/lista", async (req, res) => {
   try {
     const temiPredefiniti = getAllThemes();
-    const temiPersonalizzati = await daoTema.getTemiPersonalizzati(true); // true = solo attivi
+    let temiPersonalizzati = [];
+    try {
+      temiPersonalizzati = await daoTema.getTemiPersonalizzati(true); // true = solo attivi
+    } catch (dbErr) {
+      console.warn("[API-TEMA] Impossibile caricare temi personalizzati (tabella mancante?):", dbErr.message);
+    }
     
     res.json({ 
       success: true, 

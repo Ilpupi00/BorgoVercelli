@@ -549,16 +549,23 @@ section.vw100 {
 }
 
 .reviewer-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75em;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .reviewer-name {
-  font-weight: 600;
-  color: var(--primary-color);
+  font-weight: 700;
+  color: var(--dark-bg);
   margin: 0;
-  font-size: 0.9em;
+  font-size: 1.1rem;
+}
+
+.reviewer-role {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .review-date {
@@ -813,6 +820,13 @@ section.vw100 {
   color: white !important;
 }
 
+.hero-section h1,
+.hero-section .display-1,
+.hero-section .display-4,
+.text-white h1 {
+  color: #ffffff !important;
+}
+
 /* Mobile-first responsive adjustments */
 @media (min-width: 576px) {
   /* Small devices (landscape phones, 576px and up) */
@@ -860,4 +874,36 @@ section.vw100 {
   .hero-section .lead {
     font-size: 1.25rem;
   }
+}
+
+/* ========================================
+   DARK MODE OVERRIDES - HOMEPAGE SECTIONS
+   ======================================== */
+html[data-theme="dark"] #notizie-section,
+html[data-theme="dark"] .notizie-section {
+  background-color: #161b27 !important;
+}
+
+html[data-theme="dark"] #eventi-section,
+html[data-theme="dark"] .eventi-section {
+  background-color: #0f1117 !important;
+}
+
+html[data-theme="dark"] #recensioni-section,
+html[data-theme="dark"] .recensioni-section {
+  background-color: #161b27 !important;
+}
+
+/* Dark mode per bottoni outline nella homepage */
+html[data-theme="dark"] .btn-outline-primary,
+html[data-theme="dark"] a.btn-outline-primary {
+  border-color: #818cf8 !important;
+  color: #818cf8 !important;
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .btn-outline-primary:hover,
+html[data-theme="dark"] a.btn-outline-primary:hover {
+  background: #818cf8 !important;
+  color: #ffffff !important;
 }

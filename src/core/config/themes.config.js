@@ -356,8 +356,7 @@ function generateThemeCSS(tema) {
     .filter(([, v]) => v !== undefined && v !== null)
     .map(([k, v]) => `  ${k}: ${v};`)
     .join("\n");
-
-  return `:root {\n${varLines}\n}`;
+  return `:root, :root[data-theme="${tema.id}"] {\n${varLines}\n}`;
 }
 
 /**

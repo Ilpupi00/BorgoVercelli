@@ -101,20 +101,6 @@
   --secondary-dark: #10b981;
   --accent-color: #fbbf24;
 
-<<<<<<< HEAD
-  /* Background Colors - Modern Web2.0 layered gradients for depth */
-  /* Main page background: deep navy / indigo duotone with subtle warmth */
-  --bg-primary: #070714;
-  /* Secondary layers for sections (soft, slightly warmer) */
-  --bg-secondary: #0e1530;
-  --bg-tertiary: #111522;
-  /* Elevated surfaces (cards, modals) use a subtle frosted gradient */
-  --bg-elevated: #1a233a;
-  --bg-hover: #1e293b;
-  --bg-active: #2f3e59;
-  --bg-gradient-start: #0b1230;
-  --bg-gradient-end: #111522;
-=======
   /* ── Sfondi SOLIDI (niente gradienti: incompatibili con Bootstrap) ── */
   --bg-primary:   #0f1117;   /* nero-blu profondo */
   --bg-secondary: #161b27;   /* layer intermedio */
@@ -124,7 +110,6 @@
   --bg-active:    #2a3350;   /* selected/active */
   --bg-gradient-start: #0f1117;
   --bg-gradient-end:   #161b27;
->>>>>>> b4c8c9d59b5374bfe6f3d6b97fc8f3e4483aa14d
 
   /* ── Testo: leggibilissimo su sfondo scuro ── */
   --text-primary:    #f1f5f9;  /* quasi bianco */
@@ -146,19 +131,11 @@
   --shadow-2xl:     0 25px 50px rgba(0,0,0,0.8);
   --shadow-colored: 0 8px 24px rgba(99,102,241,0.35);
 
-<<<<<<< HEAD
-  /* Card Specific - glassy elevated panels with subtle gradient */
-  --card-bg: #0e1530;
-  --card-border: rgba(255, 255, 255, 0.04);
-  --card-shadow: 0 6px 18px rgba(3, 9, 23, 0.6);
-  --card-hover-shadow: 0 18px 40px rgba(3, 9, 23, 0.7);
-=======
   /* ── Card: colore solido visibile ── */
   --card-bg:          #1e2535;
   --card-border:      #2e3650;
   --card-shadow:      0 4px 16px rgba(0,0,0,0.5);
   --card-hover-shadow:0 12px 32px rgba(0,0,0,0.65);
->>>>>>> b4c8c9d59b5374bfe6f3d6b97fc8f3e4483aa14d
 
   /* ── Input & Forms ── */
   --input-bg:           #1c2233;
@@ -196,6 +173,18 @@
   --glass-bg:     rgba(30,37,53,0.85);
   --glass-border: rgba(255,255,255,0.08);
   --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+:root[data-theme="dark"],
+body[data-theme="dark"] {
+  color-scheme: dark;
+  background-color: var(--bg-primary) !important;
+}
+
+:root[data-theme="light"],
+body[data-theme="light"] {
+  color-scheme: light;
+  background-color: var(--bg-primary) !important;
 }
 
 /* 
@@ -656,39 +645,39 @@ body[data-theme="dark"] .navbar {
   background: var(--bg-hover) !important;
 }
 
-/* Cards */
-.card,
-.news-card,
-.review-card,
-.event-card {
+/* Cards — scoped a dark mode per non rompere light */
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .news-card,
+:root[data-theme="dark"] .review-card,
+:root[data-theme="dark"] .event-card {
   background-color: var(--card-bg) !important;
   border-color: var(--card-border) !important;
   box-shadow: var(--card-shadow);
   transition: all 0.3s ease;
 }
 
-.card:hover,
-.news-card:hover,
-.review-card:hover {
+:root[data-theme="dark"] .card:hover,
+:root[data-theme="dark"] .news-card:hover,
+:root[data-theme="dark"] .review-card:hover {
   box-shadow: var(--card-hover-shadow);
 }
 
-.card-header,
-.card-footer {
+:root[data-theme="dark"] .card-header,
+:root[data-theme="dark"] .card-footer {
   background-color: var(--bg-secondary) !important;
   border-color: var(--border-color) !important;
 }
 
-.card-body {
+:root[data-theme="dark"] .card-body {
   color: var(--text-primary);
 }
 
-.card-title {
+:root[data-theme="dark"] .card-title {
   color: var(--text-primary) !important;
   font-weight: 600;
 }
 
-.card-text {
+:root[data-theme="dark"] .card-text {
   color: var(--text-secondary) !important;
 }
 
@@ -707,11 +696,11 @@ body[data-theme="dark"] .navbar {
   text-decoration: underline;
 }
 
-/* Forms */
-.form-control,
-input,
-textarea,
-select {
+/* Forms — scoped a dark mode per non interferire con light */
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
   background-color: var(--input-bg) !important;
   border-color: var(--input-border) !important;
   color: var(--input-text) !important;
@@ -719,23 +708,23 @@ select {
   background-image: none !important;
 }
 
-.form-control::placeholder,
-input::placeholder,
-textarea::placeholder {
+:root[data-theme="dark"] .form-control::placeholder,
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
   color: var(--input-placeholder) !important;
 }
 
-.form-control:focus,
-input:focus,
-textarea:focus,
-select:focus {
+:root[data-theme="dark"] .form-control:focus,
+:root[data-theme="dark"] input:focus,
+:root[data-theme="dark"] textarea:focus,
+:root[data-theme="dark"] select:focus {
   background-color: var(--input-bg) !important;
   border-color: var(--input-focus-border) !important;
   box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
   background-image: none !important;
 }
 
-.form-label {
+:root[data-theme="dark"] .form-label {
   color: var(--text-primary) !important;
 }
 
@@ -2132,8 +2121,18 @@ code {
 }
 
 :root[data-theme="dark"] .bg-light {
+  background-color: #1e2535 !important;
   color: var(--text-primary) !important;
 }
+
+/* Fix specifico per campo-dettagli.bg-light nella pagina prenotazione */
+:root[data-theme="dark"] .campo-dettagli.bg-light,
+:root[data-theme="dark"] .campo-dettagli {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
 
 :root[data-theme="dark"] .bg-dark {
   color: #ffffff !important;
@@ -2967,4 +2966,162 @@ code {
   background-color: #1c2233 !important;
   border-color: #2e3650 !important;
   color: #cbd5e1 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FIX MIRATI DA AUDIT VISIVO - DARK THEME
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── PRENOTAZIONE: card campo dettagli (sfondo bianco) ── */
+:root[data-theme="dark"] .campo-dettagli,
+:root[data-theme="dark"] .campo-prenotazione .card,
+:root[data-theme="dark"] .campo-prenotazione,
+:root[data-theme="dark"] .campo-info-card {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .campo-tipo {
+  color: #f1f5f9 !important;
+}
+:root[data-theme="dark"] .campo-descrizione {
+  color: #cbd5e1 !important;
+}
+
+/* ── PRENOTAZIONE: form input e time slots ── */
+:root[data-theme="dark"] .campo-dettagli .form-control,
+:root[data-theme="dark"] .campo-dettagli input[type="date"],
+:root[data-theme="dark"] .campo-dettagli input[type="time"],
+:root[data-theme="dark"] .campo-dettagli input[type="text"],
+:root[data-theme="dark"] .campo-dettagli input[type="number"] {
+  background-color: #1c2233 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ── FOOTER: form inputs (override per specificità alta) ── */
+:root[data-theme="dark"] footer .form-control,
+:root[data-theme="dark"] footer input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+:root[data-theme="dark"] footer textarea {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+:root[data-theme="dark"] footer .form-control::placeholder,
+:root[data-theme="dark"] footer input::placeholder,
+:root[data-theme="dark"] footer textarea::placeholder {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* ── PROFILO: header moderno (usa --primary-color che in dark è #818cf8 troppo chiaro) ── */
+:root[data-theme="dark"] .profile-modern-header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+
+/* ── HOMEPAGE: sezioni con sfondo troppo nero (nessuna separazione) ── */
+:root[data-theme="dark"] #notizie-section,
+:root[data-theme="dark"] .notizie-section {
+  background-color: #161b27 !important;
+}
+:root[data-theme="dark"] #eventi-section,
+:root[data-theme="dark"] .eventi-section {
+  background-color: #0f1117 !important;
+}
+:root[data-theme="dark"] #recensioni-section,
+:root[data-theme="dark"] .recensioni-section {
+  background-color: #161b27 !important;
+}
+
+/* ── HOMEPAGE: bottoni outline su sfondi scuri ── */
+:root[data-theme="dark"] .btn-outline-primary,
+:root[data-theme="dark"] a.btn-outline-primary {
+  border-color: #818cf8 !important;
+  color: #818cf8 !important;
+  background: transparent !important;
+}
+:root[data-theme="dark"] .btn-outline-primary:hover,
+:root[data-theme="dark"] a.btn-outline-primary:hover {
+  background: #818cf8 !important;
+  color: #ffffff !important;
+}
+
+/* ── TABLE scoped dark ── */
+:root[data-theme="dark"] .table {
+  color: var(--text-primary) !important;
+  background-color: var(--card-bg) !important;
+}
+:root[data-theme="dark"] .table thead th {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+:root[data-theme="dark"] .table tbody tr {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+:root[data-theme="dark"] .table tbody tr:hover {
+  background-color: var(--bg-hover) !important;
+}
+:root[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FOOTER INPUTS ULTRA-SPECIFIC FIX
+   Bootstrap .form-control ha alta specificità, usiamo ID
+   ══════════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] #footer .form-control,
+:root[data-theme="dark"] #footer input.form-control,
+:root[data-theme="dark"] #footer textarea.form-control,
+:root[data-theme="dark"] #footer input[type="text"],
+:root[data-theme="dark"] #footer input[type="email"],
+:root[data-theme="dark"] #footer input[type="tel"],
+:root[data-theme="dark"] #footer textarea {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+:root[data-theme="dark"] #footer .form-control::placeholder,
+:root[data-theme="dark"] #footer input::placeholder,
+:root[data-theme="dark"] #footer textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.5);
+}
+:root[data-theme="dark"] #footer .form-control:focus,
+:root[data-theme="dark"] #footer input:focus,
+:root[data-theme="dark"] #footer textarea:focus {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Imposta color-scheme sul footer per hint browser */
+:root[data-theme="dark"] #footer {
+  color-scheme: dark;
+}
+
+/* Override autofill browser (Chrome) che ignora il background */
+:root[data-theme="dark"] #footer input:-webkit-autofill,
+:root[data-theme="dark"] #footer input:-webkit-autofill:hover,
+:root[data-theme="dark"] #footer input:-webkit-autofill:focus,
+:root[data-theme="dark"] #footer textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+}
+
+/* Fix finale: aggiunge anche tramite html[data-theme] per massima copertura */
+html[data-theme="dark"] #footer .form-control,
+html[data-theme="dark"] #footer input[type="text"],
+html[data-theme="dark"] #footer input[type="email"],
+html[data-theme="dark"] #footer input[type="tel"],
+html[data-theme="dark"] #footer textarea {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
 }

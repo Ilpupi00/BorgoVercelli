@@ -29,7 +29,7 @@
                 <header class="admin-page-header slide-up">
                     <div class="admin-page-header-content">
                         <h1>
-                            <i class="fas fa-bell-slash"></i>
+                            <i class="bi bi-megaphone-fill"></i>
                             Gestione POPS
                         </h1>
                         <p>Gestisci i popup periodici visualizzati sulla homepage</p>
@@ -46,35 +46,35 @@
 
                 <!-- Hero -->
                 <div class="pops-page-hero fade-in">
-                    <h1>📢 Popup Periodici</h1>
+                    <h1><i class="bi bi-megaphone-fill me-2"></i>Popup Periodici</h1>
                     <p>I POPS appaiono sulla homepage nel periodo impostato. I POPS <strong>Default</strong> si ripetono ogni anno, i <strong>Custom</strong> sono una-tantum.</p>
                 </div>
 
                 <!-- Stats -->
                 <div class="pops-stats">
                     <div class="pops-stat-card">
-                        <span class="pops-stat-icon">📢</span>
+                        <span class="pops-stat-icon"><i class="bi bi-megaphone-fill"></i></span>
                         <div>
                             <div class="pops-stat-value" id="statTotale"><%= pops.length %></div>
                             <div class="pops-stat-label">Totale POPS</div>
                         </div>
                     </div>
                     <div class="pops-stat-card">
-                        <span class="pops-stat-icon">✅</span>
+                        <span class="pops-stat-icon"><i class="bi bi-check-circle-fill"></i></span>
                         <div>
                             <div class="pops-stat-value" id="statAttivi"><%= pops.filter(p => p.attivo).length %></div>
                             <div class="pops-stat-label">Attivi</div>
                         </div>
                     </div>
                     <div class="pops-stat-card">
-                        <span class="pops-stat-icon">🔄</span>
+                        <span class="pops-stat-icon"><i class="bi bi-arrow-repeat"></i></span>
                         <div>
                             <div class="pops-stat-value"><%= pops.filter(p => p.tipo === 'default').length %></div>
                             <div class="pops-stat-label">Ricorrenti</div>
                         </div>
                     </div>
                     <div class="pops-stat-card">
-                        <span class="pops-stat-icon">📅</span>
+                        <span class="pops-stat-icon"><i class="bi bi-calendar-event-fill"></i></span>
                         <div>
                             <div class="pops-stat-value"><%= pops.filter(p => p.tipo === 'custom').length %></div>
                             <div class="pops-stat-label">Una-tantum</div>
@@ -86,7 +86,7 @@
                 <div class="pops-toolbar">
                     <h2><i class="bi bi-collection me-2 text-primary"></i>Tutti i POPS</h2>
                     <button class="btn-crea-pop" id="btnNuovoPop" data-bs-toggle="modal" data-bs-target="#modalPop">
-                        <i class="fas fa-plus"></i> Crea Nuovo POP
+                        <i class="bi bi-plus-lg"></i> Crea Nuovo POP
                     </button>
                 </div>
 
@@ -94,11 +94,11 @@
                 <div class="pops-grid" id="popsGrid">
                     <% if (pops.length === 0) { %>
                     <div class="pops-empty">
-                        <span class="empty-icon">📢</span>
+                        <span class="empty-icon"><i class="bi bi-megaphone-fill"></i></span>
                         <h4>Nessun POP creato</h4>
                         <p class="mb-3">Crea il tuo primo popup periodico per coinvolgere gli utenti della homepage.</p>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPop">
-                            <i class="fas fa-plus me-2"></i>Crea il primo POP
+                            <i class="bi bi-plus-lg me-2"></i>Crea il primo POP
                         </button>
                     </div>
                     <% } %>

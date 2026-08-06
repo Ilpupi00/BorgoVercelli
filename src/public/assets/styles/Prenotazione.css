@@ -273,3 +273,44 @@
   background: linear-gradient(135deg, #0d6efd 0%, #22b14c 100%) !important;
   border: none !important;
 }
+
+/* ══════════════════════════════════════════════════════
+   DARK THEME OVERRIDES - Prenotazione page
+   ══════════════════════════════════════════════════════ */
+
+/* Campo dettagli card (usa .bg-light su Bootstrap) */
+:root[data-theme="dark"] .campo-dettagli,
+:root[data-theme="dark"] .campo-prenotazione .card,
+html[data-theme="dark"] .campo-dettagli {
+  background-color: #1e2535 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme="dark"] .campo-tipo {
+  color: #f1f5f9 !important;
+}
+
+:root[data-theme="dark"] .campo-descrizione {
+  color: #cbd5e1 !important;
+}
+
+/* Input data/ora nella card */
+:root[data-theme="dark"] .campo-dettagli input,
+:root[data-theme="dark"] .campo-dettagli input[type="date"],
+html[data-theme="dark"] .campo-dettagli input {
+  background-color: #131929 !important;
+  border-color: #2e3650 !important;
+  color: #f1f5f9 !important;
+  color-scheme: dark;
+}
+
+/* Feature items e testi nella card */
+:root[data-theme="dark"] .campo-dettagli .feature-item,
+:root[data-theme="dark"] .campo-dettagli p,
+:root[data-theme="dark"] .campo-dettagli span,
+:root[data-theme="dark"] .campo-dettagli small {
+  color: #cbd5e1 !important;
+}
+

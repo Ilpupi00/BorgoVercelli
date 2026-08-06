@@ -126,6 +126,20 @@ h6 {
 h1 {
   font-size: var(--font-size-3xl);
 }
+.text-white h1,
+.text-white h2,
+.text-white h3,
+.text-white h4,
+.text-white h5,
+.text-white h6,
+.hero-section h1,
+.hero-section.text-white h1,
+.hero-section .display-1,
+.hero-section .display-4,
+.hero-section-notizia h1,
+.hero-section-notizia .display-4 {
+  color: #ffffff !important;
+}
 h2 {
   font-size: var(--font-size-2xl);
 }
