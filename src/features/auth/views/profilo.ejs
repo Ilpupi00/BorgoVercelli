@@ -554,7 +554,7 @@
                             <i class="bi bi-newspaper fs-4"></i>
                             <h5 class="mb-0">I Miei Contenuti</h5>
                         </div>
-                        <span class="badge bg-light text-dark px-3 py-2" id="contentCount">0 elementi</span>
+                        <span class="badge bg-light text-dark px-3 py-2" id="contentCount"><%= ((typeof notiziePersonali !== 'undefined' ? notiziePersonali.length : 0) + (typeof eventiPersonali !== 'undefined' ? eventiPersonali.length : 0)) %> elementi</span>
                     </div>
                     <div class="modern-card-body">
                         <div id="userNewsEventsContainer">
@@ -563,7 +563,7 @@
                                     <% (notiziePersonali || []).forEach(notizia => { %>
                                         <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
                                             <div class="d-flex align-items-center flex-grow-1">
-                                                <div class="news-event-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <div class="news-event-icon text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="background: var(--primary);">
                                                     <i class="bi bi-newspaper fs-5"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -600,7 +600,7 @@
                                     <% (eventiPersonali || []).forEach(evento => { %>
                                         <div class="news-event-item d-flex align-items-center justify-content-between p-3 border-bottom hover-shadow">
                                             <div class="d-flex align-items-center flex-grow-1">
-                                                <div class="news-event-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <div class="news-event-icon text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="background: var(--success);">
                                                     <i class="bi bi-calendar-event fs-5"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
