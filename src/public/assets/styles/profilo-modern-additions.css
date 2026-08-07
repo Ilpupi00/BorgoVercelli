@@ -427,6 +427,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  text-decoration: none !important;
+}
+
+.modern-card-header:hover,
+.modern-card-header:focus {
+  text-decoration: none !important;
+  color: var(--text-on-primary);
 }
 
 .modern-card-header {
@@ -439,7 +446,7 @@ body {
   font-size: 1.05rem;
 }
 
-.modern-card-header.green-gradient {
+.modern-card-header .green-gradient {
   background: linear-gradient(
     135deg,
     var(--site-secondary) 0%,

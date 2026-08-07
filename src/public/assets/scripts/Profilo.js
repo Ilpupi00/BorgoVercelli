@@ -300,8 +300,8 @@ class Profilo {
       if (countBadge) {
         const totalItems =
           (notizie ? notizie.length : 0) + (eventi ? eventi.length : 0);
-        countBadge.textContent = `${totalItems} elemento${
-          totalItems !== 1 ? "i" : ""
+        countBadge.textContent = `${totalItems} ${
+          totalItems !== 1 ? "elementi" : "elemento"
         }`;
       }
       return;
@@ -311,8 +311,8 @@ class Profilo {
 
     // Update counter
     if (countBadge) {
-      countBadge.textContent = `${totalItems} elemento${
-        totalItems !== 1 ? "i" : ""
+      countBadge.textContent = `${totalItems} ${
+        totalItems !== 1 ? "elementi" : "elemento"
       }`;
       countBadge.className =
         totalItems > 0
