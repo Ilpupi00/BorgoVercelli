@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureGuard - Impostazioni di Sicurezza</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Design Tokens & Styles -->
+    <link rel="stylesheet" href="/assets/styles/tokens.css">
+    <link rel="stylesheet" href="/assets/styles/security-dashboard.css">
+    
+    <!-- Alpine.js & Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="secureguard-dashboard">
+
+    <%- include('partials/security-sidebar') %>
+
+    <main class="sg-main">
+        <div class="sg-page-header">
+            <h1>Impostazioni di Sicurezza</h1>
+            <p>Gestisci le tue credenziali, l'autenticazione a due fattori e monitora le attività del tuo account per garantire la massima protezione.</p>
+        </div>
+
+        <div class="sg-grid">
+            <!-- Colonna 1 -->
+            <div class="sg-grid-col-1">
+                <%- include('partials/security-score') %>
+                <%- include('partials/security-password') %>
+            </div>
+
+            <!-- Colonna 2 -->
+            <div class="sg-grid-col-2">
+                <%- include('partials/security-2fa') %>
+                <%- include('partials/security-activity') %>
+                <%- include('partials/security-sessions') %>
+            </div>
+        </div>
+    </main>
+
+    <!-- Init Lucide -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

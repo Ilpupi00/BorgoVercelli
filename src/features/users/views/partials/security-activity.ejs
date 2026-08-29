@@ -1,0 +1,60 @@
+<div class="sg-card" style="padding-bottom: 0;">
+    <div class="sg-card-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="history"></i>
+            <h2 style="font-size: 1.1rem;">Attività di accesso</h2>
+        </div>
+        <a href="#" style="color: var(--accent-blue); text-decoration: none; font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">Vedi tutti</a>
+    </div>
+
+    <div class="sg-table-container">
+        <table class="sg-table">
+            <thead>
+                <tr>
+                    <th>Dispositivo</th>
+                    <th>Posizione</th>
+                    <th>Data / Ora</th>
+                    <th>Stato</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% loginActivity.forEach(item => { %>
+                    <tr class="<%= item.status === 'Bloccato' ? 'row-danger' : '' %>">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <% if (item.device.includes('MacBook') || item.device.includes('PC')) { %>
+                                    <i data-lucide="monitor" style="color: var(--text-secondary); width: 20px;"></i>
+                                <% } else if (item.device.includes('iPhone') || item.device.includes('Mobile')) { %>
+                                    <i data-lucide="smartphone" style="color: var(--text-secondary); width: 20px;"></i>
+                                <% } else { %>
+                                    <i data-lucide="globe" style="color: var(--danger-solid); width: 20px;"></i>
+                                <% } %>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);"><%= item.device %></div>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px;"><%= item.detail %></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color: var(--text-secondary); font-size: 0.95rem;"><%= item.location %></td>
+                        <td style="color: var(--text-secondary); font-size: 0.95rem;">
+                            <%= item.date.split(',')[0] %>,<br><%= item.date.split(',')[1] %>
+                        </td>
+                        <td>
+                            <% if (item.status === 'Riuscito') { %>
+                                <span class="badge-success" style="font-size: 0.75rem;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--success-text);"></span>
+                                    Riuscito
+                                </span>
+                            <% } else { %>
+                                <span class="badge-danger" style="font-size: 0.75rem;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--danger-solid);"></span>
+                                    Bloccato
+                                </span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>

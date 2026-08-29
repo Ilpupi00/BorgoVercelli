@@ -1,0 +1,70 @@
+<div class="sg-card" x-data="{ showModal: false, sessionToRemove: null }">
+    <div class="sg-card-header">
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="monitor-smartphone"></i>
+                <h2 style="font-size: 1.1rem;">Sessioni attive</h2>
+            </div>
+            <p style="margin-top: 4px; font-size: 0.9rem;">Dispositivi attualmente connessi al tuo account.</p>
+        </div>
+        
+        <button class="btn-sg btn-sg-danger" @click="showModal = true; sessionToRemove = 'all'">
+            <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Disconnetti tutti
+        </button>
+    </div>
+
+    <div style="margin-top: var(--space-4);">
+        <% activeSessions.forEach((session, index) => { %>
+            <div class="session-item" x-data="{ show: true }" x-show="show" x-transition>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="session-icon <%= session.isCurrent ? 'current' : '' %>">
+                        <% if (session.device.includes('MacBook') || session.device.includes('PC')) { %>
+                            <i data-lucide="monitor"></i>
+                        <% } else { %>
+                            <i data-lucide="smartphone"></i>
+                        <% } %>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary);"><%= session.device %></h4>
+                            <% if (session.isCurrent) { %>
+                                <span class="badge-blue">Sessione corrente</span>
+                            <% } %>
+                        </div>
+                        <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+                            <%= session.location %> &bull; <%= session.browser %> &bull; Ultima attività: <%= session.lastActive %>
+                        </div>
+                    </div>
+                </div>
+                
+                <% if (!session.isCurrent) { %>
+                    <button class="btn-sg" style="padding: 6px; background: transparent;" @click="showModal = true; sessionToRemove = '<%= index %>'" title="Disconnetti dispositivo">
+                        <i data-lucide="x" style="width: 18px; height: 18px; color: var(--text-secondary);"></i>
+                    </button>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- Modale Conferma Disconnessione (Alpine.js) -->
+    <div class="sg-modal-overlay" x-show="showModal" style="display: none;" x-transition>
+        <div class="sg-modal" @click.away="showModal = false">
+            <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--danger-solid);">Conferma disconnessione</h3>
+            <p style="margin-bottom: 24px;">Sei sicuro di voler disconnettere <span x-text="sessionToRemove === 'all' ? 'tutte le sessioni' : 'questa sessione'"></span>? Dovrai effettuare nuovamente l'accesso.</p>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn-sg btn-sg-outline" @click="showModal = false">Annulla</button>
+                <button class="btn-sg btn-sg-danger" @click="
+                    showModal = false;
+                    // Logica simulata per la rimozione lato client
+                    if(sessionToRemove !== 'all') { 
+                        // dispatch event to close specific session (simulato)
+                    } else {
+                        // redirect o simula
+                    }
+                    alert('Sessione disconnessa (Simulazione)');
+                ">Disconnetti</button>
+            </div>
+        </div>
+    </div>
+</div>

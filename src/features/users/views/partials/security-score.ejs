@@ -1,0 +1,17 @@
+<div class="sg-card" style="border-top: 4px solid #2ecc71;">
+    <div class="sg-card-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="shield-check" style="color: var(--success-text);"></i>
+            <h2 style="font-size: 1.1rem;">Stato Sicurezza</h2>
+        </div>
+        <span class="badge-success">Ottimo</span>
+    </div>
+
+    <div class="score-ring" style="--pct: <%= securityScore %>">
+        <span class="score-value"><%= securityScore %>%</span>
+    </div>
+
+    <div style="text-align: center; margin-top: var(--space-4);">
+        <p>Il tuo account è ben protetto.<br>Continua così.</p>
+    </div>
+</div>

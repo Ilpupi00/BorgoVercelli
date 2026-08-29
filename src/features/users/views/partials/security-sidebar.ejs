@@ -1,0 +1,68 @@
+<aside class="sg-sidebar">
+    <div class="sg-brand">
+        <i data-lucide="shield-check"></i>
+        <span>SecureGuard</span>
+    </div>
+
+    <div class="sg-user-card">
+        <img src="<%= user.avatar || '/assets/images/Campo.png' %>" alt="User Avatar" class="sg-user-avatar">
+        <div>
+            <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 2px;"><%= user.name %></div>
+            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--success-text); display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="shield" style="width: 12px; height: 12px;"></i>
+                Security Level: <%= user.level %>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <ul class="sg-nav">
+            <li>
+                <a href="/users/me/security" class="sg-nav-link active">
+                    <i data-lucide="shield"></i> Security Overview
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="lock"></i> Password & 2FA
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="history"></i> Login Activity
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="key"></i> Recovery Options
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="monitor-smartphone"></i> Active Sessions
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div style="margin-top: var(--space-4);">
+        <button class="btn-sg btn-sg-primary" style="width: 100%; justify-content: center;">
+            <i data-lucide="file-search"></i> Review Security
+        </button>
+    </div>
+
+    <div class="sg-sidebar-footer">
+        <ul class="sg-nav">
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="help-circle"></i> Support
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sg-nav-link">
+                    <i data-lucide="settings"></i> Settings
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>

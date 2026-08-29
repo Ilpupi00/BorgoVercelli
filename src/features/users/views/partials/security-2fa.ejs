@@ -1,0 +1,31 @@
+<div class="sg-card">
+    <div class="auth-method">
+        <div class="auth-icon-wrap">
+            <i data-lucide="smartphone"></i>
+        </div>
+        <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Autenticazione a due fattori</h3>
+                <% if (twoFactorEnabled) { %>
+                    <span class="badge-success">
+                        <i data-lucide="check" style="width: 14px; height: 14px;"></i> Attivo
+                    </span>
+                <% } else { %>
+                    <span class="badge-danger">
+                        <i data-lucide="x" style="width: 14px; height: 14px;"></i> Disattivo
+                    </span>
+                <% } %>
+            </div>
+            <p style="margin-top: 8px;">Proteggi il tuo account con un ulteriore livello di sicurezza richiedendo un codice dal tuo dispositivo mobile.</p>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 12px; margin-top: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4);">
+        <button class="btn-sg" style="background-color: var(--bg-page); border: 1px solid transparent; color: var(--text-primary);">
+            <i data-lucide="settings" style="width: 16px; height: 16px;"></i> Gestisci Metodi
+        </button>
+        <button class="btn-sg btn-sg-outline">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i> Codici di Backup
+        </button>
+    </div>
+</div>

@@ -45,6 +45,7 @@ const routesPrenotazione = require('./features/prenotazioni/routes/prenotazione'
 const routesAdmin = require('./features/admin/routes/admin');
 const routesCampionati = require('./features/campionati/routes/campionati');
 const routesUsers = require('./features/users/routes/users');
+const routesSecurity = require('./features/users/routes/security');
 
 // ==================== CONFIGURAZIONE PASSPORT ====================
 /**
@@ -270,6 +271,7 @@ app.use('/prenotazione', routesPrenotazione);     // Sistema prenotazioni
 app.use('/', routesAdmin);                        // Pannello amministrazione
 app.use('/campionato', routesCampionati);         // Gestione campionati
 app.use('/users', routesUsers);                   // Profili utenti
+app.use('/users', routesSecurity);                // Sicurezza utenti
 
 // ==================== GESTIONE FILE CARICATI ====================
 
@@ -317,7 +319,8 @@ app.set('views', [
   path.join(__dirname, 'features/notizie/views'),    // Notizie
   path.join(__dirname, 'features/prenotazioni/views'),// Prenotazioni
   path.join(__dirname, 'features/recensioni/views'), // Recensioni
-  path.join(__dirname, 'features/squadre/views')     // Squadre
+  path.join(__dirname, 'features/squadre/views'),    // Squadre
+  path.join(__dirname, 'features/users/views')       // Utenti
 ]);
 
 // ==================== GESTIONE ERRORI ====================

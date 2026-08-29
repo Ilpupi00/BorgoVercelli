@@ -1,0 +1,37 @@
+/* ========================================
+   Design Tokens per SecureGuard Dashboard
+   ======================================== */
+
+:root {
+  /* colori base */
+  --bg-page: #eef1f6;
+  --bg-card: #ffffff;
+  --bg-sidebar: #f5f6fa;
+  --border: #e4e7ed;
+
+  /* testo */
+  --text-primary: #14171f;
+  --text-secondary: #6b7280;
+
+  /* accenti */
+  --accent-blue: #2f5bea;
+  --accent-blue-dark: #1e3fb8;
+  --success-bg: #e6f7ec;
+  --success-text: #1c8a4b;
+  --danger-bg: #fdecec;
+  --danger-text: #d93b3b;
+  --danger-solid: #d93b3b;
+
+  /* radius / spacing */
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+
+  /* font */
+  --font-mono: "JetBrains Mono", "Roboto Mono", monospace;
+  --font-sans: "Inter", -apple-system, sans-serif;
+}
