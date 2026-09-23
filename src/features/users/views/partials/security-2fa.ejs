@@ -1,0 +1,38 @@
+<%#
+  Partial: security-2fa.ejs
+  Card Two-Factor Authentication.
+  Variabili: twoFactorEnabled
+%>
+
+<div class="sg-card" id="twofa-section">
+  <div class="sg-card__header">
+    <h3 class="sg-card__title">
+      <i class="bi bi-phone-fill"></i> Autenticazione a due fattori
+    </h3>
+    <% if (twoFactorEnabled) { %>
+      <span class="sg-badge sg-badge--dot sg-badge--success">Attivo</span>
+    <% } else { %>
+      <span class="sg-badge sg-badge--dot sg-badge--danger">Disattivo</span>
+    <% } %>
+  </div>
+
+  <div class="sg-twofa__row">
+    <div class="sg-twofa__icon-wrap">
+      <i class="bi bi-phone-vibrate"></i>
+    </div>
+    <div class="sg-twofa__info">
+      <h4>Verifica in due passaggi</h4>
+      <% if (twoFactorEnabled) { %>
+        <p>La 2FA è attiva sul tuo account. Un codice di verifica viene richiesto ad ogni accesso.</p>
+      <% } else { %>
+        <p>Attiva la 2FA per aggiungere un ulteriore livello di sicurezza al tuo account.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="sg-twofa__actions">
+    <button class="sg-btn sg-btn--outline" type="button" id="btnToggle2FA" data-status="<%= twoFactorEnabled ? 'true' : 'false' %>">
+      <i class="bi bi-gear"></i> <%= twoFactorEnabled ? 'Disabilita 2FA' : 'Abilita 2FA' %>
+    </button>
+  </div>
+</div>

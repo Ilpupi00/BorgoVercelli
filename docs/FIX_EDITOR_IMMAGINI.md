@@ -3,9 +3,8 @@
 ## 🐛 Problema Risolto
 
 Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
-
 - ❌ Eventi
-- ❌ Notizie
+- ❌ Notizie  
 - ❌ Profilo
 
 ## 🔍 Causa
@@ -19,14 +18,12 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ### 1. Eventi (`src/features/eventi/views/evento.ejs`)
 
 **Prima**:
-
 ```html
 <script src="/assets/scripts/crea_evento.js" defer></script>
 <script src="/assets/scripts/image-editor-common.js" defer></script>
 ```
 
 **Dopo**:
-
 ```html
 <script src="/assets/scripts/image-editor-common.js"></script>
 <script src="/assets/scripts/crea_evento.js" defer></script>
@@ -38,14 +35,12 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ### 2. Notizie (`src/features/notizie/views/notizia.ejs`)
 
 **Prima**:
-
 ```html
 <script src="/assets/scripts/crea_notizie.js" defer></script>
 <!-- MANCANTE! -->
 ```
 
 **Dopo**:
-
 ```html
 <script src="/assets/scripts/image-editor-common.js"></script>
 <script src="/assets/scripts/crea_notizie.js" defer></script>
@@ -57,15 +52,11 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ### 3. Profilo (`src/features/auth/views/profilo.ejs`)
 
 **Aggiunti**:
-
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="/assets/styles/evento-upload.css" />
-<link rel="stylesheet" href="/assets/styles/image-editor.css" />
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
-  rel="stylesheet"
-/>
+<link rel="stylesheet" href="/assets/styles/evento-upload.css">
+<link rel="stylesheet" href="/assets/styles/image-editor.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
 
 <!-- JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
@@ -73,16 +64,12 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ```
 
 **Aggiunto pulsante Modifica**:
-
 ```html
 <% if (imageUrl) { %>
-<button
-  type="button"
-  class="btn btn-success btn-sm rounded-circle p-2 shadow me-1"
-  title="Modifica foto"
-  onclick="window.openImageEditor('<%= imageUrl %>')"
->
-  <span class="bi bi-scissors"></span>
+<button type="button" class="btn btn-success btn-sm rounded-circle p-2 shadow me-1" 
+        title="Modifica foto" 
+        onclick="window.openImageEditor('<%= imageUrl %>')">
+    <span class="bi bi-scissors"></span>
 </button>
 <% } %>
 ```
@@ -95,13 +82,11 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ### Eventi e Notizie
 
 **Immagine Esistente**:
-
 ```
 [🔄 Sostituisci] [✂️ Modifica] [🗑️ Elimina]
 ```
 
 **Click su "Modifica"**:
-
 1. ✅ Apre editor Cropper.js
 2. ✅ Carica immagine esistente
 3. ✅ Permette crop, zoom, rotate, flip
@@ -110,14 +95,12 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 ### Profilo
 
 **Immagine Profilo**:
-
 ```
 [✂️ Modifica] [📷 Cambia]
    Verde       Blu
 ```
 
 **Click su "Modifica"**:
-
 1. ✅ Apre editor Cropper.js
 2. ✅ Carica foto profilo
 3. ✅ Permette modifiche
@@ -130,7 +113,6 @@ Il pulsante "Modifica" per editare le immagini con Cropper.js non funzionava in:
 **Critico**: `image-editor-common.js` deve caricare PRIMA degli altri script che lo usano.
 
 **Perché senza `defer`?**
-
 ```javascript
 // image-editor-common.js
 window.openImageEditor = openImageEditor; // Espone funzione globale
@@ -144,10 +126,10 @@ Se ha `defer`, si carica dopo il DOMContentLoaded, quindi quando `crea_evento.js
 
 ```javascript
 // In crea_evento.js
-if (typeof openImageEditor === "function") {
-  openImageEditor(imageUrl);
+if (typeof openImageEditor === 'function') {
+    openImageEditor(imageUrl);
 } else {
-  console.error("❌ Funzione openImageEditor non disponibile");
+    console.error('❌ Funzione openImageEditor non disponibile');
 }
 ```
 
@@ -156,7 +138,6 @@ if (typeof openImageEditor === "function") {
 ## 🧪 Test
 
 ### Test 1: Eventi
-
 ```bash
 npm start
 # Vai a /evento/crea-evento/:id (con immagine)
@@ -165,7 +146,6 @@ npm start
 ```
 
 ### Test 2: Notizie
-
 ```bash
 # Vai a /crea-notizie?id=:id (con immagine)
 # Clicca "✂️ Modifica"
@@ -173,7 +153,6 @@ npm start
 ```
 
 ### Test 3: Profilo
-
 ```bash
 # Vai a /profilo (con foto profilo)
 # Clicca "✂️ Modifica" (pulsante verde)
@@ -183,14 +162,12 @@ npm start
 ## 📊 Verifica Console
 
 Se tutto funziona, nella console dovresti vedere:
-
 ```
 ✅ Pulsante Modifica Esistente 1 trovato
 ✂️ Click su Modifica Immagine Esistente, URL: /uploads/...
 ```
 
 Se NON funziona, vedrai:
-
 ```
 ❌ Funzione openImageEditor non disponibile
 ```
@@ -198,17 +175,14 @@ Se NON funziona, vedrai:
 ## ⚠️ Note
 
 ### Profilo - Salvataggio Editor
-
 **TODO**: Il profilo ora può aprire l'editor, ma il salvataggio delle modifiche non è ancora implementato.
 
 Per completare:
-
 1. Catturare evento salvataggio da editor
 2. Inviare immagine modificata a endpoint profilo
 3. Aggiornare foto profilo server-side
 
 ### Performance
-
 `image-editor-common.js` senza `defer` si carica immediatamente, ma è piccolo (~400 righe) quindi non impatta performance.
 
 ## 🎉 Risultato

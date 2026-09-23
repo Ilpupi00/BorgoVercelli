@@ -1,0 +1,66 @@
+<%#
+  Partial: security-sessions.ejs
+  Card sessioni attive con Alpine.js per conferma disconnessione.
+  Variabili: activeSessions (array di { device, icon, ip, location, lastActive, isCurrent })
+%>
+
+<div class="sg-card sg-card--full" id="sessions-section" x-data="{ showConfirm: false }">
+  <div class="sg-card__header">
+    <h3 class="sg-card__title">
+      <i class="bi bi-display"></i> Sessioni Attive
+    </h3>
+    <button class="sg-btn sg-btn--danger-outline sg-btn--sm" type="button"
+            @click="showConfirm = !showConfirm">
+      <i class="bi bi-power"></i> Disconnetti tutti
+    </button>
+  </div>
+
+  <!-- Conferma disconnessione -->
+  <template x-if="showConfirm">
+    <div class="sg-disconnect-confirm">
+      <p><i class="bi bi-exclamation-triangle-fill"></i> Vuoi davvero disconnettere tutte le sessioni attive? Dovrai effettuare nuovamente l'accesso.</p>
+      <div style="display: flex; gap: 8px; flex-shrink: 0;">
+        <button class="sg-btn sg-btn--danger sg-btn--sm" type="button" id="btnRevokeSessions" @click="showConfirm = false">
+          Conferma
+        </button>
+        <button class="sg-btn sg-btn--ghost sg-btn--sm" type="button" @click="showConfirm = false">
+          Annulla
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <div class="sg-sessions__list sg-mt-3">
+    <% activeSessions.forEach(function(session) { %>
+      <div class="sg-session-item <%= session.isCurrent ? 'sg-session-item--current' : '' %>">
+        <div class="sg-session-item__icon">
+          <i class="bi bi-<%= session.icon || 'display' %>"></i>
+        </div>
+        <div class="sg-session-item__info">
+          <div class="sg-session-item__device">
+            <%= session.device %>
+            <% if (session.isCurrent) { %>
+              <span class="sg-badge sg-badge--info">Sessione corrente</span>
+            <% } %>
+          </div>
+          <div class="sg-session-item__meta">
+            <%= session.ip %> · <%= session.location %> · <%= session.lastActive %>
+          </div>
+        </div>
+        <% if (!session.isCurrent) { %>
+          <div class="sg-session-item__actions">
+            <button class="sg-btn sg-btn--ghost sg-btn--sm" type="button" title="Disconnetti sessione" onclick="alert('Funzionalità in arrivo')">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        <% } %>
+      </div>
+    <% }); %>
+    <% if (activeSessions.length === 0) { %>
+      <div class="sg-text-center sg-text-muted" style="padding: 32px;">
+        <i class="bi bi-shield-check" style="font-size: 1.5rem; display: block; margin-bottom: 8px;"></i>
+        Nessuna sessione attiva trovata.
+      </div>
+    <% } %>
+  </div>
+</div>

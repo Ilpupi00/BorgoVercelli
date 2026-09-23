@@ -4,6 +4,10 @@ const daoUser = require("../services/dao-user");
 const daoPreferenze = require("../services/dao-preferenze");
 const daoDatiPersonali = require("../services/dao-dati-personali");
 const { isLoggedIn } = require("../../../core/middlewares/auth");
+
+// Sub-router: Sicurezza account (SecureGuard)
+const routesSecurity = require("./security");
+router.use("/", routesSecurity);
 const {
   validateUserUpdate,
 } = require("../../../core/middlewares/validators");

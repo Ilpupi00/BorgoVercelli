@@ -1,0 +1,103 @@
+<%#
+  Partial: security-sidebar.ejs
+  Sidebar di navigazione della pagina sicurezza SecureGuard.
+  Variabili: user, currentPath
+%>
+
+<aside class="sg-sidebar" id="sgSidebar">
+  <!-- Logo -->
+  <div class="sg-sidebar__logo">
+    <span class="sg-sidebar__logo-icon">
+      <i class="bi bi-shield-lock-fill"></i>
+    </span>
+    SecureGuard
+  </div>
+
+  <!-- User info -->
+  <div class="sg-sidebar__user">
+    <% const _sgFoto = (typeof imageUrl !== 'undefined' && imageUrl) ? imageUrl : (user && user.foto_oauth ? user.foto_oauth : null); %>
+    <% if (_sgFoto) { %>
+      <img src="<%= _sgFoto %>" alt="<%= user.nome %>" class="sg-sidebar__avatar" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='grid';">
+      <span class="sg-sidebar__avatar" style="display:none;">
+        <i class="bi bi-person-fill"></i>
+      </span>
+    <% } else { %>
+      <span class="sg-sidebar__avatar">
+        <i class="bi bi-person-fill"></i>
+      </span>
+    <% } %>
+    <div>
+      <div class="sg-sidebar__user-name"><%= user.nome %> <%= user.cognome %></div>
+      <div class="sg-sidebar__user-role">Account personale</div>
+      <%
+        let secLevel = 'High';
+        let secLevelClass = '';
+        if (typeof securityScore !== 'undefined') {
+          if (securityScore >= 80) { secLevel = 'High'; secLevelClass = ''; }
+          else if (securityScore >= 50) { secLevel = 'Medium'; secLevelClass = 'sg-sidebar__level-badge--medium'; }
+          else { secLevel = 'Low'; secLevelClass = 'sg-sidebar__level-badge--low'; }
+        }
+      %>
+      <span class="sg-sidebar__level-badge <%= secLevelClass %>">
+        <i class="bi bi-shield-check"></i> Security Level: <%= secLevel %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <ul class="sg-sidebar__nav">
+    <li class="sg-sidebar__nav-label">Pannello</li>
+    <li>
+      <a href="/users/security" class="sg-sidebar__nav-link sg-sidebar__nav-link--active">
+        <i class="bi bi-speedometer2"></i> Security Overview
+      </a>
+    </li>
+    <li>
+      <a href="#password-section" class="sg-sidebar__nav-link">
+        <i class="bi bi-key"></i> Password & Auth
+      </a>
+    </li>
+    <li>
+      <a href="#sessions-section" class="sg-sidebar__nav-link">
+        <i class="bi bi-display"></i> Active Sessions
+      </a>
+    </li>
+    <li>
+      <a href="#activity-section" class="sg-sidebar__nav-link">
+        <i class="bi bi-clock-history"></i> Login Activity
+      </a>
+    </li>
+
+    <li class="sg-sidebar__nav-label sg-mt-3">Account</li>
+    <li>
+      <a href="/profilo" class="sg-sidebar__nav-link">
+        <i class="bi bi-person"></i> Profilo
+      </a>
+    </li>
+    <li>
+      <a href="#" class="sg-sidebar__nav-link">
+        <i class="bi bi-bell"></i> Notifiche
+      </a>
+    </li>
+    <li>
+      <a href="/privacy" class="sg-sidebar__nav-link">
+        <i class="bi bi-eye-slash"></i> Privacy Settings
+      </a>
+    </li>
+  </ul>
+
+  <!-- Review button -->
+  <button class="sg-sidebar__review-btn" type="button" onclick="document.getElementById('score-section').scrollIntoView({behavior:'smooth'})">
+    <i class="bi bi-shield-check"></i> Review Security
+  </button>
+
+  <!-- Footer -->
+  <div class="sg-sidebar__footer">
+    <a href="/contatti" class="sg-sidebar__footer-link">Support</a>
+    <a href="/profilo" class="sg-sidebar__footer-link">Settings</a>
+    <a href="/homepage" class="sg-sidebar__footer-link">Home</a>
+  </div>
+</aside>
+
+<!-- Mobile overlay -->
+<div class="sg-sidebar-overlay" id="sgSidebarOverlay"></div>

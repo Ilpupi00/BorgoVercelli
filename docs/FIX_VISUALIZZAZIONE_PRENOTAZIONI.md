@@ -9,13 +9,11 @@
 **Causa**: Endpoint `/admin/utenti/:id` utilizzato, ma fetch JavaScript non gestiva correttamente la risposta
 
 **Soluzione**:
-
-- Creato endpoint API dedicato: `/api/admin/utenti/:id`
+- Creato endpoint API dedicato: `/api/admin/utenti/:id` 
 - Modificato `Gestore_utenti.js` per usare il nuovo endpoint API
 - Mantenuto endpoint originale `/admin/utenti/:id` per backward compatibility
 
 **File Modificati**:
-
 - `src/features/admin/routes/admin.js` - Aggiunto route `/api/admin/utenti/:id`
 - `src/public/assets/scripts/components/Gestore_utenti.js` - Cambiato fetch endpoint
 
@@ -26,7 +24,6 @@
 **Problema**: Il modal "Dettagli Prenotazione" mostrava solo campi base (campo, utente, squadra, data, ora, tipo attività, stato)
 
 **Campi Mancanti**:
-
 - ❌ Telefono
 - ❌ Documento identità (CF/ID)
 - ❌ Note
@@ -68,7 +65,6 @@
 ```
 
 **Badge Stato Implementati**:
-
 - 🟢 Confermata → `badge bg-success`
 - 🟡 In Attesa → `badge bg-warning`
 - 🔴 Annullata → `badge bg-danger`
@@ -76,7 +72,6 @@
 - 🔵 Completata → `badge bg-info`
 
 **Icone Bootstrap Aggiunte**:
-
 - ℹ️ `bi-info-circle` - Informazioni
 - 👤 `bi-person-circle` - Utente
 - 📱 `bi-telephone` - Telefono
@@ -86,7 +81,6 @@
 - 🕐 `bi-clock-history` - Timestamp
 
 **File Modificato**:
-
 - `src/public/assets/scripts/GestionePrenotazione.js` - Funzione `visualizzaPrenotazione()`
 
 ---
@@ -94,7 +88,6 @@
 ## 📋 Dettagli Tecnici
 
 ### Endpoint API Utente
-
 ```javascript
 GET /api/admin/utenti/:id
 Authorization: Required (isLoggedIn, isAdmin)
@@ -106,32 +99,24 @@ Response: JSON
 ```
 
 ### Dati Prenotazione Completi
-
 ```javascript
 {
   // Base
-  id,
-    campo_id,
-    campo_nome,
-    utente_id,
-    utente_nome,
-    utente_cognome,
-    squadra_id,
-    squadra_nome,
-    data_prenotazione,
-    ora_inizio,
-    ora_fine,
-    tipo_attivita,
-    stato,
-    // Nuovi campi visualizzati
-    telefono, // +39 3331234567
-    tipo_documento, // 'CF' o 'ID'
-    codice_fiscale, // Se tipo='CF'
-    numero_documento, // Se tipo='ID'
-    note, // Testo libero
-    annullata_da, // 'admin' o 'user'
-    created_at, // Timestamp creazione
-    updated_at; // Timestamp aggiornamento
+  id, campo_id, campo_nome,
+  utente_id, utente_nome, utente_cognome,
+  squadra_id, squadra_nome,
+  data_prenotazione, ora_inizio, ora_fine,
+  tipo_attivita, stato,
+  
+  // Nuovi campi visualizzati
+  telefono,              // +39 3331234567
+  tipo_documento,        // 'CF' o 'ID'
+  codice_fiscale,        // Se tipo='CF'
+  numero_documento,      // Se tipo='ID'
+  note,                  // Testo libero
+  annullata_da,          // 'admin' o 'user'
+  created_at,            // Timestamp creazione
+  updated_at             // Timestamp aggiornamento
 }
 ```
 
@@ -140,7 +125,6 @@ Response: JSON
 ## 🧪 Test Rapidi
 
 ### Test Gestore Utenti:
-
 1. Login come admin
 2. Vai su `/admin/gestore-utenti`
 3. Clicca 👁️ "Visualizza" su un utente
@@ -148,7 +132,6 @@ Response: JSON
 5. **Verifica**: Colonne: Campo, Data, Orario, Stato, Telefono, Documento, Azioni
 
 ### Test Gestione Prenotazioni:
-
 1. Login come admin
 2. Vai su `/admin/prenotazioni`
 3. Clicca 👁️ "Visualizza" su una prenotazione
@@ -167,7 +150,6 @@ Response: JSON
 ## 🎨 Miglioramenti UX
 
 ### Prima:
-
 ```
 Campo: Campo 1
 Utente: Mario Rossi
@@ -179,7 +161,6 @@ Stato: confermata
 ```
 
 ### Dopo:
-
 ```
 ℹ️ Informazioni Prenotazione        👤 Dati Utente
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

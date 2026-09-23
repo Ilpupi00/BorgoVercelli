@@ -1,7 +1,10 @@
 node_modules
 npm-debug.log
+Dockerfile
+.dockerignore
 .git
 .gitignore
+README.md
 .env
 .nyc_output
 coverage
@@ -10,11 +13,6 @@ coverage
 .idea
 *.log
 database.db
-database/dump.sql
-database/test_user_status.sql
-docs/
-notes/
-other/
 public/uploads/*
 !public/uploads/.gitkeep
 src/public/uploads/*

@@ -2,10 +2,9 @@
 
 ## 🎉 Stato Attuale
 
-Le notifiche push **funzionano correttamente**!
+Le notifiche push **funzionano correttamente**! 
 
 I log del server confermano:
-
 ```
 [WEBPUSH] ✅ Notifica 1 inviata con successo
 [WEBPUSH] 📊 Risultato invio:
@@ -16,25 +15,21 @@ I log del server confermano:
 ## 🔧 Cosa è Stato Risolto
 
 ### 1. Autenticazione Passport ✅
-
 - Middleware `normalizeUser` aggiunto
 - `req.user.tipo_utente` e `req.user.isAdmin` ora popolati correttamente
 - Le route push usano `req.isAuthenticated()` invece di `req.session.user`
 
 ### 2. Logging Dettagliato ✅
-
 - Ogni fase dell'invio è tracciata
 - Log con emoji per facile lettura
 - Dettagli su subscriptions, invii, successi ed errori
 
 ### 3. Icone Notifiche ✅
-
 - Sostituito `/assets/images/icon-192.png` (mancante) con `/assets/images/Logo.png` (esistente)
 - Aggiornato service worker e tutte le route
 - Niente più errori 404 per le icone
 
 ### 4. Pagina di Test ✅
-
 - Interfaccia grafica su `/push/test`
 - Test rapido delle notifiche
 - Log in tempo reale
@@ -45,7 +40,6 @@ I log del server confermano:
 ### Test Rapido (30 secondi)
 
 1. **Apri il browser** e vai su:
-
    ```
    http://localhost:8080/push/test
    ```
@@ -62,7 +56,6 @@ I log del server confermano:
 ### Verifica Visuale
 
 La notifica dovrebbe apparire così:
-
 ```
 ┌─────────────────────────────────┐
 │ 🔔 Notifica Test               │
@@ -78,13 +71,11 @@ La notifica dovrebbe apparire così:
 
 **Controlla i permessi del browser:**
 
-- **Chrome/Edge**:
-
+- **Chrome/Edge**: 
   - Vai su `chrome://settings/content/notifications`
   - Assicurati che `localhost:8080` abbia permesso "Consenti"
 
 - **Firefox**:
-
   - Vai su `about:preferences#privacy`
   - Sezione "Notifiche" → Controlla impostazioni
 
@@ -95,7 +86,6 @@ La notifica dovrebbe apparire così:
 ### Test con Azione Reale
 
 Crea una **nuova prenotazione**:
-
 1. Vai su `/prenotazione`
 2. Compila e invia una prenotazione
 3. Gli **admin** riceveranno una notifica automatica:
@@ -134,18 +124,15 @@ E nella **console del browser** (F12):
 Le notifiche ora funzionano per:
 
 ✅ **Prenotazioni**
-
 - Nuova prenotazione → notifica agli admin
 - Prenotazione confermata → notifica all'utente
 - Prenotazione annullata → notifica appropriata
 
 ✅ **Test Manuali**
-
 - Pagina `/push/test` per testing rapido
 - Destinatari: me, admin, tutti
 
 ✅ **Logging Completo**
-
 - Ogni invio è tracciato
 - Facile debug in caso di problemi
 
@@ -162,7 +149,6 @@ Per vedere i log del service worker:
 ## ✨ Tutto Funziona!
 
 Il sistema è **completamente operativo**:
-
 - ✅ Server invia notifiche correttamente
 - ✅ Service worker riceve e mostra notifiche
 - ✅ Logging dettagliato per debug

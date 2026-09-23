@@ -9,7 +9,6 @@ Sistema completo di upload immagini per eventi con design moderno, responsive e 
 ## 📋 File Creati
 
 ### 1. **CSS Moderno - evento-upload.css**
-
 - **Path**: `src/public/assets/styles/evento-upload.css`
 - **Caratteristiche**:
   - ✨ Design Web 2.0 con gradienti e animazioni
@@ -20,7 +19,6 @@ Sistema completo di upload immagini per eventi con design moderno, responsive e 
   - ♿ Accessibility (focus-within, tap targets touch)
 
 ### 2. **Documentazione Completa**
-
 - **Path**: `docs/EVENTO_UPLOAD_IMAGES.md`
 - **Contenuto**:
   - 📖 Guida utilizzo completa
@@ -31,7 +29,6 @@ Sistema completo di upload immagini per eventi con design moderno, responsive e 
   - 📊 Performance tips
 
 ### 3. **Test Page Standalone**
-
 - **Path**: `test-evento-upload.html`
 - **Scopo**: Test visivo UI senza backend
 - **Features**: Theme toggle, drag & drop demo, responsive test
@@ -43,9 +40,7 @@ Sistema completo di upload immagini per eventi con design moderno, responsive e 
 ### Backend
 
 #### 1. **src/features/eventi/routes/eventi.js**
-
 **Aggiunte**:
-
 ```javascript
 // Import
 const multer = require('multer');
@@ -58,25 +53,21 @@ DELETE /evento/:id/immagine        // Elimina immagine
 ```
 
 **Funzionalità**:
-
 - Upload con validazione Multer (tipo, dimensione)
 - Gestione errori (file mancante, evento non trovato)
 - Integrazione con tabella IMMAGINI
 - Response JSON per AJAX
 
 #### 2. **src/features/eventi/services/dao-eventi.js**
-
 **Modificato**:
-
 ```javascript
-exports.getEventoById = function (id) {
+exports.getEventoById = function(id) {
   // Ora recupera anche le immagini associate
   // Aggiunge: eventoObj.immagini e eventoObj.immagine_principale
-};
+}
 ```
 
 **Funzionalità**:
-
 - JOIN con tabella IMMAGINI
 - Array immagini ordinate
 - Campo immagine_principale per comodità
@@ -84,43 +75,37 @@ exports.getEventoById = function (id) {
 ### Frontend
 
 #### 3. **src/features/eventi/views/evento.ejs**
-
 **Aggiunte**:
-
 - Sezione upload con drag & drop area
 - Preview immagine esistente con pulsante elimina
 - Preview nuova immagine con progress bar
 - Icons Bootstrap per UX migliore
 
 **Struttura HTML**:
-
 ```html
 <!-- Preview esistente -->
 <div id="currentImagePreview">...</div>
 
 <!-- Area upload -->
 <div id="uploadArea">
-  <input type="file" id="immagineInput" />
+  <input type="file" id="immagineInput">
   <div id="dropZone">...</div>
 </div>
 
 <!-- Preview nuova -->
 <div id="newImagePreview">
-  <img id="previewImg" />
+  <img id="previewImg">
   <div class="upload-progress">...</div>
 </div>
 ```
 
 #### 4. **src/public/assets/scripts/crea_evento.js**
-
 **Aggiunta funzione**:
-
 ```javascript
-initializeImageUpload();
+initializeImageUpload()
 ```
 
 **Features implementate**:
-
 - 📤 Click to upload
 - 🖱️ Drag & drop
 - 👁️ Preview in tempo reale (FileReader)
@@ -135,7 +120,6 @@ initializeImageUpload();
 ## 🎨 Design System
 
 ### Colori Light Theme
-
 - **Upload Area**: `linear-gradient(135deg, #f8fafc, #f1f5f9)`
 - **Hover**: `linear-gradient(135deg, #eff6ff, #e0e7ff)`
 - **Border**: `#cbd5e1` → `#3b82f6` (hover)
@@ -143,7 +127,6 @@ initializeImageUpload();
 - **Text**: `#1e293b` / `#64748b`
 
 ### Colori Dark Theme
-
 - **Upload Area**: `linear-gradient(135deg, #1e293b, #0f172a)`
 - **Hover**: `linear-gradient(135deg, #1e3a8a, #312e81)`
 - **Border**: `#334155` → `#60a5fa` (hover)
@@ -151,7 +134,6 @@ initializeImageUpload();
 - **Text**: `#e2e8f0` / `#94a3b8`
 
 ### Animazioni
-
 - **Float**: Icona upload (3s infinite)
 - **FadeInUp**: Preview container (0.4s)
 - **Shake**: Stato errore (0.5s)
@@ -159,7 +141,6 @@ initializeImageUpload();
 - **Transitions**: Tutte 0.3s cubic-bezier
 
 ### Responsive Breakpoints
-
 - **Mobile** (default): Upload area 1.5rem, icon 2.5rem
 - **Tablet** (768px+): Upload area 2rem, icon 3rem
 - **Desktop** (1024px+): Upload area 2.5rem, icon 3.5rem
@@ -170,7 +151,6 @@ initializeImageUpload();
 ## 🔄 Flusso Utente
 
 ### Scenario 1: Nuovo Evento
-
 1. Admin accede a `/evento/crea-evento`
 2. Compila form evento
 3. **Vede area upload** (drag & drop attivo)
@@ -180,7 +160,6 @@ initializeImageUpload();
 7. ⚠️ **Nota**: Immagine salvata solo dopo creazione evento
 
 ### Scenario 2: Modifica Evento Esistente
-
 1. Admin accede a `/evento/crea-evento/:id`
 2. **Vede immagine corrente** (se presente)
 3. Può:
@@ -189,7 +168,6 @@ initializeImageUpload();
 4. **Feedback** istantaneo con success/error
 
 ### Scenario 3: Drag & Drop
-
 1. Utente trascina immagine
 2. **Area evidenziata** (classe `drag-over`)
 3. Drop → Validazione immediata
@@ -200,13 +178,11 @@ initializeImageUpload();
 ## 🔐 Sicurezza Implementata
 
 ### Client-Side
-
-- ✅ Validazione tipo file (image/\*)
+- ✅ Validazione tipo file (image/*)
 - ✅ Validazione dimensione (5MB max)
 - ✅ Sanitizzazione preview (FileReader)
 
 ### Server-Side
-
 - ✅ Middleware autenticazione (`isLoggedIn`)
 - ✅ Middleware autorizzazione (`isAdminOrDirigente`)
 - ✅ Multer validation (fileFilter)
@@ -219,7 +195,6 @@ initializeImageUpload();
 ## 📊 Performance
 
 ### Ottimizzazioni
-
 - **Lazy Preview**: FileReader solo su select
 - **Debounce**: Drag events ottimizzati
 - **CSS Animations**: Hardware accelerated (transform, opacity)
@@ -227,7 +202,6 @@ initializeImageUpload();
 - **Minified Assets**: CSS ottimizzato
 
 ### Metriche Target
-
 - First Paint: < 1s
 - Preview Load: < 100ms
 - Upload Response: < 2s (5MB)
@@ -238,7 +212,6 @@ initializeImageUpload();
 ## 🌐 Compatibilità
 
 ### Browser Supportati
-
 - ✅ Chrome/Edge 90+
 - ✅ Firefox 88+
 - ✅ Safari 14+
@@ -246,7 +219,6 @@ initializeImageUpload();
 - ✅ Chrome Android 90+
 
 ### Features Utilizzate
-
 - FileReader API ✅
 - Drag & Drop API ✅
 - CSS Grid/Flexbox ✅
@@ -264,19 +236,17 @@ Il sistema è già configurato per Railway:
 
 ```javascript
 // src/core/config/multer.js
-const uploadDir = process.env.RAILWAY_ENVIRONMENT
-  ? "/data/uploads" // Railway (volume persistente)
-  : "src/public/uploads"; // Locale
+const uploadDir = process.env.RAILWAY_ENVIRONMENT 
+  ? '/data/uploads'        // Railway (volume persistente)
+  : 'src/public/uploads';  // Locale
 ```
 
 ### Setup Railway
-
 1. **Volume montato**: `/data` → `uploads`
 2. **Variabile env**: `RAILWAY_ENVIRONMENT=true`
 3. **Serving statico**: Express serve `/uploads` → `/data/uploads`
 
 ### Verifica Post-Deploy
-
 ```bash
 # SSH Railway
 railway run bash
@@ -293,14 +263,12 @@ chmod 755 /data/uploads
 ## 🧪 Test Eseguiti
 
 ### ✅ Validazione Client
-
 - [x] Tipo file corretto (PNG, JPG, GIF)
 - [x] Tipo file errato (PDF, TXT) → Error
 - [x] Dimensione < 5MB → Success
 - [x] Dimensione > 5MB → Error
 
 ### ✅ UI/UX
-
 - [x] Click upload funziona
 - [x] Drag & drop funziona
 - [x] Preview si visualizza
@@ -309,7 +277,6 @@ chmod 755 /data/uploads
 - [x] Responsive mobile/tablet/desktop
 
 ### ✅ Backend
-
 - [x] Upload salva in DB
 - [x] Upload salva file su disco
 - [x] Delete rimuove da DB
@@ -322,7 +289,6 @@ chmod 755 /data/uploads
 ## 📱 Mobile First
 
 ### Design Choices
-
 1. **Touch Targets**: Min 44x44px (Apple guidelines)
 2. **Font Sizes**: Scalabili (rem units)
 3. **Tap Delays**: Rimossi (CSS touch-action)
@@ -330,7 +296,6 @@ chmod 755 /data/uploads
 5. **Viewport**: Meta tag responsive
 
 ### Testing
-
 - iPhone SE (375px) ✅
 - iPhone 12 (390px) ✅
 - iPad (768px) ✅
@@ -342,7 +307,6 @@ chmod 755 /data/uploads
 ## 🎯 Prossimi Step (Opzionali)
 
 ### Future Enhancements
-
 - [ ] **Multiple images**: Galleria evento
 - [ ] **Image crop**: Client-side cropping
 - [ ] **WebP support**: Formato moderno
@@ -357,14 +321,12 @@ chmod 755 /data/uploads
 ## 📚 Risorse
 
 ### File da Consultare
-
 - `docs/EVENTO_UPLOAD_IMAGES.md` - Documentazione completa
 - `test-evento-upload.html` - Test visivo UI
 - `src/public/assets/styles/evento-upload.css` - Tutti gli stili
 - `src/public/assets/scripts/crea_evento.js` - Logica upload
 
 ### API Reference
-
 - **POST** `/evento/:id/upload-immagine` - Upload
 - **DELETE** `/evento/:id/immagine` - Delete
 - **GET** `/evento/:id` - Recupera con immagini

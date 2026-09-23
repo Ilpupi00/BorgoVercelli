@@ -18,24 +18,22 @@
 ## 🗄️ Database
 
 ### Migrazione Applicata
-
 **File:** `database/migrations/add_prenotazioni_identity_fields.sql`
 
 ### Campi Aggiunti alla Tabella `PRENOTAZIONI`
 
-| Campo              | Tipo        | Obbligatorio   | Descrizione                     |
-| ------------------ | ----------- | -------------- | ------------------------------- |
-| `telefono`         | VARCHAR(20) | ✅ Sì          | Numero di telefono per contatto |
-| `tipo_documento`   | VARCHAR(2)  | ❌ No          | Tipo: 'CF' o 'ID'               |
-| `codice_fiscale`   | VARCHAR(16) | Condizionale\* | Se tipo_documento='CF'          |
-| `numero_documento` | VARCHAR(50) | Condizionale\* | Se tipo_documento='ID'          |
+| Campo | Tipo | Obbligatorio | Descrizione |
+|-------|------|--------------|-------------|
+| `telefono` | VARCHAR(20) | ✅ Sì | Numero di telefono per contatto |
+| `tipo_documento` | VARCHAR(2) | ❌ No | Tipo: 'CF' o 'ID' |
+| `codice_fiscale` | VARCHAR(16) | Condizionale* | Se tipo_documento='CF' |
+| `numero_documento` | VARCHAR(50) | Condizionale* | Se tipo_documento='ID' |
 
-\*Obbligatorio solo se `tipo_documento` è valorizzato
+*Obbligatorio solo se `tipo_documento` è valorizzato
 
 ### Vincoli (Constraints)
 
 1. **`prenotazioni_tipo_documento_check`**
-
    - Valori ammessi: `'CF'`, `'ID'`, o `NULL`
 
 2. **`prenotazioni_documento_presence_check`**
@@ -54,33 +52,28 @@
 ## 🎨 Frontend
 
 ### 1. Modal di Prenotazione
-
 **File:** `src/public/assets/scripts/utils/modalPrenotazione.js`
 
 #### Caratteristiche Implementate
 
 ✅ **Design Moderno Web 2.0**
-
 - Header con gradiente colorato
 - Icone Bootstrap Icons per ogni campo
 - Sezioni ben separate e organizzate
 - Animazioni fluide e transizioni
 
 ✅ **Mobile-First Responsive**
-
 - Layout ottimizzato per smartphone (< 576px)
 - Adattamento automatico per tablet (576-767px)
 - Design completo per desktop (> 768px)
 - Bottoni full-width su mobile
 
 ✅ **Dark/Light Theme**
-
 - Supporto nativo per `data-bs-theme="dark"`
 - Colori e contrasti ottimizzati per entrambi i temi
 - Gradients e ombre adattivi
 
 ✅ **Validazione Interattiva**
-
 - Toggle dinamico campi CF/ID
 - Validazione Bootstrap 5 nativa
 - Feedback visivo immediato
@@ -108,16 +101,15 @@
 #### Validazione Lato Client
 
 - **Telefono**: obbligatorio, minimo 8 caratteri
-- **Codice Fiscale**:
+- **Codice Fiscale**: 
   - 16 caratteri alfanumerici
   - Pattern: `[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]`
   - Auto-uppercase
-- **Numero Documento**:
+- **Numero Documento**: 
   - Minimo 5 caratteri
   - Auto-uppercase
 
 ### 2. Stylesheet Dedicato
-
 **File:** `src/public/assets/styles/modalPrenotazione.css`
 
 #### Features CSS
@@ -140,7 +132,6 @@
 ## ⚙️ Backend
 
 ### 1. Route Handler
-
 **File:** `src/features/prenotazioni/routes/prenotazione.js`
 
 #### Validazioni Implementate
@@ -148,33 +139,31 @@
 ```javascript
 // 1. Telefono obbligatorio
 if (!telefono || telefono.trim().length === 0) {
-  return res.status(400).json({ error: "Telefono obbligatorio" });
+    return res.status(400).json({ error: 'Telefono obbligatorio' });
 }
 
 // 2. Tipo documento valido
-if (tipo_documento && !["CF", "ID"].includes(tipo_documento)) {
-  return res.status(400).json({ error: "Tipo documento non valido" });
+if (tipo_documento && !['CF', 'ID'].includes(tipo_documento)) {
+    return res.status(400).json({ error: 'Tipo documento non valido' });
 }
 
 // 3. Codice Fiscale (se tipo='CF')
-if (tipo_documento === "CF") {
-  if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
-    return res.status(400).json({ error: "CF deve essere 16 caratteri" });
-  }
-  // Pattern CF italiano
-  const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
-  if (!cfPattern.test(codice_fiscale)) {
-    return res.status(400).json({ error: "Formato CF non valido" });
-  }
+if (tipo_documento === 'CF') {
+    if (!codice_fiscale || codice_fiscale.trim().length !== 16) {
+        return res.status(400).json({ error: 'CF deve essere 16 caratteri' });
+    }
+    // Pattern CF italiano
+    const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
+    if (!cfPattern.test(codice_fiscale)) {
+        return res.status(400).json({ error: 'Formato CF non valido' });
+    }
 }
 
 // 4. Numero Documento (se tipo='ID')
-if (tipo_documento === "ID") {
-  if (!numero_documento || numero_documento.trim().length < 5) {
-    return res
-      .status(400)
-      .json({ error: "Numero documento minimo 5 caratteri" });
-  }
+if (tipo_documento === 'ID') {
+    if (!numero_documento || numero_documento.trim().length < 5) {
+        return res.status(400).json({ error: 'Numero documento minimo 5 caratteri' });
+    }
 }
 ```
 
@@ -196,28 +185,27 @@ Body: {
 ```
 
 ### 2. Data Access Object
-
 **File:** `src/features/prenotazioni/services/dao-prenotazione.js`
 
 Il metodo `prenotaCampo` è già aggiornato per salvare tutti i nuovi campi:
 
 ```javascript
-exports.prenotaCampo = async ({
-  campo_id,
-  utente_id,
-  squadra_id,
-  data_prenotazione,
-  ora_inizio,
-  ora_fine,
-  tipo_attivita,
-  note,
-  telefono, // ✅ NUOVO
-  codice_fiscale, // ✅ NUOVO
-  tipo_documento, // ✅ NUOVO
-  numero_documento, // ✅ NUOVO
+exports.prenotaCampo = async ({ 
+    campo_id, 
+    utente_id, 
+    squadra_id, 
+    data_prenotazione, 
+    ora_inizio, 
+    ora_fine, 
+    tipo_attivita, 
+    note,
+    telefono,           // ✅ NUOVO
+    codice_fiscale,     // ✅ NUOVO
+    tipo_documento,     // ✅ NUOVO
+    numero_documento    // ✅ NUOVO
 }) => {
-  // ... logica di inserimento con tutti i campi
-};
+    // ... logica di inserimento con tutti i campi
+}
 ```
 
 ---
@@ -227,27 +215,23 @@ exports.prenotaCampo = async ({
 ### Test Manuali Suggeriti
 
 1. **Prenotazione con Telefono Solo**
-
    - Compilare solo telefono
    - Non selezionare tipo documento
    - ✅ Deve funzionare
 
 2. **Prenotazione con CF**
-
    - Selezionare tipo documento "CF"
    - Inserire CF valido (16 caratteri)
    - ✅ Deve funzionare
    - ❌ CF invalido deve essere respinto
 
 3. **Prenotazione con Documento ID**
-
    - Selezionare tipo documento "ID"
    - Inserire numero documento (> 5 caratteri)
    - ✅ Deve funzionare
    - ❌ Documento troppo corto deve essere respinto
 
 4. **Responsive Design**
-
    - Testare su mobile (< 576px)
    - Testare su tablet (576-767px)
    - Testare su desktop (> 768px)
@@ -262,32 +246,32 @@ exports.prenotaCampo = async ({
 
 ```javascript
 // Unit test per validazione CF
-describe("Validazione Codice Fiscale", () => {
-  test("CF valido 16 caratteri", () => {
-    expect(validateCF("RSSMRA80A01H501U")).toBe(true);
-  });
-
-  test("CF invalido lunghezza", () => {
-    expect(validateCF("RSSMRA80")).toBe(false);
-  });
+describe('Validazione Codice Fiscale', () => {
+    test('CF valido 16 caratteri', () => {
+        expect(validateCF('RSSMRA80A01H501U')).toBe(true);
+    });
+    
+    test('CF invalido lunghezza', () => {
+        expect(validateCF('RSSMRA80')).toBe(false);
+    });
 });
 
 // Integration test per prenotazione
-describe("POST /prenotazione/prenotazioni", () => {
-  test("Crea prenotazione con CF", async () => {
-    const response = await request(app)
-      .post("/prenotazione/prenotazioni")
-      .send({
-        campo_id: 1,
-        data_prenotazione: "2025-12-01",
-        ora_inizio: "10:00",
-        ora_fine: "11:00",
-        telefono: "+39 123 456 7890",
-        tipo_documento: "CF",
-        codice_fiscale: "RSSMRA80A01H501U",
-      });
-    expect(response.status).toBe(200);
-  });
+describe('POST /prenotazione/prenotazioni', () => {
+    test('Crea prenotazione con CF', async () => {
+        const response = await request(app)
+            .post('/prenotazione/prenotazioni')
+            .send({
+                campo_id: 1,
+                data_prenotazione: '2025-12-01',
+                ora_inizio: '10:00',
+                ora_fine: '11:00',
+                telefono: '+39 123 456 7890',
+                tipo_documento: 'CF',
+                codice_fiscale: 'RSSMRA80A01H501U'
+            });
+        expect(response.status).toBe(200);
+    });
 });
 ```
 
@@ -298,28 +282,23 @@ describe("POST /prenotazione/prenotazioni", () => {
 ### Flow Utente Completo
 
 1. **Utente clicca "Prenota"**
-
    - Si apre modal moderno con animazione
 
 2. **Step 1: Selezione Data/Ora**
-
    - Data picker con valore default oggi
    - Select orari caricata dinamicamente
    - Filtro automatico orari non disponibili
 
 3. **Step 2: Contatto**
-
    - Campo telefono pre-compilato se utente loggato
    - Validazione real-time
 
 4. **Step 3: Documento (Opzionale)**
-
    - Utente sceglie tipo: CF o ID
    - Campo appropriato appare con animazione
    - Placeholder e helper text informativi
 
 5. **Step 4: Note**
-
    - Textarea libera per richieste speciali
 
 6. **Conferma**
@@ -343,7 +322,6 @@ describe("POST /prenotazione/prenotazioni", () => {
 ### Informazioni da Aggiornare
 
 ⚠️ **Privacy Policy** - aggiungere sezione:
-
 ```
 "Per le prenotazioni dei campi sportivi, raccogliamo:
 - Numero di telefono (obbligatorio) per confermare la prenotazione
@@ -386,13 +364,11 @@ git push origin main
 ## 📊 Metriche da Monitorare
 
 1. **Tasso di compilazione documento**
-
    - % prenotazioni con CF
    - % prenotazioni con ID
    - % prenotazioni solo telefono
 
 2. **Errori validazione**
-
    - CF invalidi
    - Numeri documento troppo corti
    - Pattern non rispettati
@@ -409,19 +385,16 @@ git push origin main
 ### Possibili Miglioramenti
 
 1. **Validazione CF Avanzata**
-
    - Check digit validation (algoritmo ufficiale)
    - Verifica corrispondenza nome/cognome/data nascita
    - API Agenzia Entrate per verifica CF
 
 2. **OCR Documento**
-
    - Scansiona documento con fotocamera
    - Estrae automaticamente numero documento
    - Verifica MRZ per passaporti
 
 3. **Integrazione SPID/CIE**
-
    - Login con identità digitale
    - Pre-compilazione automatica dati
    - Certificazione identità garantita
@@ -454,7 +427,6 @@ A: Attualmente no, contattare l'amministrazione per modifiche.
 ## ✅ Checklist Implementazione
 
 ### Database
-
 - [x] Campi aggiunti a tabella PRENOTAZIONI
 - [x] Constraint tipo_documento (CF/ID)
 - [x] Constraint presenza campo condizionale
@@ -462,7 +434,6 @@ A: Attualmente no, contattare l'amministrazione per modifiche.
 - [x] Commenti documentazione
 
 ### Frontend
-
 - [x] Modal HTML aggiornato
 - [x] CSS moderno responsive
 - [x] JavaScript validazione
@@ -473,7 +444,6 @@ A: Attualmente no, contattare l'amministrazione per modifiche.
 - [x] Animazioni
 
 ### Backend
-
 - [x] Route validazione telefono
 - [x] Route validazione tipo_documento
 - [x] Route validazione CF pattern
@@ -482,7 +452,6 @@ A: Attualmente no, contattare l'amministrazione per modifiche.
 - [x] Error handling
 
 ### Documentazione
-
 - [x] README implementazione
 - [x] Commenti codice
 - [x] Schema database
@@ -506,4 +475,4 @@ L'implementazione del sistema documento di identità per le prenotazioni è **co
 ---
 
 **Fine Documento**  
-_Generato automaticamente da GitHub Copilot - 29 Novembre 2025_
+*Generato automaticamente da GitHub Copilot - 29 Novembre 2025*

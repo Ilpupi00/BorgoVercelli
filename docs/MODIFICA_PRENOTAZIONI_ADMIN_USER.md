@@ -1,17 +1,14 @@
 # Sistema Modifica Prenotazioni - Admin e User
 
 ## 📋 Overview
-
 Sistema completo per la gestione e modifica delle prenotazioni con comportamenti differenziati per amministratori e utenti standard.
 
 ## 🎯 Funzionalità Implementate
 
 ### 1. **Visualizzazione Prenotazioni nel Gestore Utenti**
-
 **File**: `Gestore_utenti.js` - `visualizzaUtente()`
 
 #### Caratteristiche:
-
 - ✅ Carica automaticamente tutte le prenotazioni dell'utente
 - ✅ Mostra tabella completa con:
   - Campo prenotato
@@ -25,7 +22,6 @@ Sistema completo per la gestione e modifica delle prenotazioni con comportamenti
 - ✅ Messaggio "Nessuna prenotazione" se vuoto
 
 #### Endpoint Utilizzato:
-
 ```javascript
 GET /api/prenotazioni/user/:userId
 ```
@@ -33,11 +29,9 @@ GET /api/prenotazioni/user/:userId
 ---
 
 ### 2. **Modal Modifica Prenotazione Admin**
-
 **File**: `Gestore_Utenti.ejs` - Modal `modificaPrenotazioneModal`
 
 #### Campi del Form:
-
 - 🏟️ **Campo** (select dropdown)
 - 📅 **Data** (date picker)
 - ⏰ **Ora Inizio** (time picker)
@@ -49,7 +43,6 @@ GET /api/prenotazioni/user/:userId
 - 📝 **Note** (textarea opzionale)
 
 #### Validazioni Client-Side:
-
 - Telefono: Pattern `^\+39\s?[0-9]{9,10}$`
 - Auto-normalizzazione: aggiunge `+39` se mancante
 - Rimozione caratteri non validi in tempo reale
@@ -57,20 +50,17 @@ GET /api/prenotazioni/user/:userId
 - Uppercase automatico per CF e ID
 
 #### Alert Informativi:
-
 - 🔵 **Info**: "Come amministratore, puoi modificare tutti i campi senza cambiare lo stato"
 - 🟡 **Warning**: "L'utente riceverà una notifica della modifica"
 
 ---
 
 ### 3. **Logica Modifica Admin**
-
 **File**: `Gestore_utenti.js` - `modificaPrenotazioneAdmin()` e `salvaModificaPrenotazioneAdmin()`
 
 #### Flusso Operativo:
 
 **Step 1 - Caricamento Dati** (`modificaPrenotazioneAdmin`):
-
 ```javascript
 1. Fetch prenotazione esistente: GET /api/prenotazioni/:id
 2. Fetch lista campi disponibili: GET /api/prenotazioni/campi
@@ -81,7 +71,6 @@ GET /api/prenotazioni/user/:userId
 ```
 
 **Step 2 - Salvataggio** (`salvaModificaPrenotazioneAdmin`):
-
 ```javascript
 1. Validazione form HTML5 (checkValidity)
 2. Validazione telefono con regex JavaScript
@@ -94,20 +83,17 @@ GET /api/prenotazioni/user/:userId
 ---
 
 ### 4. **Route Backend PUT `/prenotazioni/:id`**
-
 **File**: `prenotazione.js` - Route PUT
 
 #### Comportamento Differenziato:
 
 ##### 🔴 **Admin Modifica** (`isAdmin === true` o `modified_by_admin === true`):
-
 - ✅ Modifica **TUTTI** i campi
 - ✅ **NON** cambia lo stato della prenotazione
 - ✅ Lo stato rimane invariato (in_attesa, confermata, ecc.)
 - 📧 Notifica **solo l'utente** proprietario
 
 ##### 🟢 **User Modifica** (`isAdmin === false` e `modified_by_admin === false`):
-
 - ✅ Modifica tutti i campi
 - ⚠️ **Se stato era "confermata"** → torna automaticamente a **"in_attesa"**
 - ⚠️ Richiede **nuova approvazione** dall'admin
@@ -116,38 +102,36 @@ GET /api/prenotazioni/user/:userId
 #### Validazioni Server-Side:
 
 **Telefono**:
-
 ```javascript
 // Obbligatorio
 if (!telefono || telefono.trim().length === 0) {
-  return 400 - "Numero di telefono obbligatorio";
+    return 400 - "Numero di telefono obbligatorio"
 }
 
 // Pattern validation
 const phoneRegex = /^\+39\s?[0-9]{9,10}$/;
 if (!phoneRegex.test(telefono.trim())) {
-  return 400 - "Formato telefono non valido";
+    return 400 - "Formato telefono non valido"
 }
 ```
 
 **Documento Identità**:
-
 ```javascript
 // Tipo documento: solo 'CF' o 'ID'
-if (tipo_documento && tipo_documento !== "CF" && tipo_documento !== "ID") {
-  return 400 - "Tipo documento non valido";
+if (tipo_documento && tipo_documento !== 'CF' && tipo_documento !== 'ID') {
+    return 400 - "Tipo documento non valido"
 }
 
 // Se CF: 16 caratteri + pattern italiano
-if (tipo_documento === "CF") {
-  if (codice_fiscale.length !== 16) return 400;
-  const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
-  if (!cfPattern.test(codice_fiscale)) return 400;
+if (tipo_documento === 'CF') {
+    if (codice_fiscale.length !== 16) return 400
+    const cfPattern = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i;
+    if (!cfPattern.test(codice_fiscale)) return 400
 }
 
 // Se ID: minimo 5 caratteri
-if (tipo_documento === "ID") {
-  if (numero_documento.length < 5) return 400;
+if (tipo_documento === 'ID') {
+    if (numero_documento.length < 5) return 400
 }
 ```
 
@@ -156,7 +140,6 @@ if (tipo_documento === "ID") {
 ### 5. **Sistema Notifiche Push**
 
 #### 📨 **Admin Modifica Prenotazione**:
-
 ```javascript
 // Notifica all'utente
 {
@@ -171,7 +154,6 @@ if (tipo_documento === "ID") {
 #### 📨 **User Modifica Prenotazione (Confermata → In Attesa)**:
 
 **Notifica agli Admin**:
-
 ```javascript
 {
   title: '🔄 Prenotazione Modificata - Richiesta Approvazione',
@@ -183,7 +165,6 @@ if (tipo_documento === "ID") {
 ```
 
 **Notifica all'Utente (conferma)**:
-
 ```javascript
 {
   title: '⏳ Prenotazione In Attesa di Approvazione',
@@ -198,12 +179,10 @@ if (tipo_documento === "ID") {
 ## 🔐 Autorizzazioni e Sicurezza
 
 ### Middleware Applicati:
-
 - ✅ `isLoggedIn` - Richiede autenticazione per PUT
 - ✅ Verifica `tipo_utente_id === 1` per privilegi admin
 
 ### Flag `modified_by_admin`:
-
 - Inviato dal frontend quando l'admin modifica
 - Garantisce che lo stato non cambi anche se l'utente loggato non ha tipo_utente_id=1
 - Doppia verifica: `isAdmin || modified_by_admin`
@@ -213,7 +192,6 @@ if (tipo_documento === "ID") {
 ## 📊 Flussi Completi
 
 ### Flusso Admin:
-
 ```
 1. Admin apre Gestore Utenti
 2. Clicca "Visualizza" su un utente
@@ -228,7 +206,6 @@ if (tipo_documento === "ID") {
 ```
 
 ### Flusso User (da implementare in area utente):
-
 ```
 1. User vede le proprie prenotazioni
 2. Clicca "Modifica" su prenotazione confermata
@@ -246,7 +223,6 @@ if (tipo_documento === "ID") {
 ## 🧪 Test Consigliati
 
 ### Test Admin:
-
 - [ ] Visualizza utente con 0 prenotazioni → mostra "Nessuna prenotazione"
 - [ ] Visualizza utente con N prenotazioni → mostra tabella scrollabile
 - [ ] Modifica prenotazione in_attesa → stato rimane in_attesa
@@ -257,7 +233,6 @@ if (tipo_documento === "ID") {
 - [ ] Utente riceve notifica push della modifica admin
 
 ### Test User (futuro):
-
 - [ ] Modifica prenotazione in_attesa → stato rimane in_attesa
 - [ ] Modifica prenotazione confermata → stato diventa in_attesa
 - [ ] Admin riceve notifica push richiesta approvazione
@@ -269,9 +244,7 @@ if (tipo_documento === "ID") {
 ## 📁 File Modificati
 
 ### Frontend:
-
 1. **`Gestore_utenti.js`**:
-
    - `visualizzaUtente()` - Carica e mostra prenotazioni
    - `modificaPrenotazioneAdmin()` - Apre modal con dati
    - `salvaModificaPrenotazioneAdmin()` - Salva modifiche
@@ -281,7 +254,6 @@ if (tipo_documento === "ID") {
    - Script inline per toggle tipo documento e validazione telefono
 
 ### Backend:
-
 3. **`prenotazione.js`**:
    - Route `PUT /prenotazioni/:id` completamente riscritta:
      - Aggiunto `isLoggedIn` middleware
@@ -296,7 +268,6 @@ if (tipo_documento === "ID") {
 ## 🎨 UX/UI Highlights
 
 ### Badge Stato Prenotazione:
-
 - 🟡 **In Attesa**: `badge bg-warning`
 - 🟢 **Confermata**: `badge bg-success`
 - 🔴 **Annullata**: `badge bg-danger`
@@ -304,7 +275,6 @@ if (tipo_documento === "ID") {
 - ⚫ **Scaduta**: `badge bg-secondary`
 
 ### Icone Bootstrap:
-
 - 📍 `bi-geo-alt` - Campo
 - 📅 `bi-calendar` - Data
 - ⏰ `bi-clock` - Orario
@@ -321,13 +291,11 @@ if (tipo_documento === "ID") {
 ## 🚀 Deploy e Attivazione
 
 ### Riavvio Server:
-
 ```powershell
 npm start
 ```
 
 ### Test Manuale:
-
 1. Login come admin
 2. Vai su `/admin/gestore-utenti`
 3. Clicca occhio su un utente con prenotazioni
@@ -341,21 +309,18 @@ npm start
 ## 📝 Note Tecniche
 
 ### Compatibilità:
-
 - Bootstrap 5.3.4
 - JavaScript ES6+
 - Fetch API (nativa)
 - Bootstrap Modal API
 
 ### Performance:
-
 - Lazy loading prenotazioni (caricamento solo all'apertura modal)
 - Caching lista campi nel browser
 - Validazione client-side per ridurre chiamate server
 - Debouncing su input telefono
 
 ### Accessibilità:
-
 - Label con icone e testo
 - ARIA labels su modal
 - Feedback visivo con invalid-feedback
@@ -368,11 +333,12 @@ npm start
 1. **Area Utente**:
    - Implementare stesso modal modifica in `/users/mie-prenotazioni`
    - Aggiungere alert warning "La prenotazione tornerà in attesa"
+   
 2. **Storico Modifiche**:
    - Tabella `prenotazioni_modifiche` con campo `modified_by`, `modified_at`, `old_values`, `new_values`
    - Mostrare cronologia modifiche nel modal visualizza
+   
 3. **Validazione Avanzata**:
-
    - Controllo conflitti orari in tempo reale
    - Suggerimenti orari alternativi
    - Verifica disponibilità campo prima del submit

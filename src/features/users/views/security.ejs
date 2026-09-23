@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sicurezza Account - <%= user.nome %> <%= user.cognome %></title>
+    <meta name="description" content="Gestisci la sicurezza del tuo account: password, autenticazione a due fattori, sessioni attive e attività di accesso.">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%- include('../../shared/views/partials/theme-includes') %>
+    <link rel="stylesheet" href="/assets/styles/Navbar.css">
+    <link rel="stylesheet" href="/assets/styles/Footer.css">
+    <link rel="stylesheet" href="/assets/styles/Security.css">
+    <!-- Alpine.js per interazioni leggere (conferma disconnessione, toggle, ecc.) -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="sg-page">
+    <%- include('partials/navbar') %>
+
+    <div class="sg-layout">
+        <%- include('partials/security-sidebar', { user, securityScore, imageUrl: typeof imageUrl !== 'undefined' ? imageUrl : null }) %>
+
+        <main class="sg-main">
+            <!-- Page Header -->
+            <div class="sg-page-header">
+                <h1 class="sg-page-header__title">
+                    <i class="bi bi-shield-lock" style="color: var(--sg-accent-blue);"></i>
+                    Impostazioni di Sicurezza
+                </h1>
+                <p class="sg-page-header__subtitle">
+                    Gestisci la sicurezza del tuo account, le sessioni attive e l'attività di accesso.
+                </p>
+            </div>
+
+            <!-- Top Grid: Score + Password (2 col) -->
+            <div class="sg-grid">
+                <%- include('partials/security-score', { securityScore }) %>
+                <%- include('partials/security-password', { passwordLastChanged }) %>
+            </div>
+
+            <!-- 2FA Card (full width) -->
+            <div class="sg-grid sg-grid--full">
+                <%- include('partials/security-2fa', { twoFactorEnabled }) %>
+            </div>
+
+            <!-- Activity Table (full width) -->
+            <div class="sg-grid sg-grid--full">
+                <%- include('partials/security-activity', { loginActivity }) %>
+            </div>
+
+            <!-- Sessions (full width) -->
+            <div class="sg-grid sg-grid--full">
+                <%- include('partials/security-sessions', { activeSessions }) %>
+            </div>
+        </main>
+    </div>
+
+    <%- include('partials/security-modals') %>
+
+    <%- include('partials/footer') %>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sg-sidebar-toggle" id="sgSidebarToggle" type="button" aria-label="Apri menu sicurezza">
+        <i class="bi bi-shield-shaded"></i>
+    </button>
+
+    <script src="/assets/scripts/Security.js"></script>
+</body>
+</html>

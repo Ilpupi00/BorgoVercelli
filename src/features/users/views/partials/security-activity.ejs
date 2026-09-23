@@ -1,0 +1,59 @@
+<%#
+  Partial: security-activity.ejs
+  Tabella attività di accesso.
+  Variabili: loginActivity (array di { device, detail, icon, location, date, status })
+%>
+
+<div class="sg-card sg-card--full" id="activity-section">
+  <div class="sg-card__header">
+    <h3 class="sg-card__title">
+      <i class="bi bi-clock-history"></i> Attività di Accesso
+    </h3>
+    <span class="sg-badge sg-badge--info"><%= loginActivity.length %> eventi</span>
+  </div>
+
+  <div class="sg-table-wrap">
+    <table class="sg-activity-table">
+      <thead>
+        <tr>
+          <th>Dispositivo</th>
+          <th>Posizione</th>
+          <th>Data / Ora</th>
+          <th>Stato</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% loginActivity.forEach(function(item) { %>
+          <tr class="<%= item.status === 'Bloccato' ? 'row-danger' : '' %>">
+            <td>
+              <div class="sg-device-cell">
+                <span class="sg-device-cell__icon">
+                  <i class="bi bi-<%= item.icon || 'display' %>"></i>
+                </span>
+                <div>
+                  <div class="sg-device-cell__name"><%= item.device %></div>
+                  <div class="sg-device-cell__detail"><%= item.detail %></div>
+                </div>
+              </div>
+            </td>
+            <td><%= item.location %></td>
+            <td><span class="sg-text-mono" style="font-size: 0.8rem;"><%= item.date %></span></td>
+            <td>
+              <span class="sg-badge sg-badge--dot sg-badge--<%= item.status === 'Bloccato' ? 'danger' : 'success' %>">
+                <%= item.status %>
+              </span>
+            </td>
+          </tr>
+        <% }); %>
+        <% if (loginActivity.length === 0) { %>
+          <tr>
+            <td colspan="4" class="sg-text-center sg-text-muted" style="padding: 32px;">
+              <i class="bi bi-shield-check" style="font-size: 1.5rem; display: block; margin-bottom: 8px;"></i>
+              Nessuna attività di accesso recente.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

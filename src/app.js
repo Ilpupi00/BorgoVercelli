@@ -533,6 +533,7 @@ app.set("views", [
   path.join(__dirname, "features/prenotazioni/views"), // Prenotazioni
   path.join(__dirname, "features/recensioni/views"), // Recensioni
   path.join(__dirname, "features/squadre/views"), // Squadre
+  path.join(__dirname, "features/users/views"), // Sicurezza account (SecureGuard)
 ]);
 
 // ==================== HELPER DATE (Europe/Rome, ora legale auto) ====================

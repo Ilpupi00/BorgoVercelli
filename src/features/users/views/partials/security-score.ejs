@@ -1,0 +1,40 @@
+<%#
+  Partial: security-score.ejs
+  Card con anello di progresso sicurezza (CSS conic-gradient).
+  Variabili: securityScore
+%>
+
+<div class="sg-card sg-score" id="score-section">
+  <div class="sg-score-ring sg-score-ring--animated" id="sgScoreRing" style="--pct: <%= securityScore %>">
+    <span class="sg-score-ring__value" id="sgScoreValue">
+      <%= securityScore %><small>%</small>
+    </span>
+  </div>
+
+  <div class="sg-score__label">Stato Sicurezza</div>
+
+  <%
+    let scoreLabel = 'Ottimo';
+    let scoreBadgeClass = 'sg-badge--success';
+    if (securityScore >= 80) {
+      scoreLabel = 'Ottimo';
+      scoreBadgeClass = 'sg-badge--success';
+    } else if (securityScore >= 60) {
+      scoreLabel = 'Buono';
+      scoreBadgeClass = 'sg-badge--info';
+    } else if (securityScore >= 40) {
+      scoreLabel = 'Medio';
+      scoreBadgeClass = 'sg-badge--warning';
+    } else {
+      scoreLabel = 'Critico';
+      scoreBadgeClass = 'sg-badge--danger';
+    }
+  %>
+  <span class="sg-badge sg-badge--dot <%= scoreBadgeClass %> sg-mb-3">
+    <%= scoreLabel %>
+  </span>
+
+  <p class="sg-score__description">
+    Il tuo account è ben protetto. Tutte le misure di sicurezza principali sono attive.
+  </p>
+</div>

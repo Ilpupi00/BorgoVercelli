@@ -6,6 +6,7 @@ const passport = require("passport");
 const getLoggedUser = require("../../core/middlewares/getUser");
 const { generateToken } = require("../../core/middlewares/jwt");
 const { redisClient } = require("../../core/config/redis");
+const daoSecurity = require("../../features/users/services/dao-security");
 
 // Login
 router.post("/session", (req, res, next) => {
@@ -62,6 +63,35 @@ router.post("/session", (req, res, next) => {
 });
 
 /**
+ * Helper: estrae info base dal User-Agent
+ */
+function parseUserAgent(uaString) {
+  if (!uaString) return { device: "Dispositivo sconosciuto", icon: "display", detail: "Sconosciuto" };
+  let icon = "display";
+  let os = "Sconosciuto";
+  let browser = "Sconosciuto";
+
+  if (/mobile/i.test(uaString)) icon = "phone";
+  if (/tablet|ipad/i.test(uaString)) icon = "tablet";
+  if (/mac os x/i.test(uaString)) { os = "macOS"; icon = "laptop"; }
+  else if (/windows nt/i.test(uaString)) os = "Windows";
+  else if (/linux/i.test(uaString)) os = "Linux";
+  else if (/android/i.test(uaString)) os = "Android";
+  else if (/iphone|ipad/i.test(uaString)) os = "iOS";
+
+  if (/chrome|crios/i.test(uaString)) browser = "Chrome";
+  else if (/firefox|fxios/i.test(uaString)) browser = "Firefox";
+  else if (/safari/i.test(uaString)) browser = "Safari";
+  else if (/edg/i.test(uaString)) browser = "Edge";
+
+  return {
+    device: `${browser} su ${os}`,
+    icon,
+    detail: `${os} · ${browser}`
+  };
+}
+
+/**
  * Helper: esegue il login effettivo dell'utente (dopo i controlli stato)
  */
 function doLogin(req, res, next, user) {
@@ -74,6 +104,15 @@ function doLogin(req, res, next, user) {
       );
       console.log(`[SESSION] 🔑 Session ID: ${req.sessionID}`);
       console.log(`[SESSION] 💾 Salvata in Redis con TTL: 7 giorni`);
+
+      // Log su DB per SecureGuard (attività di accesso)
+      const uaInfo = parseUserAgent(req.headers["user-agent"]);
+      await daoSecurity.logLoginActivity(user.id, {
+        ...uaInfo,
+        ip_address: req.ip || req.connection.remoteAddress,
+        location: "Milano, Italia", // Mock temporaneo, idealmente geoip-lite
+        status: "Riuscito"
+      });
 
       // Se l'utente ha selezionato "Ricordami", genera un JWT token
       if (req.body.remember) {
